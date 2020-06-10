@@ -1,0 +1,44 @@
+<mat-toolbar color="primary">
+    <button mat-icon-button class="menu-toggle" (click)="menu.toggle()">
+        <mat-icon>
+            menu
+        </mat-icon>
+    </button>
+
+    <div class="page-label spacer">
+        apps
+    </div>
+
+    <search placeholder="filter apps"></search>
+
+    <button mat-icon-button routerLink="add">
+        <mat-icon>
+            add
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
+
+<div class="page-body">
+    <table mat-table [dataSource]="apps">
+        <ng-container matColumnDef="icon">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+                <img [src]="element.icon" alt="ap icon" draggable="false">
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef text-uppercase>
+                name
+            </th>
+            <td mat-cell *matCellDef="let element" text-uppercase>
+                {{ element.name }}
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;" (click)="options(row)"></tr>
+    </table>
+</div>

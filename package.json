@@ -1,0 +1,34 @@
+{
+  "name": "auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "auth.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitid-open-source-iot/auth.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bitid-open-source-iot/auth/issues"
+  },
+  "homepage": "https://github.com/bitid-open-source-iot/auth#readme",
+  "dependencies": {
+    "chalk": "^3.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "log4js": "^0.6.37",
+    "mongodb": "^3.5.5",
+    "node-fetch": "^2.6.0",
+    "nodemailer": "^6.4.6",
+    "q": "^1.5.1",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-subset": "^1.6.0"
+  }
+}

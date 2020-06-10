@@ -1,0 +1,9 @@
+<div class="image-upload" [class.required]="required" (click)="upload()">
+    <label text-uppercase>
+        {{ label }} <span>*</span>
+    </label>
+
+    <img [src]="value" alt="image" *ngIf="value && !loading" draggable="false">
+
+    <div class="ripple"matRipple></div>
+</div>

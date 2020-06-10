@@ -1,0 +1,13 @@
+<h1 text-uppercase>
+    {{ title }}
+</h1>
+
+<ul>
+    <li text-capitalize *ngFor="let option of options" (click)="!option.disabled && submit(option.optionId)" [class.disabled]="option.disabled" matRipple [matRippleDisabled]="option.disabled">
+        <mat-icon *ngIf="option.icon">{{ option.icon }}</mat-icon>
+
+        <span text-uppercase>
+            {{ option.title }}
+        </span>
+    </li>
+</ul>

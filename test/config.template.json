@@ -1,0 +1,8 @@
+{
+	"auth":		"http://127.0.0.1:9000",
+	"email":	"xxx@xxx.co.za",
+	"appId": 	"xxx",
+	"secret": 	"xxx",
+	"appName": 	"xxx",
+	"password": "xxx"
+}

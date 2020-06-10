@@ -1,0 +1,18 @@
+.mat-cell {
+    min-width: 100px;
+}
+.mat-column-icon {
+    width:      60px;
+    min-width:  60px;
+    img {
+        max-width:      40px;
+        margin-top:     5px;
+        max-height:     40px;
+    }
+}
+.mat-row {
+    cursor: pointer;
+}
+.page-body {
+    overflow-x: auto;
+}

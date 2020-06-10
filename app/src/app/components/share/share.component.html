@@ -1,0 +1,43 @@
+<mat-toolbar color="primary">
+    <div class="spacer">
+        share
+    </div>
+    
+    <button type="button" mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+    </button>
+</mat-toolbar>
+
+<form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
+    <mat-form-field appearance="outline">
+        <mat-label>
+            Email
+        </mat-label>
+        
+        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+
+        <mat-error *ngIf="errors.email">
+            {{ errors.email }}
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label>
+            Role
+        </mat-label>
+        
+        <mat-select name="role" placeholder="role" formControlName="role" required>
+            <mat-option *ngFor="let role of roles" [value]="role.value" [disabled]="role.value == 5">
+                {{ role.title }}
+            </mat-option>
+        </mat-select>
+
+        <mat-error *ngIf="errors.role">
+            {{ errors.role }}
+        </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-flat-button color="primary">
+        submit
+    </button>
+</form>

@@ -1,0 +1,55 @@
+<mat-toolbar color="primary">
+    <button mat-icon-button class="menu-toggle" (click)="menu.toggle()">
+        <mat-icon>
+            menu
+        </mat-icon>
+    </button>
+
+    <div class="page-label spacer">
+        scopes
+    </div>
+
+    <search placeholder="filter scopes"></search>
+
+    <button mat-icon-button routerLink="add">
+        <mat-icon>
+            add
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
+
+<div class="page-body">
+    <table mat-table [dataSource]="scopes">
+        <ng-container matColumnDef="app">
+            <th mat-header-cell *matHeaderCellDef text-uppercase>
+                app
+            </th>
+            <td mat-cell *matCellDef="let element" text-uppercase>
+                {{ element.app }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef text-uppercase>
+                description
+            </th>
+            <td mat-cell *matCellDef="let element" text-uppercase>
+                {{ element.description }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="url">
+            <th mat-header-cell *matHeaderCellDef text-uppercase>
+                url
+            </th>
+            <td mat-cell *matCellDef="let element" text-lowercase>
+                {{ element.url }}
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
+        <tr mat-row *matRowDef="let row; columns: columns;" (click)="options(row)"></tr>
+    </table>
+</div>

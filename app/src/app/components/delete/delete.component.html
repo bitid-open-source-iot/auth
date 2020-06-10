@@ -1,0 +1,34 @@
+<mat-toolbar color="primary">
+    <div class="spacer">
+        delete
+    </div>
+    
+    <button type="button" mat-icon-button (click)="close()">
+        <mat-icon>close</mat-icon>
+    </button>
+</mat-toolbar>
+
+<form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
+    <mat-form-field appearance="outline">
+        <mat-label>
+            Confirm Delete
+        </mat-label>
+        
+        <mat-select name="confirm" placeholder="confirm" formControlName="confirm" required>
+            <mat-option [value]="true">
+                Delete Now
+            </mat-option>
+            <mat-option [value]="false">
+                Don't Delete
+            </mat-option>
+        </mat-select>
+
+        <mat-error *ngIf="errors.confirm">
+            {{ errors.confirm }}
+        </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-flat-button color="primary" [disabled]="!form.value.confirm">
+        submit
+    </button>
+</form>

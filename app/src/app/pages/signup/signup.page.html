@@ -1,0 +1,51 @@
+<form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && form.value.password == form.value.confirm && submit()">
+    <img src="./assets/icons/icon-512x512.png" alt="Auth Icon">
+
+    <mat-form-field appearance="outline">
+        <mat-label text-uppercase>
+            Email
+        </mat-label>
+        
+        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+
+        <mat-error *ngIf="errors.email">
+            {{ errors.email }}
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label text-uppercase>
+            Password
+        </mat-label>
+        
+        <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+
+        <mat-error *ngIf="errors.password">
+            {{ errors.password }}
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label text-uppercase>
+            Confirm Password
+        </mat-label>
+        
+        <input matInput type="password" name="confirm" placeholder="confirm password" formControlName="confirm" required>
+
+        <mat-error *ngIf="errors.confirm || form.value.password != form.value.confirm">
+            {{ errors.confirm }}
+            {{ (errors.confirm && form.value.password != form.value.confirm) ? ' & ' : '' }}
+            {{ form.value.password != form.value.confirm ? 'Passwords do not match' : '' }}
+        </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-flat-button color="primary">
+        {{ loading ? '' : 'sign up' }}
+
+        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+    </button>
+
+    <button type="button" mat-stroked-button color="primary" routerLink="/verfiy">
+        verfiy account
+    </button>
+</form>
