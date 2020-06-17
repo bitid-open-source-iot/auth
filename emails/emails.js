@@ -6,7 +6,7 @@ exports.verify = (args) => {
     var deferred = Q.defer();
 
     if (__settings.production) {
-        const transporter = nodemailer.createTransport(__settings);
+        const transporter = nodemailer.createTransport(__settings.smtp);
         
         transporter.use('compile', hbs({
             'viewEngine': {
@@ -22,7 +22,7 @@ exports.verify = (args) => {
         transporter.sendMail({
             'context': {
                 'name':     [args.user.name.first, args.user.name.last].join(' '),
-                'verify':   ['https://auth.bitid.co.za/verify-account?email=', encodeURIComponent(args.user.email), '&code=', args.user.code].join('')
+                'verify':   ['https://auth.bitid.co.za/verify-account?email=', args.user.email, '&code=', args.user.code].join('')
             },
             'to':       args.user.email,
             'from':     'support@bitid.co.za',
@@ -42,7 +42,7 @@ exports.welcome = (args) => {
     var deferred = Q.defer();
 
     if (__settings.production) {
-        const transporter = nodemailer.createTransport(__settings);
+        const transporter = nodemailer.createTransport(__settings.smtp);
         
         transporter.use('compile', hbs({
             'viewEngine': {
@@ -77,7 +77,7 @@ exports.resetpassword = (args) => {
     var deferred = Q.defer();
 
     if (__settings.production) {
-        const transporter = nodemailer.createTransport(__settings);
+        const transporter = nodemailer.createTransport(__settings.smtp);
     
         transporter.use('compile', hbs({
             'viewEngine': {
@@ -92,7 +92,7 @@ exports.resetpassword = (args) => {
         
         transporter.sendMail({
             'context': {
-                'link': ['https://auth.bitid.co.za/reset-password?email=', encodeURIComponent(args.user.email), '&password=', encodeURIComponent(args.user.password)].join(''),
+                'link': ['https://auth.bitid.co.za/reset-password?email=', args.user.email, '&password=', args.user.password].join(''),
                 'name': [args.user.name.first, args.user.name.last].join(' ') 
             },
             'to':       args.user.email,
