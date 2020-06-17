@@ -40,6 +40,9 @@ export class SubscribersComponent implements OnInit {
             case('app'):
                 params.appId = this.config.id;
                 break;
+            case('token'):
+                params.tokenId = this.config.id;
+                break;
         };
 
         const response = await this.config.service.get(params);
@@ -70,6 +73,9 @@ export class SubscribersComponent implements OnInit {
         switch(this.config.type) {
             case('app'):
                 params.appId = this.config.id;
+                break;
+            case('token'):
+                params.tokenId = this.config.id;
                 break;
         };
 
@@ -103,9 +109,12 @@ export class SubscribersComponent implements OnInit {
             case('app'):
                 params.appId = this.config.id;
                 break;
+            case('token'):
+                params.tokenId = this.config.id;
+                break;
         };
 
-        const response = await this.config.service.get(params);
+        const response = await this.config.service.updatesubscriber(params);
 
         this.loading = false;
 
