@@ -1253,14 +1253,7 @@ var tools = {
             resetpassword: () => {
                 var deferred = Q.defer();
                 
-                var url = '/auth/resetpassword';
-
-                tools.put(url, {
-                    "header": {
-                        "email":           config.email, 
-                        "appId":    config.appId
-                    }
-                })
+                tools.put('/auth/resetpassword', {})
                 .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1269,8 +1262,8 @@ var tools = {
                 var deferred = Q.defer();
                 
                 tools.post('/auth/retrievetoken', {
+                    "appId":        "000000000000000000000001",
                     "tokenId":      tokenId,
-                    "appId":     "000000000000000000000001",
                     "tokenEmail":   config.email
                 })
                 .then(deferred.resolve, deferred.resolve);
@@ -1280,9 +1273,9 @@ var tools = {
             changepassword: () => {
                 var deferred = Q.defer();
                 
-                tools.post('/auth/changepassword', {
-                    "passwordOld": config.password,
-                    "passwordNew": "QWERTY"
+                tools.put('/auth/changepassword', {
+                    "old": config.password,
+                    "new": "QWERTY"
                 }, loginToken)
                 .then(deferred.resolve, deferred.resolve);
 
@@ -1552,8 +1545,7 @@ var tools = {
 
         payload.header = {
             'email': config.email,
-            // 'appId': config.appId,
-            'clientIdAuth': config.appId
+            'appId': config.appId
         };
 
         payload = JSON.stringify(payload);
@@ -1580,8 +1572,7 @@ var tools = {
 
         payload.header = {
             'email': config.email,
-            // 'appId': config.appId,
-            'clientIdAuth': config.appId
+            'appId': config.appId
         };
 
         payload = JSON.stringify(payload);

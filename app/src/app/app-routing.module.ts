@@ -38,12 +38,16 @@ const routes: Routes = [
         'loadChildren': () => import('./pages/signup/signup.module').then(m => m.SignupModule)
     },
     {
-        'path':         'verify',
-        'loadChildren': () => import('./pages/verify/verify.module').then(m => m.VerifyModule)
-    },
-    {
         'path':         'allowaccess',
         'loadChildren': () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
+    },
+    {
+        'path':         'reset-password',
+        'loadChildren': () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordModule)
+    },
+    {
+        'path':         'verify-account',
+        'loadChildren': () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
     },
     {
         'path':         '**',

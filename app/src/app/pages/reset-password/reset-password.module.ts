@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
-import { VerifyPage } from './verify.page';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ResetPasswordPage } from './reset-password.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { VerifyRoutingModule } from './verify-routing.module';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ResetPasswordRoutingModule } from './reset-password-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
@@ -22,10 +22,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatToolbarModule,
         MatFormFieldModule,
         ReactiveFormsModule,
-        VerifyRoutingModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        ResetPasswordRoutingModule
     ],
-    declarations: [VerifyPage]
+    declarations: [ResetPasswordPage]
 })
 
-export class VerifyModule {}
+export class ResetPasswordModule {}

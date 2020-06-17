@@ -982,8 +982,6 @@ var module = function() {
 					return deferred.promise;
 				};
 
-				__Logger.LogData('',req.body);
-
 				var params = {
 					"token": 					token,
 					"appId": 					ObjectId(req.body.header.appId),
@@ -1425,7 +1423,7 @@ var module = function() {
 			return deferred.promise;
 		},
 
-		changePassword: (args) => {
+		changepassword: (args) => {
 			var deferred = Q.defer();
 
 			var params = {
@@ -1638,6 +1636,7 @@ var module = function() {
 				'collection': 	'tblUsers'
 			})
 			.then(result => {
+				args.user 	= result[0];
 				args.result = result[0];
 				deferred.resolve(args);
 			}, err => {
@@ -1696,32 +1695,44 @@ var module = function() {
 					"serverDate": new Date()
 				}
 			};
-			if (args.req.body.language) {
+			if (typeof(args.req.body.name) != "undefined") {
+				if (typeof(args.req.body.name.last) != "undefined") {
+					update.$set['name.last'] = args.req.body.name.last;
+				};
+				if (typeof(args.req.body.name.first) != "undefined") {
+					update.$set['name.first'] = args.req.body.name.first;
+				};
+				if (typeof(args.req.body.name.middle) != "undefined") {
+					update.$set['name.middle'] = args.req.body.name.middle;
+				};
+			};
+			if (typeof(args.req.body.number) != "undefined") {
+				if (typeof(args.req.body.number.tel) != "undefined") {
+					update.$set['number.tel'] = args.req.body.number.tel;
+				};
+				if (typeof(args.req.body.number.mobile) != "undefined") {
+					update.$set['number.mobile'] = args.req.body.number.mobile;
+				};
+			};
+			if (typeof(args.req.body.identification) != "undefined") {
+				if (typeof(args.req.body.identification.type) != "undefined") {
+					update.$set['identification.type'] = args.req.body.identification.type;
+				};
+				if (typeof(args.req.body.identification.number) != "undefined") {
+					update.$set['identification.number'] = args.req.body.identification.number;
+				};
+			};
+			if (typeof(args.req.body.language) != "undefined") {
 				update.$set.language = args.req.body.language;
 			};
-			if (args.req.body.timeZone) {
-				update.$set.timeZone = args.req.body.timeZone;
+			if (typeof(args.req.body.timezone) != "undefined") {
+				update.$set.timezone = args.req.body.timezone;
 			};
-			if (args.req.body.userName) {
-				update.$set.userName = args.req.body.userName;
+			if (typeof(args.req.body.username) != "undefined") {
+				update.$set.username = args.req.body.username;
 			};
-			if (args.req.body.idNumber) {
-				update.$set.idNumber = args.req.body.idNumber;
-			};
-			if (args.req.body.lastName) {
-				update.$set.lastName = args.req.body.lastName;
-			};
-			if (args.req.body.firstName) {
-				update.$set.firstName = args.req.body.firstName;
-			};
-			if (args.req.body.profilePic) {
-				update.$set.profilePic = args.req.body.profilePic;
-			};
-			if (args.req.body.userSurname) {
-				update.$set.userSurname = args.req.body.userSurname;
-			};
-			if (args.req.body.mobileNumber) {
-				update.$set.mobileNumber = args.req.body.mobileNumber;
+			if (typeof(args.req.body.picture) != "undefined") {
+				update.$set.picture = args.req.body.picture;
 			};
 
 			db.call({

@@ -38,7 +38,7 @@ router.post('/allowaccess', (req, res) => {
 
 router.put('/resetpassword', (req, res) => {
 	var myModule = new bll.module();
-	myModule.auth.resetPassword(req, res);
+	myModule.auth.resetpassword(req, res);
 });
 
 router.post('/retrievetoken', (req, res) => {
@@ -46,9 +46,9 @@ router.post('/retrievetoken', (req, res) => {
 	myModule.auth.retrieveToken(req, res);
 });
 
-router.post('/changepassword', (req, res) => {
+router.put('/changepassword', (req, res) => {
 	var myModule = new bll.module();
-	myModule.auth.changePassword(req, res);
+	myModule.auth.changepassword(req, res);
 });
 
 module.exports = router;

@@ -41,12 +41,29 @@ if (apps.count() == 0) {
 
 var users = db.getCollection("tblUsers");
 if (users.count() == 0) {
-    var myUser = db.tblUsers.insert({
+    db.tblUsers.insert({
+        "name": {
+            "last":     "",
+            "first":    "",
+            "middle":   ""
+        },
+        "number": {
+            "tel":      "",
+            "mobile":   ""
+        },
+        "identification": {
+            "type":     "",
+            "number":   ""
+        },
         "_id":          ObjectId("000000000000000000000001"),
-        "salt":         "", 
+        "code":         "",
+        "salt":         "",
         "hash":         "",
         "email":        "",
-        "userName":     "",
+        "picture":      "",
+        "language":     "",
+        "timezone":     0,
+        "username":     "",
         "serverDate":   new Date()
     });
 

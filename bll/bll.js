@@ -2,6 +2,7 @@ var Q		= require('q');
 var dal		= require('../dal/dal');
 var fetch 	= require('node-fetch');
 var tools	= require('../lib/tools');
+var emails	= require('../emails/emails');
 
 var module = function() {
 	var bllApps = {
@@ -176,11 +177,11 @@ var module = function() {
 	var bllAuth = {
 		errorResponse: {
 			"error": {
-				"code": 	"401",
+				"code": 	401,
 				"message": 	"Authentication Error",
 				"errors":[{
-					"code": 		"401",
-					"reason": 		"generalError",
+					"code": 		401,
+					"reason": 		"General Error",
 					"message": 		"Authentication Error",
 					"locaction": 	"bllAuth",
 					"locationType": "body"
@@ -216,6 +217,7 @@ var module = function() {
 
 			var myModule = new dal.module();
 			myModule.auth.verify(args)
+			.then(emails.welcome, null)
 			.then(args => {
 				__responder.success(req, res, args.result);
 			}, err => {
@@ -229,56 +231,14 @@ var module = function() {
 				'res': res
 			};
 
-			if (tools.validateEmail(args.req.body.header.email) == false) {
-				bllUsers.errorResponse.error.code 				= 401;
-				bllUsers.errorResponse.error.message 			= 'Invalid email Email Address';
-				bllUsers.errorResponse.error.errors[0].code 	= 401;
-				bllUsers.errorResponse.error.errors[0].message 	= 'Registration Failed. Invalid Email';
-				__responder.error(res, bllUsers.errorResponse);
-			};
-
 			var password 		= tools.encryption.saltHashPassword(args.req.body.password);
 			args.req.body.salt 	= password.salt;
 			args.req.body.hash 	= password.hash;
 
 			var myModule = new dal.module();
 			myModule.auth.register(args)
-			.then((args) => {
-				var deferred = Q.defer();
-
-				if (__settings.production) {
-					args.body 		= "verify code: " + JSON.stringify(args.result.code);
-					args.subject	= "Verification Email";
-
-					__Logger.LogData('', 'verification email being sent to ' + args.req.body.header.email + ' body: ' + args.body);
-					
-					tools.sendEmail(args)
-					.then(args => {
-						delete args.result.code;
-						deferred.resolve(args);
-					}, err => {
-						myModule.users.delete(args)
-						.then(args => {
-							bllUsers.errorResponse.error.code 				= 500;
-							bllUsers.errorResponse.error.message 			= 'Registration Failed. Could not send verification email';
-							bllUsers.errorResponse.error.errors[0].code 	= 500;
-							bllUsers.errorResponse.error.errors[0].message 	= 'Registration Failed. Could not send verification email';
-							deferred.reject(bllUsers.errorResponse);
-						}, err => {
-							bllUsers.errorResponse.error.code 				= 500;
-							bllUsers.errorResponse.error.message 			= 'Registration Failed. Could not send verification email';
-							bllUsers.errorResponse.error.errors[0].code 	= 500;
-							bllUsers.errorResponse.error.errors[0].message 	= 'Registration Failed. Could not send verification email';
-							deferred.reject(bllUsers.errorResponse);
-						});
-					});
-				} else {
-					deferred.resolve(args);
-				};
-
-				return deferred.promise;
-			}, null)
-			.then((args) => {
+			.then(emails.verify, null)
+			.then(args => {
 				__responder.success(req, res, args.result);
 			}, err => {
 				__responder.error(req, res, err);
@@ -363,7 +323,7 @@ var module = function() {
 			});	
 		},
 
-		resetPassword: (req, res) => {
+		resetpassword: (req, res) => {
 			var args = {
 				'req': req,
 				'res': res
@@ -375,23 +335,21 @@ var module = function() {
 				- update user details
 				- send email to user with new password
 			*/
-			var myModule 	= new dal.module();
+			var myModule = new dal.module();
 			myModule.users.get(args)
 			.then(args => {
 				var deferred = Q.defer();
 
-				var length 		= 16;
-	            var charset 	= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	            var password 	= "";
+				var length 			= 16;
+	            var charset 		= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	            args.user.password	= "";
 
 	            for (var i = 0, n = charset.length; i < length; ++i) {
-	                password += charset.charAt(Math.floor(Math.random() * n));
+	                args.user.password += charset.charAt(Math.floor(Math.random() * n));
 	            };
 	            
-	            var encryption 	= tools.encryption;
-	            args._password_ = password;
-
-	            var newpassword	= encryption.saltHashPassword(password);
+	            var encryption	= tools.encryption;
+	            var newpassword	= encryption.saltHashPassword(args.user.password);
 	            args.password 	= {
 	            	'salt': newpassword.salt,
 	            	'hash': newpassword.hash
@@ -401,42 +359,11 @@ var module = function() {
 
 	            return deferred.promise;
 			}, null)
-			.then(args => {
-				var deferred = Q.defer();
-
-				myModule.auth.changePassword(args)
-				.then(args => {
-					deferred.resolve(args);
-				}, err => {
-					deferred.reject(err);
-				});
-
-				return deferred.promise;
-			}, null)
-			.then(args => {
-				var deferred = Q.defer();
-				
-				if (__settings.production) {
-					args.body 		= 'Your new password is ' + args._password_ + '. You can login to auth and change it on your profile.';
-					args.subject	= "Reset Password Success";
-
-					tools.sendEmail(args)
-					.then(result => {
-						deferred.resolve(args);
-					}, err => {
-						bllAuth.errorResponse.errors[0].code 	= 503;
-						bllAuth.errorResponse.errors[0].message = 'Failed to send Email';
-						deferred.reject(bllAuth.errorResponse);
-					});
-				} else {
-					deferred.resolve(args);
-				};
-
-				return deferred.promise;
-			}, null)
+			.then(myModule.auth.changepassword, null)
+			.then(emails.resetpassword, null)
 			.then(args => {
 				if (!__settings.production) {
-					args.result.password = args._password_;
+					args.result.password = args.user.password;
 				};
 				__responder.success(req, res, args.result);
 			}, err => {
@@ -460,13 +387,13 @@ var module = function() {
 			});
 		},
 
-		changePassword: (req, res) => {
+		changepassword: (req, res) => {
 			var args = {
 				'req': req,
 				'res': res
 			};
 
-		 	var password 	= tools.encryption.saltHashPassword(args.req.body.passwordNew);
+		 	var password 	= tools.encryption.saltHashPassword(args.req.body.new);
             args.password 	= {
             	'salt': password.salt,
             	'hash': password.hash
@@ -477,7 +404,7 @@ var module = function() {
 			.then(args => {
 				var deferred = Q.defer();
 
-				var password = tools.encryption.sha512(args.req.body.passwordOld, args.result.salt);
+				var password = tools.encryption.sha512(args.req.body.old, args.result.salt);
 
 				if (password.hash == args.result.hash) {
 					deferred.resolve(args);
@@ -492,7 +419,7 @@ var module = function() {
 				return deferred.promise;
 
 			}, null)
-			.then(myModule.auth.changePassword, null)
+			.then(myModule.auth.changepassword, null)
 			.then(args => {
 				__responder.success(req, res, args.result);
 			}, err => {
@@ -505,7 +432,7 @@ var module = function() {
 
 			if (__settings.production) {
 				if (typeof(args.req.body.pushToken) == 'undefined') {
-					__Logger.LogData('sendAlert pushToken undefined');
+					__logger.debug('sendAlert pushToken undefined');
 					deferred.resolve(args);
 				};
 				const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/updatepushtoken'].join('');
@@ -531,7 +458,7 @@ var module = function() {
 				const result = await response.json();
 
 				if (typeof(result.errors) != "undefined") {
-					__Logger.LogData('sendPushTokenToAlertingService error ' + result);
+					__logger.error('sendPushTokenToAlertingService error ' + result);
 					deferred.resolve(args);
 				} else {
 					deferred.resolve(args);

@@ -157,7 +157,8 @@ export class AccountService {
     };
 
     public async changepassword(params) {
-        return await this.api.post(environment.auth, '/auth/changepassword', params);
+        this.localstorage.set('email', params.email);
+        return await this.api.put(environment.auth, '/auth/changepassword', params);
     };
 
     public async removeaccount(params) {

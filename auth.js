@@ -1,21 +1,20 @@
 var Q               = require('q');
 var db              = require('./db/mongo');
-var bll             = require('./bll/bll');
 var dal             = require('./dal/dal');
 var cors            = require('cors');
 var http            = require('http');
 var chalk           = require('chalk');
-var logger          = require('./lib/logger');
 var express         = require('express');
 var Responder       = require('./lib/responder');
 var bodyParser  	= require('body-parser');
-
-const { ErrorResponse } = require('./lib/error-response');
+var ErrorResponse   = require('./lib/error-response').ErrorResponse;
 
 global.__base       = __dirname + '/';
-global.__Logger     = new logger.module();
+global.__logger     = require('./lib/logger');
 global.__settings   = require('./config.json');
 global.__responder  = new Responder.module();
+
+__logger.init();
 
 try {
     var portal = {
@@ -81,31 +80,31 @@ try {
 
                 var apps = require('./api/apps');
                 app.use('/apps', apps);
-                __Logger.LogData('', 'Loaded ./api/apps');
+                __logger.info('loaded ./api/apps');
 
                 var auth = require('./api/auth');
                 app.use('/auth', auth);
-                __Logger.LogData('', 'Loaded ./api/auth');
+                __logger.info('loaded ./api/auth');
 
                 var users = require('./api/users');
                 app.use('/users', users);
-                __Logger.LogData('', 'Loaded ./api/users');
+                __logger.info('loaded ./api/users');
 
                 var token = require('./api/token');
                 app.use('/token', token);
-                __Logger.LogData('', 'Loaded ./api/token');
+                __logger.info('loaded ./api/token');
 
                 var scopes = require('./api/scopes');
                 app.use('/scopes', scopes);
-                __Logger.LogData('', 'Loaded ./api/scopes');
+                __logger.info('loaded ./api/scopes');
 
                 var tokens = require('./api/tokens');
                 app.use('/tokens', tokens);
-                __Logger.LogData('', 'Loaded ./api/tokens');
+                __logger.info('loaded ./api/tokens');
 
                 var statistics = require('./api/statistics');
                 app.use('/statistics', statistics);
-                __Logger.LogData('', 'Loaded ./api/statistics');
+                __logger.info('loaded ./api/statistics');
 
                 app.use((err, req, res, next) => {
                     var err                     = ErrorResponse();
@@ -153,28 +152,14 @@ try {
                 console.log('');
             };
 
-            portal.logger(args)
-            .then(portal.api, null)
+            portal.api(args)
             .then(portal.database, null)
             .then(args => {
                 console.log('Webserver Running on port: ', args.settings.localwebserver.port);
+                __logger.info('Webserver Running on port: ' + args.settings.localwebserver.port);
             }, err => {
                 console.log('Error Initializing: ', err);
             });
-        },
-
-        logger: (args) => {
-            var deferred    = Q.defer();
-
-            try {
-                __Logger.init(args.settings.LOG4JS);
-                __Logger.LogData('', 'Logger Init');
-                deferred.resolve(args);
-            } catch(err) {
-                deferred.reject(error);
-            };
-
-            return deferred.promise;
         },
 
         database: (args) => {
@@ -184,7 +169,7 @@ try {
                 global.__database = database;
                 deferred.resolve(args);
             }, err => {
-                __Logger.LogData('Database Connection Error: ' +  err);
+                __logger.error('Database Connection Error: ' +  err);
                 deferred.reject(err);
             });
 
