@@ -1067,6 +1067,7 @@ var module = function() {
 				'collection': 	'tblUsers'
 			})
 			.then(result => {
+				args.user 	= result[0];
 				args.result = result[0];
 				deferred.resolve(args);
 			}, err => {
