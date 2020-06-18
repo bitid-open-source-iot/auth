@@ -1,3 +1,5 @@
+![biTid](https://www.bitid.co.za/assets/icons/icon-72x72.png "biTid")
+
 # biTid Auth
 
 The **Auth Application/Service** manages users, clients(applications/services) and tokens of those users and clients. This service provides authentication and ensures that users can only interact with applications/services within their scope
