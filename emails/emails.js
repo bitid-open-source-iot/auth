@@ -11,12 +11,12 @@ exports.verify = (args) => {
         transporter.use('compile', hbs({
             'viewEngine': {
                 'extName':          '.hbs',
-                'layoutsDir':       __dirname + 'templates',
-                'partialsDir':      __dirname + 'templates',
+                'layoutsDir':       __dirname + '/templates',
+                'partialsDir':      __dirname + '/templates',
                 'defaultLayout':    'verify.hbs'
             },
             'extName':  '.hbs',
-            'viewPath': __dirname + 'templates'
+            'viewPath': __dirname + '/templates'
         }));
         
         transporter.sendMail({
@@ -52,12 +52,12 @@ exports.welcome = (args) => {
         transporter.use('compile', hbs({
             'viewEngine': {
                 'extName':          '.hbs',
-                'layoutsDir':       __dirname + 'templates',
-                'partialsDir':      __dirname + 'templates',
+                'layoutsDir':       __dirname + '/templates',
+                'partialsDir':      __dirname + '/templates',
                 'defaultLayout':    'welcome.hbs'
             },
             'extName':  '.hbs',
-            'viewPath': __dirname + 'templates'
+            'viewPath': __dirname + '/templates'
         }));
         
         transporter.sendMail({
@@ -92,12 +92,12 @@ exports.resetpassword = (args) => {
         transporter.use('compile', hbs({
             'viewEngine': {
                 'extName':          '.hbs',
-                'layoutsDir':       __dirname + 'templates',
-                'partialsDir':      __dirname + 'templates',
+                'layoutsDir':       __dirname + '/templates',
+                'partialsDir':      __dirname + '/templates',
                 'defaultLayout':    'reset-password.hbs'
             },
             'extName':  '.hbs',
-            'viewPath': __dirname + 'templates'
+            'viewPath': __dirname + '/templates'
         }));
         
         transporter.sendMail({
