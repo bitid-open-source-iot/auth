@@ -434,34 +434,35 @@ var module = function() {
 				if (typeof(args.req.body.pushToken) == 'undefined') {
 					__logger.debug('sendAlert pushToken undefined');
 					deferred.resolve(args);
-				};
-				const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/updatepushtoken'].join('');
-				const payload 	= JSON.stringify({
-					"header": {
-						"email": 		__settings.alerting.email,
-						"clientIdAuth": __settings.alerting.clientIdAuth
-					},
-					"pushToken": 	args.req.body.pushToken,
-					"emailToList": 	args.req.body.header.email
-				});
-				const response = await fetch(url, {
-					'headers': {
-						'accept': 			'*/*',
-						'Content-Type': 	'application/json; charset=utf-8',
-						'Authorization': 	JSON.stringify(__settings.alerting.token),
-						'Content-Length': 	payload.length
-					},
-					'body':		payload,
-					'method': 	'POST'
-				});
-				
-				const result = await response.json();
-
-				if (typeof(result.errors) != "undefined") {
-					__logger.error('sendPushTokenToAlertingService error ' + result);
-					deferred.resolve(args);
 				} else {
-					deferred.resolve(args);
+					const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/updatepushtoken'].join('');
+					const payload 	= JSON.stringify({
+						"header": {
+							"email": 		__settings.alerting.email,
+							"clientIdAuth": __settings.alerting.clientIdAuth
+						},
+						"pushToken": 	args.req.body.pushToken,
+						"emailToList": 	args.req.body.header.email
+					});
+					const response = await fetch(url, {
+						'headers': {
+							'accept': 			'*/*',
+							'Content-Type': 	'application/json; charset=utf-8',
+							'Authorization': 	JSON.stringify(__settings.alerting.token),
+							'Content-Length': 	payload.length
+						},
+						'body':		payload,
+						'method': 	'POST'
+					});
+					
+					const result = await response.json();
+
+					if (typeof(result.errors) != "undefined") {
+						__logger.error('sendPushTokenToAlertingService error ' + result);
+						deferred.resolve(args);
+					} else {
+						deferred.resolve(args);
+					};
 				};
 			} else {
 				deferred.resolve(args);
