@@ -908,42 +908,157 @@ var module = function() {
 			var deferred = Q.defer();
 
 			var params = {
+				"name": {
+					"last":     "",
+					"first":    "",
+					"middle":   ""
+				},
+				"number": {
+					"tel":      "",
+					"mobile":   ""
+				},
+				"address": {
+					"billing": {
+						"company": {
+							"vat":  "",
+							"reg":  ""
+						},
+						"street":       "",
+						"suburb":       "",
+						"country":      "",
+						"cityTown":     "",
+						"additional":   "",
+						"postalCode":   ""
+					},
+					"physical": {
+						"company": {
+							"vat":  "",
+							"reg":  ""
+						},
+						"street":       "",
+						"suburb":       "",
+						"country":      "",
+						"cityTown":     "",
+						"additional":   "",
+						"postalCode":   ""
+					},
+					"same": false
+				},
+				"identification": {
+					"type":     "",
+					"number":   ""
+				},
 				'code':         Math.floor(Math.random() * 900000 + 100000),
 				'salt': 		args.req.body.salt,
 				'hash': 		args.req.body.hash,
 				'email': 		args.req.body.header.email,
-				'validated': 	0
+				"picture":      "",
+				"language":     "",
+				"timezone":     0,
+				"username":     "",
+				'validated': 	0,
+				"serverDate":   new Date()
 			};
 
-			if (args.req.body.branding) {
-				params.branding = args.req.body.branding;
+			if (typeof(args.req.body.picture) != "undefined") {
+				params.picture = args.req.body.picture;
 			};
-			if (args.req.body.language) {
+			if (typeof(args.req.body.language) != "undefined") {
 				params.language = args.req.body.language;
 			};
-			if (args.req.body.timeZone) {
-				params.timeZone = args.req.body.timeZone;
+			if (typeof(args.req.body.timezone) != "undefined") {
+				params.timezone = args.req.body.timezone;
 			};
-			if (args.req.body.userName) {
-				params.userName = args.req.body.userName;
+			if (typeof(args.req.body.username) != "undefined") {
+				params.username = args.req.body.username;
 			};
-			if (args.req.body.idNumber) {
-				params.idNumber = args.req.body.idNumber;
+			if (typeof(args.req.body.name) != "undefined") {
+				if (typeof(args.req.body.name.last) != "undefined") {
+					params.name.last = args.req.body.name.last;
+				};
+				if (typeof(args.req.body.name.first) != "undefined") {
+					params.name.first = args.req.body.name.first;
+				};
+				if (typeof(args.req.body.name.middle) != "undefined") {
+					params.name.middle = args.req.body.name.middle;
+				};
 			};
-			if (args.req.body.lastName) {
-				params.lastName = args.req.body.lastName;
+			if (typeof(args.req.body.number) != "undefined") {
+				if (typeof(args.req.body.number.tel) != "undefined") {
+					params.number.tel = args.req.body.number.tel;
+				};
+				if (typeof(args.req.body.number.mobile) != "undefined") {
+					params.number.mobile = args.req.body.number.mobile;
+				};
 			};
-			if (args.req.body.firstName) {
-				params.firstName = args.req.body.firstName;
+			if (typeof(args.req.body.address) != "undefined") {
+				if (typeof(args.req.body.address.billing) != "undefined") {
+					if (typeof(args.req.body.address.billing.company) != "undefined") {
+						if (typeof(args.req.body.address.billing.company.vat) != "undefined") {
+							params.address.billing.company.vat = args.req.body.address.billing.company.vat;
+						};
+						if (typeof(args.req.body.address.billing.company.reg) != "undefined") {
+							params.address.billing.company.reg = args.req.body.address.billing.company.reg;
+						};
+					};
+					if (typeof(args.req.body.address.billing.street) != "undefined") {
+						params.address.billing.street = args.req.body.address.billing.street;
+					};
+					if (typeof(args.req.body.address.billing.suburb) != "undefined") {
+						params.address.billing.suburb = args.req.body.address.billing.suburb;
+					};
+					if (typeof(args.req.body.address.billing.country) != "undefined") {
+						params.address.billing.country = args.req.body.address.billing.country;
+					};
+					if (typeof(args.req.body.address.billing.cityTown) != "undefined") {
+						params.address.billing.cityTown = args.req.body.address.billing.cityTown;
+					};
+					if (typeof(args.req.body.address.billing.additional) != "undefined") {
+						params.address.billing.additional = args.req.body.address.billing.additional;
+					};
+					if (typeof(args.req.body.address.billing.postalCode) != "undefined") {
+						params.address.billing.postalCode = args.req.body.address.billing.postalCode;
+					};
+				};
+				if (typeof(args.req.body.address.physical) != "undefined") {
+					if (typeof(args.req.body.address.physical.company) != "undefined") {
+						if (typeof(args.req.body.address.physical.company.vat) != "undefined") {
+							params.address.physical.company.vat = args.req.body.address.physical.company.vat;
+						};
+						if (typeof(args.req.body.address.physical.company.reg) != "undefined") {
+							params.address.physical.company.reg = args.req.body.address.physical.company.reg;
+						};
+					};
+					if (typeof(args.req.body.address.physical.street) != "undefined") {
+						params.address.physical.street = args.req.body.address.physical.street;
+					};
+					if (typeof(args.req.body.address.physical.suburb) != "undefined") {
+						params.address.physical.suburb = args.req.body.address.physical.suburb;
+					};
+					if (typeof(args.req.body.address.physical.country) != "undefined") {
+						params.address.physical.country = args.req.body.address.physical.country;
+					};
+					if (typeof(args.req.body.address.physical.cityTown) != "undefined") {
+						params.address.physical.cityTown = args.req.body.address.physical.cityTown;
+					};
+					if (typeof(args.req.body.address.physical.additional) != "undefined") {
+						params.address.physical.additional = args.req.body.address.physical.additional;
+					};
+					if (typeof(args.req.body.address.physical.postalCode) != "undefined") {
+						params.address.physical.postalCode = args.req.body.address.physical.postalCode;
+					};
+				};
+				if (typeof(args.req.body.address.same) != "undefined") {
+					params.address.same = args.req.body.address.same;
+				};
 			};
-			if (args.req.body.profilePic) {
-				params.profilePic = args.req.body.profilePic;
-			};
-			if (args.req.body.userSurname) {
-				params.userSurname = args.req.body.userSurname;
-			};
-			if (args.req.body.mobileNumber) {
-				params.mobileNumber = args.req.body.mobileNumber;
+			if (typeof(args.req.body.identification) != "undefined") {
+				if (typeof(args.req.body.identification.type) != "undefined") {
+					params.identification.type = args.req.body.identification.type;
+				};
+				if (typeof(args.req.body.identification.number) != "undefined") {
+					params.identification.number = args.req.body.identification.number;
+				};
 			};
 
 			db.call({
@@ -1695,6 +1810,18 @@ var module = function() {
 					"serverDate": new Date()
 				}
 			};
+			if (typeof(args.req.body.picture) != "undefined") {
+				update.$set.picture = args.req.body.picture;
+			};
+			if (typeof(args.req.body.language) != "undefined") {
+				update.$set.language = args.req.body.language;
+			};
+			if (typeof(args.req.body.timezone) != "undefined") {
+				update.$set.timezone = args.req.body.timezone;
+			};
+			if (typeof(args.req.body.username) != "undefined") {
+				update.$set.username = args.req.body.username;
+			};
 			if (typeof(args.req.body.name) != "undefined") {
 				if (typeof(args.req.body.name.last) != "undefined") {
 					update.$set['name.last'] = args.req.body.name.last;
@@ -1714,6 +1841,67 @@ var module = function() {
 					update.$set['number.mobile'] = args.req.body.number.mobile;
 				};
 			};
+			if (typeof(args.req.body.address) != "undefined") {
+				if (typeof(args.req.body.address.billing) != "undefined") {
+					if (typeof(args.req.body.address.billing.company) != "undefined") {
+						if (typeof(args.req.body.address.billing.company.vat) != "undefined") {
+							update.$set['address.billing.company.vat'] = args.req.body.address.billing.company.vat;
+						};
+						if (typeof(args.req.body.address.billing.company.reg) != "undefined") {
+							update.$set['address.billing.company.reg'] = args.req.body.address.billing.company.reg;
+						};
+					};
+					if (typeof(args.req.body.address.billing.street) != "undefined") {
+						update.$set['address.billing.street'] = args.req.body.address.billing.street;
+					};
+					if (typeof(args.req.body.address.billing.suburb) != "undefined") {
+						update.$set['address.billing.suburb'] = args.req.body.address.billing.suburb;
+					};
+					if (typeof(args.req.body.address.billing.country) != "undefined") {
+						update.$set['address.billing.country'] = args.req.body.address.billing.country;
+					};
+					if (typeof(args.req.body.address.billing.cityTown) != "undefined") {
+						update.$set['address.billing.cityTown'] = args.req.body.address.billing.cityTown;
+					};
+					if (typeof(args.req.body.address.billing.additional) != "undefined") {
+						update.$set['address.billing.additional'] = args.req.body.address.billing.additional;
+					};
+					if (typeof(args.req.body.address.billing.postalCode) != "undefined") {
+						update.$set['address.billing.postalCode'] = args.req.body.address.billing.postalCode;
+					};
+				};
+				if (typeof(args.req.body.address.physical) != "undefined") {
+					if (typeof(args.req.body.address.physical.company) != "undefined") {
+						if (typeof(args.req.body.address.physical.company.vat) != "undefined") {
+							update.$set['address.physical.company.vat'] = args.req.body.address.physical.company.vat;
+						};
+						if (typeof(args.req.body.address.physical.company.reg) != "undefined") {
+							update.$set['address.physical.company.reg'] = args.req.body.address.physical.company.reg;
+						};
+					};
+					if (typeof(args.req.body.address.physical.street) != "undefined") {
+						update.$set['address.physical.street'] = args.req.body.address.physical.street;
+					};
+					if (typeof(args.req.body.address.physical.suburb) != "undefined") {
+						update.$set['address.physical.suburb'] = args.req.body.address.physical.suburb;
+					};
+					if (typeof(args.req.body.address.physical.country) != "undefined") {
+						update.$set['address.physical.country'] = args.req.body.address.physical.country;
+					};
+					if (typeof(args.req.body.address.physical.cityTown) != "undefined") {
+						update.$set['address.physical.cityTown'] = args.req.body.address.physical.cityTown;
+					};
+					if (typeof(args.req.body.address.physical.additional) != "undefined") {
+						update.$set['address.physical.additional'] = args.req.body.address.physical.additional;
+					};
+					if (typeof(args.req.body.address.physical.postalCode) != "undefined") {
+						update.$set['address.physical.postalCode'] = args.req.body.address.physical.postalCode;
+					};
+				};
+				if (typeof(args.req.body.address.same) != "undefined") {
+					update.$set['address.same'] = args.req.body.address.same;
+				};
+			};
 			if (typeof(args.req.body.identification) != "undefined") {
 				if (typeof(args.req.body.identification.type) != "undefined") {
 					update.$set['identification.type'] = args.req.body.identification.type;
@@ -1721,18 +1909,6 @@ var module = function() {
 				if (typeof(args.req.body.identification.number) != "undefined") {
 					update.$set['identification.number'] = args.req.body.identification.number;
 				};
-			};
-			if (typeof(args.req.body.language) != "undefined") {
-				update.$set.language = args.req.body.language;
-			};
-			if (typeof(args.req.body.timezone) != "undefined") {
-				update.$set.timezone = args.req.body.timezone;
-			};
-			if (typeof(args.req.body.username) != "undefined") {
-				update.$set.username = args.req.body.username;
-			};
-			if (typeof(args.req.body.picture) != "undefined") {
-				update.$set.picture = args.req.body.picture;
 			};
 
 			db.call({

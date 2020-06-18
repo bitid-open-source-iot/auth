@@ -428,9 +428,17 @@ describe('Users', function() {
         tools.api.users.get()
         .then((result) => {
             try {
+                result.should.have.property('name');
                 result.should.have.property('email');
                 result.should.have.property('userId');
-                result.should.have.property('userName');
+                result.should.have.property('number');
+                result.should.have.property('address');
+                result.should.have.property('picture');
+                result.should.have.property('language');
+                result.should.have.property('timezone');
+                result.should.have.property('username');
+                result.should.have.property('serverDate');
+                result.should.have.property('identification');
                 done();
             } catch(e) {
                 done(e);
@@ -443,27 +451,6 @@ describe('Users', function() {
             };
         });
     });
-
-    // it('/users/list', function(done) {
-    //     this.timeout(5000);
-
-    //     tools.api.users.list()
-    //     .then((result) => {
-    //         try {
-    //             result[0].should.have.property('email');
-    //             result[0].should.have.property('userId');
-    //             done();
-    //         } catch(e) {
-    //             done(e);
-    //         };
-    //     }, (err) => {
-    //         try {
-    //             done(err);
-    //         } catch(e) {
-    //             done(e);
-    //         };
-    //     });
-    // });
 
     it('/users/update', function(done) {
         this.timeout(5000);
@@ -1045,8 +1032,51 @@ var tools = {
                 var deferred = Q.defer();
                 
                 tools.put('/auth/register', {
+                    "name": {
+                        "last":     "xxx",
+                        "first":    "xxx",
+                        "middle":   "xxx"
+                    },
+                    "number": {
+                        "tel":      "xxx",
+                        "mobile":   "xxx"
+                    },
+                    "address": {
+                        "billing": {
+                            "company": {
+                                "vat":  "xxx",
+                                "reg":  "xxx"
+                            },
+                            "street":       "xxx",
+                            "suburb":       "xxx",
+                            "country":      "xxx",
+                            "cityTown":     "xxx",
+                            "additional":   "xxx",
+                            "postalCode":   "xxx"
+                        },
+                        "physical": {
+                            "company": {
+                                "vat":  "xxx",
+                                "reg":  "xxx"
+                            },
+                            "street":       "xxx",
+                            "suburb":       "xxx",
+                            "country":      "xxx",
+                            "cityTown":     "xxx",
+                            "additional":   "xxx",
+                            "postalCode":   "xxx"
+                        },
+                        "same": true
+                    },
+                    "identification": {
+                        "type":     "id",
+                        "number":   "xxx"
+                    },
+                    "picture":  "xxx",
+                    "language": "english",
                     "password": config.password,
-                    "userName": "Hello"
+                    "timezone": 0,
+                    "username": "username"
                 })
                 .then(deferred.resolve, deferred.resolve);
 
@@ -1286,7 +1316,21 @@ var tools = {
             get: () => {
                 var deferred = Q.defer();
                 
-                tools.post('/users/get', {})
+                tools.post('/users/get', {
+                    'filter': [
+                        'name',
+                        'email',
+                        'userId',
+                        'number',
+                        'address',
+                        'picture',
+                        'language',
+                        'timezone',
+                        'username',
+                        'serverDate',
+                        'identification'
+                    ]
+                })
                 .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1294,7 +1338,21 @@ var tools = {
             list: () => {
                 var deferred = Q.defer();
                 
-                tools.post('/users/list', {})
+                tools.post('/users/list', {
+                    'filter': [
+                        'name',
+                        'email',
+                        'userId',
+                        'number',
+                        'address',
+                        'picture',
+                        'language',
+                        'timezone',
+                        'username',
+                        'serverDate',
+                        'identification'
+                    ]
+                })
                 .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1303,13 +1361,8 @@ var tools = {
                 var deferred = Q.defer();
                 
                 tools.post('/users/update', {
-                    "branding":     [],
-                    "language":     "english",
-                    "timeZone":     2,
-                    "userName":     "joe101",
-                    "profilePic":   "https://drive.bitid.co.za/drive/files/get?mediaId=xxx&token=xxx",
-                    "userSurname":  "Sope",
-                    "mobileNumber": "0000000000"
+                    "username": "joe101",
+                    "pricture": "https://drive.bitid.co.za/drive/files/get?mediaId=xxx&token=xxx",
                 })
                 .then(deferred.resolve, deferred.resolve);
 

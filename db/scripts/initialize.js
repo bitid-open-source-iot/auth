@@ -51,6 +51,33 @@ if (users.count() == 0) {
             "tel":      "",
             "mobile":   ""
         },
+        "address": {
+            "billing": {
+                "company": {
+                    "vat":  "",
+                    "reg":  ""
+                },
+                "street":       "",
+                "suburb":       "",
+                "country":      "",
+                "cityTown":     "",
+                "additional":   "",
+                "postalCode":   ""
+            },
+            "physical": {
+                "company": {
+                    "vat":  "",
+                    "reg":  ""
+                },
+                "street":       "",
+                "suburb":       "",
+                "country":      "",
+                "cityTown":     "",
+                "additional":   "",
+                "postalCode":   ""
+            },
+            "same": true
+        },
         "identification": {
             "type":     "",
             "number":   ""
@@ -64,6 +91,7 @@ if (users.count() == 0) {
         "language":     "",
         "timezone":     0,
         "username":     "",
+        "validated":    0,
         "serverDate":   new Date()
     });
 
