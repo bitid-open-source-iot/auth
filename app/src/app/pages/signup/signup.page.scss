@@ -11,6 +11,18 @@ form {
     [mat-stroked-button] {
         margin-top: 20px;
     }
+    section {
+        display:        flex;
+        flex-direction: row;
+        mat-form-field:last-child {
+            width:          calc(50% - 5px);
+            margin-left:    5px;
+        }
+        mat-form-field:first-child {
+            width:          calc(50% - 5px);
+            margin-right:   5px;
+        }
+    }
 }
 @media screen and (max-width: 420px) {
     form {
