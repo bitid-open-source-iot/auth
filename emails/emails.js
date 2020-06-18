@@ -29,6 +29,11 @@ exports.verify = (args) => {
             'subject':  'Verify Account',
             'template': 'verify'
         }, (error, info) => {
+            if (error) {
+                __logger.error(error);
+            } else {
+                __logger.info(info);
+            };
             deferred.resolve(args);
         });
     } else {
@@ -64,6 +69,11 @@ exports.welcome = (args) => {
             'subject':  'Welcome',
             'template': 'welcome'
         }, (error, info) => {
+            if (error) {
+                __logger.error(error);
+            } else {
+                __logger.info(info);
+            };
             deferred.resolve(args);
         });
     } else {
@@ -100,6 +110,11 @@ exports.resetpassword = (args) => {
             'subject':  'Reset Password',
             'template': 'reset-password'
         }, (error, info) => {
+            if (error) {
+                __logger.error(error);
+            } else {
+                __logger.info(info);
+            };
             deferred.resolve(args);
         });
     } else {
