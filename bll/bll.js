@@ -315,7 +315,7 @@ var module = function() {
 
 			var myModule = new dal.module();
 			myModule.auth.authenticate(args)
-			.then(bllAuth.sendPushTokenToAlertingService, null)
+			// .then(bllAuth.sendPushTokenToAlertingService, null)
 			.then(args => {
 				__responder.success(req, res, args);
 			}, err => {
