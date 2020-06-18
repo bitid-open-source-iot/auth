@@ -315,49 +315,49 @@ var module = function() {
 
 			var myModule = new dal.module();
 			myModule.auth.authenticate(args)
-			.then(async (args) => {
-				var deferred = Q.defer();
+			// .then(async (args) => {
+			// 	var deferred = Q.defer();
 	
-				if (__settings.production) {
-					if (typeof(args.req.body.pushToken) == 'undefined' || args.req.body.pushToken == "" && args.req.body.pushToken == null) {
-						__logger.debug('sendAlert pushToken undefined');
-						deferred.resolve(args);
-					} else {
-						const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/updatepushtoken'].join('');
-						const payload 	= JSON.stringify({
-							"header": {
-								"email": 		__settings.alerting.email,
-								"clientIdAuth": __settings.alerting.clientIdAuth
-							},
-							"pushToken": 	args.req.body.pushToken,
-							"emailToList": 	args.req.body.header.email
-						});
-						const response = await fetch(url, {
-							'headers': {
-								'accept': 			'*/*',
-								'Content-Type': 	'application/json; charset=utf-8',
-								'Authorization': 	JSON.stringify(__settings.alerting.token),
-								'Content-Length': 	payload.length
-							},
-							'body':		payload,
-							'method': 	'POST'
-						});
+			// 	if (__settings.production) {
+			// 		if (typeof(args.req.body.pushToken) == 'undefined' || args.req.body.pushToken == "" && args.req.body.pushToken == null) {
+			// 			__logger.debug('sendAlert pushToken undefined');
+			// 			deferred.resolve(args);
+			// 		} else {
+			// 			const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/updatepushtoken'].join('');
+			// 			const payload 	= JSON.stringify({
+			// 				"header": {
+			// 					"email": 		__settings.alerting.email,
+			// 					"clientIdAuth": __settings.alerting.clientIdAuth
+			// 				},
+			// 				"pushToken": 	args.req.body.pushToken,
+			// 				"emailToList": 	args.req.body.header.email
+			// 			});
+			// 			const response = await fetch(url, {
+			// 				'headers': {
+			// 					'accept': 			'*/*',
+			// 					'Content-Type': 	'application/json; charset=utf-8',
+			// 					'Authorization': 	JSON.stringify(__settings.alerting.token),
+			// 					'Content-Length': 	payload.length
+			// 				},
+			// 				'body':		payload,
+			// 				'method': 	'POST'
+			// 			});
 						
-						const result = await response.json();
+			// 			const result = await response.json();
 	
-						if (typeof(result.errors) != "undefined") {
-							__logger.error('sendPushTokenToAlertingService error ' + result);
-							deferred.resolve(args);
-						} else {
-							deferred.resolve(args);
-						};
-					};
-				} else {
-					deferred.resolve(args);
-				};
+			// 			if (typeof(result.errors) != "undefined") {
+			// 				__logger.error('sendPushTokenToAlertingService error ' + result);
+			// 				deferred.resolve(args);
+			// 			} else {
+			// 				deferred.resolve(args);
+			// 			};
+			// 		};
+			// 	} else {
+			// 		deferred.resolve(args);
+			// 	};
 	
-				return deferred.promise;
-			}, null)
+			// 	return deferred.promise;
+			// }, null)
 			.then(args => {
 				__responder.success(req, res, args);
 			}, err => {
