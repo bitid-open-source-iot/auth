@@ -216,7 +216,8 @@ var module = function() {
 			};
 
 			var myModule = new dal.module();
-			myModule.auth.verify(args)
+			myModule.users.get(args)
+			.then(myModule.auth.verify, null)
 			.then(emails.welcome, null)
 			.then(args => {
 				__responder.success(req, res, args.result);
