@@ -1,3 +1,6 @@
+var max     = db.tblUsers.find({}).count();
+var current = 1;
+
 db.tblUsers.find({}).forEach(user => {
     db.tblUsers.update({
         '_id': user._id
@@ -57,4 +60,7 @@ db.tblUsers.find({}).forEach(user => {
             "mobileNumber": 1
         }
     });
+
+    print(current + ' of ' + max);
+    current++;
 });
