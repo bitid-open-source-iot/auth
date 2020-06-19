@@ -39,7 +39,8 @@ export class ImageUploadComponent {
                     if (request.readyState == 4) {
                         if (request.status == 200) {
                             let res = JSON.parse(request.response);
-                            this.change.next(environment.drive + "/drive/files/get?fileId=" + res.fileId + "&token=" + res.token);
+                            let img = [environment.drive, "/drive/files/get?fileId=", res.fileId, "&token=", res.token].join('');
+                            this.change.next(img);
                         };
                     };
                 };

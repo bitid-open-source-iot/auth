@@ -5,10 +5,10 @@ import { ScopesService } from 'src/app/services/scopes/scopes.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { ENTER, COMMA, SPACE } from '@angular/cdk/keycodes';
+import { ImageUploadComponent } from 'src/app/components/image-upload/image-upload.component';
 import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-
+import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
 
 @Component({
     selector:       'app-app-editor',
@@ -17,6 +17,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 })
 
 export class AppEditorPage implements OnInit, OnDestroy {
+    
+    @ViewChild(ImageUploadComponent, {'static': true}) uplaod: ImageUploadComponent;
     
     constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private router: Router, private service: AppsService, private formerror: FormErrorService, private scopesservice: ScopesService) {};
 
@@ -196,6 +198,10 @@ export class AppEditorPage implements OnInit, OnDestroy {
             if (this.mode != 'add') {
                 this.get();
             };
+        });
+
+        this.subscriptions.uplaod = this.uplaod.change.subscribe(icon => {
+            this.form.controls['icon'].setValue(icon);
         });
     };
 
