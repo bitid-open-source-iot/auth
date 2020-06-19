@@ -44,7 +44,7 @@ export class ImageUploadComponent {
                     };
                 };
 
-                const url = [environment.drive, '/drive/files/upload?', 'email', '=', this.localstorage.get('email'), '&', 'clientIdAuth', '=', environment.appId].join('');
+                const url = [environment.drive, '/drive/files/upload?', 'email', '=', this.localstorage.get('email'), '&', 'appId', '=', environment.appId].join('');
 
                 request.open("POST", url, true);
                 request.setRequestHeader('Authorization', this.localstorage.get('token'));
