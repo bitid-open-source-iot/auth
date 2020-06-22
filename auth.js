@@ -48,7 +48,7 @@ try {
                         });
                     };
                     if (args.settings.authentication) {
-                        if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth' && req.originalUrl != '/auth/validate') {
+                        if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
                             var tmp = {
                                 'req': req,
                                 'res': res

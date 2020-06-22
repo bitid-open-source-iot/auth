@@ -1,6 +1,5 @@
 {
-    "logging":          false,
-    "production":       false,
+    "production":       true,
     "authentication":   true,
     "localwebserver": {
         "port":      9000,

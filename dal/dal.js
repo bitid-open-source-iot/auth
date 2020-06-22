@@ -1963,7 +1963,7 @@ var module = function() {
 
 				return deferred.promise;
 			}, null)
-			.then(db.call,null)
+			.then(db.call, null)
 			.then(result => {
 				args.result = result;
 				deferred.resolve(args);

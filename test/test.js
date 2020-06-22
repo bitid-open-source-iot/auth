@@ -1085,7 +1085,7 @@ var tools = {
             validate: () => {
                 var deferred = Q.defer();
                 
-                tools.post('/auth/validate', {
+                tools.put('/auth/validate', {
                     "scope": "/users/get"
                 }, loginToken)
                 .then(deferred.resolve, deferred.resolve);
@@ -1370,7 +1370,7 @@ var tools = {
             },
             delete: () => {
                 var deferred = Q.defer();
-                
+
                 tools.post('/users/delete', {
                     'password': config.password
                 })

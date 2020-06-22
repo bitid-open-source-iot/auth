@@ -16,7 +16,7 @@ router.put('/register', (req, res) => {
 	myModule.auth.register(req, res);
 });
 
-router.post('/validate', (req, res) => {
+router.put('/validate', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.validate(req, res);
 });

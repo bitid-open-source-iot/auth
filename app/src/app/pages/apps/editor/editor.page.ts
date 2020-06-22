@@ -107,7 +107,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
         if (mode == 'copy') {
             mode = 'add';
         };
-        this.scopes = this.scopes.map(url => {
+        let scopes = this.scopes.map(url => {
             return {
                 'url':  url,
                 'role': 4
@@ -124,7 +124,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
             'name':             this.form.value.name,
             'icon':             this.form.value.icon,
             'appId':            this.appId,
-            'scopes':           this.scopes,
+            'scopes':           scopes,
             'domains':          this.domains,
             'organizationOnly': this.form.value.organizationOnly
         });
