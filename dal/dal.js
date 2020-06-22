@@ -1,7 +1,8 @@
-var Q       	= require('q');
-var db			= require('../db/mongo');
-var tools		= require('../lib/tools');
-var ObjectId 	= require('mongodb').ObjectId
+var Q       		= require('q');
+var db				= require('../db/mongo');
+var tools			= require('../lib/tools');
+var ObjectId 		= require('mongodb').ObjectId
+var ErrorResponse 	= require('../lib/error-response').ErrorResponse;
 
 var module = function() {
 	var dalApps = {
@@ -776,26 +777,32 @@ var module = function() {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-
 			if (typeof(args.req.headers.authorization) == 'undefined') {
-				dalAuth.errorResponse.error.errors[0].reason = 'token not found';
-				deferred.reject(dalAuth.errorResponse);
+				var err 					= new ErrorResponse();
+				err.error.code 				= 401;
+				err.error.errors[0].coded 	= 401;
+				err.error.errors[0].reason 	= 'token not found';
+				err.error.errors[0].message	= 'token not found';
+				deferred.reject(err);
 				return false;
 			} else {
 				try {
 					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
-				} catch(e) {
-					dalAuth.errorResponse.error.errors[0].reason 	= 'invalid token object';
-					dalAuth.errorResponse.description 				= 'invalid token object';
-					deferred.reject(dalAuth.errorResponse);
+				} catch(error) {
+					var err 					= new ErrorResponse();
+					err.error.code 				= 401;
+					err.error.errors[0].coded 	= 401;
+					err.error.errors[0].reason 	= 'invalid token object';
+					err.error.errors[0].message	= 'invalid token object';
+					deferred.reject(err);
 					return false;
 				};
 			};
 
 			var params = {
-				"token": 					args.req.headers.authorization,
-				"appId": 				ObjectId(args.req.body.header.appId),
-				"bitid.auth.users.email": args.req.body.header.email
+				"token":					args.req.headers.authorization,
+				"appId": 					ObjectId(args.req.body.header.appId),
+				"bitid.auth.users.email": 	args.req.body.header.email
 			};
 
 			var filter = {
@@ -826,16 +833,18 @@ var module = function() {
 							'allowNoRecordsFound': 	true
 						});
 					} else {
-						var err 					= dalAuth.errorResponse;
-						err.error.errors[0].code	= 401;
-						err.error.errors[0].reason	= 'Scope not present in token!';
+						var err 					= new ErrorResponse();
+						err.error.code 				= 401;
+						err.error.errors[0].code 	= 401;
+						err.error.errors[0].reason 	= 'Scope not present in token!';
 						err.error.errors[0].message	= 'Scope not present in token!';
 						deferred.reject(err);
 					};
 				} else {
-					var err 					= dalAuth.errorResponse;
-					err.error.errors[0].code	= 401;
-					err.error.errors[0].reason	= 'Token was not found!';
+					var err 					= new ErrorResponse();
+					err.error.code 				= 401;
+					err.error.errors[0].code 	= 401;
+					err.error.errors[0].reason 	= 'Token was not found!';
 					err.error.errors[0].message	= 'Token was not found!';
 					deferred.reject(err);
 				};
@@ -858,9 +867,10 @@ var module = function() {
 						'allowNoRecordsFound': 	true
 					});
 				} else {
-					var err 					= dalAuth.errorResponse;
-					err.error.errors[0].code	= 401;
-					err.error.errors[0].reason	= 'Scope was not found!';
+					var err 					= new ErrorResponse();
+					err.error.code 				= 401;
+					err.error.errors[0].code 	= 401;
+					err.error.errors[0].reason 	= 'Scope was not found!';
 					err.error.errors[0].message	= 'Scope was not found!';
 					deferred.reject(err);
 				};
@@ -876,19 +886,21 @@ var module = function() {
 					var current = new Date();
 
 					if (expiry < current) {
-						var err 					= dalAuth.errorResponse;
+						var err 					= new ErrorResponse();
+						err.error.code 				= 401;
 						err.error.errors[0].code 	= 401;
 						err.error.errors[0].reason 	= 'This token has expired!';
-						err.error.errors[0].message = 'This token has expired!';
+						err.error.errors[0].message	= 'This token has expired!';
 						deferred.reject(err);
 					} else {
 						deferred.resolve(true);
 					};
 				} else {
-					var err 					= dalAuth.errorResponse;
-					err.error.errors[0].code	= 401;
-					err.error.errors[0].reason	= 'app not found!';
-					err.error.errors[0].message	= 'app not found!';
+					var err 					= new ErrorResponse();
+					err.error.code 				= 401;
+					err.error.errors[0].code 	= 401;
+					err.error.errors[0].reason 	= 'App not found!';
+					err.error.errors[0].message	= 'App not found!';
 					deferred.reject(err);
 				};
 
