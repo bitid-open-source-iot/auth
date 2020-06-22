@@ -110,6 +110,10 @@ export interface App {
         'color'?:       string;
         'background'?:  string;
     };
+    'google'?: {
+        'database'?:    string;
+        'credentials'?: any;
+    };
     'role'?:                number;
     'icon'?:	            string;
     'name'?:	            string;
@@ -125,6 +129,10 @@ interface AddQuery {
     'theme'?: {
         'color'?:       string;
         'background'?:  string;
+    };
+    'google'?: {
+        'database'?:    string;
+        'credentials'?: any;
     };
     'icon'?:	            string;
     'name'?:	            string;
@@ -163,6 +171,10 @@ interface UpdateQuery {
     'theme'?: {
         'color':        string;
         'background':   string;
+    };
+    'google'?: {
+        'database'?:    string;
+        'credentials'?: any;
     };
     'icon'?:	            string;
     'name'?:	            string;

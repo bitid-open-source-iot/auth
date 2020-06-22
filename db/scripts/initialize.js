@@ -16,6 +16,21 @@ if (apps.count() == 0) {
             "color":        "",
             "background":   ""
         },
+        "google": {
+            "credentials": {
+                "type":                        "xxx",
+                "auth_uri":                    "xxx",
+                "client_id":                   "xxx",
+                "token_uri":                   "xxx",
+                "project_id":                  "xxx",
+                "private_key":                 "xxx",
+                "client_email":                "xxx",
+                "private_key_id":              "xxx",
+                "client_x509_cert_url":        "xxx",
+                "auth_provider_x509_cert_url": "xxx"
+            },
+            "database": "xxx"
+        },
         "scopes": [
             {
                 "url":  "/etc",

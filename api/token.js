@@ -1,6 +1,5 @@
-var express 	= require('express');
-var router 		= express.Router();
-var bllModule	= require('../bll/bll');
+var bll		= require('../bll/bll');
+var router 	= require('express').Router();
 
 router.post('/retrieve', function(req, res) {
 	var myModule = new bllModule.module();

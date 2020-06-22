@@ -22,22 +22,34 @@ export class AppEditorPage implements OnInit, OnDestroy {
     
     constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private router: Router, private service: AppsService, private formerror: FormErrorService, private scopesservice: ScopesService) {};
 
-    public form:            FormGroup   = new FormGroup({
+    public theme:           FormGroup   = new FormGroup({
+        'color':        new FormControl('', [Validators.required]),
+        'background':   new FormControl('', [Validators.required])
+    });
+    public google:          FormGroup   = new FormGroup({
+        'database':     new FormControl('', []),
+        'credentials':  new FormControl('', [Validators.pattern(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/)])
+    });
+    public details:         FormGroup   = new FormGroup({
         'name':             new FormControl('', [Validators.required]),
         'icon':             new FormControl('', [Validators.required]),
-        'color':            new FormControl('', [Validators.required]),
         'secret':           new FormControl('', [Validators.required]),
-        'background':       new FormControl('', [Validators.required]),
         'organizationOnly': new FormControl(0, [Validators.required])
     });
     public mode:            string;
     public appId:           string;
-    public errors:          any         = {
+    public themeErrors:     any         = {
+        'color':        '',
+        'background':   ''
+    };
+    public googleErrors:    any         = {
+        'database':     '',
+        'credentials':  ''
+    };
+    public detailsErrors:   any         = {
         'name':             '',
         'icon':             '',
-        'color':            '',
         'secret':           '',
-        'background':       '',
         'organizationOnly': ''
     };
     public scopes:          any[]       = [];
@@ -59,6 +71,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
                 'theme',
                 'scopes',
                 'secret',
+                'google',
                 'domains',
                 'organizationOnly'
             ],
@@ -74,12 +87,18 @@ export class AppEditorPage implements OnInit, OnDestroy {
             };
             this.scopes     = response.result.scopes.map(scope => scope.url);
             this.domains    = response.result.domains;
-            this.form.controls['name'].setValue(response.result.name);
-            this.form.controls['icon'].setValue(response.result.icon);
-            this.form.controls['color'].setValue(response.result.theme.color);
-            this.form.controls['secret'].setValue(response.result.secret);
-            this.form.controls['background'].setValue(response.result.theme.background);
-            this.form.controls['organizationOnly'].setValue(response.result.organizationOnly);
+            if (typeof(response.result.theme) != "undefined") {
+                this.theme.controls['color'].setValue(response.result.theme.color);
+                this.theme.controls['background'].setValue(response.result.theme.background);
+            };
+            if (typeof(response.result.google) != "undefined") {
+                this.google.controls['database'].setValue(response.result.google.database);
+                this.google.controls['credentials'].setValue(JSON.stringify(response.result.google.credentials, null, 4));
+            };
+            this.details.controls['name'].setValue(response.result.name);
+            this.details.controls['icon'].setValue(response.result.icon);
+            this.details.controls['secret'].setValue(response.result.secret);
+            this.details.controls['organizationOnly'].setValue(response.result.organizationOnly);
         } else {
             this.router.navigate(['/apps']);
             this.toast.error('issue loading app!');
@@ -87,7 +106,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
     };
 
     private async load() {
-        const response = await this.scopesservice.list({
+        const response = await this.scopesservice.load({
             'filter': [
                 'url',
                 'roles'
@@ -102,34 +121,48 @@ export class AppEditorPage implements OnInit, OnDestroy {
     public async submit() {
         this.loading = true;
 
-        let mode = this.mode;
-
-        if (mode == 'copy') {
-            mode = 'add';
-        };
-        let scopes = this.scopes.map(url => {
+        let mode        = this.mode;
+        let scopes      = this.scopes.map(url => {
             return {
                 'url':  url,
                 'role': 4
             };
         });
-        
-        this.form.disable();
+        let credentials: any = {};
+
+        if (mode == 'copy') {
+            mode = 'add';
+        };
+        this.theme.disable();
+        this.google.disable();
+        this.details.disable();
+
+        let regex = new RegExp(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/);
+        if (regex.test(this.google.value.credentials)) {
+            credentials = this.google.value.credentials.split(/\r?\n|\r/).join('');
+            credentials = JSON.parse(this.google.value.credentials);
+        };
 
         const response = await this.service[mode]({
             'theme': {
-                'color':        this.form.value.color,
-                'background':   this.form.value.background
+                'color':        this.theme.value.color,
+                'background':   this.theme.value.background
             },
-            'name':             this.form.value.name,
-            'icon':             this.form.value.icon,
+            'google': {
+                'database':     this.google.value.database,
+                'credentials':  credentials
+            },
+            'name':             this.details.value.name,
+            'icon':             this.details.value.icon,
             'appId':            this.appId,
             'scopes':           scopes,
             'domains':          this.domains,
-            'organizationOnly': this.form.value.organizationOnly
+            'organizationOnly': this.details.value.organizationOnly
         });
         
-        this.form.enable();
+        this.theme.enable();
+        this.google.enable();
+        this.details.enable();
 
         this.loading = false;
 
@@ -187,8 +220,12 @@ export class AppEditorPage implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.load();
 
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
-            this.errors = this.formerror.validateForm(this.form, this.errors, true);
+        this.subscriptions.theme = this.theme.valueChanges.subscribe(data => {
+            this.themeErrors = this.formerror.validateForm(this.theme, this.themeErrors, true);
+        });
+
+        this.subscriptions.google = this.google.valueChanges.subscribe(data => {
+            this.googleErrors = this.formerror.validateForm(this.google, this.googleErrors, true);
         });
 
         this.subscriptions.route = this.route.params.subscribe(params => {
@@ -201,13 +238,20 @@ export class AppEditorPage implements OnInit, OnDestroy {
         });
 
         this.subscriptions.uplaod = this.uplaod.change.subscribe(icon => {
-            this.form.controls['icon'].setValue(icon);
+            this.details.controls['icon'].setValue(icon);
+        });
+
+        this.subscriptions.details = this.details.valueChanges.subscribe(data => {
+            this.detailsErrors = this.formerror.validateForm(this.details, this.detailsErrors, true);
         });
     };
 
     ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
+        this.subscriptions.theme.unsubscribe();
         this.subscriptions.route.unsubscribe();
+        this.subscriptions.uplaod.unsubscribe();
+        this.subscriptions.google.unsubscribe();
+        this.subscriptions.details.unsubscribe();
     };
 
 }

@@ -1,6 +1,5 @@
-var express 	= require('express');
-var router 		= express.Router();
-var bllModule	= require('../bll/bll');
+var bll		= require('../bll/bll');
+var router 	= require('express').Router();
 
 router.use(function timeLog(req, res, next) {
   	next();

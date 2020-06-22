@@ -14,122 +14,164 @@
 
 <mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
 
-<form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-    <app-image-upload [value]="form.value.icon" [required]="!form.value.icon || errors.icon"></app-image-upload>
-
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            name
-        </mat-label>
+<mat-tab-group mat-stretch-tabs>
+    <mat-tab label="Details">
+        <form [formGroup]="details" (ngSubmit)="!theme.invalid && !google.invalid && !details.invalid && submit()">
+            <app-image-upload [value]="details.value.icon" [required]="!details.value.icon || detailsErrors.icon"></app-image-upload>
         
-        <input matInput type="text" name="name" placeholder="name" formControlName="name" required>
-
-        <mat-error *ngIf="errors.name">
-            {{ errors.name }}
-        </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            domains
-        </mat-label>
-
-        <mat-chip-list #domainchips aria-label="Fruit selection">
-            <mat-chip *ngFor="let domain of domains" [removable]="true" (removed)="RemoveDomain(domain)">
-                {{ domain }}
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    name
+                </mat-label>
                 
-                <mat-icon matChipRemove>
-                    cancel
-                </mat-icon>
-            </mat-chip>
-          
-            <input placeholder="domain..." [matChipInputFor]="domainchips" [matChipInputSeparatorKeyCodes]="keyscodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="AddDomain($event)">
-        </mat-chip-list>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            scopes
-        </mat-label>
-
-        <mat-chip-list #scopechips aria-label="Fruit selection">
-            <mat-chip *ngFor="let scope of scopes" [removable]="true" (removed)="RemoveScope(scope)">
-                {{ scope }}
+                <input matInput type="text" name="name" placeholder="name" formControlName="name" required>
+        
+                <mat-error *ngIf="detailsErrors.name">
+                    {{ detailsErrors.name }}
+                </mat-error>
+            </mat-form-field>
+        
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    domains
+                </mat-label>
+        
+                <mat-chip-list #domainchips aria-label="Fruit selection">
+                    <mat-chip *ngFor="let domain of domains" [removable]="true" (removed)="RemoveDomain(domain)">
+                        {{ domain }}
+                        
+                        <mat-icon matChipRemove>
+                            cancel
+                        </mat-icon>
+                    </mat-chip>
+                  
+                    <input placeholder="domain..." [matChipInputFor]="domainchips" [matChipInputSeparatorKeyCodes]="keyscodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="AddDomain($event)">
+                </mat-chip-list>
+            </mat-form-field>
+        
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    scopes
+                </mat-label>
+        
+                <mat-chip-list #scopechips aria-label="Fruit selection">
+                    <mat-chip *ngFor="let scope of scopes" [removable]="true" (removed)="RemoveScope(scope)">
+                        {{ scope }}
+                        
+                        <mat-icon matChipRemove>
+                            cancel
+                        </mat-icon>
+                    </mat-chip>
+                  
+                    <input #scopeinput placeholder="scope..." [matAutocomplete]="auto" [matChipInputFor]="scopechips">
+                  
+                    <mat-autocomplete #auto="matAutocomplete">
+                        <mat-option *ngFor="let option of options | filterBy : 'url' : scopeinput.value" [value]="option.url" (click)="AddScope(option.url, scopeinput)">
+                            {{ option.url }}
+                        </mat-option>
+                    </mat-autocomplete>
+                </mat-chip-list>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    secret
+                </mat-label>
                 
-                <mat-icon matChipRemove>
-                    cancel
-                </mat-icon>
-            </mat-chip>
-          
-            <input #scopeinput placeholder="scope..." [matAutocomplete]="auto" [matChipInputFor]="scopechips">
-          
-            <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let option of options | filterBy : 'url' : scopeinput.value" [value]="option.url" (click)="AddScope(option.url, scopeinput)">
-                    {{ option.url }}
-                </mat-option>
-            </mat-autocomplete>
-        </mat-chip-list>
-    </mat-form-field>
-    
-    <section>
-        <mat-form-field appearance="outline">
-            <mat-label text-uppercase>
-                theme color
-            </mat-label>
-            
-            <input matInput type="color" name="color" placeholder="theme color" formControlName="color" required>
-    
-            <mat-error *ngIf="errors.color">
-                {{ errors.color }}
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label text-uppercase>
-                theme background
-            </mat-label>
-            
-            <input matInput type="color" name="background" placeholder="theme background" formControlName="background" required>
-    
-            <mat-error *ngIf="errors.background">
-                {{ errors.background }}
-            </mat-error>
-        </mat-form-field>
-    </section>
-
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            secret
-        </mat-label>
+                <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
         
-        <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
-
-        <mat-error *ngIf="errors.secret">
-            {{ errors.secret }}
-        </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            sharing rules
-        </mat-label>
+                <mat-error *ngIf="detailsErrors.secret">
+                    {{ detailsErrors.secret }}
+                </mat-error>
+            </mat-form-field>
         
-        <mat-select name="organizationOnly" placeholder="sharing rules" formControlName="organizationOnly" required>
-            <mat-option [value]="0">
-                Anyone Can Share
-            </mat-option>
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    sharing rules
+                </mat-label>
+                
+                <mat-select name="organizationOnly" placeholder="sharing rules" formControlName="organizationOnly" required>
+                    <mat-option [value]="0">
+                        Anyone Can Share
+                    </mat-option>
+        
+                    <mat-option [value]="1">
+                        In Organization Only
+                    </mat-option>
+                </mat-select>
+        
+                <mat-error *ngIf="detailsErrors.organizationOnly">
+                    {{ detailsErrors.organizationOnly }}
+                </mat-error>
+            </mat-form-field>
+        
+            <button type="submit" mat-flat-button color="primary">
+                submit
+            </button>
+        </form>
+    </mat-tab>
 
-            <mat-option [value]="1">
-                In Organization Only
-            </mat-option>
-        </mat-select>
+    <mat-tab label="Themes & Colors">
+        <form [formGroup]="theme" (ngSubmit)="!theme.invalid && !google.invalid && !details.invalid && submit()">
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    text
+                </mat-label>
+                
+                <input matInput type="color" name="color" placeholder="text" formControlName="color" required>
+        
+                <mat-error *ngIf="themeErrors.color">
+                    {{ themeErrors.color }}
+                </mat-error>
+            </mat-form-field>
+    
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    background
+                </mat-label>
+                
+                <input matInput type="color" name="background" placeholder="background" formControlName="background" required>
+        
+                <mat-error *ngIf="themeErrors.background">
+                    {{ themeErrors.background }}
+                </mat-error>
+            </mat-form-field>
+        
+            <button type="submit" mat-flat-button color="primary">
+                submit
+            </button>
+        </form>
+    </mat-tab>
 
-        <mat-error *ngIf="errors.organizationOnly">
-            {{ errors.organizationOnly }}
-        </mat-error>
-    </mat-form-field>
+    <mat-tab label="Google Credentials">
+        <form [formGroup]="google" (ngSubmit)="!theme.invalid && !google.invalid && !details.invalid && submit()">
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    database
+                </mat-label>
+                
+                <input matInput type="url" name="database" placeholder="database" formControlName="database">
+        
+                <mat-error *ngIf="googleErrors.database">
+                    {{ googleErrors.database }}
+                </mat-error>
+            </mat-form-field>
 
-    <button type="submit" mat-flat-button color="primary">
-        submit
-    </button>
-</form>
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
+                    credentials
+                </mat-label>
+                
+                <textarea matInput rows="12" name="credentials" placeholder="credentials" formControlName="credentials"></textarea>
+        
+                <mat-error *ngIf="googleErrors.credentials">
+                    {{ googleErrors.credentials }}
+                </mat-error>
+            </mat-form-field>
+    
+            <button type="submit" mat-flat-button color="primary">
+                submit
+            </button>
+        </form>
+    </mat-tab>
+</mat-tab-group>

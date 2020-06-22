@@ -7,6 +7,7 @@ import { SearchModule } from 'src/app/components/search/search.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { AppEditorPage } from './editor/editor.page';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
 import { MatInputModule } from '@angular/material/input';
 import { MatChipsModule } from '@angular/material/chips';
@@ -36,6 +37,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         SearchModule,
         MatIconModule,
         MatMenuModule,
+        MatTabsModule,
         MatChipsModule,
         MatInputModule,
         MatTableModule,

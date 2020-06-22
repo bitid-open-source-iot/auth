@@ -51,7 +51,10 @@ export class SignupPage implements OnInit, OnDestroy {
         this.loading = false;
 
         if (response.ok) {
-            this.router.navigate(['/verify'], {
+            this.router.navigate(['/verify-account'], {
+                'queryParams': {
+                    'email': this.form.value.email
+                },
                 'replaceUrl': true
             });
         } else {

@@ -40,6 +40,21 @@ var module = function() {
 				"serverDate": 	new Date()
 			};
 
+			if (typeof(args.req.body.google) != "undefined") {
+				params.google = {};
+				if (typeof(args.req.body.google.database) != "undefined") {
+					params.google.database = args.req.body.google.database;
+				};
+				if (typeof(args.req.body.google.credentials) == "object") {
+					params.google.credentials = args.req.body.google.credentials;
+				};
+			} else {
+				params.google = {
+					"database": 	"",
+					"credentials": 	{}
+				};
+			};
+
 			db.call({
 				'params': 		params,
 				'operation': 	'insert',
@@ -254,6 +269,14 @@ var module = function() {
 				$set: {
 					"serverDate": new Date()
 				}
+			};
+			if (typeof(args.req.body.google) != "undefined") {
+				if (typeof(args.req.body.google.database) != "undefined") {
+					update.$set['google.database'] = args.req.body.google.database;
+				};
+				if (typeof(args.req.body.google.credentials) == "object") {
+					update.$set['google.credentials'] = args.req.body.google.credentials;
+				};
 			};
 			if (typeof(args.req.body.name) != "undefined") {
 				update.$set.name = args.req.body.name;

@@ -1,4 +1,10 @@
+mat-tab-group {
+    max-height: calc(100% - 56px) !important;
+}
 
+.mat-tab-group.mat-primary .mat-ink-bar, .mat-tab-nav-bar.mat-primary .mat-ink-bar {
+    background-color: red !important;
+}
 form {
     width:  400px;
     margin: auto;

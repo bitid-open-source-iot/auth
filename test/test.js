@@ -292,6 +292,7 @@ describe('Apps', function() {
                 result.should.have.property('theme');
                 result.should.have.property('scopes');
                 result.should.have.property('secret');
+                result.should.have.property('google');
                 result.should.have.property('domains');
                 result.should.have.property('organizationOnly');
                 done();
@@ -321,6 +322,7 @@ describe('Apps', function() {
                 result[0].should.have.property('theme');
                 result[0].should.have.property('scopes');
                 result[0].should.have.property('secret');
+                result[0].should.have.property('google');
                 result[0].should.have.property('domains');
                 result[0].should.have.property('organizationOnly');
                 done();
@@ -895,6 +897,21 @@ var tools = {
                         "color":        "",
                         "background":   ""
                     },
+                    "google": {
+                        "credentials": {
+                            "type":                        "xxx",
+                            "auth_uri":                    "xxx",
+                            "client_id":                   "xxx",
+                            "token_uri":                   "xxx",
+                            "project_id":                  "xxx",
+                            "private_key":                 "xxx",
+                            "client_email":                "xxx",
+                            "private_key_id":              "xxx",
+                            "client_x509_cert_url":        "xxx",
+                            "auth_provider_x509_cert_url": "xxx"
+                        },
+                        "database": "xxx"
+                    },
                     "name":             "Mocha App",
                     "icon":             "https://www.bitid.co.za/assets/logo.png",
                     "scopes":           [],
@@ -919,6 +936,7 @@ var tools = {
                         'theme',
                         'scopes',
                         'secret',
+                        'google',
                         'domains',
                         'organizationOnly'
                     ],
@@ -941,6 +959,7 @@ var tools = {
                         'theme',
                         'scopes',
                         'secret',
+                        'google',
                         'domains',
                         'organizationOnly'
                     ],

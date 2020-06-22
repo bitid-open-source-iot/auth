@@ -21,6 +21,10 @@ export class ScopesService {
         return await this.api.post(environment.auth, '/scopes/get', params);
     };
 
+    public async load(params) {
+        return await this.api.put(environment.auth, '/scopes/load', params);
+    };
+
     public async list(params) {
         return await this.api.post(environment.auth, '/scopes/list', params);
     };
