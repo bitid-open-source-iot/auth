@@ -7,6 +7,7 @@ var chalk           = require('chalk');
 var express         = require('express');
 var Responder       = require('./lib/responder');
 var bodyParser  	= require('body-parser');
+var healthcheck     = require('@bitid/health-check');
 var ErrorResponse   = require('./lib/error-response').ErrorResponse;
 
 global.__base       = __dirname + '/';
@@ -106,8 +107,11 @@ try {
                 app.use('/statistics', statistics);
                 __logger.info('loaded ./api/statistics');
 
+                app.use('/health-check', healthcheck);
+                __logger.info('loaded ./api/health-check');
+
                 app.use((err, req, res, next) => {
-                    var err                     = ErrorResponse();
+                    var err                     = new ErrorResponse();
                     err.error.code              = 500;
                     err.error.message           = 'Something broke';
                     err.error.errors[0].code    = 500;

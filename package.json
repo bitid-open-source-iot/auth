@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/bitid-open-source-iot/auth#readme",
   "dependencies": {
+    "@bitid/health-check": "^1.0.1",
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",

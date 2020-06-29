@@ -487,8 +487,6 @@ var module = function() {
 		},
 
 		get: (req, res) => {
-			var deferred = Q.defer();
-
 			var args = {
 				'req': 	req,
 				'res': 	res
@@ -501,8 +499,6 @@ var module = function() {
 			}, err => {
 				__responder.error(req, res, err);
 			});
-
-			return deferred.promise;
 		},
 
 		list: (req, res) => {
