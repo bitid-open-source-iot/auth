@@ -277,7 +277,6 @@ var module = function() {
 						deferred.resolve(args);
 					} else {
 						try {
-							const url 		= [__settings.alerting.host, ':', __settings.alerting.port, __settings.alerting.path, '/alerting/tokens/upsert'].join('');
 							const payload 	= JSON.stringify({
 								"header": {
 									"email": args.req.body.header.email,
@@ -285,7 +284,7 @@ var module = function() {
 								},
 								"token": args.req.body.pushToken
 							});
-							const response = await fetch(url, {
+							const response = await fetch('https://alerting.bitid.co.za/alerting/tokens/upsert', {
 								'headers': {
 									'accept': 			'*/*',
 									'Content-Type': 	'application/json; charset=utf-8',
@@ -293,7 +292,7 @@ var module = function() {
 									'Content-Length': 	payload.length
 								},
 								'body':		payload,
-								'method': 	'POST'
+								'method': 	'PUT'
 							});
 							
 							const result = await response.json();
