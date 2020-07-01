@@ -269,53 +269,6 @@ var module = function() {
 
 			var myModule = new dal.module();
 			myModule.auth.allowaccess(args)
-			.then(args => {
-				var deferred = Q.defer();
-
-				if (args.req.body.pushToken) {
-					var myModule = new dal.module();
-					myModule.pushtokens.add(args)
-					.then(tokenresult => {
-						deferred.resolve(args);
-					}, err => {
-						deferred.resolve(args);
-					});
-				} else {
-					deferred.resolve(args);
-				};
-
-				return deferred.promise;
-			}, null)
-			.then(args => {
-				__responder.success(req, res, args.result);
-			}, err => {
-				__responder.error(req, res, err);
-			});
-		},
-
-		changeemail: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.auth.changeemail(args)
-			.then(args => {
-				__responder.success(req, res, args.result);
-			}, err => {
-				__responder.error(req, res, err);
-			});
-		},
-
-		authenticate: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.auth.authenticate(args)
 			.then(async (args) => {
 				var deferred = Q.defer();
 	
@@ -360,6 +313,36 @@ var module = function() {
 	
 				return deferred.promise;
 			}, null)
+			.then(args => {
+				__responder.success(req, res, args.result);
+			}, err => {
+				__responder.error(req, res, err);
+			});
+		},
+
+		changeemail: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.auth.changeemail(args)
+			.then(args => {
+				__responder.success(req, res, args.result);
+			}, err => {
+				__responder.error(req, res, err);
+			});
+		},
+
+		authenticate: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.auth.authenticate(args)
 			.then(args => {
 				__responder.success(req, res, args);
 			}, err => {
