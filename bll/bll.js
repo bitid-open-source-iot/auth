@@ -14,7 +14,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"GTeneral Error",
 					"message": 		"Invalid App Details",
-					"locaction": 	"bllApps",
+					"location": 	"bllApps",
 					"locationType": "body"
 				}]
 			}
@@ -183,7 +183,7 @@ var module = function() {
 					"code": 		401,
 					"reason": 		"General Error",
 					"message": 		"Authentication Error",
-					"locaction": 	"bllAuth",
+					"location": 	"bllAuth",
 					"locationType": "body"
 				}]
 			},
@@ -463,7 +463,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"Invalid User Details",
-					"locaction": 	"bllUsers",
+					"location": 	"bllUsers",
 					"locationType": "body"
 				}]
 			}
@@ -575,7 +575,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Grror",
 					"message": 		"Scopes Error",
-					"locaction": 	"bllScopes",
+					"location": 	"bllScopes",
 					"locationType": "body"
 				}]
 			},
@@ -684,7 +684,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"General Error",
-					"locaction": 	"bllTokens",
+					"location": 	"bllTokens",
 					"locationType": "body"
 				}]
 			},
@@ -825,7 +825,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Statistics Error",
 					"message": 		"General Statistics Error",
-					"locaction": 	"bllStatistics",
+					"location": 	"bllStatistics",
 					"locationType": "bll"
 				}]
 			}

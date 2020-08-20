@@ -1,0 +1,23 @@
+.page {
+    margin: 15px auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    p {
+        margin: 5px 10px;
+        font-size: 12px;
+        line-height: 12px;
+    }
+    h3 {
+        margin: 5px 10px;
+        font-size: 14px;
+        line-height: 14px;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    ul {
+        font-size: 12px;
+        line-height: 12px;
+        list-style-type: none !important;
+    }
+}

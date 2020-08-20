@@ -14,7 +14,7 @@ var module = function() {
 					"code": 		401,
 					"reason": 		"General Error",
 					"message": 		"Invalid App Details",
-					"locaction": 	"dalApps",
+					"location": 	"dalApps",
 					"locationType": "body"
 				}]
 			},
@@ -572,7 +572,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"authError",
 					"message": 		"Invalid Credentials",
-					"locaction": 	"dalAuth",
+					"location": 	"dalAuth",
 					"locationType": "header"
 				}]
 			},
@@ -1754,7 +1754,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"Invalid User Details",
-					"locaction": 	"dalUsers",
+					"location": 	"dalUsers",
 					"locationType": "body"
 				}]
 			},
@@ -2060,7 +2060,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"Scopes Error",
-					"locaction": 	"dalScopes",
+					"location": 	"dalScopes",
 					"locationType": "body"
 				}]
 			},
@@ -2412,7 +2412,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"Invalid Credentials",
-					"locaction": 	"dalTokens",
+					"location": 	"dalTokens",
 					"locationType": "header"
 				}]
 			},
@@ -2881,7 +2881,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"generalError",
 					"message": 		"Invalid app Details",
-					"locaction": 	"dalPushTokens",
+					"location": 	"dalPushTokens",
 					"locationType": "body"
 				}]
 			},
@@ -3015,7 +3015,7 @@ var module = function() {
 					"code": 		1,
 					"reason": 		"General Error",
 					"message": 		"Invalid Statistics Details",
-					"locaction": 	"dalStatistics",
+					"location": 	"dalStatistics",
 					"locationType": "body"
 				}]
 			},

@@ -179,3 +179,33 @@ table {
         }
     }
 }
+.container {
+    width: 50%;
+    margin: auto;
+}
+@media screen and (max-width: 1500px) {
+    .container {
+        width: 60%;
+    }
+}
+@media screen and (max-width: 1200px) {
+    .container {
+        width: 70%;
+    }
+}
+@media screen and (max-width: 900px) {
+    .container {
+        width: 80%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+}
+@media screen and (max-width: 400px) {
+    .container {
+        width: calc(100% - 10px);
+        margin: 0px 5px;
+    }
+}
