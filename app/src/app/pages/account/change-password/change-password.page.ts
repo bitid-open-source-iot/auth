@@ -6,27 +6,27 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
-    selector:       'app-change-password',
-    styleUrls:      ['./change-password.page.scss'],
-    templateUrl:    './change-password.page.html'
+    selector: 'app-change-password',
+    styleUrls: ['./change-password.page.scss'],
+    templateUrl: './change-password.page.html'
 })
 
 export class ChangePasswordPage implements OnInit, OnDestroy {
-    
-    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) {};
 
-    public form:            FormGroup   = new FormGroup({
-        'old':      new FormControl('', [Validators.required]),
-        'new':      new FormControl('', [Validators.required]),
-        'confirm':  new FormControl('', [Validators.required]),
+    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) { };
+
+    public form: FormGroup = new FormGroup({
+        'old': new FormControl('', [Validators.required]),
+        'new': new FormControl('', [Validators.required]),
+        'confirm': new FormControl('', [Validators.required]),
     });
-    public errors:          any         = {
-        'old':      '',
-        'new':      '',
-        'confirm':  ''
+    public errors: any = {
+        'old': '',
+        'new': '',
+        'confirm': ''
     };
-    public loading:         boolean;
-    private subscriptions:  any         = {};
+    public loading: boolean;
+    private subscriptions: any = {};
 
     public async submit() {
         this.loading = true;
@@ -34,11 +34,11 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
         this.form.disable();
 
         const response = await this.service.changepassword({
-            'confirm':      this.form.value.confirm,
-            'passwordOld':  this.form.value.old,
-            'passwordNew':  this.form.value.new
+            'old': this.form.value.old,
+            'new': this.form.value.new,
+            'confirm': this.form.value.confirm
         });
-        
+
         this.form.enable();
 
         this.loading = false;
