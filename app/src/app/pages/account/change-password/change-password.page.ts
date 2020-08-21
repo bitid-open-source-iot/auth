@@ -2,6 +2,7 @@ import { Router } from '@angular/router';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
+import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -13,7 +14,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class ChangePasswordPage implements OnInit, OnDestroy {
 
-    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) { };
+    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService, private localstorage: LocalstorageService) { };
 
     public form: FormGroup = new FormGroup({
         'old': new FormControl('', [Validators.required]),
@@ -35,7 +36,9 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 
         const response = await this.service.changepassword({
             'old': this.form.value.old,
-            'new': this.form.value.new
+            'new': this.form.value.new,
+            'email': this.localstorage.get('email'),
+            'confirm': this.form.value.confirm
         });
 
         this.form.enable();
