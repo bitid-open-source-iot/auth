@@ -35,8 +35,7 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 
         const response = await this.service.changepassword({
             'old': this.form.value.old,
-            'new': this.form.value.new,
-            'confirm': this.form.value.confirm
+            'new': this.form.value.new
         });
 
         this.form.enable();

@@ -157,7 +157,6 @@ export class AccountService {
     };
 
     public async changepassword(params) {
-        this.localstorage.set('email', params.email);
         return await this.api.put(environment.auth, '/auth/changepassword', params);
     };
     
