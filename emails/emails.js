@@ -21,6 +21,7 @@ exports.verify = (args) => {
     transporter.sendMail({
         'context': {
             'name': [args.user.name.first, args.user.name.last].join(' '),
+            'code': args.user.code,
             'verify': ['https://auth.bitid.co.za/verify-account?email=', args.user.email, '&code=', args.user.code].join('')
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
