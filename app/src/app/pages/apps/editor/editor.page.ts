@@ -11,59 +11,61 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
 
 @Component({
-    selector:       'app-app-editor',
-    styleUrls:      ['./editor.page.scss'],
-    templateUrl:    './editor.page.html'
+    selector: 'app-app-editor',
+    styleUrls: ['./editor.page.scss'],
+    templateUrl: './editor.page.html'
 })
 
 export class AppEditorPage implements OnInit, OnDestroy {
-    
-    @ViewChild(ImageUploadComponent, {'static': true}) uplaod: ImageUploadComponent;
-    
-    constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private router: Router, private service: AppsService, private formerror: FormErrorService, private scopesservice: ScopesService) {};
 
-    public theme:           FormGroup   = new FormGroup({
-        'color':        new FormControl('', [Validators.required]),
-        'background':   new FormControl('', [Validators.required])
+    @ViewChild(ImageUploadComponent, { 'static': true }) uplaod: ImageUploadComponent;
+
+    constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private router: Router, private service: AppsService, private formerror: FormErrorService, private scopesservice: ScopesService) { };
+
+    public theme: FormGroup = new FormGroup({
+        'color': new FormControl('', [Validators.required]),
+        'background': new FormControl('', [Validators.required])
     });
-    public google:          FormGroup   = new FormGroup({
-        'database':     new FormControl('', []),
-        'credentials':  new FormControl('', [Validators.pattern(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/)])
+    public google: FormGroup = new FormGroup({
+        'database': new FormControl('', []),
+        'credentials': new FormControl('', [Validators.pattern(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/)])
     });
-    public details:         FormGroup   = new FormGroup({
-        'name':             new FormControl('', [Validators.required]),
-        'icon':             new FormControl('', [Validators.required]),
-        'secret':           new FormControl('', [Validators.required]),
+    public details: FormGroup = new FormGroup({
+        'name': new FormControl('', [Validators.required]),
+        'icon': new FormControl('', [Validators.required]),
+        'secret': new FormControl('', [Validators.required]),
         'organizationOnly': new FormControl(0, [Validators.required])
     });
-    public mode:            string;
-    public appId:           string;
-    public themeErrors:     any         = {
-        'color':        '',
-        'background':   ''
+    public mode: string;
+    public appId: string;
+    public themeErrors: any = {
+        'color': '',
+        'background': ''
     };
-    public googleErrors:    any         = {
-        'database':     '',
-        'credentials':  ''
+    public googleErrors: any = {
+        'database': '',
+        'credentials': ''
     };
-    public detailsErrors:   any         = {
-        'name':             '',
-        'icon':             '',
-        'secret':           '',
+    public detailsErrors: any = {
+        'url': '',
+        'name': '',
+        'icon': '',
+        'secret': '',
         'organizationOnly': ''
     };
-    public scopes:          any[]       = [];
-    public options:         any[]       = [];
-    public domains:         string[]    = [];
-    public loading:         boolean;
-    public keyscodes:       number[]    = [ENTER, COMMA, SPACE];
-    private subscriptions:  any         = {};
+    public scopes: any[] = [];
+    public options: any[] = [];
+    public domains: string[] = [];
+    public loading: boolean;
+    public keyscodes: number[] = [ENTER, COMMA, SPACE];
+    private subscriptions: any = {};
 
     private async get() {
         this.loading = true;
 
         const response = await this.service.get({
             'filter': [
+                'url',
                 'role',
                 'icon',
                 'name',
@@ -85,16 +87,17 @@ export class AppEditorPage implements OnInit, OnDestroy {
                 this.router.navigate(['/apps']);
                 this.toast.error('you do not have permission to access this app!');
             };
-            this.scopes     = response.result.scopes.map(scope => scope.url);
-            this.domains    = response.result.domains;
-            if (typeof(response.result.theme) != "undefined") {
+            this.scopes = response.result.scopes.map(scope => scope.url);
+            this.domains = response.result.domains;
+            if (typeof (response.result.theme) != "undefined") {
                 this.theme.controls['color'].setValue(response.result.theme.color);
                 this.theme.controls['background'].setValue(response.result.theme.background);
             };
-            if (typeof(response.result.google) != "undefined") {
+            if (typeof (response.result.google) != "undefined") {
                 this.google.controls['database'].setValue(response.result.google.database);
                 this.google.controls['credentials'].setValue(JSON.stringify(response.result.google.credentials, null, 4));
             };
+            this.details.controls['url'].setValue(response.result.url);
             this.details.controls['name'].setValue(response.result.name);
             this.details.controls['icon'].setValue(response.result.icon);
             this.details.controls['secret'].setValue(response.result.secret);
@@ -121,10 +124,10 @@ export class AppEditorPage implements OnInit, OnDestroy {
     public async submit() {
         this.loading = true;
 
-        let mode        = this.mode;
-        let scopes      = this.scopes.map(url => {
+        let mode = this.mode;
+        let scopes = this.scopes.map(url => {
             return {
-                'url':  url,
+                'url': url,
                 'role': 4
             };
         });
@@ -145,21 +148,22 @@ export class AppEditorPage implements OnInit, OnDestroy {
 
         const response = await this.service[mode]({
             'theme': {
-                'color':        this.theme.value.color,
-                'background':   this.theme.value.background
+                'color': this.theme.value.color,
+                'background': this.theme.value.background
             },
             'google': {
-                'database':     this.google.value.database,
-                'credentials':  credentials
+                'database': this.google.value.database,
+                'credentials': credentials
             },
-            'name':             this.details.value.name,
-            'icon':             this.details.value.icon,
-            'appId':            this.appId,
-            'scopes':           scopes,
-            'domains':          this.domains,
+            'url': this.details.value.url,
+            'name': this.details.value.name,
+            'icon': this.details.value.icon,
+            'appId': this.appId,
+            'scopes': scopes,
+            'domains': this.domains,
             'organizationOnly': this.details.value.organizationOnly
         });
-        
+
         this.theme.enable();
         this.google.enable();
         this.details.enable();
@@ -181,14 +185,14 @@ export class AppEditorPage implements OnInit, OnDestroy {
             };
         };
     };
-    
+
     public RemoveScope(scope): void {
         const index = this.scopes.indexOf(scope);
         if (index >= 0) {
             this.scopes.splice(index, 1);
         };
     };
-    
+
     public RemoveDomain(domain): void {
         const index = this.domains.indexOf(domain);
         if (index >= 0) {
@@ -208,7 +212,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
     public AddDomain(event: MatChipInputEvent): void {
         const input = event.input;
         const value = event.value.trim();
-        const regex = new RegExp('^(https?:\\/\\/)?((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*(\\?[;&a-z\\d%_.~+=-]*)?(\\#[-a-z\\d_]*)?$','i');
+        const regex = new RegExp('^(https?:\\/\\/)?((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*(\\?[;&a-z\\d%_.~+=-]*)?(\\#[-a-z\\d_]*)?$', 'i');
         if (regex.test(value)) {
             this.domains.push(value);
         };
@@ -229,8 +233,8 @@ export class AppEditorPage implements OnInit, OnDestroy {
         });
 
         this.subscriptions.route = this.route.params.subscribe(params => {
-            this.mode   = params.mode;
-            this.appId  = params.appId;
+            this.mode = params.mode;
+            this.appId = params.appId;
 
             if (this.mode != 'add') {
                 this.get();

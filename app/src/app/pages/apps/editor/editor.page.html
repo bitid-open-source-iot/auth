@@ -33,6 +33,18 @@
         
             <mat-form-field appearance="outline">
                 <mat-label text-uppercase>
+                    main url
+                </mat-label>
+                
+                <input matInput type="url" name="url" placeholder="main url" formControlName="url" required>
+        
+                <mat-error *ngIf="detailsErrors.url">
+                    {{ detailsErrors.url }}
+                </mat-error>
+            </mat-form-field>
+        
+            <mat-form-field appearance="outline">
+                <mat-label text-uppercase>
                     domains
                 </mat-label>
         
