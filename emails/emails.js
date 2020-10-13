@@ -22,7 +22,7 @@ exports.verify = (args) => {
         'context': {
             'name': [args.user.name.first, args.user.name.last].join(' '),
             'code': args.user.code,
-            'verify': ['https://auth.bitid.co.za/verify-account?email=', args.user.email, '&code=', args.user.code].join('')
+            'verify': [args.app.url, '/verify-account?email=', args.user.email, '&code=', args.user.code].join('')
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
@@ -94,7 +94,7 @@ exports.resetpassword = (args) => {
 
     transporter.sendMail({
         'context': {
-            'link': ['https://auth.bitid.co.za/reset-password?email=', args.user.email, '&password=', args.user.password].join(''),
+            'link': [args.app.url, '/reset-password?email=', args.user.email, '&password=', args.user.password].join(''),
             'name': [args.user.name.first, args.user.name.last].join(' ')
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,

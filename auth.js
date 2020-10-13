@@ -1,19 +1,19 @@
-var Q               = require('q');
-var db              = require('./db/mongo');
-var dal             = require('./dal/dal');
-var cors            = require('cors');
-var http            = require('http');
-var chalk           = require('chalk');
-var express         = require('express');
-var Responder       = require('./lib/responder');
-var bodyParser  	= require('body-parser');
-var healthcheck     = require('@bitid/health-check');
-var ErrorResponse   = require('./lib/error-response').ErrorResponse;
+const Q = require('q');
+const db = require('./db/mongo');
+const dal = require('./dal/dal');
+const cors = require('cors');
+const http = require('http');
+const chalk = require('chalk');
+const express = require('express');
+const Responder = require('./lib/responder');
+const bodyParser = require('body-parser');
+const healthcheck = require('@bitid/health-check');
+const ErrorResponse = require('./lib/error-response');
 
-global.__base       = __dirname + '/';
-global.__logger     = require('./lib/logger');
-global.__settings   = require('./config.json');
-global.__responder  = new Responder.module();
+global.__base = __dirname + '/';
+global.__logger = require('./lib/logger');
+global.__settings = require('./config.json');
+global.__responder = new Responder.module();
 
 __logger.init();
 
@@ -23,27 +23,27 @@ try {
             var deferred = Q.defer();
 
             try {
-                var app	= express();
+                var app = express();
                 app.use(cors());
                 app.use(bodyParser.urlencoded({
-                    'limit':    '50mb',
+                    'limit': '50mb',
                     'extended': true
                 }));
                 app.use(bodyParser.json({
-                    "limit": '50mb'
+                    'limit': '50mb'
                 }));
 
                 app.use((req, res, next) => {
                     /* --- THIS WILL CATER FOR APPS UNTIL WE UPDATE THERE API SERVICES --- */
-                    if (typeof(req.body) != "undefined") {
-                        if (typeof(req.body.header) != "undefined") {
-                            if (typeof(req.body.header.clientIdAuth) != "undefined") {
+                    if (typeof (req.body) != 'undefined') {
+                        if (typeof (req.body.header) != 'undefined') {
+                            if (typeof (req.body.header.clientIdAuth) != 'undefined') {
                                 req.body.header.appId = req.body.header.clientIdAuth;
                                 delete req.body.header.clientIdAuth;
                             };
                         };
                         Object.keys(req.body).map(key => {
-                            if (key == "clientId") {
+                            if (key == 'clientId') {
                                 req.body.appId = req.body[key];
                             };
                         });
@@ -56,16 +56,16 @@ try {
                             };
 
                             tmp.req.body.scope = tmp.req.originalUrl;
-                            
+
                             var myModule = new dal.module();
-			                myModule.auth.validate(tmp)
-                            .then(result => {
-                                next(); 
-                            }, err => {
-                                err.error.code              = 401;
-                                err.error.errors[0].code    = 401;
-                                __responder.error(req, res, err);
-                            });
+                            myModule.auth.validate(tmp)
+                                .then(result => {
+                                    next();
+                                }, err => {
+                                    err.error.code = 401;
+                                    err.error.errors[0].code = 401;
+                                    __responder.error(req, res, err);
+                                });
                         } else {
                             next();
                         };
@@ -111,10 +111,10 @@ try {
                 __logger.info('loaded ./api/health-check');
 
                 app.use((err, req, res, next) => {
-                    var err                     = new ErrorResponse();
-                    err.error.code              = 500;
-                    err.error.message           = 'Something broke';
-                    err.error.errors[0].code    = 500;
+                    var err = new ErrorResponse();
+                    err.error.code = 503;
+                    err.error.message = 'Something broke';
+                    err.error.errors[0].code = 503;
                     err.error.errors[0].message = 'Something broke';
                     __responder.error(req, res, err);
                 });
@@ -123,10 +123,10 @@ try {
                 server.listen(args.settings.localwebserver.port);
 
                 deferred.resolve(args);
-            } catch(err) {
+            } catch (err) {
                 deferred.reject(err.message);
             };
-            
+
             return deferred.promise;
         },
 
@@ -157,13 +157,13 @@ try {
             };
 
             portal.api(args)
-            .then(portal.database, null)
-            .then(args => {
-                console.log('Webserver Running on port: ', args.settings.localwebserver.port);
-                __logger.info('Webserver Running on port: ' + args.settings.localwebserver.port);
-            }, err => {
-                console.log('Error Initializing: ', err);
-            });
+                .then(portal.database, null)
+                .then(args => {
+                    console.log('Webserver Running on port: ', args.settings.localwebserver.port);
+                    __logger.info('Webserver Running on port: ' + args.settings.localwebserver.port);
+                }, err => {
+                    console.log('Error Initializing: ', err);
+                });
         },
 
         database: (args) => {
@@ -173,7 +173,7 @@ try {
                 global.__database = database;
                 deferred.resolve(args);
             }, err => {
-                __logger.error('Database Connection Error: ' +  err);
+                __logger.error('Database Connection Error: ' + err);
                 deferred.reject(err);
             });
 
@@ -184,6 +184,6 @@ try {
     portal.init({
         'settings': __settings
     });
-} catch(error) {
+} catch (error) {
     console.log('The following error has occurred: ', error.message);
 };
