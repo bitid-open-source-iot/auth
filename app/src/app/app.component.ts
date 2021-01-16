@@ -4,23 +4,25 @@ import { SplashScreen } from './splashscreen/splashscreen.component';
 import { AccountService } from './services/account/account.service';
 import { HistoryService } from './services/history/history.service';
 import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { env } from 'process';
+import { environment } from 'src/environments/environment';
 
 @Component({
-    selector:       'app-root',
-    styleUrls:      ['./app.component.scss'],
-    templateUrl:    './app.component.html'
+    selector: 'app-root',
+    styleUrls: ['./app.component.scss'],
+    templateUrl: './app.component.html'
 })
 
 export class AppComponent implements OnInit, OnDestroy {
 
-    @ViewChild(MatSidenav, {'static': true})    private sidemenu:       MatSidenav;
-    @ViewChild(SplashScreen, {'static': true})  private splashscreen:   SplashScreen;
+    @ViewChild(MatSidenav, { 'static': true }) private sidemenu: MatSidenav;
+    @ViewChild(SplashScreen, { 'static': true }) private splashscreen: SplashScreen;
 
-    constructor(public menu: MenuService, private history: HistoryService, private account: AccountService) {};
+    constructor(public menu: MenuService, private history: HistoryService, private account: AccountService) { };
 
-    public authenticated:   boolean;
-    private subscriptions:  any = {};
-    
+    public authenticated: boolean;
+    private subscriptions: any = {};
+
     public async logout() {
         this.menu.close();
         this.account.logout();
@@ -29,9 +31,14 @@ export class AppComponent implements OnInit, OnDestroy {
     private async initialize() {
         await this.splashscreen.show();
 
+        if (environment.production) {
+            environment.auth = window.location.origin;
+            environment.drive = [window.location.protocol, '//', 'drive.', window.location.host].join('');
+        };
+        
         await this.history.init();
         await this.account.validate();
-        
+
         await this.splashscreen.hide();
     };
 
@@ -44,10 +51,10 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.account.load();
             };
         });
-        
+
         this.initialize();
     };
-    
+
     ngOnDestroy(): void {
         this.subscriptions.authenticated.unsubscribe();
     };
