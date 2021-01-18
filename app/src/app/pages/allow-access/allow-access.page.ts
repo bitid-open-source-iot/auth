@@ -1,4 +1,5 @@
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ConfigService } from 'src/app/services/config/config.service';
 import { ActivatedRoute } from '@angular/router';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { App, AppsService } from 'src/app/services/apps/apps.service';
@@ -14,7 +15,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-    constructor(private route: ActivatedRoute, private toast: ToastService, private formerror: FormErrorService, private service: AppsService, private localstorage: LocalstorageService) { };
+    constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private formerror: FormErrorService, private service: AppsService, private localstorage: LocalstorageService) { };
 
     public form: FormGroup = new FormGroup({
         'email': new FormControl('', [Validators.email, Validators.required]),
@@ -84,20 +85,19 @@ export class AllowAccessPage implements OnInit, OnDestroy {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
         });
 
-        this.subscriptions.route = this.route.queryParams.subscribe(params => {
-            this.appId = params.appId;
-            this.returl = params.returl;
-            if (typeof (params.email) != 'undefined') {
-                this.form.controls['email'].setValue(params.email);
-                this.localstorage.set('email', params.email);
+        this.subscriptions.config = this.config.loaded.subscribe(loaded => {
+            if (loaded) {
+                const params = this.route.snapshot.queryParams;
+                this.appId = params.appId;
+                this.returl = params.returl;
+                this.load();
             };
-            this.load();
         });
     };
 
     ngOnDestroy(): void {
         this.subscriptions.form.unsubscribe();
-        this.subscriptions.route.unsubscribe();
+        this.subscriptions.config.unsubscribe();
     };
 
 }
