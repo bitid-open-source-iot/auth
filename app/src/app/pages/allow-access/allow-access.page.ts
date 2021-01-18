@@ -57,6 +57,8 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 
         this.form.disable();
 
+        this.localstorage.set('email', this.form.value.email);
+
         const expiry = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
         const response = await this.service.allowaccess({
