@@ -5,61 +5,61 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
     {
-        'path':         'apps',
-        'canActivate':  [AuthManager],
+        'path': 'apps',
+        'canActivate': [AuthManager],
         'loadChildren': () => import('./pages/apps/apps.module').then(m => m.AppsModule)
     },
     {
-        'path':         'usage',
-        'canActivate':  [AuthManager],
+        'path': 'usage',
+        'canActivate': [AuthManager],
         'loadChildren': () => import('./pages/usage/usage.module').then(m => m.UsageModule)
     },
     {
-        'path':         'scopes',
-        'canActivate':  [AuthManager],
+        'path': 'scopes',
+        'canActivate': [AuthManager],
         'loadChildren': () => import('./pages/scopes/scopes.module').then(m => m.ScopesModule)
     },
     {
-        'path':         'tokens',
-        'canActivate':  [AuthManager],
+        'path': 'tokens',
+        'canActivate': [AuthManager],
         'loadChildren': () => import('./pages/tokens/tokens.module').then(m => m.TokensModule)
     },
     {
-        'path':         'account',
-        'canActivate':  [AuthManager],
+        'path': 'account',
+        'canActivate': [AuthManager],
         'loadChildren': () => import('./pages/account/account.module').then(m => m.AccountModule)
     },
     {
-        'path':         'signin',
+        'path': 'signin',
         'loadChildren': () => import('./pages/signin/signin.module').then(m => m.SigninModule)
     },
     {
-        'path':         'signup',
+        'path': 'signup',
         'loadChildren': () => import('./pages/signup/signup.module').then(m => m.SignupModule)
     },
     {
-        'path':         'allow-access',
+        'path': 'allow-access',
         'loadChildren': () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
     },
     {
-        'path':         'reset-password',
+        'path': 'reset-password',
         'loadChildren': () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordModule)
     },
     {
-        'path':         'verify-account',
+        'path': 'verify-account',
         'loadChildren': () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
     },
     {
-        'path':         'privacy-policy',
+        'path': 'privacy-policy',
         'loadChildren': () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
     },
     {
-        'path':         'terms-and-conditions',
+        'path': 'terms-and-conditions',
         'loadChildren': () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsModule)
     },
     {
-        'path':         '**',
-        'redirectTo':   'apps'
+        'path': '**',
+        'redirectTo': 'apps'
     }
 ];
 
@@ -68,4 +68,4 @@ const routes: Routes = [
     exports: [RouterModule]
 })
 
-export class AppRoutingModule {}
+export class AppRoutingModule { }
