@@ -1,11 +1,10 @@
 import { MatSidenav } from '@angular/material/sidenav';
 import { MenuService } from './services/menu/menu.service';
 import { SplashScreen } from './splashscreen/splashscreen.component';
+import { ConfigService } from './services/config/config.service';
 import { AccountService } from './services/account/account.service';
 import { HistoryService } from './services/history/history.service';
 import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
-import { env } from 'process';
-import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-root',
@@ -18,7 +17,7 @@ export class AppComponent implements OnInit, OnDestroy {
     @ViewChild(MatSidenav, { 'static': true }) private sidemenu: MatSidenav;
     @ViewChild(SplashScreen, { 'static': true }) private splashscreen: SplashScreen;
 
-    constructor(public menu: MenuService, private history: HistoryService, private account: AccountService) { };
+    constructor(public menu: MenuService, private config: ConfigService, private history: HistoryService, private account: AccountService) { };
 
     public authenticated: boolean;
     private subscriptions: any = {};
@@ -30,20 +29,21 @@ export class AppComponent implements OnInit, OnDestroy {
 
     private async initialize() {
         await this.splashscreen.show();
-
-        if (environment.production) {
-            environment.auth = window.location.origin;
-            environment.drive = [window.location.protocol, '//', 'drive.', window.location.host].join('');
-        };
         
+        await this.config.init();
         await this.history.init();
-        await this.account.validate();
-
+        
         await this.splashscreen.hide();
     };
 
     ngOnInit(): void {
         this.menu.init(this.sidemenu);
+
+		this.config.loaded.subscribe(async loaded => {
+			if (loaded) {
+				await this.account.validate();
+			};
+		});
 
         this.subscriptions.authenticated = this.account.authenticated.subscribe(async authenticated => {
             this.authenticated = authenticated;

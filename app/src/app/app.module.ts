@@ -19,6 +19,7 @@ import { MenuService } from './services/menu/menu.service';
 import { AppsService } from './services/apps/apps.service';
 import { AuthManager } from './services/account/account.manager';
 import { ToastService } from './services/toast/toast.service';
+import { ConfigService } from './services/config/config.service';
 import { TokensService } from './services/tokens/tokens.service';
 import { ScopesService } from './services/scopes/scopes.service';
 import { AccountService } from './services/account/account.service';
@@ -58,6 +59,7 @@ import { environment } from '../environments/environment';
         AppsService,
         AuthManager,
         ToastService,
+        ConfigService,
         ScopesService,
         TokensService,
         AccountService,

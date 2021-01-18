@@ -90,6 +90,9 @@ try {
                 app.use('/scopes', require('./api/scopes'));
                 __logger.info('loaded ./api/scopes');
 
+                app.use('/config', require('./api/config'));
+                __logger.info('loaded ./api/config');
+
                 app.use('/tokens', require('./api/tokens'));
                 __logger.info('loaded ./api/tokens');
 

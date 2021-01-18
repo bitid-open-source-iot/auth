@@ -31,6 +31,7 @@ export class AppEditorPage implements OnInit, OnDestroy {
         'credentials': new FormControl('', [Validators.pattern(/[^,:{}\[\]0-9.\-+Eaeflnr-u \n\r\t]/)])
     });
     public details: FormGroup = new FormGroup({
+        'url': new FormControl('', [Validators.required]),
         'name': new FormControl('', [Validators.required]),
         'icon': new FormControl('', [Validators.required]),
         'secret': new FormControl('', [Validators.required]),
