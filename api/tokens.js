@@ -1,5 +1,5 @@
-var bll		= require('../bll/bll');
-var router 	= require('express').Router();
+var bll = require('../bll/bll');
+var router = require('express').Router();
 
 router.post('/get', (req, res) => {
 	var myModule = new bll.module();
@@ -21,7 +21,7 @@ router.post('/revoke', (req, res) => {
 	myModule.tokens.revoke(req, res);
 });
 
-router.post('/retrieve', (req, res) => {
+router.put('/retrieve', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tokens.retrieve(req, res);
 });

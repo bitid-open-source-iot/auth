@@ -38,7 +38,7 @@ const routes: Routes = [
         'loadChildren': () => import('./pages/signup/signup.module').then(m => m.SignupModule)
     },
     {
-        'path':         'allowaccess',
+        'path':         'allow-access',
         'loadChildren': () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
     },
     {

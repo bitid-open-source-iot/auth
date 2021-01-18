@@ -1,28 +1,28 @@
-var Q		= require('q');
-var mongo 	= require('mongodb').MongoClient;
+const Q = require('q');
+const mongo = require('mongodb').MongoClient;
 
 exports.call = (args) => {
 	var deferred = Q.defer();
 
-	var db 			= __database;
-	var collection 	= db.collection(args.collection);
+	var db = __database;
+	var collection = db.collection(args.collection);
 
-	switch(args.operation) {
-		case('find'):
-			args.skip 	= args.skip		|| 0;
-			args.sort 	= args.sort		|| {'_id': -1};
-			args.limit 	= args.limit	|| 1000000;
-			args.filter = args.filter	|| {};
-			
+	switch (args.operation) {
+		case ('find'):
+			args.skip = args.skip || 0;
+			args.sort = args.sort || { '_id': -1 };
+			args.limit = args.limit || 1000000;
+			args.filter = args.filter || {};
+
 			collection.find(args.params).project(args.filter).skip(args.skip).sort(args.sort).limit(args.limit).toArray((err, result) => {
-				if (typeof(result) == 'undefined') {
+				if (typeof (result) == 'undefined') {
 					deferred.reject({
-						'code': 		71,
+						'code': 71,
 						'description': 'result undefined'
 					});
 				} else if (err) {
 					deferred.reject({
-						'code': 		72,
+						'code': 72,
 						'description': 'find error'
 					});
 				} else {
@@ -33,7 +33,7 @@ exports.call = (args) => {
 							deferred.resolve([]);
 						} else {
 							deferred.reject({
-								'code': 		69,
+								'code': 69,
 								'description': 'no records found'
 							});
 						};
@@ -41,106 +41,106 @@ exports.call = (args) => {
 				};
 			});
 			break;
-		case('insert'):
+		case ('insert'):
 			collection.insertOne(args.params, (err, result) => {
 				if (err) {
 					if (err.code = '11000') {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'already exists'
+							'code': 70,
+							'description': 'already exists'
 						});
 					} else {
 						deferred.reject(err);
 					};
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.ops);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error inserting'
+								'code': 70,
+								'description': 'error inserting'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error inserting'
+							'code': 70,
+							'description': 'error inserting'
 						});
 					};
 				};
 			});
 			break;
-		case('remove'):
+		case ('remove'):
 			collection.removeOne(args.params, (err, result) => {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.result);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error removing'
+								'code': 70,
+								'description': 'error removing'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error removing'
+							'code': 70,
+							'description': 'error removing'
 						});
 					};
 				};
 			});
 			break;
-		case('update'):
+		case ('update'):
 			collection.updateOne(args.params, args.update, (err, result) => {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.result);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error updating'
+								'code': 70,
+								'description': 'error updating'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error updating'
+							'code': 70,
+							'description': 'error updating'
 						});
 					};
 				};
 			});
 			break;
-		case('upsert'):
-			collection.updateOne(args.params, args.update, {"upsert": true}, (err, result) => {
+		case ('upsert'):
+			collection.updateOne(args.params, args.update, { 'upsert': true }, (err, result) => {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.result);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error upserting'
+								'code': 70,
+								'description': 'error upserting'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error upserting'
+							'code': 70,
+							'description': 'error upserting'
 						});
 					};
 				};
 			});
 			break;
-		case('aggregate'):
+		case ('aggregate'):
 			collection.aggregate(args.params).toArray((err, result) => {
 				if (err) {
 					deferred.reject(err);
@@ -151,63 +151,62 @@ exports.call = (args) => {
 						deferred.resolve([]);
 					} else {
 						deferred.reject({
-							'code': 		69,
+							'code': 69,
 							'description': 'no records found'
 						});
 					};
 				};
 			});
 			break;
-		case('updateMany'):
+		case ('updateMany'):
 			collection.updateMany(args.params, args.update, (err, result) => {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.result);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error updating'
+								'code': 70,
+								'description': 'error updating'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error updating'
+							'code': 70,
+							'description': 'error updating'
 						});
 					};
 				};
 			});
 			break;
-		case('bulkWrite'):
+		case ('bulkWrite'):
 			collection.bulkWrite(args.params, (err, result) => {
 				if (err) {
 					deferred.reject(err);
 				} else {
-					if (typeof(result) !== 'undefined') {
+					if (typeof (result) !== 'undefined') {
 						if (result.result.ok == 1) {
 							deferred.resolve(result.result);
 						} else {
 							deferred.reject({
-								'code': 		70,
-								'description': 	'error updating'
+								'code': 70,
+								'description': 'error updating'
 							});
 						};
 					} else {
 						deferred.reject({
-							'code': 		70,
-							'description': 	'error updating'
+							'code': 70,
+							'description': 'error updating'
 						});
 					};
 				};
 			});
 			break;
-					
 		default:
 			deferred.reject({
-				'code': 		503,
+				'code': 503,
 				'description': 'db query error'
 			});
 			break;
@@ -220,13 +219,13 @@ exports.connect = () => {
 	var deferred = Q.defer();
 
 	mongo.connect(__settings.mongodb.url, {
-		"poolSize": 			500,
-		"useUnifiedTopology": 	true
+		'poolSize': 500,
+		'useUnifiedTopology': true
 	}, (error, connection) => {
 		if (error) {
 			deferred.reject({
-				'code': 		600,
-				'description': 	'Error Connecting To Database'
+				'code': 600,
+				'description': 'Error Connecting To Database'
 			});
 		} else {
 			var database = connection.db(__settings.mongodb.database);

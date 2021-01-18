@@ -372,22 +372,6 @@ var module = function () {
 				});
 		},
 
-		retrieveToken: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.apps.load(args)
-				.then(myModule.auth.processRetrieveToken, null)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
 		changepassword: (req, res) => {
 			var args = {
 				'req': req,

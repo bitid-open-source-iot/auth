@@ -1,5 +1,5 @@
-var bll		= require('../bll/bll');
-var router	= require('express').Router();
+var bll = require('../bll/bll');
+var router = require('express').Router();
 
 router.post('/auth', (req, res) => {
 	var myModule = new bll.module();
@@ -39,11 +39,6 @@ router.post('/allowaccess', (req, res) => {
 router.put('/resetpassword', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.resetpassword(req, res);
-});
-
-router.post('/retrievetoken', (req, res) => {
-	var myModule = new bll.module();
-	myModule.auth.retrieveToken(req, res);
 });
 
 router.put('/changepassword', (req, res) => {

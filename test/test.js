@@ -233,27 +233,6 @@ describe('Auth', function () {
                 };
             });
     });
-
-    it('/auth/retrievetoken', function (done) {
-        this.timeout(5000);
-
-        tools.api.auth.retrievetoken(tokenId)
-            .then((result) => {
-                try {
-                    result[0].should.have.property('_id');
-                    result[0].should.have.property('token');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
 });
 
 describe('Apps', function () {
@@ -746,27 +725,6 @@ describe('Tokens', function () {
                     tokenIdToRevoke = result.tokenId;
                     result.should.have.property('token');
                     result.should.have.property('tokenId');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/token/retrieve (OLD)', function (done) {
-        this.timeout(5000);
-
-        tools.api.token.retrieve(tokenId)
-            .then((result) => {
-                try {
-                    result[0].should.have.property('_id');
-                    result[0].should.have.property('token');
                     done();
                 } catch (e) {
                     done(e);
@@ -1336,18 +1294,6 @@ var tools = {
 
                 return deferred.promise;
             },
-            retrievetoken: (tokenId) => {
-                var deferred = Q.defer();
-
-                tools.post('/auth/retrievetoken', {
-                    'appId': '000000000000000000000001',
-                    'tokenId': tokenId,
-                    'tokenEmail': config.email
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
-            },
             changepassword: () => {
                 var deferred = Q.defer();
 
@@ -1431,20 +1377,6 @@ var tools = {
 
                 tools.post('/users/getusers', {
                     'emails': [config.email]
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
-            }
-        },
-        token: {
-            retrieve: (tokenId) => {
-                var deferred = Q.defer();
-
-                tools.post('/token/retrieve', {
-                    'tokenId': tokenId,
-                    'clientId': '000000000000000000000001',
-                    'description': 'test'
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1591,12 +1523,11 @@ var tools = {
 
                 return deferred.promise;
             },
-            retrieve: () => {
+            retrieve: (tokenId) => {
                 var deferred = Q.defer();
 
-                tools.post('/tokens/retrieve', {
-                    'appId': '000000000000000000000001',
-                    'description': 'test'
+                tools.put('/tokens/retrieve', {
+                    'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
 

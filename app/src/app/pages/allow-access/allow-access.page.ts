@@ -7,28 +7,28 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
-    selector:       'app-allow-access',
-    styleUrls:      ['./allow-access.page.scss'],
-    templateUrl:    './allow-access.page.html'
+    selector: 'allow-access-page',
+    styleUrls: ['./allow-access.page.scss'],
+    templateUrl: './allow-access.page.html'
 })
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-    constructor(private route: ActivatedRoute, private toast: ToastService, private formerror: FormErrorService, private service: AppsService, private localstorage: LocalstorageService) {};
+    constructor(private route: ActivatedRoute, private toast: ToastService, private formerror: FormErrorService, private service: AppsService, private localstorage: LocalstorageService) { };
 
-    public form:            FormGroup   = new FormGroup({
-        'email':        new FormControl('', [Validators.email, Validators.required]),
-        'password':     new FormControl('', [Validators.required])
+    public form: FormGroup = new FormGroup({
+        'email': new FormControl('', [Validators.email, Validators.required]),
+        'password': new FormControl('', [Validators.required])
     });
-    public errors:          any         = {
-        'email':        '',
-        'password':     ''
+    public errors: any = {
+        'email': '',
+        'password': ''
     };
-    public app:             App         = {};
-	public appId:           string;
-	public returl:          string;
-    public loading:         boolean;
-    private subscriptions:  any         = {};
+    public app: App = {};
+    public appId: string;
+    public returl: string;
+    public loading: boolean;
+    private subscriptions: any = {};
 
     private async load() {
         this.loading = true;
@@ -59,12 +59,12 @@ export class AllowAccessPage implements OnInit, OnDestroy {
         const expiry = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
 
         const response = await this.service.allowaccess({
-            'appId':        this.appId,
-            'email':        this.form.value.email,
-            'expiry':       expiry,
-            'scopes':       this.app.scopes,
-            'password':     this.form.value.password,
-            'description':  this.app.name + ' (LOGIN)'
+            'appId': this.appId,
+            'email': this.form.value.email,
+            'expiry': expiry,
+            'scopes': this.app.scopes,
+            'password': this.form.value.password,
+            'description': this.app.name + ' (LOGIN)'
         });
 
         this.form.enable();
@@ -72,7 +72,8 @@ export class AllowAccessPage implements OnInit, OnDestroy {
         this.loading = false;
 
         if (response.ok) {
-            window.open(this.returl + "?_id=" + response.result.tokenId + "&email=" + this.form.value.email + "&appId=" + this.appId, '_parent');
+            const url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('')
+            window.open(url, '_parent');
         } else {
             this.toast.error(response.error.message);
         };
@@ -84,13 +85,13 @@ export class AllowAccessPage implements OnInit, OnDestroy {
         });
 
         this.subscriptions.route = this.route.queryParams.subscribe(params => {
-            this.appId  = params.appId;
+            this.appId = params.appId;
             this.returl = params.returl;
-            if (typeof(params.email) != "undefined") {
-				this.form.controls['email'].setValue(params.email);
+            if (typeof (params.email) != 'undefined') {
+                this.form.controls['email'].setValue(params.email);
                 this.localstorage.set('email', params.email);
-			};
-			this.load();
+            };
+            this.load();
         });
     };
 

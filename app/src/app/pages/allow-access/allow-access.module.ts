@@ -1,15 +1,25 @@
+/* --- PAES --- */
+import { AllowAccessPage } from './allow-access.page';
+
+/* --- MODULES --- */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { AllowAccessPage } from './allow-access.page';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { AllowAccessRoutingModule } from './allow-access-routing.module';
+import { Routes, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+const routes: Routes = [
+    {
+        'path': '',
+        'component': AllowAccessPage
+    }
+];
 
 @NgModule({
     imports: [
@@ -22,10 +32,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatToolbarModule,
         MatFormFieldModule,
         ReactiveFormsModule,
-        AllowAccessRoutingModule,
-        MatProgressSpinnerModule
+        MatProgressSpinnerModule,
+        RouterModule.forChild(routes)
     ],
-    declarations: [AllowAccessPage]
+    declarations: [
+        AllowAccessPage
+    ]
 })
 
-export class AllowAccessModule {}
+export class AllowAccessModule { }

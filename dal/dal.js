@@ -1768,34 +1768,6 @@ var module = function () {
 				});
 
 			return deferred.promise;
-		},
-
-		processRetrieveToken: (args) => {
-			var deferred = Q.defer();
-
-			var params = {
-				'_id': ObjectId(args.req.body.tokenId),
-				'appId': ObjectId(args.req.body.appId),
-				'bitid.auth.users.email': args.req.body.tokenEmail
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblTokens'
-			})
-				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
 		}
 	};
 
@@ -2701,8 +2673,8 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'appId': ObjectId(args.req.body.appId),
-				'description': args.req.body.description,
+				'_id': ObjectId(args.req.body.tokenId),
+				'appId': ObjectId(args.req.body.header.appId),
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 

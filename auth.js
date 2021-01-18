@@ -7,7 +7,6 @@ const chalk = require('chalk');
 const express = require('express');
 const Responder = require('./lib/responder');
 const bodyParser = require('body-parser');
-const healthcheck = require('@bitid/health-check');
 const ErrorResponse = require('./lib/error-response');
 
 global.__base = __dirname + '/';
@@ -79,35 +78,25 @@ try {
                     res.sendFile(__dirname + '/app/dist/auth/index.html');
                 });
 
-                var apps = require('./api/apps');
-                app.use('/apps', apps);
+                app.use('/apps', require('./api/apps'));
                 __logger.info('loaded ./api/apps');
 
-                var auth = require('./api/auth');
-                app.use('/auth', auth);
+                app.use('/auth', require('./api/auth'));
                 __logger.info('loaded ./api/auth');
 
-                var users = require('./api/users');
-                app.use('/users', users);
+                app.use('/users', require('./api/users'));
                 __logger.info('loaded ./api/users');
 
-                var token = require('./api/token');
-                app.use('/token', token);
-                __logger.info('loaded ./api/token');
-
-                var scopes = require('./api/scopes');
-                app.use('/scopes', scopes);
+                app.use('/scopes', require('./api/scopes'));
                 __logger.info('loaded ./api/scopes');
 
-                var tokens = require('./api/tokens');
-                app.use('/tokens', tokens);
+                app.use('/tokens', require('./api/tokens'));
                 __logger.info('loaded ./api/tokens');
 
-                var statistics = require('./api/statistics');
-                app.use('/statistics', statistics);
+                app.use('/statistics', require('./api/statistics'));
                 __logger.info('loaded ./api/statistics');
 
-                app.use('/health-check', healthcheck);
+                app.use('/health-check', require('@bitid/health-check'));
                 __logger.info('loaded ./api/health-check');
 
                 app.use((err, req, res, next) => {

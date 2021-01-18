@@ -1,6 +1,6 @@
-var Q = require('q');
-var hbs = require('nodemailer-express-handlebars');
-var nodemailer = require('nodemailer');
+const Q = require('q');
+const hbs = require('nodemailer-express-handlebars');
+const nodemailer = require('nodemailer');
 
 exports.verify = (args) => {
     var deferred = Q.defer();

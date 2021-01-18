@@ -1,18 +1,18 @@
 img {
-    width:          100px;
-    margin:         auto;
-    display:        block;
-    margin-top:     25px;
-    margin-bottom:  25px;
+    width: 100px;
+    margin: auto;
+    display: block;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 form {
-    width:  400px;
+    width: 400px;
     margin: auto;
     h1 {
-        font-size:      20px;
-        text-align:     center;
-        line-height:    20px;
-        font-weight:    400;
+        font-size: 20px;
+        text-align: center;
+        line-height: 20px;
+        font-weight: 400;
         text-transform: uppercase;
     }
 }
@@ -20,4 +20,4 @@ form {
     form {
         width: calc(100% - 20px);
     }
-};
+} ;
