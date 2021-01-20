@@ -35,7 +35,7 @@ export class AccountService {
 		} else {
 			this.user.next(null);
 			this.authenticated.next(false);
-		};
+		}
 
 		return response;
 	}
@@ -72,9 +72,9 @@ export class AccountService {
 		return await this.api.put(environment.auth, '/auth/verify', params);
 	}
 
-    public async update(params) {
-        return await this.api.post(environment.auth, '/users/update', params);
-    }
+	public async update(params) {
+		return await this.api.post(environment.auth, '/users/update', params);
+	}
 
 	public async register(params) {
 		this.localstorage.set('email', params.email);
@@ -87,9 +87,9 @@ export class AccountService {
 		return await this.api.put(environment.auth, '/tokens/retrieve', params);
 	}
 
-    public async removeaccount(params) {
-        return await this.api.post(environment.auth, '/users/delete', params);
-    }
+	public async removeaccount(params) {
+		return await this.api.post(environment.auth, '/users/delete', params);
+	}
 
 	public async resetpassword(params) {
 		params.appId = environment.appId;

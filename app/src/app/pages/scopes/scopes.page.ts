@@ -29,7 +29,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 				'scopeId',
 				'description'
 			],
-			'limit': 1000000
+			limit: 1000000
 		});
 
 		if (response.ok) {

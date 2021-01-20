@@ -1,4 +1,5 @@
 import { SplashScreen } from './libs/splashscreen/splashscreen';
+import { UpdateService } from './libs/update/update.service';
 import { ConfigService } from './services/config/config.service';
 import { AccountService } from './services/account/account.service';
 import { SettingsService } from './services/settings/settings.service';
@@ -18,7 +19,7 @@ export class AppComponent implements OnInit {
 	@ViewChild(SplashScreen, { static: true }) private splashscreen: SplashScreen;
 	@ViewChild(MatDrawerContainer, { static: true }) private drawercontainer: MatDrawerContainer;
 
-	constructor(private config: ConfigService, public account: AccountService, private settings: SettingsService, private localstorage: LocalstorageService) { }
+	constructor(private config: ConfigService, private update: UpdateService, public account: AccountService, private settings: SettingsService, private localstorage: LocalstorageService) { }
 
 	public minified: boolean = JSON.parse(this.localstorage.get('minified', false));
 	public authenticated: boolean;
@@ -39,6 +40,7 @@ export class AppComponent implements OnInit {
 		}
 
 		await this.config.init();
+		await this.update.init();
 		await this.settings.init();
 
 		await this.splashscreen.hide();
@@ -48,7 +50,7 @@ export class AppComponent implements OnInit {
 		this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				this.account.init();
-			};
+			}
 		});
 
 		this.account.authenticated.subscribe(authenticated => {

@@ -1,5 +1,6 @@
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
+import { UpdateModule } from './libs/update/update.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -37,6 +38,7 @@ import { environment } from '../environments/environment';
 
 @NgModule({
 	imports: [
+		UpdateModule,
 		MatIconModule,
 		BrowserModule,
 		MatListModule,

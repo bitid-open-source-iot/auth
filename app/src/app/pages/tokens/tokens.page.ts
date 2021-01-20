@@ -13,7 +13,7 @@ export class TokensPage implements OnInit, OnDestroy {
 	constructor(private service: TokensService) { }
 
 	public tokens: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['icon', 'app', 'options'];
+	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'options'];
 	public loading: boolean;
 
 	private async list() {

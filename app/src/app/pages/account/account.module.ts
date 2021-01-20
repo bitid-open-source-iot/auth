@@ -19,44 +19,44 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
-    {
-        'path': '',
-        'component': AccountPage
-    },
-    {
-        'path': 'remove-account',
-        'component': RemoveAccountPage
-    },
-    {
-        'path': 'change-password',
-        'component': ChangePasswordPage
-    }
+	{
+		path: '',
+		component: AccountPage
+	},
+	{
+		path: 'remove-account',
+		component: RemoveAccountPage
+	},
+	{
+		path: 'change-password',
+		component: ChangePasswordPage
+	}
 ];
 
 @NgModule({
-    imports: [
-        FormsModule,
-        CommonModule,
-        UploadModule,
-        MatIconModule,
-        MatMenuModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatRippleModule,
-        MatContentModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatProgressBarModule,
-        MatProgressSpinnerModule,
-        RouterModule.forChild(routes)
-    ],
-    declarations: [
-        AccountPage,
-        RemoveAccountPage,
-        ChangePasswordPage
-    ]
+	imports: [
+		FormsModule,
+		CommonModule,
+		UploadModule,
+		MatIconModule,
+		MatMenuModule,
+		MatInputModule,
+		MatSelectModule,
+		MatButtonModule,
+		MatRippleModule,
+		MatContentModule,
+		MatToolbarModule,
+		MatFormFieldModule,
+		ReactiveFormsModule,
+		MatProgressBarModule,
+		MatProgressSpinnerModule,
+		RouterModule.forChild(routes)
+	],
+	declarations: [
+		AccountPage,
+		RemoveAccountPage,
+		ChangePasswordPage
+	]
 })
 
 export class AccountModule { }

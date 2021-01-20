@@ -1,19 +1,19 @@
-<table mat-table [dataSource]="apps" fxShow fxHide.xs="true">
-    <ng-container matColumnDef="icon">
+<table mat-table [dataSource]="features" fxShow fxHide.xs="true">
+    <ng-container matColumnDef="title">
         <th mat-header-cell *matHeaderCellDef>
-            Icon
+            Title
         </th>
         <td mat-cell *matCellDef="let element">
-            <img [src]="element.icon" [alt]="element.name" width="40" height="40" draggable="false">
+            {{ element.title }}
         </td>
     </ng-container>
 
-    <ng-container matColumnDef="name">
+    <ng-container matColumnDef="description">
         <th mat-header-cell *matHeaderCellDef>
-            Name
+            Description
         </th>
         <td mat-cell *matCellDef="let element">
-            {{ element.name }}
+            {{ element.description }}
         </td>
     </ng-container>
 
@@ -33,13 +33,14 @@
 </table>
 
 <mat-list fxHide fxShow.xs="true">
-    <mat-list-item lines="full" *ngFor="let element of apps.data" (click)="options(element)" matRipple>
-        <img slot="start" [src]="element.icon" [alt]="element.name" width="40" height="40" draggable="false">
-
+    <mat-list-item lines="full" *ngFor="let element of features.data" (click)="options(element)" matRipple>
         <mat-label>
             <h3>
-                {{ element.name }}
+                {{ element.title }}
             </h3>
+            <p>
+                {{ element.description }}
+            </p>
         </mat-label>
     </mat-list-item>
 </mat-list>

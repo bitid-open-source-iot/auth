@@ -6,11 +6,11 @@ describe('TokensService', () => {
   let service: TokensService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(TokensService);
+	TestBed.configureTestingModule({});
+	service = TestBed.inject(TokensService);
   });
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
+	expect(service).toBeTruthy();
   });
 });

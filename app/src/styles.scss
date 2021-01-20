@@ -116,6 +116,9 @@ mat-tab-group {
 .mat-drawer-content {
     transform: all;
     margin-left: 0px !important;
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 .minified .mat-drawer-content {
     margin-left: 56px !important;
@@ -186,6 +189,10 @@ body.dark-mode {
     }
     .mat-tab-header {
         border-color: #212121 !important;
+    }
+    mat-dialog-container {
+        color: rgba(255, 255, 255, 0.8) !important;
+        background-color: #212121 !important;
     }
 }
 

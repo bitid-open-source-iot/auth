@@ -46,7 +46,7 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 			this.toast.show('password was changed!');
 		} else {
 			this.toast.show('there was an issue changing password!');
-		};
+		}
 	}
 
 	ngOnInit(): void {

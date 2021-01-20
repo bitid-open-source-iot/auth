@@ -2949,7 +2949,7 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
+			var match = {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
@@ -2958,44 +2958,78 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': ObjectId(args.req.body.featureId)
 			};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length < 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
+			var filter = {
+				'_id': 1,
+				'app': 1,
+				'appId': 1,
+				'title': 1,
+				'description': 1,
+				'bitid.auth.users': 1
+			};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				filter['bitid.auth.users'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'featureId') {
+						filter['_id'] = 1;
+					} else if (f == 'role') {
+						filter['bitid.auth.users'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'serverDate': 1,
+						'description': 1
+					}
+				},
+				{
+					$match: match
+				},
+				{
+					$project: filter
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
+				'operation': 'aggregate',
+				'collection': 'tblFeatures'
 			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'_id': ObjectId(args.req.body.featureId),
-						'appId': ObjectId(args.req.body.appId)
-					};
-
-					var filter = {};
-					if (typeof (args.req.body.filter) != 'undefined') {
-						filter['_id'] = 0;
-						args.req.body.filter.map(f => {
-							if (f == 'featureId') {
-								filter['_id'] = 1;
-							} else {
-								filter[f] = 1;
-							};
-						});
-					};
-
-					deferred.resolve({
-						'params': params,
-						'filter': filter,
-						'operation': 'find',
-						'collection': 'tblFeatures'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -3013,7 +3047,7 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
+			var match = {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
@@ -3021,54 +3055,88 @@ var module = function () {
 						},
 						'email': args.req.body.header.email
 					}
-				},
-				'_id': ObjectId(args.req.body.appId)
+				}
 			};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length < 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (typeof (args.req.body.featureId) != 'undefined' && args.req.body.featureId !== null) {
+				if (Array.isArray(args.req.body.featureId) && args.req.body.featureId.length > 0) {
+					match._id = {
+						$in: args.req.body.featureId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.featureId) == 'string' && args.req.body.featureId.length == 24) {
+					match._id = ObjectId(args.req.body.featureId);
+				};
+			};
+
+			var filter = {
+				'_id': 1,
+				'app': 1,
+				'appId': 1,
+				'title': 1,
+				'description': 1,
+				'bitid.auth.users': 1
+			};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				filter['bitid.auth.users'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'featureId') {
+						filter['_id'] = 1;
+					} else if (f == 'role') {
+						filter['bitid.auth.users'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'serverDate': 1,
+						'description': 1
+					}
+				},
+				{
+					$match: match
+				},
+				{
+					$project: filter
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
+				'operation': 'aggregate',
+				'collection': 'tblFeatures'
 			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'appId': ObjectId(args.req.body.appId)
-					};
-
-					if (typeof (args.req.body.tokenId) != 'undefined' && args.req.body.tokenId !== null) {
-						if (Array.isArray(args.req.body.tokenId) && args.req.body.tokenId.length > 0) {
-							params._id = {
-								$in: args.req.body.tokenId.map(id => ObjectId(id))
-							};
-						} else if (typeof (args.req.body.tokenId) == 'string' && args.req.body.tokenId.length == 24) {
-							params._id = ObjectId(args.req.body.tokenId);
-						};
-					};
-
-					var filter = {};
-					if (typeof (args.req.body.filter) != 'undefined') {
-						filter['_id'] = 0;
-						args.req.body.filter.map(f => {
-							if (f == 'featureId') {
-								filter['_id'] = 1;
-							} else {
-								filter[f] = 1;
-							};
-						});
-					};
-
-					deferred.resolve({
-						'params': params,
-						'filter': filter,
-						'operation': 'find',
-						'collection': 'tblFeatures'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);

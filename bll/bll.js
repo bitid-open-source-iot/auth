@@ -756,6 +756,7 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.get(args)
+				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -771,6 +772,7 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.list(args)
+				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

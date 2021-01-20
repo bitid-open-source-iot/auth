@@ -51,22 +51,22 @@ export class AccountPage implements OnInit, OnDestroy {
 		} else {
 			this.toast.show('Issue updating account!');
 		}
-	};
+	}
 
 	public async upload(src) {
-		this.form.controls['picture'].setValue(src);
-	};
+		this.form.controls.picture.setValue(src);
+	}
 
 	ngOnInit(): void {
 		this.subscriptions.user = this.service.user.subscribe(user => {
 			if (typeof(user) != 'undefined' && user != null) {
-				this.form.controls['picture'].setValue(user.picture);
-				this.form.controls['username'].setValue(user.username);
+				this.form.controls.picture.setValue(user.picture);
+				this.form.controls.username.setValue(user.username);
 				if (typeof(user.name) != 'undefined' && user.name != null) {
-					(<FormGroup>this.form.controls['name']).controls['last'].setValue(user.name.last);
-					(<FormGroup>this.form.controls['name']).controls['first'].setValue(user.name.first);
-				};
-			};
+					(this.form.controls.name as FormGroup).controls.last.setValue(user.name.last);
+					(this.form.controls.name as FormGroup).controls.first.setValue(user.name.first);
+				}
+			}
 		});
 	}
 

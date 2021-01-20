@@ -1,6 +1,5 @@
 /* --- PAGES --- */
-import { AppsPage } from './apps.page';
-import { AppsEditorpage } from './editor/editor.page';
+import { FeaturesPage } from './features.page';
 
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
@@ -18,11 +17,7 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
 	{
 		path: '',
-		component: AppsPage
-	},
-	{
-		path: 'editor',
-		component: AppsEditorpage
+		component: FeaturesPage
 	}
 ];
 
@@ -40,9 +35,8 @@ const routes: Routes = [
 		RouterModule.forChild(routes)
 	],
 	declarations: [
-		AppsPage,
-		AppsEditorpage
+		FeaturesPage
 	]
 })
 
-export class AppsModule { }
+export class FeaturesModule { }
