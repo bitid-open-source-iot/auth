@@ -1,0 +1,31 @@
+mat-sidenav-container {
+    height: 100%;
+    mat-sidenav {
+        width: 300px;
+        .logo {
+            height:         40px;
+            margin-right:   15px !important;
+        }
+        mat-list {
+            padding-top: 0px;
+            mat-list-item {
+                outline:        none;
+                font-size:      14px;
+                line-height:    14px;
+                border-bottom:  1px solid #E0E0E0;
+                text-transform: uppercase;
+                mat-icon {
+                    margin-right: 15px;
+                }
+            }
+            mat-list-item.active {
+                color: #03a9f4;
+            }
+        }
+    }
+}
+@media screen and (max-width: 600px) {
+    mat-sidenav-container mat-sidenav {
+        width: 100%;
+    }
+}

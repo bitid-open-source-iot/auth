@@ -1,21 +1,18 @@
-form {
-    width:  400px;
+[upload] {
+    width: 100px;
     margin: auto;
-    section {
-        display:        flex;
-        flex-direction: row;
-        mat-form-field:last-child {
-            width:          calc(50% - 5px);
-            margin-left:    5px;
-        }
-        mat-form-field:first-child {
-            width:          calc(50% - 5px);
-            margin-right:   5px;
-        }
-    }
+    height: 100px;
+    display: flex;
+    align-items: center;
+    border-radius: 100%;
+    justify-content: center;
 }
-@media screen and (max-width: 420px) {
+mat-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
     form {
-        width:  calc(100% - 20px);
+        max-width: 400px;
+        margin-top: 20px;
     }
 }

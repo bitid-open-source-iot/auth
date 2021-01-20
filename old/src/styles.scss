@@ -1,0 +1,211 @@
+@import '~@angular/material/theming';
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+$mat-myapp-primary: (
+    50 : #000,
+    100 : #000,
+    200 : #000,
+    300 : #000,
+    400 : #000,
+    500 : #000,
+    600 : #000,
+    700 : #000,
+    800 : #000,
+    900 : #000,
+    A100 : #000,
+    A200 : #000,
+    A400 : #000,
+    A700 : #000,
+    contrast: (
+        50 : #FFF,
+        100 : #FFF,
+        200 : #FFF,
+        300 : #FFF,
+        400 : #FFF,
+        500 : #FFF,
+        600 : #FFF,
+        700 : #FFF,
+        800 : #FFF,
+        900 : #FFF,
+        A100 : #FFF,
+        A200 : #FFF,
+        A400 : #FFF,
+        A700 : #FFF,
+    )
+);
+
+$primary: mat-palette($mat-myapp-primary);
+$accent: mat-palette($mat-light-blue);
+
+$theme: mat-light-theme($primary, $accent);
+
+@include angular-material-theme($theme);
+
+* {
+    user-select:            none;
+    -ms-user-select:        none;
+    -moz-user-select:       none;
+    -webkit-user-select:    none;
+}
+html, body {
+    height: 100%;
+}
+body {
+    margin:         0;
+    font-family:    Roboto, "Helvetica Neue", sans-serif;
+}
+form {
+    padding:        10px;
+    display:        flex;
+    flex-direction: column;
+    mat-form-field {
+        flex: 1 auto;
+    }
+    [mat-flat-button],
+    [mat-stroked-button] {
+        height:             50px;
+        display:            flex;
+        font-size:          16px;
+        font-weight:        400;
+        align-items:        center;
+        text-transform:     uppercase;
+        justify-content:    center;
+        .mat-spinner circle,
+        .mat-progress-spinner circle {
+            stroke: #FFFFFF;
+        }
+    }
+}
+.mat-snack-bar-container {
+    text-align:     center !important;
+    border-radius:  25px !important;
+    span {
+        justify-content: center !important;
+    }
+}
+simple-snack-bar {
+    justify-content: center !important;
+}
+.toast-error {
+    text-transform:     uppercase;
+    background-color:   #F44336 !important;
+}
+.toast-success {
+    text-transform:     uppercase;
+    background-color:   #4CAF50 !important;
+}
+.spacer {
+    flex: 1 auto;
+}
+.page-body {
+    height:     calc(100% - 56px);
+    overflow-y: auto;
+}
+.page-label {
+    font-size:      14px;
+    text-transform: uppercase;
+}
+mat-toolbar {
+    height:     56px !important;
+    min-height: 56px !important;
+}
+mat-progress-bar {
+    margin-top: -4px;
+}
+.menu-toggle {
+    margin-right: 15px !important;
+}
+[margin-top] {
+    margin-top: 20px !important;
+}
+[text-uppercase] {
+    text-transform: uppercase;
+}
+[text-lowercase] {
+    text-transform: lowercase;
+}
+[text-capitalize] {
+    text-transform: capitalize;
+}
+table {
+    width: 100%;
+    .mat-header-row {
+        height: 30px !important;
+    }
+}
+.share-dialog,
+.delete-dialog,
+.unsubscribe-dialog {
+    mat-dialog-container {
+        width: 500px;
+        mat-toolbar {
+            font-size:      16px;
+            font-weight:    400;
+            text-transform: uppercase;
+        }
+        padding: 0px !important;
+    }
+}
+.tariff-dialog,
+.subscribers-dialog {
+    mat-dialog-container {
+        mat-toolbar {
+            font-size:      16px;
+            font-weight:    400;
+            text-transform: uppercase;
+        }
+        top:            0px;
+        left:           0px;
+        width:          100%;
+        right:          0px;
+        bottom:         0px;
+        padding:        0px !important;
+        position:       fixed;
+        border-radius:  0px;
+    }
+}
+@media screen and (max-width: 600px) {
+    .share-dialog,
+    .delete-dialog,
+    .unsubscribe-dialog {
+        mat-dialog-container {
+            top:            0px;
+            left:           0px;
+            width:          100%;
+            right:          0px;
+            bottom:         0px;
+            position:       fixed;
+            border-radius:  0px;
+        }
+    }
+}
+.container {
+    width: 50%;
+    margin: auto;
+}
+@media screen and (max-width: 1500px) {
+    .container {
+        width: 60%;
+    }
+}
+@media screen and (max-width: 1200px) {
+    .container {
+        width: 70%;
+    }
+}
+@media screen and (max-width: 900px) {
+    .container {
+        width: 80%;
+    }
+}
+@media screen and (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+}
+@media screen and (max-width: 400px) {
+    .container {
+        width: calc(100% - 10px);
+        margin: 0px 5px;
+    }
+}

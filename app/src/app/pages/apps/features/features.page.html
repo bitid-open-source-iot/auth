@@ -1,14 +1,4 @@
-<mat-toolbar>
-    <div class="spacer" spacer></div>
-
-    <button mat-icon-button>
-        <mat-icon>
-            add
-        </mat-icon>
-    </button>
-</mat-toolbar>
-
-<table mat-table [dataSource]="features">
+<table mat-table [dataSource]="features" fxShow fxHide.xs="true">
     <ng-container matColumnDef="title">
         <th mat-header-cell *matHeaderCellDef>
             Title
@@ -41,3 +31,16 @@
     <tr mat-header-row *matHeaderRowDef="columns"></tr>
     <tr mat-row *matRowDef="let row; columns: columns;"></tr>
 </table>
+
+<mat-list fxHide fxShow.xs="true">
+    <mat-list-item lines="full" *ngFor="let element of features.data" (click)="options(element)" matRipple>
+        <mat-label>
+            <h3>
+                {{ element.title }}
+            </h3>
+            <p>
+                {{ element.description }}
+            </p>
+        </mat-label>
+    </mat-list-item>
+</mat-list>

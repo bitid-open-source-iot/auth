@@ -1,62 +1,61 @@
-import { MatSidenav } from '@angular/material/sidenav';
-import { MenuService } from './services/menu/menu.service';
-import { SplashScreen } from './splashscreen/splashscreen.component';
+import { SplashScreen } from './libs/splashscreen/splashscreen';
 import { ConfigService } from './services/config/config.service';
 import { AccountService } from './services/account/account.service';
-import { HistoryService } from './services/history/history.service';
-import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
+import { SettingsService } from './services/settings/settings.service';
+import { LocalstorageService } from './services/localstorage/localstorage.service';
+import { OnInit, Component, ViewChild } from '@angular/core';
+import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 
 @Component({
-    selector: 'app-root',
-    styleUrls: ['./app.component.scss'],
-    templateUrl: './app.component.html'
+	selector: 'app-root',
+	styleUrls: ['./app.component.scss'],
+	templateUrl: './app.component.html'
 })
 
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit {
 
-    @ViewChild(MatSidenav, { 'static': true }) private sidemenu: MatSidenav;
-    @ViewChild(SplashScreen, { 'static': true }) private splashscreen: SplashScreen;
+	@ViewChild(MatDrawer, { static: true }) private drawer: MatDrawer;
+	@ViewChild(SplashScreen, { static: true }) private splashscreen: SplashScreen;
+	@ViewChild(MatDrawerContainer, { static: true }) private drawercontainer: MatDrawerContainer;
 
-    constructor(public menu: MenuService, private config: ConfigService, private history: HistoryService, private account: AccountService) { };
+	constructor(private config: ConfigService, public account: AccountService, private settings: SettingsService, private localstorage: LocalstorageService) { }
 
-    public authenticated: boolean;
-    private subscriptions: any = {};
+	public minified: boolean = JSON.parse(this.localstorage.get('minified', false));
+	public authenticated: boolean;
 
-    public async logout() {
-        this.menu.close();
-        this.account.logout();
-    };
+	public toggle() {
+		this.minified = !this.minified;
+		this.localstorage.set('minified', this.minified);
+	}
 
-    private async initialize() {
-        await this.splashscreen.show();
-        
-        await this.config.init();
-        await this.history.init();
-        
-        await this.splashscreen.hide();
-    };
+	private async initialize() {
+		await this.splashscreen.show();
 
-    ngOnInit(): void {
-        this.menu.init(this.sidemenu);
+		if (window.innerWidth <= 600) {
+			this.drawer.mode = 'push';
+			this.drawercontainer.hasBackdrop = false;
+		} else {
+			this.drawer.mode = 'side';
+		}
 
+		await this.config.init();
+		await this.settings.init();
+
+		await this.splashscreen.hide();
+	}
+
+	ngOnInit(): void {
 		this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				await this.account.validate();
+				this.account.init();
 			};
 		});
 
-        this.subscriptions.authenticated = this.account.authenticated.subscribe(async authenticated => {
-            this.authenticated = authenticated;
-            if (authenticated) {
-                this.account.load();
-            };
-        });
+		this.account.authenticated.subscribe(authenticated => {
+			this.authenticated = authenticated;
+		});
 
-        this.initialize();
-    };
-
-    ngOnDestroy(): void {
-        this.subscriptions.authenticated.unsubscribe();
-    };
+		this.initialize();
+	}
 
 }

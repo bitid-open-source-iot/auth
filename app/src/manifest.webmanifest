@@ -1,7 +1,7 @@
 {
-  "name": "biTid Auth",
-  "short_name": "biTid Auth",
-  "theme_color": "#000000",
+  "name": "Auth",
+  "short_name": "Auth",
+  "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",

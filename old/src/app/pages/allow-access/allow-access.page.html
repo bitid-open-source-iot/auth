@@ -1,0 +1,37 @@
+<form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && submit()">
+    <img [src]="app.icon" alt="app icon" *ngIf="app.icon">
+
+    <h1 *ngIf="app.name">
+        {{ app.name }}
+    </h1>
+
+    <mat-form-field appearance="outline">
+        <mat-label text-uppercase>
+            Email
+        </mat-label>
+        
+        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+
+        <mat-error *ngIf="errors.email">
+            {{ errors.email }}
+        </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+        <mat-label text-uppercase>
+            Password
+        </mat-label>
+        
+        <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+
+        <mat-error *ngIf="errors.password">
+            {{ errors.password }}
+        </mat-error>
+    </mat-form-field>
+
+    <button type="submit" mat-flat-button color="primary">
+        {{ loading ? '' : 'allow access' }}
+
+        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+    </button>
+</form>

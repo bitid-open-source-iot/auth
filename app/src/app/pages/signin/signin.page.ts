@@ -6,57 +6,58 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
-    selector:       'app-signin',
-    styleUrls:      ['./signin.page.scss'],
-    templateUrl:    './signin.page.html'
+	selector: 'signin-page',
+	styleUrls: ['./signin.page.scss'],
+	templateUrl: './signin.page.html'
 })
 
-export class SigninPage implements OnInit, OnDestroy {
+export class SignInPage implements OnInit, OnDestroy {
 
-    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) {};
+	constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-    public form:            FormGroup   = new FormGroup({
-        'email':    new FormControl('', [Validators.email, Validators.required]),
-        'password': new FormControl('', [Validators.required])
-    });
-    public errors:          any         = {
-        'email':    '',
-        'password': ''
-    };
-    public loading:         boolean;
-    private subscriptions:  any         = {};
+	public form: FormGroup = new FormGroup({
+		email: new FormControl(null, [Validators.required]),
+		password: new FormControl(null, [Validators.required])
+	});
+	public errors: any = {
+		email: '',
+		password: ''
+	};
+	public loading: boolean;
+	private subscriptions: any = {};
 
-    public async submit() {
-        this.loading = true;
+	public signup() {
+		this.router.navigate(['/signup'], {
+			queryParamsHandling: 'preserve'
+		});
+	}
 
-        this.form.disable();
+	public async submit() {
+		this.loading = true;
 
-        const response = await this.service.login({
-            'email':    this.form.value.email,
-            'password': this.form.value.password
-        });
+		const response = await this.service.signin({
+			email: this.form.value.email,
+			password: this.form.value.password
+		});
 
-        this.form.enable();
+		if (response.ok) {
+			this.toast.show('Sign in successfull!');
+			this.router.navigate(['/apps']);
+		} else {
+			this.toast.show(response.error.message);
+		}
 
-        this.loading = false;
+		this.loading = false;
+	}
 
-        if (response.ok) {
-            this.router.navigate(['/apps'], {
-                'replaceUrl': true
-            });
-        } else {
-            this.toast.error(response.error.message);
-        };
-    };
+	ngOnInit(): void {
+		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+			this.errors = this.formerror.validateForm(this.form, this.errors, true);
+		});
+	}
 
-    ngOnInit(): void {
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
-            this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        });
-    };
-
-    ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
-    };
+	ngOnDestroy(): void {
+		this.subscriptions.form.unsubscribe();
+	}
 
 }

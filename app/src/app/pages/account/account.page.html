@@ -1,50 +1,38 @@
-<mat-toolbar color="primary">
-    <button mat-icon-button class="menu-toggle" (click)="menu.toggle()">
-        <mat-icon>
-            menu
-        </mat-icon>
-    </button>
-
-    <div class="page-label spacer">
-        account
-    </div>
-</mat-toolbar>
-
-<mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
-
-<div class="page-body">
+<mat-content>
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-        <app-image-upload label="picture" [value]="form.value.picture" [required]="!form.value.picture || errors.picture"></app-image-upload>
+        <div upload [upload-src]="form.value.picture" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
+            <mat-icon>publish</mat-icon>
+        </div>
         
-        <section>
+        <section formGroupName="name">
             <mat-form-field appearance="outline">
-                <mat-label text-uppercase>
-                    first name
+                <mat-label>
+                    First Name
                 </mat-label>
                 
-                <input matInput type="text" name="name_first" placeholder="first name" formControlName="name_first" required>
+                <input matInput type="text" name="first name" placeholder="first name" formControlName="first" required>
         
-                <mat-error *ngIf="errors.name_first">
-                    {{ errors.name_first }}
+                <mat-error *ngIf="errors.name.first">
+                    {{ errors.name.first }}
                 </mat-error>
             </mat-form-field>
     
             <mat-form-field appearance="outline">
-                <mat-label text-uppercase>
-                    last name
+                <mat-label>
+                    Last Name
                 </mat-label>
                 
-                <input matInput type="text" name="name_last" placeholder="last name" formControlName="name_last" required>
+                <input matInput type="text" name="last name" placeholder="last name" formControlName="last" required>
         
-                <mat-error *ngIf="errors.name_last">
-                    {{ errors.name_last }}
+                <mat-error *ngIf="errors.name.last">
+                    {{ errors.name.last }}
                 </mat-error>
             </mat-form-field>
         </section>
 
         <mat-form-field appearance="outline">
-            <mat-label text-uppercase>
-                username
+            <mat-label>
+                Username
             </mat-label>
             
             <input matInput type="text" name="username" placeholder="username" formControlName="username" required>
@@ -55,7 +43,9 @@
         </mat-form-field>
     
         <button type="submit" mat-flat-button color="primary">
-            update
+            {{ loading ? '' : 'update' }}
+
+            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
         </button>
     
         <button type="button" mat-flat-button color="accent" margin-top routerLink="change-password">
@@ -66,4 +56,4 @@
             remove account
         </button>
     </form>
-</div>
+</mat-content>

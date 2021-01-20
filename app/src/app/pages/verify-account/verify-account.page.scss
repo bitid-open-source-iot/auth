@@ -1,19 +1,20 @@
-img {
-    width:          100px;
-    margin:         auto;
-    display:        block;
-    margin-top:     25px;
-    margin-bottom:  25px;
-}
-form {
-    width:  400px;
-    margin: auto;
-    [mat-stroked-button] {
-        margin-top: 20px;
+mat-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    img {
+        margin: 20px 0px;
+    }
+    p {
+        padding: 0px 10px;
+        font-size: 12px;
+        text-align: justify;
+        line-height: 16px;
+        a {
+            color: #2196F3;
+        }
+    }
+    form, p {
+        max-width: 400px;
     }
 }
-@media screen and (max-width: 420px) {
-    form {
-        width: calc(100% - 20px);
-    }
-};

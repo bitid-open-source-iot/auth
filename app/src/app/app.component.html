@@ -1,68 +1,69 @@
-<mat-sidenav-container [hasBackdrop]="true">
-    <mat-sidenav mode="over" [disableClose]="true">
-        <mat-toolbar color="primary">
-            <img class="logo" src="./assets/icons/icon-512x512.png">
+<mat-toolbar *ngIf="authenticated">
+    <button mat-icon-button (click)="toggle()">
+        <mat-icon>
+            menu
+        </mat-icon>
+    </button>
 
-            <label class="page-label spacer">
-                Auth
-            </label>
+    <mat-label class="spacer">
+        Auth
+    </mat-label>
 
-            <button mat-icon-button (click)="menu.toggle()">
-                <mat-icon>
-                    close
-                </mat-icon>
-            </button>
-        </mat-toolbar>
+    <button mat-icon-button>
+        <mat-icon>
+            search
+        </mat-icon>
+    </button>
+</mat-toolbar>
 
+<mat-drawer-container [class.minified]="minified" [class.authenticated]="authenticated">
+    <mat-drawer mode="side" [opened]="authenticated">
         <mat-list>
-            <mat-list-item routerLinkActive="active" routerLink="/account" (click)="menu.close()" matRipple>
+            <mat-list-item lines="full" matRipple routerLink="/account" routerLinkActive="active" matTooltip="Account" matTooltipPosition="right">
                 <mat-icon>
-                    account_circle
+                    account_box
                 </mat-icon>
-    
-                account
+
+                <mat-label>
+                    Account
+                </mat-label>
             </mat-list-item>
 
-            <mat-list-item routerLinkActive="active" routerLink="/apps" (click)="menu.close()" matRipple>
+            <mat-list-item lines="full" matRipple routerLink="/apps" routerLinkActive="active" matTooltip="Apps" matTooltipPosition="right">
                 <mat-icon>
                     apps
                 </mat-icon>
-    
-                apps
-            </mat-list-item>
-            
-            <mat-list-item routerLinkActive="active" routerLink="/scopes" (click)="menu.close()" matRipple>
-                <mat-icon>
-                    http
-                </mat-icon>
-    
-                scopes
-            </mat-list-item>
-            
-            <mat-list-item routerLinkActive="active" routerLink="/tokens" (click)="menu.close()" matRipple>
-                <mat-icon>
-                    vpn_key
-                </mat-icon>
-    
-                tokens
+
+                <mat-label>
+                    Apps
+                </mat-label>
             </mat-list-item>
 
-            <mat-list-item (click)="logout()" matRipple>
+            <mat-list-item lines="full" matRipple routerLink="/settings" routerLinkActive="active" matTooltip="Settings" matTooltipPosition="right">
+                <mat-icon>
+                    settings
+                </mat-icon>
+
+                <mat-label>
+                    Settings
+                </mat-label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" matRipple (click)="account.signout()" matTooltip="Sign Out" matTooltipPosition="right">
                 <mat-icon>
                     exit_to_app
                 </mat-icon>
 
-                sign out
+                <mat-label>
+                    Sign Out
+                </mat-label>
             </mat-list-item>
         </mat-list>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
+    </mat-drawer>
+    
+    <mat-drawer-content>
         <router-outlet></router-outlet>
-    </mat-sidenav-content>
-</mat-sidenav-container>
+    </mat-drawer-content>
+</mat-drawer-container>
 
-<app-splashscreen></app-splashscreen>
-
-
-<app-splashscreen></app-splashscreen>
+<splashscreen></splashscreen>

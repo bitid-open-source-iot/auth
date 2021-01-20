@@ -3,184 +3,117 @@ import { Injectable } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
-import { LocalstorageService }  from '../localstorage/localstorage.service';
+import { LocalstorageService } from '../localstorage/localstorage.service';
 
-@Injectable()
+@Injectable({
+	providedIn: 'root'
+})
 
 export class AccountService {
 
-    constructor(private api: ApiService, private router: Router, private localstorage: LocalstorageService) {};
+	public user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
+	public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-    public user:            BehaviorSubject<Account>    = new BehaviorSubject(ACCOUNT);
-    public authenticated:   BehaviorSubject<boolean>    = new BehaviorSubject(false);
-    
-    public logout() {
-        this.localstorage.clear();
-        this.router.navigate(['/signin']);
-        this.authenticated.next(false);
-    };
+	constructor(private api: ApiService, private router: Router, private localstorage: LocalstorageService) { }
 
-    public async load() {
-        const response = await this.api.post(environment.auth, '/users/get', {});
+	public async init() {
+		const params = {
+			filter: [
+				'name',
+				'email',
+				'picture',
+				'username'
+			],
+			email: this.localstorage.get('email')
+		};
 
-        if (response.ok) {
-            this.user.next(response.result);
-        };
-        
-        return response;
-    };
+		const response = await this.api.post(environment.auth, '/users/get', params);
 
-    public async validate() {
-        let now   = new Date();
-        let valid = true;
-        let email = this.localstorage.get("email");
-        let token = this.localstorage.getObject("token");
+		if (response.ok) {
+			this.user.next(response.result);
+			this.authenticated.next(true);
+		} else {
+			this.user.next(null);
+			this.authenticated.next(false);
+		};
 
-        if (!email || !token) {
-            valid = false;
-        } else {
-            if (typeof(email) == "undefined") {
-                valid = false;
-            };
+		return response;
+	}
 
-            if (typeof(token.expiry) != "undefined") {
-                let expiry = new Date(token.expiry);
-                if (expiry < now) {
-                    valid = false;
-                };
-            } else {
-                valid = false;
-            };
-        };
+	public async signout() {
+		this.localstorage.clear();
+		this.authenticated.next(false);
+		this.router.navigate(['/signin']);
+	}
 
-        if (valid) { 
-            this.authenticated.next(true);
-            return true;
-        } else {
-            this.authenticated.next(false);
-            return false;
-        };
-    };
+	public async signin(params) {
+		this.localstorage.set('email', params.email);
 
-    public async login(params) {
-        const authenticate = await this.authenticate({
-            'email':    params.email,
-            'password': params.password
-        });
+		params.appId = environment.appId;
+		params.scopes = environment.scopes;
+		params.expiry = new Date(new Date().valueOf() + (60 * 60 * 1000));
+		params.description = environment.appName;
 
-        if (!authenticate.ok)  {
-            this.authenticated.next(false);
-            authenticate.error.type = "authenticate";
-            return authenticate;
-        };
+		const response = await this.api.put(environment.auth, '/auth/authenticate', params);
 
-        const allowaccess = await this.allowaccess();
+		if (response.ok) {
+			this.localstorage.setObject('token', response.result[0].token);
+			this.init();
+		} else {
+			this.authenticated.next(false);
+		}
 
-        if (allowaccess.ok)  {
-            this.authenticated.next(true);
-            return allowaccess;
-        } else {
-            this.authenticated.next(false);
-            allowaccess.error.type = "allowaccess";
-            return allowaccess;
-        };
-    };
+		return response;
+	}
 
-    private async allowaccess() {
-        let expiry = new Date();
-        expiry.setDate(expiry.getDate() + 1000);
-        
-        const response = await this.api.post(environment.auth, '/auth/allowaccess', {
-            'appId':        environment.appId,
-            'expiry':       expiry,
-            'scopes':       environment.scopes,
-            'tokenAddOn':   {},
-            'description':  environment.appName
-        });
+	public async verify(params) {
+		this.localstorage.set('email', params.email);
 
-        if (response.ok) {
-            this.localstorage.setObject('token', response.result[0].token);
-        };
-        
-        return response;
-    };
-
-    public async verify(params) {
-        params.email        = params.email;
-        params.appId        = environment.appId;
-        params.description  = environment.appName;
-       
-        this.localstorage.set('email', params.email);
-
-        return await this.api.put(environment.auth, '/auth/verify', params);
-    };
+		return await this.api.put(environment.auth, '/auth/verify', params);
+	}
 
     public async update(params) {
         return await this.api.post(environment.auth, '/users/update', params);
-    };
+    }
 
-    public async register(params) {
-        params.appId    = environment.appId;
-        params.description = environment.appName;
+	public async register(params) {
+		this.localstorage.set('email', params.email);
 
-        this.localstorage.set('email', params.email);
+		return await this.api.put(environment.auth, '/auth/register', params);
+	}
 
-        return await this.api.put(environment.auth, '/auth/register', params);
-    };
+	public async retrieve(params) {
+		this.localstorage.set('email', params.email);
+		return await this.api.put(environment.auth, '/tokens/retrieve', params);
+	}
 
     public async removeaccount(params) {
         return await this.api.post(environment.auth, '/users/delete', params);
-    };
-    
-    private async authenticate(params) {
-        params.appId    = environment.appId;
-        params.description = environment.appName;
+    }
 
-        this.localstorage.set('email', params.email);
+	public async resetpassword(params) {
+		params.appId = environment.appId;
+		params.description = environment.appName;
 
-        const response = await this.api.put(environment.auth, '/auth/authenticate', params);
+		this.localstorage.set('email', params.email);
 
-        if (response.ok) {
-            this.localstorage.setObject('token', response.result[0].token);
-        };
+		return await this.api.put(environment.auth, '/auth/resetpassword', params);
+	}
 
-        return response;
-    };
+	public async changepassword(params) {
+		this.localstorage.set('email', params.email);
+		return await this.api.put(environment.auth, '/auth/changepassword', params);
+	}
 
-    public async resetpassword(params) {
-        params.appId    = environment.appId;
-        params.description = environment.appName;
-
-        this.localstorage.set('email', params.email);
-
-        return await this.api.put(environment.auth, '/auth/resetpassword', params);
-    };
-
-    public async changepassword(params) {
-        this.localstorage.set('email', params.email);
-        return await this.api.put(environment.auth, '/auth/changepassword', params);
-    };
-    
 }
 
-const ACCOUNT = {
-    'name': {
-        'last':     null,
-        'first':    null,
-        'middle':   null
-    },
-    'picture':  null,
-    'language': null,
-    'username': null
-};
-
-export interface Account {
-    'name'?: {
-        'last'?:    string;
-        'first'?:   string;
-        'middle'?:  string;
-    };
-    'picture'?:     string;
-    'language'?:    string;
-    'username'?:    string;
+interface User {
+	'name'?: {
+		'last'?: string;
+		'first'?: string;
+		'middle'?: string;
+	};
+	'email'?: string;
+	'picture'?: string;
+	'username'?: string;
 }

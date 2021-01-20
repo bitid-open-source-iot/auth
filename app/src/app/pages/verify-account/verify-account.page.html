@@ -1,41 +1,47 @@
-<form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && submit()">
-    <img src="./assets/icons/icon-512x512.png" alt="Auth Icon">
+<mat-content>
+    <img [src]="app.icon ? app.icon : './assets/icons/icon-512x512.png'" alt="icon" width="100" height="100">
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            Email
-        </mat-label>
-        
-        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+    <h1>
+        {{ app.name ? app.name : 'Auth' }}
+    </h1>
 
-        <mat-error *ngIf="errors.email">
-            {{ errors.email }}
-        </mat-error>
-    </mat-form-field>
+    <h2>
+        Verify Account
+    </h2>
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            Verification Code
-        </mat-label>
-        
-        <input matInput type="number" name="code" placeholder="code" formControlName="code" required>
+    <p>
+        You will recieve and email with your veification code. You must enter the code below or click the link in the email to verify your account!
+    </p>
 
-        <mat-hint>
-            Check your email for code!
-        </mat-hint>
+    <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Email
+            </mat-label>
 
-        <mat-error *ngIf="errors.code">
-            {{ errors.code }}
-        </mat-error>
-    </mat-form-field>
+            <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
 
-    <button type="submit" mat-flat-button color="primary">
-        {{ loading ? '' : 'verify' }}
+            <mat-error *ngIf="errors.email">
+                {{ errors.email }}
+            </mat-error>
+        </mat-form-field>
 
-        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
-    </button>
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Verification Code
+            </mat-label>
+            
+            <input matInput min="100000" max="999999" minlength="6" maxlength="6" type="number" name="code" placeholder="code" formControlName="code" required>
+    
+            <mat-error *ngIf="errors.code">
+                {{ errors.code }}
+            </mat-error>
+        </mat-form-field>
 
-    <button type="button" mat-stroked-button color="primary" routerLink="/signin">
-        sign in
-    </button>
-</form>
+        <button type="submit" mat-flat-button color="primary">
+            {{ loading ? '' : 'verify account' }}
+
+            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+        </button>
+    </form>
+</mat-content>

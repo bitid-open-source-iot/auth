@@ -1,29 +1,48 @@
 import { Injectable } from '@angular/core';
 
-@Injectable()
+@Injectable({
+	providedIn: 'root'
+})
 
 export class LocalstorageService {
-    set(key, value) {
-        window.localStorage.setItem(key, value);
-    };
 
-    get(key) {
-        return window.localStorage.getItem(key);
-    };
+	constructor() {}
 
-    setObject(key, value) {
-        window.localStorage.setItem(key, JSON.stringify(value || {}));
-    };
+	public set(key, value) {
+		window.localStorage.setItem(key, value);
+	}
 
-    getObject(key) {
-        return JSON.parse(window.localStorage.getItem(key) || '{}');
-    };
+	public get(key, value?) {
+		const result = window.localStorage.getItem(key);
+		if (typeof(result) != 'undefined' && result !== null) {
+			return result;
+		} else {
+			return value;
+		}
+	}
 
-    clear() {
-        window.localStorage.clear();
-    };
+	public setObject(key, value) {
+		window.localStorage.setItem(key, JSON.stringify(value || {}));
+	}
 
-    remove(key) {
-        window.localStorage.removeItem(key);
-    };
+	public getObject(key, value?) {
+		if (!value) {
+			value = {};
+		}
+		const kayvalue = window.localStorage.getItem(key);
+		if (typeof (kayvalue) == 'undefined' || kayvalue == null) {
+			return value;
+		} else {
+			return JSON.parse(kayvalue);
+		}
+	}
+
+	public clear() {
+		window.localStorage.clear();
+	}
+
+	public remove(key) {
+		window.localStorage.removeItem(key);
+	}
+
 }

@@ -1,75 +1,124 @@
-import { Router } from '@angular/router';
+import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
+import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
-    selector:       'app-signup',
-    styleUrls:      ['./signup.page.scss'],
-    templateUrl:    './signup.page.html'
+	selector: 'signup-page',
+	styleUrls: ['./signup.page.scss'],
+	templateUrl: './signup.page.html'
 })
 
-export class SignupPage implements OnInit, OnDestroy {
+export class SignUpPage implements OnInit, OnDestroy {
 
-    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) {};
+	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private apps: AppsService, private service: AccountService, private formerror: FormErrorService) { }
 
-    public form:            FormGroup   = new FormGroup({
-        'email':        new FormControl('', [Validators.email, Validators.required]),
-        'confirm':      new FormControl('', [Validators.required]),
-        'password':     new FormControl('', [Validators.required]),
-        'name_last':    new FormControl('', [Validators.required]),
-        'name_first':   new FormControl('', [Validators.required])
-    });
-    public errors:          any         = {
-        'email':        '',
-        'confirm':      '',
-        'password':     '',
-        'name_last':    '',
-        'name_first':   ''
-    };
-    public loading:         boolean;
-    private subscriptions:  any         = {};
+	public form: FormGroup = new FormGroup({
+		name: new FormGroup({
+			last: new FormControl('', [Validators.required]),
+			first: new FormControl('', [Validators.required])
+		}),
+		email: new FormControl('', [Validators.email, Validators.required]),
+		confirm: new FormControl('', [Validators.required]),
+		password: new FormControl('', [Validators.required])
+	});
+	public app: any = {};
+	public appId: string;
+	public errors: any = {
+		name: {
+			last: '',
+			first: ''
+		},
+		email: '',
+		confirm: '',
+		password: ''
+	};
+	public loading: boolean;
+	private subscriptions: any = {};
 
-    public async submit() {
-        this.loading = true;
+	private async load() {
+		this.loading = true;
 
-        this.form.disable();
+		const response = await this.apps.load({
+			filter: [
+				'icon',
+				'name',
+				'scopes'
+			],
+			appId: this.appId
+		});
 
-        const response = await this.service.register({
-            'name': {
-                'last':     this.form.value.name_last,
-                'first':    this.form.value.name_first
-            },
-            'email':    this.form.value.email,
-            'password': this.form.value.password
-        });
+		this.loading = false;
 
-        this.form.enable();
+		if (response.ok) {
+			this.app = response.result;
+		} else {
+			this.toast.show('Issue loading app!');
+		}
+	}
 
-        this.loading = false;
+	public async submit() {
+		this.loading = true;
 
-        if (response.ok) {
-            this.router.navigate(['/verify-account'], {
-                'queryParams': {
-                    'email': this.form.value.email
-                },
-                'replaceUrl': true
-            });
-        } else {
-            this.toast.error(response.error.message);
-        };
-    };
+		const params = this.route.snapshot.queryParams;
 
-    ngOnInit(): void {
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
-            this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        });
-    };
+		const response = await this.service.register({
+			name: {
+				last: this.form.value.name.last,
+				first: this.form.value.name.first
+			},
+			appId: params.appId,
+			email: this.form.value.email,
+			confirm: this.form.value.confirm,
+			password: this.form.value.password
+		});
 
-    ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
-    };
+		if (response.ok) {
+			this.toast.show('Sign up successfull!');
+			this.router.navigate(['/verify-account'], {
+				queryParams: {
+					email: this.form.value.email,
+					appId: this.appId
+				},
+				replaceUrl: true,
+				queryParamsHandling: 'merge'
+			});
+		} else {
+			this.toast.show(response.error.message);
+		}
+
+		this.loading = false;
+	}
+
+	public verifyaccount() {
+		this.router.navigate(['/verify-account'], {
+			queryParamsHandling: 'preserve'
+		});
+	}
+
+	ngOnInit(): void {
+		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+			this.errors = this.formerror.validateForm(this.form, this.errors, true);
+		});
+
+		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+			if (loaded) {
+				const params = this.route.snapshot.queryParams;
+				if (typeof(params.appId) != 'undefined' && params.appId !== null) {
+					this.appId = params.appId;
+					this.load();
+				}
+			}
+		});
+	}
+
+	ngOnDestroy(): void {
+		this.subscriptions.form.unsubscribe();
+		this.subscriptions.loaded.unsubscribe();
+	}
 
 }

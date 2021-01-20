@@ -10,16 +10,16 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { TermsAndConditionsRoutingModule } from './terms-and-conditions-routing.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        MatIconModule,
-        MatButtonModule,
-        MatToolbarModule,
-        TermsAndConditionsRoutingModule
-    ],
-    declarations: [
-        TermsAndConditionsPage
-    ]
+	imports: [
+		CommonModule,
+		MatIconModule,
+		MatButtonModule,
+		MatToolbarModule,
+		TermsAndConditionsRoutingModule
+	],
+	declarations: [
+		TermsAndConditionsPage
+	]
 })
 
 export class TermsAndConditionsModule {}

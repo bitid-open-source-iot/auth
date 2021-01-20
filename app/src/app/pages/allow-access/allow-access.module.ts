@@ -9,35 +9,37 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
-    {
-        'path': '',
-        'component': AllowAccessPage
-    }
+	{
+		path: '',
+		component: AllowAccessPage
+	}
 ];
 
 @NgModule({
-    imports: [
-        FormsModule,
-        CommonModule,
-        MatIconModule,
-        MatInputModule,
-        MatButtonModule,
-        MatSelectModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        ReactiveFormsModule,
-        MatProgressSpinnerModule,
-        RouterModule.forChild(routes)
-    ],
-    declarations: [
-        AllowAccessPage
-    ]
+	imports: [
+		FormsModule,
+		CommonModule,
+		MatIconModule,
+		MatInputModule,
+		MatButtonModule,
+		MatSelectModule,
+		MatToolbarModule,
+		MatContentModule,
+		MatFormFieldModule,
+		ReactiveFormsModule,
+		MatProgressSpinnerModule,
+		RouterModule.forChild(routes)
+	],
+	declarations: [
+		AllowAccessPage
+	]
 })
 
 export class AllowAccessModule { }

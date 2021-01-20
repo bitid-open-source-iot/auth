@@ -7,60 +7,56 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
-    selector: 'app-change-password',
-    styleUrls: ['./change-password.page.scss'],
-    templateUrl: './change-password.page.html'
+	selector: 'change-password-page',
+	styleUrls: ['./change-password.page.scss'],
+	templateUrl: './change-password.page.html'
 })
 
 export class ChangePasswordPage implements OnInit, OnDestroy {
 
-    constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService, private localstorage: LocalstorageService) { };
+	constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService, private localstorage: LocalstorageService) { }
 
-    public form: FormGroup = new FormGroup({
-        'old': new FormControl('', [Validators.required]),
-        'new': new FormControl('', [Validators.required]),
-        'confirm': new FormControl('', [Validators.required]),
-    });
-    public errors: any = {
-        'old': '',
-        'new': '',
-        'confirm': ''
-    };
-    public loading: boolean;
-    private subscriptions: any = {};
+	public form: FormGroup = new FormGroup({
+		old: new FormControl('', [Validators.required]),
+		new: new FormControl('', [Validators.required]),
+		confirm: new FormControl('', [Validators.required]),
+	});
+	public errors: any = {
+		old: '',
+		new: '',
+		confirm: ''
+	};
+	public loading: boolean;
+	private subscriptions: any = {};
 
-    public async submit() {
-        this.loading = true;
+	public async submit() {
+		this.loading = true;
 
-        this.form.disable();
+		const response = await this.service.changepassword({
+			old: this.form.value.old,
+			new: this.form.value.new,
+			email: this.localstorage.get('email'),
+			confirm: this.form.value.confirm
+		});
 
-        const response = await this.service.changepassword({
-            'old': this.form.value.old,
-            'new': this.form.value.new,
-            'email': this.localstorage.get('email'),
-            'confirm': this.form.value.confirm
-        });
+		this.loading = false;
 
-        this.form.enable();
+		if (response.ok) {
+			this.router.navigate(['/account']);
+			this.toast.show('password was changed!');
+		} else {
+			this.toast.show('there was an issue changing password!');
+		};
+	}
 
-        this.loading = false;
+	ngOnInit(): void {
+		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+			this.errors = this.formerror.validateForm(this.form, this.errors, true);
+		});
+	}
 
-        if (response.ok) {
-            this.router.navigate(['/account']);
-            this.toast.success('password was changed!');
-        } else {
-            this.toast.error('there was an issue changing password!');
-        };
-    };
-
-    ngOnInit(): void {
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
-            this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        });
-    };
-
-    ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
-    };
+	ngOnDestroy(): void {
+		this.subscriptions.form.unsubscribe();
+	}
 
 }

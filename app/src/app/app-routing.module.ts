@@ -1,71 +1,56 @@
-/* --- MODULES --- */
 import { NgModule } from '@angular/core';
-import { AuthManager } from './services/account/account.manager';
+import { AuthManager } from './services/auth/auth.service';
 import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
-    {
-        'path': 'apps',
-        'canActivate': [AuthManager],
-        'loadChildren': () => import('./pages/apps/apps.module').then(m => m.AppsModule)
-    },
-    {
-        'path': 'usage',
-        'canActivate': [AuthManager],
-        'loadChildren': () => import('./pages/usage/usage.module').then(m => m.UsageModule)
-    },
-    {
-        'path': 'scopes',
-        'canActivate': [AuthManager],
-        'loadChildren': () => import('./pages/scopes/scopes.module').then(m => m.ScopesModule)
-    },
-    {
-        'path': 'tokens',
-        'canActivate': [AuthManager],
-        'loadChildren': () => import('./pages/tokens/tokens.module').then(m => m.TokensModule)
-    },
-    {
-        'path': 'account',
-        'canActivate': [AuthManager],
-        'loadChildren': () => import('./pages/account/account.module').then(m => m.AccountModule)
-    },
-    {
-        'path': 'signin',
-        'loadChildren': () => import('./pages/signin/signin.module').then(m => m.SigninModule)
-    },
-    {
-        'path': 'signup',
-        'loadChildren': () => import('./pages/signup/signup.module').then(m => m.SignupModule)
-    },
-    {
-        'path': 'allow-access',
-        'loadChildren': () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
-    },
-    {
-        'path': 'reset-password',
-        'loadChildren': () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordModule)
-    },
-    {
-        'path': 'verify-account',
-        'loadChildren': () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
-    },
-    {
-        'path': 'privacy-policy',
-        'loadChildren': () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
-    },
-    {
-        'path': 'terms-and-conditions',
-        'loadChildren': () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsModule)
-    },
-    {
-        'path': '**',
-        'redirectTo': 'apps'
-    }
+	{
+		path: 'apps',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/apps/apps.module').then(m => m.AppsModule)
+	},
+	{
+		path: 'signin',
+		loadChildren: () => import('./pages/signin/signin.module').then(m => m.SignInModule)
+	},
+	{
+		path: 'signup',
+		loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignUpModule)
+	},
+	{
+		path: 'account',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
+	},
+	{
+		path: 'settings',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/settings/settings.module').then(m => m.SettingsModule)
+	},
+	{
+		path: 'allow-access',
+		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
+	},
+	{
+		path: 'privacy-policy',
+		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
+	},
+	{
+		path: 'verify-account',
+		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
+	},
+	{
+		path: 'terms-and-conditions',
+		loadChildren: () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsModule)
+	},
+	{
+		path: '**',
+		redirectTo: 'apps'
+	}
 ];
 
 @NgModule({
-    imports: [RouterModule.forRoot(routes)],
-    exports: [RouterModule]
+	imports: [RouterModule.forRoot(routes)],
+	exports: [RouterModule]
 })
 
 export class AppRoutingModule { }

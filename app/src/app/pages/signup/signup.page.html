@@ -1,81 +1,91 @@
-<form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && form.value.password == form.value.confirm && submit()">
-    <img src="./assets/icons/icon-512x512.png" alt="Auth Icon">
+<mat-content>
+    <img [src]="app.icon ? app.icon : './assets/icons/icon-512x512.png'" alt="icon" width="100" height="100">
 
-    <section>
-        <mat-form-field appearance="outline">
-            <mat-label text-uppercase>
-                first name
-            </mat-label>
-            
-            <input matInput type="text" name="name_first" placeholder="first name" formControlName="name_first" required>
+    <h1>
+        {{ app.name ? app.name : 'Auth' }}
+    </h1>
+
+    <h2>
+        Sign Up
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="form.value.password == form.value.confirm && !form.invalid && submit()">
+        <section formGroupName="name">
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    First Name
+                </mat-label>
     
-            <mat-error *ngIf="errors.name_first">
-                {{ errors.name_first }}
+                <input matInput type="text" name="first name" placeholder="first name" formControlName="first" required>
+    
+                <mat-error *ngIf="errors.name.first">
+                    {{ errors.name.first }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Last Name
+                </mat-label>
+
+                <input matInput type="text" name="last name" placeholder="last name" formControlName="last" required>
+
+                <mat-error *ngIf="errors.name.last">
+                    {{ errors.name.last }}
+                </mat-error>
+            </mat-form-field>
+        </section>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Email
+            </mat-label>
+
+            <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+
+            <mat-error *ngIf="errors.email">
+                {{ errors.email }}
             </mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-            <mat-label text-uppercase>
-                last name
+            <mat-label>
+                Password
             </mat-label>
-            
-            <input matInput type="text" name="name_last" placeholder="last name" formControlName="name_last" required>
-    
-            <mat-error *ngIf="errors.name_last">
-                {{ errors.name_last }}
+
+            <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+
+            <mat-error *ngIf="errors.password">
+                {{ errors.password }}
             </mat-error>
         </mat-form-field>
-    </section>
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            Email
-        </mat-label>
-        
-        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Confirm Password
+            </mat-label>
 
-        <mat-error *ngIf="errors.email">
-            {{ errors.email }}
-        </mat-error>
-    </mat-form-field>
+            <input matInput type="password" name="confirm password" placeholder="confirm password" formControlName="confirm" required>
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            Password
-        </mat-label>
-        
-        <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+            <mat-error *ngIf="errors.confirm || form.value.password != form.value.confirm">
+                {{ errors.confirm }}
+                {{ form.value.password != form.value.confirm && errors.confirm ? ' & ' : '' }}
+                {{ form.value.password != form.value.confirm ? 'Passwords do not match!' : '' }}
+            </mat-error>
+        </mat-form-field>
 
-        <mat-error *ngIf="errors.password">
-            {{ errors.password }}
-        </mat-error>
-    </mat-form-field>
+        <button type="submit" mat-flat-button color="primary">
+            {{ loading ? '' : 'sign up' }}
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            Confirm Password
-        </mat-label>
-        
-        <input matInput type="password" name="confirm" placeholder="confirm password" formControlName="confirm" required>
+            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+        </button>
 
-        <mat-error *ngIf="errors.confirm || form.value.password != form.value.confirm">
-            {{ errors.confirm }}
-            {{ (errors.confirm && form.value.password != form.value.confirm) ? ' & ' : '' }}
-            {{ form.value.password != form.value.confirm ? 'Passwords do not match' : '' }}
-        </mat-error>
-    </mat-form-field>
+        <p>
+            By clicking “SIGN UP”, you agree to our <a routerLink="/terms-and-conditions">Terms & Conditions</a> and  <a routerLink="/privacy-policy">Privacy Policy</a>. We’ll occasionally send you account related emails.
+        </p>
 
-    <button type="submit" mat-flat-button color="primary">
-        {{ loading ? '' : 'sign up' }}
-
-        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
-    </button>
-
-    <p>
-        By clicking “SIGN UP”, you agree to our <a routerLink="/terms-and-conditions">Terms & Conditions</a> and  <a routerLink="/privacy-policy">Privacy Policy</a>. We’ll occasionally send you account related emails.
-    </p>
-
-    <button type="button" mat-stroked-button color="primary" routerLink="/verify-account">
-        verfiy account
-    </button>
-</form>
+        <button type="button" mat-stroked-button color="primary" (click)="verifyaccount()">
+            verify account
+        </button>
+    </form>
+</mat-content>

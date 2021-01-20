@@ -10,16 +10,16 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { PrivacyPolicyRoutingModule } from './privacy-policy-routing.module';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        MatIconModule,
-        MatButtonModule,
-        MatToolbarModule,
-        PrivacyPolicyRoutingModule
-    ],
-    declarations: [
-        PrivacyPolicyPage
-    ]
+	imports: [
+		CommonModule,
+		MatIconModule,
+		MatButtonModule,
+		MatToolbarModule,
+		PrivacyPolicyRoutingModule
+	],
+	declarations: [
+		PrivacyPolicyPage
+	]
 })
 
 export class PrivacyPolicyModule {}

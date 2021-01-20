@@ -1,44 +1,45 @@
-<mat-toolbar color="primary">
-    <button mat-icon-button class="menu-toggle" (click)="menu.toggle()">
-        <mat-icon>
-            menu
-        </mat-icon>
-    </button>
+<table mat-table [dataSource]="apps" fxShow fxHide.xs="true">
+    <ng-container matColumnDef="icon">
+        <th mat-header-cell *matHeaderCellDef>
+            Icon
+        </th>
+        <td mat-cell *matCellDef="let element">
+            <img [src]="element.icon" [alt]="element.name" width="40" height="40" draggable="false">
+        </td>
+    </ng-container>
 
-    <div class="page-label spacer">
-        apps
-    </div>
+    <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>
+            Name
+        </th>
+        <td mat-cell *matCellDef="let element">
+            {{ element.name }}
+        </td>
+    </ng-container>
 
-    <search placeholder="filter apps"></search>
+    <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+            <button mat-icon-button>
+                <mat-icon>
+                    more_vert
+                </mat-icon>
+            </button>
+        </td>
+    </ng-container>
 
-    <button mat-icon-button routerLink="add">
-        <mat-icon>
-            add
-        </mat-icon>
-    </button>
-</mat-toolbar>
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+</table>
 
-<mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
+<mat-list fxHide fxShow.xs="true">
+    <mat-list-item lines="full" *ngFor="let element of apps.data" (click)="options(element)" matRipple>
+        <img slot="start" [src]="element.icon" [alt]="element.name" width="40" height="40" draggable="false">
 
-<div class="page-body">
-    <table mat-table [dataSource]="apps">
-        <ng-container matColumnDef="icon">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let element">
-                <img [src]="element.icon" alt="ap icon" draggable="false">
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef text-uppercase>
-                name
-            </th>
-            <td mat-cell *matCellDef="let element" text-uppercase>
+        <mat-label>
+            <h3>
                 {{ element.name }}
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
-        <tr mat-row *matRowDef="let row; columns: columns;" (click)="options(row)"></tr>
-    </table>
-</div>
+            </h3>
+        </mat-label>
+    </mat-list-item>
+</mat-list>

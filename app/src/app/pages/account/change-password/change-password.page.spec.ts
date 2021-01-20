@@ -7,19 +7,19 @@ describe('ChangePasswordPage', () => {
   let fixture: ComponentFixture<ChangePasswordPage>;
 
   beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ ChangePasswordPage ]
-    })
-    .compileComponents();
+	TestBed.configureTestingModule({
+		declarations: [ ChangePasswordPage ]
+	})
+	.compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ChangePasswordPage);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
+	fixture = TestBed.createComponent(ChangePasswordPage);
+	component = fixture.componentInstance;
+	fixture.detectChanges();
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+	expect(component).toBeTruthy();
   });
 });

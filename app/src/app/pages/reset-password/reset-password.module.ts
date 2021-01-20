@@ -5,11 +5,19 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { ResetPasswordPage } from './reset-password.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { Routes, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ResetPasswordRoutingModule } from './reset-password-routing.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+const routes: Routes = [
+    {
+        'path': '',
+        'component': ResetPasswordPage
+    }
+];
 
 @NgModule({
     imports: [
@@ -19,13 +27,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
         MatInputModule,
         MatButtonModule,
         MatSelectModule,
+        MatContentModule,
         MatToolbarModule,
         MatFormFieldModule,
         ReactiveFormsModule,
         MatProgressSpinnerModule,
-        ResetPasswordRoutingModule
+        RouterModule.forChild(routes)
     ],
     declarations: [ResetPasswordPage]
 })
 
-export class ResetPasswordModule {}
+export class ResetPasswordModule { }

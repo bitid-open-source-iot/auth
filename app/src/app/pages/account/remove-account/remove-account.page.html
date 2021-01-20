@@ -1,35 +1,29 @@
-<mat-toolbar color="primary">
-    <div class="page-label spacer">
-        remove account
-    </div>
+<mat-content>
+    <h1>
+        Remove Account
+    </h1>
 
-    <button mat-icon-button routerLink="/account">
-        <mat-icon>
-            close
-        </mat-icon>
-    </button>
-</mat-toolbar>
+    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <p class="notice">
+            The removal of your account will mean you can no longer sign in to the platform. This does not remove the assets you have created in the time you have had an account with us and if you wish to signup again your assets will be available to you once again!
+        </p>
 
-<mat-progress-bar mode="indeterminate" color="accent" *ngIf="loading"></mat-progress-bar>
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Confirm Password
+            </mat-label>
+            
+            <input matInput type="password" name="confirm password" placeholder="confirm password" formControlName="password" required>
 
-<form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-    <div class="notice">
-        The removal of your account will mean you can no longer sign in to the bitid platform. This does not remove the assets you have created in the time you have had an account with us and if you wish to signup again your assets will be available to you once again!
-    </div>
+            <mat-error *ngIf="errors.password">
+                {{ errors.password }}
+            </mat-error>
+        </mat-form-field>
 
-    <mat-form-field appearance="outline">
-        <mat-label text-uppercase>
-            password
-        </mat-label>
-        
-        <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+        <button type="submit" mat-flat-button color="warn">
+            {{ loading ? '' : 'confirm & remove' }}
 
-        <mat-error *ngIf="errors.password">
-            {{ errors.password }}
-        </mat-error>
-    </mat-form-field>
-
-    <button type="submit" mat-flat-button color="warn">
-        confirm & remove
-    </button>
-</form>
+            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+        </button>
+    </form>
+</mat-content>

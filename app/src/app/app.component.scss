@@ -1,31 +1,65 @@
-mat-sidenav-container {
-    height: 100%;
-    mat-sidenav {
+mat-toolbar {
+    padding-left: 8px;
+    mat-label {
+        margin-left: 8px;
+    }
+    [mat-stroked-button] {
+        margin-left: 16px;
+    }
+}
+mat-drawer-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: transparent;
+    mat-toolbar {
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        position: fixed;
+    }
+    mat-drawer {
         width: 300px;
-        .logo {
-            height:         40px;
-            margin-right:   15px !important;
-        }
+        border: none;
+        box-shadow: none;
+        transition: width 500ms;
         mat-list {
-            padding-top: 0px;
             mat-list-item {
-                outline:        none;
-                font-size:      14px;
-                line-height:    14px;
-                border-bottom:  1px solid #E0E0E0;
-                text-transform: uppercase;
+                height: 56px;
+                cursor: pointer;
+                outline: none;
                 mat-icon {
-                    margin-right: 15px;
+                    margin-right: 16px;
                 }
             }
             mat-list-item.active {
-                color: #03a9f4;
+                color: #2196F3 !important;
+                background-color: rgba($color: #2196F3, $alpha: 0.1) !important;
+            }
+        }
+    }
+    mat-drawer-content {
+        transition: margin 500ms;
+    }
+}
+mat-drawer-container.minified {
+    mat-drawer {
+        width: 56px;
+        mat-list mat-list-item {
+            mat-label {
+                display: none;
             }
         }
     }
 }
-@media screen and (max-width: 600px) {
-    mat-sidenav-container mat-sidenav {
-        width: 100%;
+mat-drawer-container.authenticated {
+    height: calc(100vh - 56px);
+    mat-drawer-content {
+        height: auto;
+    }
+}
+@media screen and (max-width: 300px) {
+    mat-drawer-container mat-drawer {
+        width: 100% !important;
     }
 }

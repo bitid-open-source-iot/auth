@@ -1,7 +1,12 @@
 .mat-column-title {
-    width: 25% !important;
+    width: 30%;
 }
 .mat-column-options {
     width: 40px;
     padding-right: 16px !important;
+}
+mat-list mat-list-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
 }

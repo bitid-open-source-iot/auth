@@ -1,6 +1,6 @@
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment';
 import { Injectable } from '@angular/core';
+import { environment } from 'src/environments/environment';
 import { LocalstorageService } from '../localstorage/localstorage.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -8,89 +8,81 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 export class ApiService {
 
-    constructor(private http: HttpClient, private router: Router, private localstorage: LocalstorageService) { }
+	constructor(private http: HttpClient, private router: Router, private localstorage: LocalstorageService) { }
 
-    private email: string;
-    private token: string;
+	public async put(url, endpoint, payload) {
+		const options = {
+			headers: new HttpHeaders({
+				'Content-Type': 'application/json'
+			})
+		};
 
-    public async put(url, endpoint, payload) {
-        const options = {
-            'headers': new HttpHeaders({
-                'Content-Type': 'application/json'
-            })
-        };
+		payload.header = {
+			appId: environment.appId,
+			email: this.localstorage.get('email')
+		};
 
-        payload.header = {
-            'email': this.localstorage.get('email'),
-            'appId': environment.appId
-        };
+		return await this.http.put(url + endpoint, payload, options)
+			.toPromise()
+			.then(response => {
+				return {
+					ok: true,
+					result: response
+				};
+			})
+			.catch(error => {
+				return this.error(error);
+			});
+	}
 
-        return await this.http.put(url + endpoint, payload, options)
-            .toPromise()
-            .then(response => {
-                return {
-                    'ok': true,
-                    'result': response
-                };
-            })
-            .catch(error => {
-                return this.error(error);
-            });
-    };
+	public async post(url, endpoint, payload) {
+		const email = this.localstorage.get('email');
+		const token = this.localstorage.get('token');
 
-    public async post(url, endpoint, payload) {
-        this.email = this.localstorage.get('email');
-        this.token = this.localstorage.get('token');
+		if (typeof (token) == 'undefined' || (typeof (email) == 'undefined')) {
+			this.localstorage.clear();
+			this.router.navigate(['/signin']);
+		}
 
-        if (typeof (this.token) == "undefined" || (typeof (this.email) == "undefined")) {
-            this.localstorage.clear();
-            this.router.navigate(['/signin']);
-        };
+		const options = {
+			headers: new HttpHeaders({
+				'Content-Type': 'application/json',
+				Authorization: token
+			})
+		};
 
-        const options = {
-            'headers': new HttpHeaders({
-                'Content-Type': 'application/json',
-                'Authorization': this.token
-            })
-        };
+		payload.header = {
+			email,
+			appId: environment.appId
+		};
 
-        payload.header = {
-            'email': this.email,
-            'appId': environment.appId
-        };
+		return await this.http.post(url + endpoint, payload, options)
+			.toPromise()
+			.then(response => {
+				return {
+					ok: true,
+					result: response
+				};
+			})
+			.catch(error => {
+				return this.error(error);
+			});
+	}
 
-        return await this.http.post(url + endpoint, payload, options)
-            .toPromise()
-            .then(response => {
-                return {
-                    'ok': true,
-                    'result': response
-                };
-            })
-            .catch(async error => {
-                const response = await this.error(error);
-                if (response.error.code == 401) {
-                    this.localstorage.clear();
-                    this.router.navigate(['/signin']);
-                };
-                return response;
-            });
-    };
-
-    private async error(error) {
-        if (error.error) {
-            if (error.error.errors) {
-                error.error = error.error.errors[0];
-                if (error.code == 401) {
-                    this.localstorage.clear();
-                    this.router.navigate(['/signin']);
-                };
-                return error;
-            } else {
-                return error;
-            };
-        } else {
-            return error;
-        };
-    };
+	private async error(error) {
+		if (error.error) {
+			if (error.error.errors) {
+				error.error = error.error.errors[0];
+				if (error.code == 401) {
+					this.localstorage.clear();
+					this.router.navigate(['/signin']);
+				}
+				return error;
+			} else {
+				return error;
+			}
+		} else {
+			return error;
+		}
+	}
 }
