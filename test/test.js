@@ -768,7 +768,7 @@ describe('Features', function () {
         tools.api.features.get()
             .then((result) => {
                 try {
-                    // result.should.have.property('role');
+                    result.should.have.property('role');
                     result.should.have.property('appId');
                     result.should.have.property('title');
                     result.should.have.property('featureId');
@@ -792,7 +792,7 @@ describe('Features', function () {
         tools.api.features.list()
             .then((result) => {
                 try {
-                    // result[0].should.have.property('role');
+                    result[0].should.have.property('role');
                     result[0].should.have.property('appId');
                     result[0].should.have.property('title');
                     result[0].should.have.property('featureId');
