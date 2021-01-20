@@ -24,6 +24,7 @@ import { TokensService } from './services/tokens/tokens.service';
 import { ScopesService } from './services/scopes/scopes.service';
 import { AccountService } from './services/account/account.service';
 import { HistoryService } from './services/history/history.service';
+import { FeaturesService } from './services/features/features.service';
 import { FormErrorService } from './services/form-error/form-error.service';
 import { LocalstorageService } from './services/localstorage/localstorage.service';
 
@@ -64,6 +65,7 @@ import { environment } from '../environments/environment';
         TokensService,
         AccountService,
         HistoryService,
+        FeaturesService,
         FormErrorService,
         LocalstorageService
     ],

@@ -177,3 +177,19 @@ if (scopes.count() == 0) {
         'unique': true
     });
 };
+
+var features = db.getCollection('tblFeatures');
+if (features.count() == 0) {
+    db.tblFeatures.insert({
+        '_id': ObjectId('000000000000000000000001'),
+        'appId': ObjectId('000000000000000000000001'),
+        'serverDate': new Date(),
+        'description': 'xxx'
+    });
+
+    db.tblFeatures.createIndex({
+        'appId': 1
+    }, {
+        'unique': false
+    });
+};

@@ -355,21 +355,25 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': ObjectId(args.req.body.header.appId)
-			};
+			var params = [
+				{
+					$match: {
+						'_id': ObjectId(args.req.body.header.appId)
+					}
+				},
+				{
+					$project: {
+						'url': 1,
+						'icon': 1,
+						'name': 1,
+						'appId': '$_id'
+					}
+				}
+			];
 
-			var filter = {
-				'_id': 0,
-				'url': 1,
-				'icon': 1,
-				'name': 1
-			};
-			
 			db.call({
 				'params': params,
-				'filter': filter,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
 				.then(result => {
@@ -418,21 +422,21 @@ var module = function () {
 									'collection': 'tblApps'
 								});
 							} else {
-								var err = dalAuth.errorResponse;
+								var err = new ErrorResponse();
 								err.error.errors[0].code = 401;
 								err.error.errors[0].reason = 'Account verification is required!';
 								err.error.errors[0].message = 'Account verification is required!';
 								deferred.reject(err);
 							};
 						} else {
-							var err = dalAuth.errorResponse;
+							var err = new ErrorResponse();
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Password is incorrect!';
 							err.error.errors[0].message = 'Password is incorrect!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -1204,7 +1208,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.body.email) == 'undefined') {
-				var err = dalAuth.errorResponse;
+				var err = new ErrorResponse();
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'A replacement email is required!';
 				err.error.errors[0].message = 'A replacement email is required!';
@@ -1237,7 +1241,7 @@ var module = function () {
 							'allowNoRecordsFound': true
 						});
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -1268,7 +1272,7 @@ var module = function () {
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 71;
 						err.error.errors[0].reason = 'An account with email address of ' + args.req.body.email + ' already exists!';
 						err.error.errors[0].message = 'An account with email address of ' + args.req.body.email + ' already exists!';
@@ -1350,14 +1354,14 @@ var module = function () {
 						if (args.user.validated == 1) {
 							deferred.resolve(args);
 						} else {
-							var err = dalAuth.errorResponse;
+							var err = new ErrorResponse();
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Account verification is required!';
 							err.error.errors[0].message = 'Account verification is required!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -1403,7 +1407,7 @@ var module = function () {
 							'allowNoRecordsFound': true
 						});
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Application not found!';
 						err.error.errors[0].message = 'Application not found!';
@@ -1498,21 +1502,21 @@ var module = function () {
 							if (args.user.validated == 1) {
 								deferred.resolve(args);
 							} else {
-								var err = dalAuth.errorResponse;
+								var err = new ErrorResponse();
 								err.error.errors[0].code = 401;
 								err.error.errors[0].reason = 'Account verification is required!';
 								err.error.errors[0].message = 'Account verification is required!';
 								deferred.reject(err);
 							};
 						} else {
-							var err = dalAuth.errorResponse;
+							var err = new ErrorResponse();
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Password is incorrect!';
 							err.error.errors[0].message = 'Password is incorrect!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -1558,7 +1562,7 @@ var module = function () {
 							'allowNoRecordsFound': true
 						});
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Application not found!';
 						err.error.errors[0].message = 'Application not found!';
@@ -2006,7 +2010,7 @@ var module = function () {
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = dalAuth.errorResponse;
+						var err = new ErrorResponse();
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Password is incorrect!';
 						err.error.errors[0].message = 'Password is incorrect!';
@@ -2888,6 +2892,312 @@ var module = function () {
 		}
 	};
 
+	var dalFeatures = {
+		add: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 3
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'appId': ObjectId(args.req.body.appId),
+						'title': args.req.body.title,
+						'serverDate': new Date(),
+						'description': args.req.body.description
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'insert',
+						'collection': 'tblFeatures'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		get: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 3
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.featureId),
+						'appId': ObjectId(args.req.body.appId)
+					};
+
+					var filter = {};
+					if (typeof (args.req.body.filter) != 'undefined') {
+						filter['_id'] = 0;
+						args.req.body.filter.map(f => {
+							if (f == 'featureId') {
+								filter['_id'] = 1;
+							} else {
+								filter[f] = 1;
+							};
+						});
+					};
+
+					deferred.resolve({
+						'params': params,
+						'filter': filter,
+						'operation': 'find',
+						'collection': 'tblFeatures'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		list: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 3
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'appId': ObjectId(args.req.body.appId)
+					};
+
+					if (typeof (args.req.body.tokenId) != 'undefined' && args.req.body.tokenId !== null) {
+						if (Array.isArray(args.req.body.tokenId) && args.req.body.tokenId.length > 0) {
+							params._id = {
+								$in: args.req.body.tokenId.map(id => ObjectId(id))
+							};
+						} else if (typeof (args.req.body.tokenId) == 'string' && args.req.body.tokenId.length == 24) {
+							params._id = ObjectId(args.req.body.tokenId);
+						};
+					};
+
+					var filter = {};
+					if (typeof (args.req.body.filter) != 'undefined') {
+						filter['_id'] = 0;
+						args.req.body.filter.map(f => {
+							if (f == 'featureId') {
+								filter['_id'] = 1;
+							} else {
+								filter[f] = 1;
+							};
+						});
+					};
+
+					deferred.resolve({
+						'params': params,
+						'filter': filter,
+						'operation': 'find',
+						'collection': 'tblFeatures'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		update: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 3
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.featureId)
+					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title !== null) {
+						update.$set.title = args.req.body.title;
+					};
+					if (typeof (args.req.body.description) != 'undefined' && args.req.body.description !== null) {
+						update.$set.description = args.req.body.description;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblFeatures'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		delete: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 3
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.featureId)
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'remove',
+						'collection': 'tblFeatures'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		}
+	};
+
 	var dalPushTokens = {
 		add: (args) => {
 			var deferred = Q.defer();
@@ -3075,6 +3385,7 @@ var module = function () {
 		'users': dalUsers,
 		'scopes': dalScopes,
 		'tokens': dalTokens,
+		'features': dalFeatures,
 		'pushtokens': dalPushTokens,
 		'statistics': dalStatistics
 	};

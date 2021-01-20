@@ -13,6 +13,7 @@ var token = null;
 var appId = null;
 var scopeId = null;
 var tokenId = null;
+var featureId = null;
 var loginToken = null;
 var verifyCode = null;
 var tokenIdToRevoke = null;
@@ -739,6 +740,98 @@ describe('Tokens', function () {
     });
 });
 
+describe('Features', function () {
+    it('/features/add', function (done) {
+        this.timeout(5000);
+
+        tools.api.features.add()
+            .then((result) => {
+                try {
+                    featureId = result.featureId;
+                    result.should.have.property('featureId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/features/get', function (done) {
+        this.timeout(5000);
+
+        tools.api.features.get()
+            .then((result) => {
+                try {
+                    // result.should.have.property('role');
+                    result.should.have.property('appId');
+                    result.should.have.property('title');
+                    result.should.have.property('featureId');
+                    result.should.have.property('description');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/features/list', function (done) {
+        this.timeout(5000);
+
+        tools.api.features.list()
+            .then((result) => {
+                try {
+                    // result[0].should.have.property('role');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('title');
+                    result[0].should.have.property('featureId');
+                    result[0].should.have.property('description');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/features/update', function (done) {
+        this.timeout(5000);
+
+        tools.api.features.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
 describe('Health Check', function () {
     it('/', function (done) {
         this.timeout(5000);
@@ -768,6 +861,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.users.delete()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/features/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.features.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1565,6 +1679,79 @@ var tools = {
                     'role': 3,
                     'email': 'shared@test.co.za',
                     'tokenId': tokenId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            }
+        },
+        features: {
+            add: () => {
+                var deferred = Q.defer();
+
+                tools.post('/features/add', {
+                    'title': 'xxx',
+                    'appId': appId,
+                    'description': 'xxx',
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            get: () => {
+                var deferred = Q.defer();
+
+                tools.post('/features/get', {
+                    'filter': [
+                        'role',
+                        'title',
+                        'appId',
+                        'featureId',
+                        'description'
+                    ],
+                    'appId': appId,
+                    'featureId': featureId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            list: () => {
+                var deferred = Q.defer();
+
+                tools.post('/features/list', {
+                    'filter': [
+                        'role',
+                        'title',
+                        'appId',
+                        'featureId',
+                        'description'
+                    ],
+                    'appId': appId,
+                    'featureId': featureId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            update: () => {
+                var deferred = Q.defer();
+
+                tools.post('/features/update', {
+                    'title': 'New Mocha Test Updated',
+                    'appId': appId,
+                    'featureId': featureId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            delete: () => {
+                var deferred = Q.defer();
+
+                tools.post('/features/delete', {
+                    'appId': appId,
+                    'featureId': featureId
                 })
                     .then(deferred.resolve, deferred.resolve);
 

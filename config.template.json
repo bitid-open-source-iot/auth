@@ -122,6 +122,26 @@
             {
                 "url": "/tokens/updatesubscriber",
                 "role": 4
+            },
+            {
+                "url": "/features/add",
+                "role": 4
+            },
+            {
+                "url": "/features/get",
+                "role": 4
+            },
+            {
+                "url": "/features/list",
+                "role": 4
+            },
+            {
+                "url": "/features/update",
+                "role": 4
+            },
+            {
+                "url": "/features/delete",
+                "role": 4
             }
         ]
     },

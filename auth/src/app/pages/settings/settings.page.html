@@ -1,0 +1,28 @@
+<form [formGroup]="form" fxLayout="row">
+    <mat-list fxFlex="50" fxFlexOffset="25" fxFlex.lg="70" fxFlexOffset.lg="15" fxFlex.md="80" fxFlexOffset.md="10" fxFlex.sm="90" fxFlexOffset.sm="5" fxFlex.xs="100" fxFlexOffset.xs="0">
+        <div mat-subheader>
+            Theme
+        </div>
+
+        <mat-list-item lines="full">
+            <mat-label class="spacer">
+                Dark Mode
+            </mat-label>
+
+            <mat-slide-toggle color="primary" [checked]="form.value.theme" formControlName="theme"></mat-slide-toggle>
+        </mat-list-item>
+
+        <div mat-subheader>
+            Notifications
+        </div>
+
+        <mat-list-item lines="full">
+            <mat-label class="spacer">
+                Desktop Notifications
+            </mat-label>
+
+            <mat-slide-toggle color="primary" [checked]="form.value.notifications" formControlName="notifications">
+            </mat-slide-toggle>
+        </mat-list-item>
+    </mat-list>
+</form>

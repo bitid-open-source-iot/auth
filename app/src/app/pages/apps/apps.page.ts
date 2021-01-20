@@ -15,25 +15,25 @@ import { BottomSheetComponent } from 'src/app/components/bottom-sheet/bottom-she
 import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
 
 @Component({
-    selector:       'app-apps-page',
-    styleUrls:      ['./apps.page.scss'],
-    templateUrl:    './apps.page.html'
+    selector: 'app-apps-page',
+    styleUrls: ['./apps.page.scss'],
+    templateUrl: './apps.page.html'
 })
 
 export class AppsPage implements OnInit, OnDestroy {
 
-    @ViewChild(SearchComponent, {'static': true}) private search: SearchComponent;
+    @ViewChild(SearchComponent, { 'static': true }) private search: SearchComponent;
 
-    constructor(public menu: MenuService, private toast: ToastService, private sheet: MatBottomSheet, private dialog: MatDialog, private router: Router, private service: AppsService, private localstorage: LocalstorageService) {};
+    constructor(public menu: MenuService, private toast: ToastService, private sheet: MatBottomSheet, private dialog: MatDialog, private router: Router, private service: AppsService, private localstorage: LocalstorageService) { };
 
-    public sort:            any         = {
-        'key':      'name',
-        'reverse':  false
+    public sort: any = {
+        'key': 'name',
+        'reverse': false
     };
-    public apps:            any         = new MatTableDataSource();
-    public columns:         string[]    = ['icon', 'name'];
-    public loading:         boolean;
-    private subscriptions:  any         = {};
+    public apps: any = new MatTableDataSource();
+    public columns: string[] = ['icon', 'name'];
+    public loading: boolean;
+    private subscriptions: any = {};
 
     private async list() {
         this.loading = true;
@@ -62,42 +62,42 @@ export class AppsPage implements OnInit, OnDestroy {
     public async options(app: any) {
         const sheet = await this.sheet.open(BottomSheetComponent, {
             'data': {
-                'role':     app.role,
-                'title':    app.title,
+                'role': app.role,
+                'title': app.title,
                 'options': [
                     {
-                        'icon':     'create',
-                        'title':    'Edit',
+                        'icon': 'create',
+                        'title': 'Edit',
                         'disabled': [0, 1],
                         'optionId': 0
                     },
                     {
-                        'icon':     'file_copy',
-                        'title':    'Copy',
+                        'icon': 'file_copy',
+                        'title': 'Copy',
                         'disabled': [0, 1, 2],
                         'optionId': 1
                     },
                     {
-                        'icon':     'share',
-                        'title':    'Share',
+                        'icon': 'share',
+                        'title': 'Share',
                         'disabled': [0, 1, 2, 3],
                         'optionId': 2
                     },
                     {
-                        'icon':     'people',
-                        'title':    'Subscribers',
+                        'icon': 'people',
+                        'title': 'Subscribers',
                         'disabled': [0, 1, 2, 3],
                         'optionId': 3
                     },
                     {
-                        'icon':     'delete',
-                        'title':    'Delete',
+                        'icon': 'delete',
+                        'title': 'Delete',
                         'disabled': [0, 1, 2, 3, 4],
                         'optionId': 4
                     },
                     {
-                        'icon':     'remove',
-                        'title':    'Unsubscribe',
+                        'icon': 'remove',
+                        'title': 'Unsubscribe',
                         'disabled': [5],
                         'optionId': 5
                     }
@@ -106,17 +106,17 @@ export class AppsPage implements OnInit, OnDestroy {
         });
 
         await sheet.afterDismissed().subscribe(async optionId => {
-            if (typeof(optionId) !== "undefined") {
-                switch(optionId) {
-                    case(0):
+            if (typeof (optionId) !== "undefined") {
+                switch (optionId) {
+                    case (0):
                         this.router.navigate(['/apps', 'update', app.appId]);
                         break;
-                    case(1):
+                    case (1):
                         this.router.navigate(['/apps', 'copy', app.appId]);
                         break;
-                    case(2):
+                    case (2):
                         const share = await this.dialog.open(ShareComponent, {
-                            'panelClass':   'share-dialog',
+                            'panelClass': 'share-dialog',
                             'disableClose': true
                         });
 
@@ -125,9 +125,9 @@ export class AppsPage implements OnInit, OnDestroy {
                                 this.loading = true;
 
                                 const response = await this.service.share({
-                                    'role':     user.role,
-                                    'email':    user.email,
-                                    'appId':    app.appId
+                                    'role': user.role,
+                                    'email': user.email,
+                                    'appId': app.appId
                                 });
 
                                 this.loading = false;
@@ -140,20 +140,20 @@ export class AppsPage implements OnInit, OnDestroy {
                             };
                         });
                         break;
-                    case(3):
+                    case (3):
                         await this.dialog.open(SubscribersComponent, {
                             'data': {
-                                'id':       app.appId,
-                                'type':     'app',
-                                'service':  this.service
+                                'id': app.appId,
+                                'type': 'app',
+                                'service': this.service
                             },
-                            'panelClass':   'subscribers-dialog',
+                            'panelClass': 'subscribers-dialog',
                             'disableClose': true
                         });
                         break;
-                    case(4):
+                    case (4):
                         const remove = await this.dialog.open(DeleteComponent, {
-                            'panelClass':   'delete-dialog',
+                            'panelClass': 'delete-dialog',
                             'disableClose': true
                         });
 
@@ -182,9 +182,9 @@ export class AppsPage implements OnInit, OnDestroy {
                             };
                         });
                         break;
-                    case(5):
+                    case (5):
                         const unsubscribe = await this.dialog.open(UnsubscribeComponent, {
-                            'panelClass':   'unsubscribe-dialog',
+                            'panelClass': 'unsubscribe-dialog',
                             'disableClose': true
                         });
 
@@ -193,8 +193,8 @@ export class AppsPage implements OnInit, OnDestroy {
                                 this.loading = true;
 
                                 const response = await this.service.unsubscribe({
-                                    'email':    this.localstorage.get('email'),
-                                    'appId':   app.appId
+                                    'email': this.localstorage.get('email'),
+                                    'appId': app.appId
                                 });
 
                                 this.loading = false;

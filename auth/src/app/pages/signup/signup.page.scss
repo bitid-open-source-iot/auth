@@ -1,0 +1,19 @@
+mat-content {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    img {
+        margin: 20px 0px;
+    }
+    form {
+        max-width: 400px;
+        p {
+            font-size: 12px;
+            text-align: justify;
+            line-height: 16px;
+            a {
+                color: #2196F3;
+            }
+        }
+    }
+}

@@ -4,60 +4,47 @@ const dal = require('./dal/dal');
 const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
+const config = require('./config.json');
 const express = require('express');
-const Responder = require('./lib/responder');
-const bodyParser = require('body-parser');
+const responder = require('./lib/responder');
+const bodyparser = require('body-parser');
 const ErrorResponse = require('./lib/error-response');
 
 global.__base = __dirname + '/';
 global.__logger = require('./lib/logger');
-global.__settings = require('./config.json');
-global.__responder = new Responder.module();
+global.__settings = config;
+global.__responder = new responder.module();
 
 __logger.init();
 
 try {
     var portal = {
-        api: (args) => {
+        api: () => {
             var deferred = Q.defer();
 
             try {
                 var app = express();
                 app.use(cors());
-                app.use(bodyParser.urlencoded({
+                app.use(bodyparser.urlencoded({
                     'limit': '50mb',
                     'extended': true
                 }));
-                app.use(bodyParser.json({
+                app.use(bodyparser.json({
                     'limit': '50mb'
                 }));
 
                 app.use((req, res, next) => {
-                    /* --- THIS WILL CATER FOR APPS UNTIL WE UPDATE THERE API SERVICES --- */
-                    if (typeof (req.body) != 'undefined') {
-                        if (typeof (req.body.header) != 'undefined') {
-                            if (typeof (req.body.header.clientIdAuth) != 'undefined') {
-                                req.body.header.appId = req.body.header.clientIdAuth;
-                                delete req.body.header.clientIdAuth;
-                            };
-                        };
-                        Object.keys(req.body).map(key => {
-                            if (key == 'clientId') {
-                                req.body.appId = req.body[key];
-                            };
-                        });
-                    };
-                    if (args.settings.authentication) {
+                    if (config.authentication) {
                         if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
-                            var tmp = {
+                            var args = {
                                 'req': req,
                                 'res': res
                             };
 
-                            tmp.req.body.scope = tmp.req.originalUrl;
+                            args.req.body.scope = args.req.originalUrl;
 
                             var myModule = new dal.module();
-                            myModule.auth.validate(tmp)
+                            myModule.auth.validate(args)
                                 .then(result => {
                                     next();
                                 }, err => {
@@ -96,6 +83,9 @@ try {
                 app.use('/tokens', require('./api/tokens'));
                 __logger.info('loaded ./api/tokens');
 
+                app.use('/features', require('./api/features'));
+                __logger.info('loaded ./api/features');
+
                 app.use('/statistics', require('./api/statistics'));
                 __logger.info('loaded ./api/statistics');
 
@@ -112,9 +102,9 @@ try {
                 });
 
                 var server = http.createServer(app);
-                server.listen(args.settings.localwebserver.port);
+                server.listen(config.localwebserver.port);
 
-                deferred.resolve(args);
+                deferred.resolve();
             } catch (err) {
                 deferred.reject(err.message);
             };
@@ -122,21 +112,21 @@ try {
             return deferred.promise;
         },
 
-        init: (args) => {
-            if (!args.settings.production || !args.settings.authentication) {
+        init: () => {
+            if (!config.production || !config.authentication) {
                 var index = 0;
                 console.log('');
                 console.log('=======================');
                 console.log('');
                 console.log(chalk.yellow('Warning: '));
-                if (!args.settings.production) {
+                if (!config.production) {
                     index++;
                     console.log('');
                     console.log(chalk.yellow(index + ': You are running in ') + chalk.red('"Development Mode!"') + chalk.yellow(' This can cause issues if this environment is a production environment!'));
                     console.log('');
                     console.log(chalk.yellow('To enable production mode, set the ') + chalk.bold(chalk.green('production')) + chalk.yellow(' variable in the config to ') + chalk.bold(chalk.green('true')) + chalk.yellow('!'));
                 };
-                if (!args.settings.authentication) {
+                if (!config.authentication) {
                     index++;
                     console.log('');
                     console.log(chalk.yellow(index + ': Authentication is not enabled ') + chalk.yellow(' This can cause issues if this environment is a production environment!'));
@@ -148,22 +138,22 @@ try {
                 console.log('');
             };
 
-            portal.api(args)
+            portal.api()
                 .then(portal.database, null)
                 .then(args => {
-                    console.log('Webserver Running on port: ', args.settings.localwebserver.port);
-                    __logger.info('Webserver Running on port: ' + args.settings.localwebserver.port);
+                    console.log('Webserver Running on port: ', config.localwebserver.port);
+                    __logger.info('Webserver Running on port: ' + config.localwebserver.port);
                 }, err => {
                     console.log('Error Initializing: ', err);
                 });
         },
 
-        database: (args) => {
+        database: () => {
             var deferred = Q.defer();
 
             db.connect().then(database => {
                 global.__database = database;
-                deferred.resolve(args);
+                deferred.resolve();
             }, err => {
                 __logger.error('Database Connection Error: ' + err);
                 deferred.reject(err);

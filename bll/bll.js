@@ -731,6 +731,86 @@ var module = function () {
 		}
 	};
 
+	var bllFeatures = {
+		add: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.features.add(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		get: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.features.get(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		list: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.features.list(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		update: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.features.update(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		delete: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.features.delete(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		}
+	};
+
 	var bllStatistics = {
 		usage: (req, res) => {
 			var args = {
@@ -754,6 +834,7 @@ var module = function () {
 		'users': bllUsers,
 		'scopes': bllScopes,
 		'tokens': bllTokens,
+		'features': bllFeatures,
 		'statistics': bllStatistics
 	};
 };
