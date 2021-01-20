@@ -17,6 +17,16 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignUpModule)
 	},
 	{
+		path: 'scopes',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/scopes/scopes.module').then(m => m.ScopesModule)
+	},
+	{
+		path: 'tokens',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/tokens/tokens.module').then(m => m.TokensModule)
+	},
+	{
 		path: 'account',
 		canActivate: [AuthManager],
 		loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)

@@ -31,6 +31,10 @@ mat-drawer-container {
                 mat-icon {
                     margin-right: 16px;
                 }
+                mat-label {
+                    opacity: 1;
+                    transition: opacity 250ms;
+                }
             }
             mat-list-item.active {
                 color: #2196F3 !important;
@@ -45,10 +49,8 @@ mat-drawer-container {
 mat-drawer-container.minified {
     mat-drawer {
         width: 56px;
-        mat-list mat-list-item {
-            mat-label {
-                display: none;
-            }
+        mat-list mat-list-item mat-label {
+            opacity: 0;
         }
     }
 }
