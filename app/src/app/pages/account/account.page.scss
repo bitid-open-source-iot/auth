@@ -2,10 +2,15 @@
     width: 100px;
     margin: auto;
     height: 100px;
+    border: 2px solid transparent;
     display: flex;
     align-items: center;
     border-radius: 100%;
     justify-content: center;
+    background-color: #EEEEEE;
+}
+[upload].required {
+    border-color: red;
 }
 mat-content {
     display: flex;

@@ -35,6 +35,7 @@ import { AppComponent } from './app.component';
 
 /* --- ENVIRONMENT --- */
 import { environment } from '../environments/environment';
+import { ButtonsService } from './services/buttons/buttons.service';
 
 @NgModule({
 	imports: [
@@ -65,6 +66,7 @@ import { environment } from '../environments/environment';
 		ScopesService,
 		TokensService,
 		AccountService,
+		ButtonsService,
 		FeaturesService,
 		SettingsService,
 		FormErrorService,

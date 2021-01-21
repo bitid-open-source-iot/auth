@@ -1,3 +1,4 @@
+import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { SettingsService } from 'src/app/services/settings/settings.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -10,7 +11,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class SettingsPage implements OnInit, OnDestroy {
 
-	constructor(private service: SettingsService) { }
+	constructor(private buttons: ButtonsService, private service: SettingsService) { }
 
 	public form: FormGroup = new FormGroup({
 		theme: new FormControl(this.service.theme.value == 'light' ? false : true, [Validators.required]),
@@ -23,6 +24,11 @@ export class SettingsPage implements OnInit, OnDestroy {
 	private subscriptions: any = {};
 
 	ngOnInit(): void {
+		this.buttons.hide('add');
+		this.buttons.hide('close');
+		this.buttons.hide('filter');
+		this.buttons.hide('search');
+
 		this.subscriptions.theme = this.form.controls.theme.valueChanges.subscribe(theme => {
 			if (theme) {
 				this.service.theme.next('dark');

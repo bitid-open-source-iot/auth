@@ -1,4 +1,5 @@
 import { AppsService } from 'src/app/services/apps/apps.service';
+import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 
@@ -10,7 +11,7 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	constructor(private service: AppsService) { }
+	constructor(private buttons: ButtonsService, private service: AppsService) { }
 
 	public apps: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['icon', 'name', 'options'];
@@ -40,6 +41,11 @@ export class AppsPage implements OnInit, OnDestroy {
 	public async options(app) { }
 
 	ngOnInit(): void {
+		this.buttons.show('add');
+        this.buttons.hide('close');
+		this.buttons.show('filter');
+		this.buttons.show('search');
+
 		this.list();
 	}
 

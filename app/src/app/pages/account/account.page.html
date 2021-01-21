@@ -1,6 +1,6 @@
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-        <div upload [upload-src]="form.value.picture" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
+        <div [class.required]="!form.value.picture" upload [upload-src]="form.value.picture" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
             <mat-icon>publish</mat-icon>
         </div>
         

@@ -1,4 +1,5 @@
 mat-toolbar {
+    display: none;
     padding-left: 8px;
     mat-label {
         margin-left: 8px;
@@ -6,6 +7,9 @@ mat-toolbar {
     [mat-stroked-button] {
         margin-left: 16px;
     }
+}
+mat-toolbar.authenticated {
+    display: flex;
 }
 mat-drawer-container {
     height: 100vh;

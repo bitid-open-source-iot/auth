@@ -1,5 +1,6 @@
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { AccountService } from 'src/app/services/account/account.service';
+import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -11,7 +12,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AccountPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private service: AccountService) { }
+	constructor(private toast: ToastService, private buttons: ButtonsService, private service: AccountService) { }
 
 	public form: FormGroup = new FormGroup({
 		name: new FormGroup({
@@ -58,6 +59,11 @@ export class AccountPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		this.buttons.hide('add');
+		this.buttons.hide('close');
+		this.buttons.hide('filter');
+		this.buttons.hide('search');
+
 		this.subscriptions.user = this.service.user.subscribe(user => {
 			if (typeof(user) != 'undefined' && user != null) {
 				this.form.controls.picture.setValue(user.picture);

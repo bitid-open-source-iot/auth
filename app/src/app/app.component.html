@@ -1,4 +1,4 @@
-<mat-toolbar *ngIf="authenticated">
+<mat-toolbar [class.authenticated]="authenticated">
     <button mat-icon-button (click)="toggle()">
         <mat-icon>
             menu
@@ -9,9 +9,27 @@
         Auth
     </mat-label>
 
-    <button mat-icon-button>
+    <button mat-icon-button #search>
         <mat-icon>
             search
+        </mat-icon>
+    </button>
+
+    <button mat-icon-button #filter>
+        <mat-icon>
+            filter_list
+        </mat-icon>
+    </button>
+
+    <button mat-icon-button #add>
+        <mat-icon>
+            add
+        </mat-icon>
+    </button>
+
+    <button mat-icon-button #close>
+        <mat-icon>
+            close
         </mat-icon>
     </button>
 </mat-toolbar>
