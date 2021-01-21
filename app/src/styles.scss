@@ -154,6 +154,9 @@ body.dark-mode {
     .options-sheet {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
+        mat-list mat-list-item.danger * {
+            color: #F44336 !important;
+        }
     }
     mat-footer,
     mat-toolbar {
