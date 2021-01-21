@@ -2900,7 +2900,7 @@ var module = function () {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
-							$gte: 3
+							$gte: 2
 						},
 						'email': args.req.body.header.email
 					}
@@ -2953,7 +2953,7 @@ var module = function () {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
-							$gte: 3
+							$gte: 2
 						},
 						'email': args.req.body.header.email
 					}
@@ -3051,7 +3051,7 @@ var module = function () {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
-							$gte: 3
+							$gte: 2
 						},
 						'email': args.req.body.header.email
 					}
@@ -3158,7 +3158,7 @@ var module = function () {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
-							$gte: 3
+							$gte: 2
 						},
 						'email': args.req.body.header.email
 					}
@@ -3218,22 +3218,51 @@ var module = function () {
 		delete: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
+			var match = {
 				'bitid.auth.users': {
 					$elemMatch: {
 						'role': {
-							$gte: 3
+							$gte: 2
 						},
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': ObjectId(args.req.body.featureId)
 			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'serverDate': 1,
+						'description': 1
+					}
+				},
+				{
+					$match: match
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
+				'operation': 'aggregate',
+				'collection': 'tblFeatures'
 			})
 				.then(result => {
 					var deferred = Q.defer();

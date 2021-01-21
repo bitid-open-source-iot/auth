@@ -12,6 +12,7 @@
 [upload].required {
     border-color: red;
 }
+mat-footer,
 mat-content {
     display: flex;
     align-items: center;
@@ -19,8 +20,12 @@ mat-content {
     form {
         max-width: 400px;
         margin-top: 20px;
-        button {
-            margin-bottom: 20px;
-        }
     }
+    button {
+        width: 100%;
+        max-width: 400px;
+    }
+}
+mat-footer {
+    justify-content: center;
 }

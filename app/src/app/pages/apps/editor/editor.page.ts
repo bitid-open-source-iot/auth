@@ -94,9 +94,11 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				(this.form.controls.google as FormGroup).controls.credentials.setValue(JSON.stringify(app.google.credentials, null, 4));
 			} else {
 				this.toast.show('You have insufficient rights to edit this app!');
+				this.router.navigate(['/apps']);
 			}
 		} else {
 			this.toast.show(response.error.message);
+			this.router.navigate(['/apps']);
 		}
 
 		this.loading = false;

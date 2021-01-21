@@ -222,23 +222,26 @@ body.dark-mode {
 input[type="color"] {
     height: 16px;
 }
-/* ---  --- */
+/* --- PAGES --- */
 apps-page,
+scopes-page,
 signin-page,
 signup-page,
 account-page,
+features-page,
 settings-page,
 apps-editor-page,
 subscribers-page,
-app-features-page,
+scopes-editor-page,
 remove-account-page,
 verify-account-page,
 privacy-policy-page,
 reset-password-page,
+features-editor-page,
 change-password-page,
 terms-and-conditions-page {
     height: calc(100vh - 56px);
     display: flex;
     flex-direction: column;
 }
-/* ---  --- */
+/* --- PAGES --- */

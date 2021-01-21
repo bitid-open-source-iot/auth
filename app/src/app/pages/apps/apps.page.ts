@@ -1,11 +1,14 @@
 import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
 import { AppsService } from 'src/app/services/apps/apps.service';
+import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
+import { OptionsService } from 'src/app/libs/options/options.service';
+import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { MatTableDataSource } from '@angular/material/table';
+import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
-import { OptionsService } from 'src/app/libs/options/options.service';
 
 @Component({
 	selector: 'apps-page',
@@ -15,7 +18,7 @@ import { OptionsService } from 'src/app/libs/options/options.service';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	constructor(private config: ConfigService, private sheet: OptionsService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
+	constructor(private toast: ToastService, private config: ConfigService, private sheet: OptionsService, private router: Router, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalstorageService) { }
 
 	public apps: MatTableDataSource<App> = new MatTableDataSource<App>();
 	public columns: string[] = ['icon', 'name', 'options'];
@@ -62,6 +65,19 @@ export class AppsPage implements OnInit, OnDestroy {
 					disabled: [0, 1]
 				},
 				{
+					icon: 'content_copy',
+					title: 'copy',
+					handler: async () => {
+						this.router.navigate(['/apps', 'editor'], {
+							queryParams: {
+								mode: 'copy',
+								appId: app.appId
+							}
+						});
+					},
+					disabled: [0, 1]
+				},
+				{
 					icon: 'people',
 					title: 'Subscribers',
 					handler: async () => {
@@ -79,7 +95,32 @@ export class AppsPage implements OnInit, OnDestroy {
 					title: 'Unubscribe',
 					danger: true,
 					handler: async () => {
-						window.alert('finish this clayton');
+						this.confirm.show({
+							'message': 'Are you sure you want to unsubscribe from ' + app.name + '?',
+							'handler': async () => {
+								this.loading = true;
+
+								const response = await this.service.unsubscribe({
+									'appId': app.appId,
+									'email': this.localstorage.get('email')
+								});
+
+								if (response.ok) {
+									for (let i = 0; i < this.apps.data.length; i++) {
+										if (this.apps.data[i].appId == app.appId) {
+											this.apps.data.splice(i, 1);
+											this.toast.show('You were unsubscribed!');
+											break;
+										};
+									};
+									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+								} else {
+									this.toast.show(response.error.message);
+								};
+
+								this.loading = false;
+							}
+						})
 					},
 					disabled: [5]
 				},
@@ -88,7 +129,31 @@ export class AppsPage implements OnInit, OnDestroy {
 					title: 'Delete',
 					danger: true,
 					handler: async () => {
-						window.alert('finish this clayton');
+						this.confirm.show({
+							'message': 'Are you sure you want to delete ' + app.name + '?',
+							'handler': async () => {
+								this.loading = true;
+
+								const response = await this.service.delete({
+									'appId': app.appId
+								});
+
+								if (response.ok) {
+									for (let i = 0; i < this.apps.data.length; i++) {
+										if (this.apps.data[i].appId == app.appId) {
+											this.apps.data.splice(i, 1);
+											this.toast.show('App was removed!');
+											break;
+										};
+									};
+									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+								} else {
+									this.toast.show(response.error.message);
+								};
+
+								this.loading = false;
+							}
+						});
 					},
 					disabled: [0, 1, 2, 3, 4]
 				}
@@ -99,8 +164,8 @@ export class AppsPage implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.buttons.show('add');
 		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+		this.buttons.hide('filter');
+		this.buttons.hide('search');
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/apps', 'editor'], {

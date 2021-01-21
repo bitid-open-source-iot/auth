@@ -6,6 +6,8 @@ import { AppsEditorpage } from './editor/editor.page';
 import { NgModule } from '@angular/core';
 import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
+import { OptionsModule } from 'src/app/libs/options/options.module';
+import { ConfirmModule } from 'src/app/libs/confirm/confirm.module';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -23,7 +25,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { OptionsModule } from 'src/app/libs/options/options.module';
 
 const routes: Routes = [
 	{
@@ -45,6 +46,7 @@ const routes: Routes = [
 		MatTabsModule,
 		MatIconModule,
 		MatListModule,
+		ConfirmModule,
 		MatChipsModule,
 		MatTableModule,
 		MatInputModule,
