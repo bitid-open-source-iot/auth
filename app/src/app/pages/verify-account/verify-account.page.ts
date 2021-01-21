@@ -98,10 +98,10 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 			if (loaded) {
 				const params = this.route.snapshot.queryParams;
 				if (typeof (params.code) != 'undefined' && params.code !== null) {
-					this.form.controls['code'].setValue(params.code);
+					this.form.controls.code.setValue(params.code);
 				}
 				if (typeof (params.email) != 'undefined' && params.email !== null) {
-					this.form.controls['email'].setValue(params.email);
+					this.form.controls.email.setValue(params.email);
 				}
 				if (typeof(params.appId) != 'undefined' && params.appId !== null) {
 					this.appId = params.appId;

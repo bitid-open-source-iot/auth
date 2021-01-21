@@ -48,17 +48,17 @@ export class RemoveAccountPage implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.buttons.hide('add');
-        this.buttons.show('close');
-        this.buttons.hide('filter');
+  this.buttons.show('close');
+  this.buttons.hide('filter');
 		this.buttons.hide('search');
-		
+
 		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
 		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/account']);
-        });
+		});
 	}
 
 	ngOnDestroy(): void {

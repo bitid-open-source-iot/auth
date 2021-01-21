@@ -38,13 +38,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 	private async initialize() {
 		await this.splashscreen.show();
 
-		if (window.innerWidth <= 600) {
-			this.drawer.mode = 'push';
-			this.drawercontainer.hasBackdrop = false;
-		} else {
-			this.drawer.mode = 'side';
-		}
-
 		await this.config.init();
 		await this.update.init();
 		await this.settings.init();
@@ -77,7 +70,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 				this.renderer.setStyle(this.add._elementRef.nativeElement, 'display', 'block');
 			} else {
 				this.renderer.setStyle(this.add._elementRef.nativeElement, 'display', 'none');
-			};
+			}
 		});
 
 		this.buttons.close.visible.subscribe(visible => {
@@ -85,7 +78,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 				this.renderer.setStyle(this.close._elementRef.nativeElement, 'display', 'block');
 			} else {
 				this.renderer.setStyle(this.close._elementRef.nativeElement, 'display', 'none');
-			};
+			}
 		});
 
 		this.buttons.filter.visible.subscribe(visible => {
@@ -93,7 +86,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 				this.renderer.setStyle(this.filter._elementRef.nativeElement, 'display', 'block');
 			} else {
 				this.renderer.setStyle(this.filter._elementRef.nativeElement, 'display', 'none');
-			};
+			}
 		});
 
 		this.buttons.search.visible.subscribe(visible => {
@@ -101,8 +94,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 				this.renderer.setStyle(this.search._elementRef.nativeElement, 'display', 'block');
 			} else {
 				this.renderer.setStyle(this.search._elementRef.nativeElement, 'display', 'none');
-			};
+			}
 		});
-	};
+	}
 
 }

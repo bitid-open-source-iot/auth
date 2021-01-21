@@ -1,4 +1,7 @@
+import { App } from 'src/app/classes/app';
+import { Router } from '@angular/router';
 import { AppsService } from 'src/app/services/apps/apps.service';
+import { ConfigService } from 'src/app/services/config/config.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, OnDestroy } from '@angular/core';
@@ -11,11 +14,12 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	constructor(private buttons: ButtonsService, private service: AppsService) { }
+	constructor(private config: ConfigService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
 
-	public apps: MatTableDataSource<any> = new MatTableDataSource<any>();
+	public apps: MatTableDataSource<App> = new MatTableDataSource<App>();
 	public columns: string[] = ['icon', 'name', 'options'];
 	public loading: boolean;
+	private subscriptions: any = {};
 
 	private async list() {
 		this.loading = true;
@@ -30,7 +34,7 @@ export class AppsPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.apps.data = response.result;
+			this.apps.data = response.result.map(app => new App(app));
 		} else {
 			this.apps.data = [];
 		}
@@ -38,17 +42,34 @@ export class AppsPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public async options(app) { }
+	public async options(app: App) {
+		debugger;
+	}
 
 	ngOnInit(): void {
 		this.buttons.show('add');
-        this.buttons.hide('close');
+		this.buttons.hide('close');
 		this.buttons.show('filter');
 		this.buttons.show('search');
 
-		this.list();
+		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+			this.router.navigate(['/apps', 'editor'], {
+				queryParams: {
+					mode: 'add'
+				}
+			});
+		});
+
+		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+			if (loaded) {
+				this.list();
+			}
+		});
 	}
 
-	ngOnDestroy(): void { }
+	ngOnDestroy(): void {
+		this.subscriptions.add.unsubscribe();
+		this.subscriptions.loaded.unsubscribe();
+	}
 
 }
