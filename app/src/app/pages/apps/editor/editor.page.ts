@@ -88,10 +88,10 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				this.form.controls.secret.setValue(app.secret);
 				this.form.controls.scopes.setValue(app.scopes);
 				this.form.controls.domains.setValue(app.domains);
-				(<FormGroup>this.form.controls.theme).controls.color.setValue(app.theme.color);
-				(<FormGroup>this.form.controls.theme).controls.background.setValue(app.theme.background);
-				(<FormGroup>this.form.controls.google).controls.database.setValue(app.google.database);
-				(<FormGroup>this.form.controls.google).controls.credentials.setValue(JSON.stringify(app.google.credentials, null, 4));
+				(this.form.controls.theme as FormGroup).controls.color.setValue(app.theme.color);
+				(this.form.controls.theme as FormGroup).controls.background.setValue(app.theme.background);
+				(this.form.controls.google as FormGroup).controls.database.setValue(app.google.database);
+				(this.form.controls.google as FormGroup).controls.credentials.setValue(JSON.stringify(app.google.credentials, null, 4));
 			} else {
 				this.toast.show('You have insufficient rights to edit this app!');
 			}
@@ -116,7 +116,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		} else {
 			this.scopes.data = [];
 			this.toast.show(response.error.message);
-		};
+		}
 
 		this.loading = false;
 	}
@@ -128,7 +128,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		if (mode == 'copy') {
 			mode = 'add';
 			delete this.appId;
-		};
+		}
 
 		const response = await this.service[mode]({
 			theme: {
@@ -152,7 +152,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			this.router.navigate(['/apps']);
 		} else {
 			this.toast.show(response.error.message);
-		};
+		}
 
 		this.loading = false;
 	}

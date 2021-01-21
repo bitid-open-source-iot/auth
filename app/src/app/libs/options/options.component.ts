@@ -11,13 +11,13 @@ import { Inject, OnInit, Component, ViewEncapsulation } from '@angular/core';
 export class OptionsSheet implements OnInit {
 
 	constructor(private sheet: MatBottomSheetRef<OptionsSheet>, @Inject(MAT_BOTTOM_SHEET_DATA) private config: any) { }
-	
+
 	public title: any[] = this.config.title;
 	public options: any[] = this.config.options;
 
 	public submit(option) {
 		this.sheet.dismiss(option);
-	};
+	}
 
 	ngOnInit(): void {
 		this.options.map(option => {
@@ -25,8 +25,8 @@ export class OptionsSheet implements OnInit {
 				option.disabled = false;
 			} else {
 				option.disabled = true;
-			};
+			}
 		});
-	};
+	}
 
 }

@@ -42,6 +42,11 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/features/features.module').then(m => m.FeaturesModule)
 	},
 	{
+		path: 'subscribers',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/subscribers/subscribers.module').then(m => m.SubscribersModule)
+	},
+	{
 		path: 'allow-access',
 		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
 	},

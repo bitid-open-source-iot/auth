@@ -45,64 +45,56 @@ export class AppsPage implements OnInit, OnDestroy {
 
 	public async options(app: App) {
 		this.sheet.show({
-			'role': app.role,
-			'title': app.name,
-			'options': [
+			role: app.role,
+			title: app.name,
+			options: [
 				{
-					'icon': 'edit',
-					'title': 'Edit',
-					'handler': async () => {
+					icon: 'edit',
+					title: 'Edit',
+					handler: async () => {
 						this.router.navigate(['/apps', 'editor'], {
 							queryParams: {
-								'mode': 'update',
-								'appId': app.appId
+								mode: 'update',
+								appId: app.appId
 							}
 						});
 					},
-					'disabled': [0, 1]
+					disabled: [0, 1]
 				},
 				{
-					'icon': 'share',
-					'title': 'Share',
-					'handler': async () => {
-						window.alert('finish this clayton');
-					},
-					'disabled': [0, 1, 2, 3]
-				},
-				{
-					'icon': 'people',
-					'title': 'Subscribers',
-					'handler': async () => {
+					icon: 'people',
+					title: 'Subscribers',
+					handler: async () => {
 						this.router.navigate(['/subscribers'], {
 							queryParams: {
-								'id': app.appId,
-								'type': 'app'
+								id: app.appId,
+								type: 'app'
 							}
 						});
 					},
-					'disabled': [0, 1, 2, 3]
+					disabled: [0, 1, 2, 3]
 				},
 				{
-					'icon': 'remove',
-					'title': 'Unubscribe',
-					'danger': true,
-					'handler': async () => {
+					icon: 'remove',
+					title: 'Unubscribe',
+					danger: true,
+					handler: async () => {
 						window.alert('finish this clayton');
 					},
-					'disabled': [5]
+					disabled: [5]
 				},
 				{
-					'icon': 'delete',
-					'title': 'Delete',
-					'danger': true,
-					'handler': async () => {
+					icon: 'delete',
+					title: 'Delete',
+					danger: true,
+					handler: async () => {
 						window.alert('finish this clayton');
 					},
-					'disabled': [0, 1, 2, 3, 4]
+					disabled: [0, 1, 2, 3, 4]
 				}
 			]
 		});
-	};
+	}
 
 	ngOnInit(): void {
 		this.buttons.show('add');

@@ -48,12 +48,15 @@ export class AppComponent implements OnInit, AfterViewInit {
 	ngOnInit(): void {
 		this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				this.account.init();
+				this.account.validate();
 			}
 		});
 
 		this.account.authenticated.subscribe(authenticated => {
 			this.authenticated = authenticated;
+			if (authenticated) {
+				this.account.init();
+			}
 		});
 
 		this.initialize();

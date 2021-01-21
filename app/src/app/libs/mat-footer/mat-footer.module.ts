@@ -6,15 +6,15 @@ import { CommonModule } from '@angular/common';
 import { MatFooter } from './mat-footer';
 
 @NgModule({
-    imports: [
-        CommonModule
-    ],
-    exports: [
-        MatFooter
-    ],
-    declarations: [
-        MatFooter
-    ]
+	imports: [
+		CommonModule
+	],
+	exports: [
+		MatFooter
+	],
+	declarations: [
+		MatFooter
+	]
 })
 
 export class MatFooterModule { }

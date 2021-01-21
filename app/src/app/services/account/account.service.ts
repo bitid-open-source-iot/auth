@@ -31,10 +31,8 @@ export class AccountService {
 
 		if (response.ok) {
 			this.user.next(response.result);
-			this.authenticated.next(true);
 		} else {
 			this.user.next(null);
-			this.authenticated.next(false);
 		}
 
 		return response;
@@ -44,6 +42,38 @@ export class AccountService {
 		this.localstorage.clear();
 		this.authenticated.next(false);
 		this.router.navigate(['/signin']);
+	}
+
+	public async validate() {
+		const now = new Date();
+		let valid = true;
+		const email = this.localstorage.get('email');
+		const token = this.localstorage.getObject('token');
+
+		if (!email || !token) {
+			valid = false;
+		} else {
+			if (typeof (email) == 'undefined') {
+				valid = false;
+			}
+
+			if (typeof (token.expiry) != 'undefined') {
+				const expiry = new Date(token.expiry);
+				if (expiry < now) {
+					valid = false;
+				}
+			} else {
+				valid = false;
+			}
+		}
+
+		if (valid) {
+			this.authenticated.next(true);
+			return true;
+		} else {
+			this.authenticated.next(false);
+			return false;
+		}
 	}
 
 	public async signin(params) {

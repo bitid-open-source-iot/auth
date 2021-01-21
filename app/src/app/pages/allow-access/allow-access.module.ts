@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { BackButtonModule } from 'src/app/libs/back-button/back-button.module';
 
 const routes: Routes = [
 	{
@@ -32,6 +33,7 @@ const routes: Routes = [
 		MatSelectModule,
 		MatToolbarModule,
 		MatContentModule,
+		BackButtonModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,
 		MatProgressSpinnerModule,

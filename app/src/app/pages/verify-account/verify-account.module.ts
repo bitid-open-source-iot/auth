@@ -13,6 +13,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
+import { BackButtonModule } from 'src/app/libs/back-button/back-button.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -38,6 +39,7 @@ const routes: Routes = [
 		MatTooltipModule,
 		FlexLayoutModule,
 		MatToolbarModule,
+		BackButtonModule,
 		MatContentModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,

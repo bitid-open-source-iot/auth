@@ -17,9 +17,9 @@ export class OptionsService {
 		}).afterDismissed().subscribe(result => {
 			if (result && result.handler) {
 				result.handler();
-			};
+			}
 		});
-	};
+	}
 
 }
 
