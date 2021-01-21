@@ -1,0 +1,17 @@
+<h1>
+    {{ title }}
+</h1>
+
+<mat-list>
+    <mat-list-item lines="full" *ngFor="let option of options" matRipple (click)="submit(option)">
+        <mat-icon slot="start">
+            {{ option.icon }}
+        </mat-icon>
+
+        <mat-label>
+            <h3>
+                {{ option.title }}
+            </h3>
+        </mat-label>
+    </mat-list-item>
+</mat-list>

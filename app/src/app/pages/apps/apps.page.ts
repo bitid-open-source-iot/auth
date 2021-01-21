@@ -5,6 +5,7 @@ import { ConfigService } from 'src/app/services/config/config.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OptionsService } from 'src/app/libs/options/options.service';
 
 @Component({
 	selector: 'apps-page',
@@ -14,7 +15,7 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	constructor(private config: ConfigService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
+	constructor(private config: ConfigService, private sheet: OptionsService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
 
 	public apps: MatTableDataSource<App> = new MatTableDataSource<App>();
 	public columns: string[] = ['icon', 'name', 'options'];
@@ -43,8 +44,20 @@ export class AppsPage implements OnInit, OnDestroy {
 	}
 
 	public async options(app: App) {
-		debugger;
-	}
+		this.sheet.show({
+			'role': app.role,
+			'title': app.name,
+			'options': [
+				{
+					'icon': 'share',
+					'title': 'Share',
+					'handler': async () => {
+						
+					}
+				}
+			]
+		});
+	};
 
 	ngOnInit(): void {
 		this.buttons.show('add');

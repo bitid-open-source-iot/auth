@@ -8,6 +8,8 @@ export class App {
 	public name: string;
 	public users: USER[] = [];
 	public appId: string;
+	public theme: any = {};
+	public google: any = {};
 	public scopes: string[] = [];
 	public secret: string;
 	public domains: string[] = [];
@@ -22,6 +24,22 @@ export class App {
 			}
 			if (Array.isArray(args.domains)) {
 				this.domains = args.domains;
+			}
+			if (typeof (args.theme) != 'undefined' && args.theme !== null) {
+				if (typeof (args.theme.color) != 'undefined' && args.theme.color !== null) {
+					this.theme.color = args.theme.color;
+				}
+				if (typeof (args.theme.background) != 'undefined' && args.theme.background !== null) {
+					this.theme.background = args.theme.background;
+				}
+			}
+			if (typeof (args.google) != 'undefined' && args.google !== null) {
+				if (typeof (args.google.database) != 'undefined' && args.google.database !== null) {
+					this.google.database = args.google.database;
+				}
+				if (typeof (args.google.credentials) != 'undefined' && args.google.credentials !== null) {
+					this.google.credentials = args.google.credentials;
+				}
 			}
 			if (typeof (args.url) != 'undefined' && args.url !== null) {
 				this.url = args.url;
@@ -52,7 +70,8 @@ export interface APP {
 		background?: string;
 	};
 	google?: {
-
+		database?: string;
+		credentials?: any;
 	};
 	url?: string;
 	role?: number;

@@ -8,6 +8,8 @@ import { environment } from 'src/environments/environment';
 
 export class ScopesService {
 
+	public data: any[] = [];
+
 	constructor(private api: ApiService) {}
 
 	public async add(params) {

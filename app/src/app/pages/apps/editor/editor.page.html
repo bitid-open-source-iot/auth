@@ -1,0 +1,146 @@
+<mat-content>
+    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <div [class.required]="!form.value.icon" upload [upload-src]="form.value.icon" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
+            <mat-icon>publish</mat-icon>
+        </div>
+
+        <h2>
+            Details
+        </h2>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Name
+            </mat-label>
+            
+            <input matInput type="text" name="name" placeholder="name" formControlName="name" required>
+    
+            <mat-error *ngIf="errors.name">
+                {{ errors.name }}
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Secret
+            </mat-label>
+            
+            <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
+    
+            <mat-error *ngIf="errors.secret">
+                {{ errors.secret }}
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Main Url
+            </mat-label>
+            
+            <input matInput type="text" name="url" placeholder="main url" formControlName="url" required>
+    
+            <mat-error *ngIf="errors.url">
+                {{ errors.url }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Scopes
+            </mat-label>
+
+            <mat-select name="scopes" placeholder="scopes" formControlName="scopes" required multiple>
+                <mat-option [formGroup]="filter">
+                    <ngx-mat-select-search placeholderLabel="filter scopes" noEntriesFoundLabel="no scopes found" formControlName="scopes"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let scope of scopes.data | filterBy : {'url': filter.value.scopes}" [value]="scope.url">
+                    {{ scope.url }}
+                </mat-option>
+            </mat-select>
+    
+            <mat-error *ngIf="errors.scopes">
+                {{ errors.scopes }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Domains
+            </mat-label>
+
+            <mat-chip-list #domainlist aria-label="domain selection">
+              <mat-chip *ngFor="let domain of form.value.domains" (removed)="remove(domain)">
+                    {{ domain }}
+                    
+                    <mat-icon matChipRemove>
+                        cancel
+                    </mat-icon>
+              </mat-chip>
+
+              <input placeholder="New domain..." [matChipInputFor]="domainlist" [matChipInputSeparatorKeyCodes]="keycodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="add($event)">
+            </mat-chip-list>
+        </mat-form-field>
+
+        <h2>
+            Theme
+        </h2>
+        
+        <mat-form-field appearance="outline" formGroupName="theme">
+            <mat-label>
+                Font Color
+            </mat-label>
+            
+            <input matInput type="color" name="color" placeholder="font color" formControlName="color" required>
+    
+            <mat-error *ngIf="errors.theme.color">
+                {{ errors.theme.color }}
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" formGroupName="theme">
+            <mat-label>
+                Background Color
+            </mat-label>
+            
+            <input matInput type="color" name="background" placeholder="background color" formControlName="background" required>
+    
+            <mat-error *ngIf="errors.theme.background">
+                {{ errors.theme.background }}
+            </mat-error>
+        </mat-form-field>
+
+        <h2>
+            Google
+        </h2>
+        
+        <mat-form-field appearance="outline" formGroupName="google">
+            <mat-label>
+                Database
+            </mat-label>
+            
+            <input matInput type="text" name="database" placeholder="database" formControlName="database" required>
+    
+            <mat-error *ngIf="errors.google.database">
+                {{ errors.google.database }}
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline" formGroupName="google">
+            <mat-label>
+                Credentials
+            </mat-label>
+            
+            <textarea matInput cdkTextareaAutosize name="credentials" placeholder="credentials" formControlName="credentials" required></textarea>
+    
+            <mat-error *ngIf="errors.google.credentials">
+                {{ errors.google.credentials }}
+            </mat-error>
+        </mat-form-field>
+    </form>
+</mat-content>
+
+<mat-footer>
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+        {{ mode }}
+    </button>
+</mat-footer>

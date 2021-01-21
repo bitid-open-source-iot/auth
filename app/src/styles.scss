@@ -76,6 +76,10 @@ form {
     display: flex;
     padding: 0px 10px;
     flex-direction: column;
+    h2 {
+        font-size: 16px !important;
+        margin-bottom: 5px !important;
+    }
     mat-form-field {
         flex: 1 auto;
     }
@@ -89,12 +93,12 @@ form {
             width: calc(50% - 5px);
         }
     }
-    [mat-flat-button],
-    [mat-stroked-button] {
-        height: 48px;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-    }
+}
+[mat-flat-button],
+[mat-stroked-button] {
+    height: 48px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
 }
 [mat-flat-button].mat-primary mat-progress-spinner,
 [mat-stroked-button].mat-primary mat-progress-spinner {
@@ -108,6 +112,9 @@ mat-toolbar {
 }
 mat-tab-group {
     background-color: transparent !important;
+}
+.options-sheet {
+    padding: 0px !important;
 }
 .mat-list .mat-subheader[lines="full"],
 .mat-list .mat-list-item[lines="full"] {
@@ -144,6 +151,10 @@ body.dark-mode {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
     }
+    .options-sheet {
+        color: rgba(255, 255, 255, 0.8) !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+    }
     mat-footer,
     mat-toolbar {
         color: rgba(255, 255, 255, 0.8) !important;
@@ -151,6 +162,9 @@ body.dark-mode {
     }
     mat-account {
         border-color: #212121 !important;
+    }
+    .mat-chip {
+        background-color: rgba(255, 255, 255, 0.25) !important;
     }
     button:disabled {
         color: rgba(255, 255, 255, 0.25) !important;
@@ -202,13 +216,16 @@ body.dark-mode {
         border-color: rgba(255, 255, 255, 0.25) !important;
     }
 }
-
+input[type="color"] {
+    height: 16px;
+}
 /* ---  --- */
 apps-page,
 signin-page,
 signup-page,
 account-page,
 settings-page,
+apps-editor-page,
 app-features-page,
 remove-account-page,
 verify-account-page,
