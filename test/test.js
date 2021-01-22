@@ -1382,6 +1382,26 @@ var tools = {
                         {
                             'url': '/apps/updatesubscriber',
                             'role': 4
+                        },
+                        {
+                            'url': '/features/add',
+                            'role': 4
+                        },
+                        {
+                            'url': '/features/get',
+                            'role': 4
+                        },
+                        {
+                            'url': '/features/list',
+                            'role': 4
+                        },
+                        {
+                            'url': '/features/update',
+                            'role': 4
+                        },
+                        {
+                            'url': '/features/delete',
+                            'role': 4
                         }
                     ],
                     'appId': '000000000000000000000001',

@@ -145,14 +145,6 @@
             }
         ]
     },
-    "alerting": {
-        "token": "xxx",
-        "host": "http://127.0.0.1",
-        "port": 5000,
-        "path": "/alerting/subscriptions",
-        "authEmail": "xxx@xxx.co.za",
-        "appId": "xxx"
-    },
     "mongodb": {
         "url": "xxx",
         "database": "xxx"
