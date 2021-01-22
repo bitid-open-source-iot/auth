@@ -3313,132 +3313,132 @@ var module = function () {
 		}
 	};
 
-	var dalPushTokens = {
-		add: (args) => {
-			var deferred = Q.defer();
+	// var dalPushTokens = {
+	// 	add: (args) => {
+	// 		var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email,
-				'appId': args.req.body.header.appId
-			};
+	// 		var params = {
+	// 			'email': args.req.body.header.email,
+	// 			'appId': args.req.body.header.appId
+	// 		};
 
-			var update = {
-				$set: {
-					'email': args.req.body.header.email,
-					'appId': args.req.body.header.appId,
-					'token': args.req.body.pushToken,
-					'serverDate': new Date()
-				}
-			};
+	// 		var update = {
+	// 			$set: {
+	// 				'email': args.req.body.header.email,
+	// 				'appId': args.req.body.header.appId,
+	// 				'token': args.req.body.pushToken,
+	// 				'serverDate': new Date()
+	// 			}
+	// 		};
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'upsert',
-				'collection': 'tblPushTokens'
-			})
-				.then(result => {
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+	// 		db.call({
+	// 			'params': params,
+	// 			'update': update,
+	// 			'operation': 'upsert',
+	// 			'collection': 'tblPushTokens'
+	// 		})
+	// 			.then(result => {
+	// 				deferred.resolve(args);
+	// 			}, error => {
+	// 				var err = new ErrorResponse();
+	// 				err.error.errors[0].code = error.code;
+	// 				err.error.errors[0].reason = error.message;
+	// 				err.error.errors[0].message = error.message;
+	// 				deferred.reject(err);
+	// 			});
 
-			return deferred.promise;
-		},
+	// 		return deferred.promise;
+	// 	},
 
-		get: (params) => {
-			var deferred = Q.defer();
+	// 	get: (params) => {
+	// 		var deferred = Q.defer();
 
-			var params = {
-				'email': params.email,
-				'appId': params.appId
-			};
+	// 		var params = {
+	// 			'email': params.email,
+	// 			'appId': params.appId
+	// 		};
 
-			var sort = {
-				'serverDate': -1
-			};
+	// 		var sort = {
+	// 			'serverDate': -1
+	// 		};
 
-			var limit = 1;
+	// 		var limit = 1;
 
-			db.call({
-				'sort': sort,
-				'limit': limit,
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblPushTokens'
-			})
-				.then(result => {
-					deferred.resolve(result[0].token);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+	// 		db.call({
+	// 			'sort': sort,
+	// 			'limit': limit,
+	// 			'params': params,
+	// 			'operation': 'find',
+	// 			'collection': 'tblPushTokens'
+	// 		})
+	// 			.then(result => {
+	// 				deferred.resolve(result[0].token);
+	// 			}, error => {
+	// 				var err = new ErrorResponse();
+	// 				err.error.errors[0].code = error.code;
+	// 				err.error.errors[0].reason = error.message;
+	// 				err.error.errors[0].message = error.message;
+	// 				deferred.reject(err);
+	// 			});
 
-			return deferred.promise;
-		},
+	// 		return deferred.promise;
+	// 	},
 
-		list: (args) => {
-			var deferred = Q.defer();
+	// 	list: (args) => {
+	// 		var deferred = Q.defer();
 
-			var params = {
-				'email': {
-					$in: args.req.body.emails
-				},
-				'appId': args.req.body.appId
-			};
+	// 		var params = {
+	// 			'email': {
+	// 				$in: args.req.body.emails
+	// 			},
+	// 			'appId': args.req.body.appId
+	// 		};
 
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblPushTokens',
-				'allowNoRecordsFound': true
-			})
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+	// 		db.call({
+	// 			'params': params,
+	// 			'operation': 'find',
+	// 			'collection': 'tblPushTokens',
+	// 			'allowNoRecordsFound': true
+	// 		})
+	// 			.then(result => {
+	// 				args.result = result;
+	// 				deferred.resolve(args);
+	// 			}, error => {
+	// 				var err = new ErrorResponse();
+	// 				err.error.errors[0].code = error.code;
+	// 				err.error.errors[0].reason = error.message;
+	// 				err.error.errors[0].message = error.message;
+	// 				deferred.reject(err);
+	// 			});
 
-			return deferred.promise;
-		},
+	// 		return deferred.promise;
+	// 	},
 
-		delete: (args) => {
-			var deferred = Q.defer();
+	// 	delete: (args) => {
+	// 		var deferred = Q.defer();
 
-			var params = {
-				'_id': ObjectId(args.req.body.tokenId)
-			};
+	// 		var params = {
+	// 			'_id': ObjectId(args.req.body.tokenId)
+	// 		};
 
-			db.call({
-				'params': params,
-				'operation': 'remove',
-				'collection': 'tblPushTokens'
-			})
-				.then(result => {
-					deferred.resolve(result);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+	// 		db.call({
+	// 			'params': params,
+	// 			'operation': 'remove',
+	// 			'collection': 'tblPushTokens'
+	// 		})
+	// 			.then(result => {
+	// 				deferred.resolve(result);
+	// 			}, error => {
+	// 				var err = new ErrorResponse();
+	// 				err.error.errors[0].code = error.code;
+	// 				err.error.errors[0].reason = error.message;
+	// 				err.error.errors[0].message = error.message;
+	// 				deferred.reject(err);
+	// 			});
 
-			return deferred.promise;
-		}
-	};
+	// 		return deferred.promise;
+	// 	}
+	// };
 
 	var dalStatistics = {
 		write: (args) => {
@@ -3501,7 +3501,7 @@ var module = function () {
 		'scopes': dalScopes,
 		'tokens': dalTokens,
 		'features': dalFeatures,
-		'pushtokens': dalPushTokens,
+		// 'pushtokens': dalPushTokens,
 		'statistics': dalStatistics
 	};
 };
