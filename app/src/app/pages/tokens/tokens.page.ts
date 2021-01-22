@@ -19,7 +19,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class TokensPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
+	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private localstorage: LocalstorageService) { }
 
@@ -173,7 +173,7 @@ export class TokensPage implements OnInit, OnDestroy {
 		this.buttons.hide('search');
 
 		this.tokens.sort = this.sort;
-		this.tokens.sort.active = 'expiry'
+		this.tokens.sort.active = 'expiry';
 		this.tokens.sort.direction = 'desc';
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {

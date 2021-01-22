@@ -18,7 +18,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class ScopesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
+	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private buttons: ButtonsService, private service: ScopesService) { }
 
@@ -126,7 +126,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 		this.buttons.hide('search');
 
 		this.scopes.sort = this.sort;
-		this.scopes.sort.active = 'url'
+		this.scopes.sort.active = 'url';
 		this.scopes.sort.direction = 'asc';
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {

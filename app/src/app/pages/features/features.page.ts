@@ -18,7 +18,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class FeaturesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
+	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private buttons: ButtonsService, private service: FeaturesService) { }
 

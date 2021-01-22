@@ -14,7 +14,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class UsersPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort;
 
 	constructor(private config: ConfigService, private buttons: ButtonsService, private service: UsersService) { }
 
@@ -32,12 +32,7 @@ export class UsersPage implements OnInit, OnDestroy {
 				'email',
 				'userId',
 				'number',
-				'address',
-				'picture',
-				'language',
-				'timezone',
-				'username',
-				'identification'
+				'validated'
 			]
 		});
 
@@ -56,7 +51,7 @@ export class UsersPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.sort.active = 'name-first'
+		this.sort.active = 'name-first';
 		this.sort.direction = 'asc';
 		this.users.sort = this.sort;
 

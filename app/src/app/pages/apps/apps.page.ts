@@ -19,7 +19,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
+	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private config: ConfigService, private sheet: OptionsService, private router: Router, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalstorageService) { }
 
