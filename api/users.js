@@ -25,9 +25,4 @@ router.post('/delete', (req, res) => {
 	myModule.users.delete(req, res);
 });
 
-router.post('/getusers', (req, res) => {
-	var myModule = new bll.module();
-	myModule.users.getUsers(req, res);
-});
-
 module.exports = router;

@@ -470,7 +470,6 @@ var module = function () {
 							'scopes': args.app.scopes,
 							'expiry': args.req.body.expiry,
 							'timeZone': args.user.timeZone || 0,
-							'pushToken': args.req.body.pushToken || null,
 							'tokenAddOn': {},
 							'description': args.req.body.description
 						},
@@ -1335,10 +1334,6 @@ var module = function () {
 				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
 			};
 
-			if (typeof (args.req.body.pushToken) == 'undefined') {
-				args.req.body.pushToken = '';
-			};
-
 			if (typeof (args.req.body.tokenAddOn) == 'undefined') {
 				args.req.body.tokenAddOn = {};
 			};
@@ -1442,7 +1437,6 @@ var module = function () {
 							'scopes': args.req.body.scopes,
 							'expiry': args.req.body.expiry,
 							'timeZone': args.user.timeZone || 0,
-							'pushToken': args.req.body.pushToken,
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
 						},
@@ -1479,10 +1473,6 @@ var module = function () {
 
 			if (typeof (args.req.body.expiry) == 'undefined') {
 				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
-			};
-
-			if (typeof (args.req.body.pushToken) == 'undefined') {
-				args.req.body.pushToken = '';
 			};
 
 			if (typeof (args.req.body.tokenAddOn) == 'undefined') {
@@ -1551,9 +1541,9 @@ var module = function () {
 
 					if (result.length > 0) {
 						args.app = result[0];
-						
+
 						var valid = true;
-						
+
 						const users = args.app.bitid.auth.users.map(user => user.email);
 						if (args.app.private && !users.includes(args.req.body.header.email)) {
 							valid = false;
@@ -1566,7 +1556,7 @@ var module = function () {
 								'description': args.req.body.description || args.app.name,
 								'bitid.auth.users.email': args.req.body.header.email
 							};
-	
+
 							deferred.resolve({
 								'params': params,
 								'operation': 'remove',
@@ -1608,7 +1598,6 @@ var module = function () {
 							'scopes': [{ 'url': '*', 'role': 4 }],
 							'expiry': args.req.body.expiry,
 							'timeZone': args.user.timeZone || 0,
-							'pushToken': args.req.body.pushToken,
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
 						},
@@ -2769,7 +2758,6 @@ var module = function () {
 							'scopes': args.app.scopes,
 							'expiry': args.req.body.expiry,
 							'timeZone': args.user.timeZone || 0,
-							'pushToken': args.req.body.pushToken || null,
 							'tokenAddOn': {},
 							'description': args.req.body.description
 						},
@@ -3313,133 +3301,6 @@ var module = function () {
 		}
 	};
 
-	// var dalPushTokens = {
-	// 	add: (args) => {
-	// 		var deferred = Q.defer();
-
-	// 		var params = {
-	// 			'email': args.req.body.header.email,
-	// 			'appId': args.req.body.header.appId
-	// 		};
-
-	// 		var update = {
-	// 			$set: {
-	// 				'email': args.req.body.header.email,
-	// 				'appId': args.req.body.header.appId,
-	// 				'token': args.req.body.pushToken,
-	// 				'serverDate': new Date()
-	// 			}
-	// 		};
-
-	// 		db.call({
-	// 			'params': params,
-	// 			'update': update,
-	// 			'operation': 'upsert',
-	// 			'collection': 'tblPushTokens'
-	// 		})
-	// 			.then(result => {
-	// 				deferred.resolve(args);
-	// 			}, error => {
-	// 				var err = new ErrorResponse();
-	// 				err.error.errors[0].code = error.code;
-	// 				err.error.errors[0].reason = error.message;
-	// 				err.error.errors[0].message = error.message;
-	// 				deferred.reject(err);
-	// 			});
-
-	// 		return deferred.promise;
-	// 	},
-
-	// 	get: (params) => {
-	// 		var deferred = Q.defer();
-
-	// 		var params = {
-	// 			'email': params.email,
-	// 			'appId': params.appId
-	// 		};
-
-	// 		var sort = {
-	// 			'serverDate': -1
-	// 		};
-
-	// 		var limit = 1;
-
-	// 		db.call({
-	// 			'sort': sort,
-	// 			'limit': limit,
-	// 			'params': params,
-	// 			'operation': 'find',
-	// 			'collection': 'tblPushTokens'
-	// 		})
-	// 			.then(result => {
-	// 				deferred.resolve(result[0].token);
-	// 			}, error => {
-	// 				var err = new ErrorResponse();
-	// 				err.error.errors[0].code = error.code;
-	// 				err.error.errors[0].reason = error.message;
-	// 				err.error.errors[0].message = error.message;
-	// 				deferred.reject(err);
-	// 			});
-
-	// 		return deferred.promise;
-	// 	},
-
-	// 	list: (args) => {
-	// 		var deferred = Q.defer();
-
-	// 		var params = {
-	// 			'email': {
-	// 				$in: args.req.body.emails
-	// 			},
-	// 			'appId': args.req.body.appId
-	// 		};
-
-	// 		db.call({
-	// 			'params': params,
-	// 			'operation': 'find',
-	// 			'collection': 'tblPushTokens',
-	// 			'allowNoRecordsFound': true
-	// 		})
-	// 			.then(result => {
-	// 				args.result = result;
-	// 				deferred.resolve(args);
-	// 			}, error => {
-	// 				var err = new ErrorResponse();
-	// 				err.error.errors[0].code = error.code;
-	// 				err.error.errors[0].reason = error.message;
-	// 				err.error.errors[0].message = error.message;
-	// 				deferred.reject(err);
-	// 			});
-
-	// 		return deferred.promise;
-	// 	},
-
-	// 	delete: (args) => {
-	// 		var deferred = Q.defer();
-
-	// 		var params = {
-	// 			'_id': ObjectId(args.req.body.tokenId)
-	// 		};
-
-	// 		db.call({
-	// 			'params': params,
-	// 			'operation': 'remove',
-	// 			'collection': 'tblPushTokens'
-	// 		})
-	// 			.then(result => {
-	// 				deferred.resolve(result);
-	// 			}, error => {
-	// 				var err = new ErrorResponse();
-	// 				err.error.errors[0].code = error.code;
-	// 				err.error.errors[0].reason = error.message;
-	// 				err.error.errors[0].message = error.message;
-	// 				deferred.reject(err);
-	// 			});
-
-	// 		return deferred.promise;
-	// 	}
-	// };
-
 	var dalStatistics = {
 		write: (args) => {
 			var deferred = Q.defer();
@@ -3501,7 +3362,6 @@ var module = function () {
 		'scopes': dalScopes,
 		'tokens': dalTokens,
 		'features': dalFeatures,
-		// 'pushtokens': dalPushTokens,
 		'statistics': dalStatistics
 	};
 };

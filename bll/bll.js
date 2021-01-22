@@ -243,49 +243,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.auth.allowaccess(args)
-				.then(async (args) => {
-					var deferred = Q.defer();
-
-					if (__settings.production) {
-						if (typeof (args.req.body.pushToken) == 'undefined' || args.req.body.pushToken == '' && args.req.body.pushToken == null) {
-							deferred.resolve(args);
-						} else {
-							try {
-								const payload = JSON.stringify({
-									'header': {
-										'email': args.req.body.header.email,
-										'appId': args.req.body.header.appId
-									},
-									'token': args.req.body.pushToken
-								});
-								const response = await fetch('https://alerting.bitid.co.za/alerting/tokens/upsert', {
-									'headers': {
-										'accept': '*/*',
-										'Content-Type': 'application/json; charset=utf-8',
-										'Authorization': JSON.stringify(__settings.alerting.token),
-										'Content-Length': payload.length
-									},
-									'body': payload,
-									'method': 'PUT'
-								});
-
-								const result = await response.json();
-
-								if (typeof (result.errors) != 'undefined') {
-									deferred.resolve(args);
-								} else {
-									deferred.resolve(args);
-								};
-							} catch (error) {
-								deferred.resolve(args);
-							};
-						};
-					} else {
-						deferred.resolve(args);
-					};
-
-					return deferred.promise;
-				}, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -472,42 +429,6 @@ var module = function () {
 				}, err => {
 					__responder.error(req, res, err);
 				});
-		},
-
-		getUsers: (req, res) => {
-			var deferred = Q.defer();
-
-			var args = {
-				'req': req,
-				'res': res,
-				'users': []
-			};
-
-			var myModule = new dal.module();
-			myModule.users.getUsers(args)
-				.then(myModule.pushtokens.list, null)
-				.then(args => {
-					var deferred = Q.defer();
-
-					args.result.map(push => {
-						args.users.map(user => {
-							if (push.email == user.email) {
-								user.pushToken = push.token;
-							};
-						});
-					});
-
-					deferred.resolve(args);
-
-					return deferred.promise;
-				}, null)
-				.then(args => {
-					__responder.success(req, res, args.users);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-
-			return deferred.promise;
 		}
 	};
 

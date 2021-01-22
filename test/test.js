@@ -19,6 +19,32 @@ var verifyCode = null;
 var tokenIdToRevoke = null;
 var generatedTokenId = null;
 
+describe('Config', function () {
+    it('/config/get', function (done) {
+        this.timeout(500);
+
+        tools.api.config.get()
+            .then((result) => {
+                try {
+                    result.should.have.property('auth');
+                    result.should.have.property('appId');
+                    result.should.have.property('drive');
+                    result.should.have.property('scopes');
+                    result.should.have.property('appName');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
 describe('Auth', function () {
     it('/auth/register', function (done) {
         this.timeout(10000);
@@ -446,27 +472,6 @@ describe('Users', function () {
                 try {
                     result.should.have.property('updated');
                     expect(result.updated).to.equal(1);
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/users/getusers', function (done) {
-        this.timeout(5000);
-
-        tools.api.users.getusers()
-            .then((result) => {
-                try {
-                    result[0].should.have.property('email');
-                    result[0].should.have.property('userName');
                     done();
                 } catch (e) {
                     done(e);
@@ -1488,13 +1493,13 @@ var tools = {
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
-            },
-            getusers: () => {
+            }
+        },
+        config: {
+            get: () => {
                 var deferred = Q.defer();
 
-                tools.post('/users/getusers', {
-                    'emails': [config.email]
-                })
+                tools.put('/config/get', {})
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
