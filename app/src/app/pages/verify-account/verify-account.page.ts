@@ -37,8 +37,7 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 			filter: [
 				'url',
 				'icon',
-				'name',
-				'scopes'
+				'name'
 			],
 			appId: this.appId
 		});

@@ -55,6 +55,10 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
 	},
 	{
+		path: 'reset-password',
+		loadChildren: () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordModule)
+	},
+	{
 		path: 'verify-account',
 		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
 	},

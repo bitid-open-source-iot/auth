@@ -2498,6 +2498,7 @@ var module = function () {
 					'appId': '$app._id'
 				};
 				params[3].$project._id = 1;
+				params[3].$project.appId = 1;
 				params[3].$project.bitid = 1;
 				params[3].$project.device = 1;
 				params[3].$project.scopes = '$token.scopes';

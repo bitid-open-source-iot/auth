@@ -1654,8 +1654,8 @@ var tools = {
                 var expiry = new Date(Date.now() + 600000000);
 
                 tools.post('/tokens/generate', {
-                    'expiry': expiry,
                     'appId': '000000000000000000000001',
+                    'expiry': expiry,
                     'description': 'My New Generated Token'
                 })
                     .then(deferred.resolve, deferred.resolve);

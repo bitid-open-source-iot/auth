@@ -93,6 +93,10 @@ form {
             width: calc(50% - 5px);
         }
     }
+    [mat-flat-button],
+    [mat-stroked-button] {
+        margin-bottom: 20px;
+    }
 }
 [mat-flat-button],
 [mat-stroked-button] {
@@ -230,6 +234,7 @@ signup-page,
 account-page,
 features-page,
 settings-page,
+view-token-page,
 apps-editor-page,
 subscribers-page,
 scopes-editor-page,
@@ -237,6 +242,7 @@ remove-account-page,
 verify-account-page,
 privacy-policy-page,
 reset-password-page,
+generate-token-page,
 features-editor-page,
 change-password-page,
 terms-and-conditions-page {
