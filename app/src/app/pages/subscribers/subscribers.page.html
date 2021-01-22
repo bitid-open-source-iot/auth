@@ -13,7 +13,34 @@
             Role
         </th>
         <td mat-cell *matCellDef="let element">
-            {{ element.role }}
+            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.email, $event)" [disabled]="role < 4 || element.role >= role || element.role == 5" required>
+                <mat-option [value]="1">
+                    Read
+                </mat-option>
+                <mat-option [value]="2">
+                    Write
+                </mat-option>
+                <mat-option [value]="3">
+                    Read/Write
+                </mat-option>
+                <mat-option [value]="4">
+                    Admin
+                </mat-option>
+                <mat-option [value]="5" disabled>
+                    Owner
+                </mat-option>
+            </mat-select>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+            <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.email)">
+                <mat-icon>
+                    delete
+                </mat-icon>
+            </button>
         </td>
     </ng-container>
 
@@ -22,14 +49,30 @@
 </table>
 
 <mat-list fxHide fxShow.xs="true">
-    <mat-list-item lines="full" *ngFor="let element of users.data" matRipple>
+    <mat-list-item lines="full" *ngFor="let element of users.data">
         <mat-label>
             <h3>
                 {{ element.email }}
             </h3>
             <p>
-                {{ element.role }}
+                {{ element.role == 1 ? 'Read' : ''}}
+                {{ element.role == 2 ? 'Write' : ''}}
+                {{ element.role == 3 ? 'Read/Write' : ''}}
+                {{ element.role == 4 ? 'Admin' : ''}}
+                {{ element.role == 5 ? 'Owner' : ''}}
             </p>
         </mat-label>
+
+        <button mat-icon-button [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="editor(element)">
+            <mat-icon>
+                edit
+            </mat-icon>
+        </button>
+
+        <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.email)">
+            <mat-icon>
+                delete
+            </mat-icon>
+        </button>
     </mat-list-item>
 </mat-list>

@@ -1,0 +1,24 @@
+.user-editor-dialog {
+    width: 500px !important;
+    .mat-dialog-container {
+        padding: 0px !important;
+        padding-bottom: 10px !important;
+        mat-toolbar {
+            display: flex;
+            font-size: 14px;
+            margin-bottom: 5px;
+            justify-content: center;
+        }
+    }
+}
+@media screen and (max-width: 600px) {
+    .user-editor-dialog .mat-dialog-container {
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        z-index: 5000;
+        position: fixed;
+        border-radius: 0px;
+    }
+}

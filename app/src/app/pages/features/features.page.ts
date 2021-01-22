@@ -83,12 +83,12 @@ export class FeaturesPage implements OnInit, OnDestroy {
 					danger: true,
 					handler: async () => {
 						this.confirm.show({
-							'message': 'Are you sure you want to delete ' + feature.title + '?',
-							'handler': async () => {
+							message: 'Are you sure you want to delete ' + feature.title + '?',
+							handler: async () => {
 								this.loading = true;
 
 								const response = await this.service.delete({
-									'featureId': feature.featureId
+									featureId: feature.featureId
 								});
 
 								if (response.ok) {
@@ -97,16 +97,16 @@ export class FeaturesPage implements OnInit, OnDestroy {
 											this.features.data.splice(i, 1);
 											this.toast.show('Feature was removed!');
 											break;
-										};
-									};
+										}
+									}
 									this.features.data = JSON.parse(JSON.stringify(this.features.data));
 								} else {
 									this.toast.show(response.error.message);
-								};
+								}
 
 								this.loading = false;
 							}
-						})
+						});
 					},
 					disabled: [0, 1, 2, 3, 4]
 				}

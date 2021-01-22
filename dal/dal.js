@@ -23,6 +23,7 @@ var module = function () {
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
 				'domains': args.req.body.domains || [],
+				'private': args.req.body.private || false,
 				'serverDate': new Date()
 			};
 
@@ -294,7 +295,10 @@ var module = function () {
 			if (typeof (args.req.body.domains) != 'undefined') {
 				update.$set.domains = args.req.body.domains;
 			};
-			if (typeof (args.req.body.organizationOnly) != 'undefined') {
+			if (typeof (args.req.body.private) != 'undefined') {
+				update.$set.private = args.req.body.private;
+			};
+			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly !== null) {
 				update.$set['bitid.auth.organizationOnly'] = args.req.body.organizationOnly;
 			};
 
@@ -1547,20 +1551,35 @@ var module = function () {
 
 					if (result.length > 0) {
 						args.app = result[0];
-
-						var params = {
-							'appId': ObjectId(args.req.body.header.appId),
-							'device': args.req.headers['user-agent'],
-							'description': args.req.body.description || args.app.name,
-							'bitid.auth.users.email': args.req.body.header.email
+						
+						var valid = true;
+						
+						const users = args.app.bitid.auth.users.map(user => user.email);
+						if (args.app.private && !users.includes(args.req.body.header.email)) {
+							valid = false;
 						};
 
-						deferred.resolve({
-							'params': params,
-							'operation': 'remove',
-							'collection': 'tblTokens',
-							'allowNoRecordsFound': true
-						});
+						if (valid) {
+							var params = {
+								'appId': ObjectId(args.req.body.header.appId),
+								'device': args.req.headers['user-agent'],
+								'description': args.req.body.description || args.app.name,
+								'bitid.auth.users.email': args.req.body.header.email
+							};
+	
+							deferred.resolve({
+								'params': params,
+								'operation': 'remove',
+								'collection': 'tblTokens',
+								'allowNoRecordsFound': true
+							});
+						} else {
+							var err = new ErrorResponse();
+							err.error.errors[0].code = 401;
+							err.error.errors[0].reason = 'Application is private!';
+							err.error.errors[0].message = 'Application is private!';
+							deferred.reject(err);
+						};
 					} else {
 						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
@@ -2127,6 +2146,29 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {
+				'url': 1,
+				'_id': 1,
+				'app': 1,
+				'appId': 1,
+				'roles': 1,
+				'bitid': '$app.bitid',
+				'description': 1
+			};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				filter['bitid'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'scopeId') {
+						filter['_id'] = 1;
+					} else if (f == 'role') {
+						filter['bitid'] = '$app.bitid';
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			var params = [
 				{
 					$match: {
@@ -2145,33 +2187,9 @@ var module = function () {
 					$unwind: '$app'
 				},
 				{
-					$project: {}
+					$project: filter
 				}
 			];
-
-			if (typeof (args.req.body.filter) != 'undefined') {
-				params[3].$project['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'scopeId') {
-						params[3].$project['_id'] = 1;
-					} else if (f == 'app') {
-						params[3].$project.app = '$app.name';
-					} else if (f == 'role' || f == 'users') {
-						params[3].$project.bitid = '$app.bitid';
-					} else {
-						params[3].$project[f] = 1;
-					};
-				});
-			};
-			if (Object.keys(params[3].$project).length == 0) {
-				params[3].$project.url = 1;
-				params[3].$project.app = '$app.name';
-				params[3].$project.appId = 1;
-				params[3].$project.roles = 1;
-				params[3].$project.bitid = '$app.bitid';
-				params[3].$project.scopeId = 1;
-				params[3].$project.description = 1;
-			};
 
 			db.call({
 				'params': params,
@@ -2195,6 +2213,29 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {
+				'url': 1,
+				'_id': 1,
+				'app': 1,
+				'appId': 1,
+				'roles': 1,
+				'bitid': '$app.bitid',
+				'description': 1
+			};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				// filter['bitid'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'scopeId') {
+						filter['_id'] = 1;
+					} else if (f == 'role') {
+						filter['bitid'] = '$app.bitid';
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			var params = [
 				{
 					$lookup: {
@@ -2208,33 +2249,9 @@ var module = function () {
 					$unwind: '$app'
 				},
 				{
-					$project: {}
+					$project: filter
 				}
 			];
-
-			if (typeof (args.req.body.filter) != 'undefined') {
-				params[2].$project['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'scopeId') {
-						params[2].$project['_id'] = 1;
-					} else if (f == 'app') {
-						params[2].$project.app = '$app.name';
-					} else if (f == 'role' || f == 'users') {
-						params[2].$project.bitid = '$app.bitid';
-					} else {
-						params[2].$project[f] = 1;
-					};
-				});
-			};
-			if (Object.keys(params[2].$project).length == 0) {
-				params[2].$project.url = 1;
-				params[2].$project.app = '$app.name';
-				params[2].$project.appId = 1;
-				params[2].$project.roles = 1;
-				params[2].$project.bitid = '$app.bitid';
-				params[2].$project.scopeId = 1;
-				params[2].$project.description = 1;
-			};
 
 			db.call({
 				'params': params,

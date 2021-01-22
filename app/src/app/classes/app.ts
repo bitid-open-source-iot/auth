@@ -12,7 +12,9 @@ export class App {
 	public google: any = {};
 	public scopes: string[] = [];
 	public secret: string;
+	public private: boolean;
 	public domains: string[] = [];
+	public organizationOnly: number;
 
 	constructor(args?: APP) {
 		if (typeof (args) != 'undefined' && args !== null) {
@@ -56,8 +58,14 @@ export class App {
 			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
 				this.appId = args.appId;
 			}
+			if (typeof (args.private) != 'undefined' && args.private !== null) {
+				this.private = args.private;
+			}
 			if (typeof (args.secret) != 'undefined' && args.secret !== null) {
 				this.secret = args.secret;
+			}
+			if (typeof (args.organizationOnly) != 'undefined' && args.organizationOnly !== null) {
+				this.organizationOnly = args.organizationOnly;
 			}
 		}
 	}
@@ -81,5 +89,7 @@ export interface APP {
 	appId?: string;
 	scopes?: string[];
 	secret?: string;
+	private?: boolean;
 	domains?: string[];
+	organizationOnly?: number;
 }

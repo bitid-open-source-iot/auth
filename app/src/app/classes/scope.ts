@@ -1,9 +1,9 @@
 export class Scope {
 
 	public app: any = {};
-	public role: number = 0;
+	public url: string;
+	public role = 0;
 	public appId: string;
-	public title: string;
 	public scopeId: string;
 	public description: string;
 
@@ -17,14 +17,14 @@ export class Scope {
 					this.app.icon = args.app.icon;
 				}
 			}
+			if (typeof (args.url) != 'undefined' && args.url !== null) {
+				this.url = args.url;
+			}
 			if (typeof (args.role) != 'undefined' && args.role !== null) {
 				this.role = args.role;
 			}
 			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
 				this.appId = args.appId;
-			}
-			if (typeof (args.title) != 'undefined' && args.title !== null) {
-				this.title = args.title;
 			}
 			if (typeof (args.scopeId) != 'undefined' && args.scopeId !== null) {
 				this.scopeId = args.scopeId;
@@ -42,9 +42,9 @@ export interface FEATURE {
 		name: string;
 		icon: string;
 	};
+	url: string;
 	role: number;
 	appId: string;
-	title: string;
 	scopeId: string;
 	description: string;
 }

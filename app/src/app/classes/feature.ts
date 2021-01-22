@@ -1,7 +1,7 @@
 export class Feature {
 
 	public app: any = {};
-	public role: number = 0;
+	public role = 0;
 	public appId: string;
 	public title: string;
 	public featureId: string;

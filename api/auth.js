@@ -1,5 +1,5 @@
-var bll = require('../bll/bll');
-var router = require('express').Router();
+const bll = require('../bll/bll');
+const router = require('express').Router();
 
 router.post('/auth', (req, res) => {
 	var myModule = new bll.module();

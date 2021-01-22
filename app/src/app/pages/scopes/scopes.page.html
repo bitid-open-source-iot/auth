@@ -4,7 +4,7 @@
             App
         </th>
         <td mat-cell *matCellDef="let element">
-            {{ element.app }}
+            {{ element.app.name }}
         </td>
     </ng-container>
 
@@ -13,7 +13,9 @@
             Scope
         </th>
         <td mat-cell *matCellDef="let element">
-            {{ element.url }}
+            <span>
+                {{ element.url }}
+            </span>
         </td>
     </ng-container>
     
@@ -45,7 +47,7 @@
     <mat-list-item lines="full" *ngFor="let element of scopes.data" (click)="options(element)" matRipple>
         <mat-label>
             <h3>
-                {{ element.app }}
+                {{ element.app.name }}
             </h3>
             <p>
                 {{ element.url }}

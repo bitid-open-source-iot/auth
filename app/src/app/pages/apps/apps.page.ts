@@ -66,7 +66,7 @@ export class AppsPage implements OnInit, OnDestroy {
 				},
 				{
 					icon: 'content_copy',
-					title: 'copy',
+					title: 'Copy',
 					handler: async () => {
 						this.router.navigate(['/apps', 'editor'], {
 							queryParams: {
@@ -96,13 +96,13 @@ export class AppsPage implements OnInit, OnDestroy {
 					danger: true,
 					handler: async () => {
 						this.confirm.show({
-							'message': 'Are you sure you want to unsubscribe from ' + app.name + '?',
-							'handler': async () => {
+							message: 'Are you sure you want to unsubscribe from ' + app.name + '?',
+							handler: async () => {
 								this.loading = true;
 
 								const response = await this.service.unsubscribe({
-									'appId': app.appId,
-									'email': this.localstorage.get('email')
+									appId: app.appId,
+									email: this.localstorage.get('email')
 								});
 
 								if (response.ok) {
@@ -111,16 +111,16 @@ export class AppsPage implements OnInit, OnDestroy {
 											this.apps.data.splice(i, 1);
 											this.toast.show('You were unsubscribed!');
 											break;
-										};
-									};
+										}
+									}
 									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
 								} else {
 									this.toast.show(response.error.message);
-								};
+								}
 
 								this.loading = false;
 							}
-						})
+						});
 					},
 					disabled: [5]
 				},
@@ -130,12 +130,12 @@ export class AppsPage implements OnInit, OnDestroy {
 					danger: true,
 					handler: async () => {
 						this.confirm.show({
-							'message': 'Are you sure you want to delete ' + app.name + '?',
-							'handler': async () => {
+							message: 'Are you sure you want to delete ' + app.name + '?',
+							handler: async () => {
 								this.loading = true;
 
 								const response = await this.service.delete({
-									'appId': app.appId
+									appId: app.appId
 								});
 
 								if (response.ok) {
@@ -144,12 +144,12 @@ export class AppsPage implements OnInit, OnDestroy {
 											this.apps.data.splice(i, 1);
 											this.toast.show('App was removed!');
 											break;
-										};
-									};
+										}
+									}
 									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
 								} else {
 									this.toast.show(response.error.message);
-								};
+								}
 
 								this.loading = false;
 							}

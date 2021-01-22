@@ -1,5 +1,5 @@
 import { App } from 'src/app/classes/app';
-import { Feature } from 'src/app/classes/feature';
+import { Scope } from 'src/app/classes/scope';
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ScopesService } from 'src/app/services/scopes/scopes.service';
@@ -20,21 +20,21 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 	constructor(public apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private buttons: ButtonsService, public service: ScopesService) { }
 
 	public form: FormGroup = new FormGroup({
+		url: new FormControl(null, [Validators.required]),
 		appId: new FormControl(null, [Validators.required]),
-		title: new FormControl(null, [Validators.required]),
 		description: new FormControl(null, [Validators.required])
 	});
 	public mode: string;
 	public errors: any = {
+		url: '',
 		appId: '',
-		title: '',
 		description: ''
 	};
 	public filter: FormGroup = new FormGroup({
 		apps: new FormControl('', [Validators.required])
 	});
 	public loading: boolean;
-	public featureId: string;
+	public scopeId: string;
 	private subscriptions: any = {};
 
 	private async get() {
@@ -42,22 +42,22 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 
 		const response = await this.service.get({
 			filter: [
+				'url',
 				'role',
 				'appId',
-				'title',
 				'description'
 			],
-			featureId: this.featureId
+			scopeId: this.scopeId
 		});
 
 		if (response.ok) {
-			const feature = new Feature(response.result);
-			if (feature.role >= 2) {
-				this.form.controls.appId.setValue(feature.appId);
-				this.form.controls.title.setValue(feature.title);
-				this.form.controls.description.setValue(feature.description);
+			const scope = new Scope(response.result);
+			if (scope.role >= 2) {
+				this.form.controls.url.setValue(scope.url);
+				this.form.controls.appId.setValue(scope.appId);
+				this.form.controls.description.setValue(scope.description);
 			} else {
-				this.toast.show('You have insufficient rights to edit this feature!');
+				this.toast.show('You have insufficient rights to edit this scope!');
 				this.router.navigate(['/scopes']);
 			}
 		} else {
@@ -96,13 +96,13 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 		let mode = this.mode;
 		if (mode == 'copy') {
 			mode = 'add';
-			delete this.featureId;
+			delete this.scopeId;
 		}
 
 		const response = await this.service[mode]({
+			url: this.form.value.url,
 			appId: this.form.value.appId,
-			title: this.form.value.title,
-			featureId: this.featureId,
+			scopeId: this.scopeId,
 			description: this.form.value.description,
 		});
 
@@ -129,7 +129,7 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 			if (loaded) {
 				const params = this.route.snapshot.queryParams;
 				this.mode = params.mode;
-				this.featureId = params.featureId;
+				this.scopeId = params.scopeId;
 				if (this.mode != 'add') {
 					await this.get();
 					await this.load();

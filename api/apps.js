@@ -1,8 +1,8 @@
-var bll		= require('../bll/bll');
-var router 	= require('express').Router();
+const bll = require('../bll/bll');
+const router = require('express').Router();
 
 router.use((req, res, next) => {
-  	next();
+	next();
 });
 
 router.post('/add', (req, res) => {

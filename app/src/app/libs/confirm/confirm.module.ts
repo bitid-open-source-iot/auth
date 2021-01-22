@@ -16,23 +16,23 @@ import { ConfirmService } from './confirm.service';
 import { ConfirmDialog } from './confirm.dialog';
 
 @NgModule({
-    imports: [
-        FormsModule,
-        CommonModule,
-        MatIconModule,
-        MatSelectModule,
-        MatDialogModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatFormFieldModule,
-        ReactiveFormsModule
-    ],
-    providers: [
-        ConfirmService
-    ],
-    declarations: [
-        ConfirmDialog
-    ]
+	imports: [
+		FormsModule,
+		CommonModule,
+		MatIconModule,
+		MatSelectModule,
+		MatDialogModule,
+		MatButtonModule,
+		MatToolbarModule,
+		MatFormFieldModule,
+		ReactiveFormsModule
+	],
+	providers: [
+		ConfirmService
+	],
+	declarations: [
+		ConfirmDialog
+	]
 })
 
 export class ConfirmModule {}

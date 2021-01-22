@@ -51,7 +51,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 	public async options(scope: Scope) {
 		this.sheet.show({
 			role: scope.role,
-			title: scope.title,
+			title: scope.url,
 			options: [
 				{
 					icon: 'edit',
@@ -85,30 +85,30 @@ export class ScopesPage implements OnInit, OnDestroy {
 					danger: true,
 					handler: async () => {
 						this.confirm.show({
-							'message': 'Are you sure you want to delete ' + scope.title + '?',
-							'handler': async () => {
+							message: 'Are you sure you want to delete ' + scope.url + '?',
+							handler: async () => {
 								this.loading = true;
 
 								const response = await this.service.delete({
-									'scopeId': scope.scopeId
+									scopeId: scope.scopeId
 								});
 
 								if (response.ok) {
 									for (let i = 0; i < this.scopes.data.length; i++) {
 										if (this.scopes.data[i].scopeId == scope.scopeId) {
 											this.scopes.data.splice(i, 1);
-											this.toast.show('scope was removed!');
+											this.toast.show('Scope was removed!');
 											break;
-										};
-									};
+										}
+									}
 									this.scopes.data = JSON.parse(JSON.stringify(this.scopes.data));
 								} else {
 									this.toast.show(response.error.message);
-								};
+								}
 
 								this.loading = false;
 							}
-						})
+						});
 					},
 					disabled: [0, 1, 2, 3, 4]
 				}

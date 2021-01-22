@@ -275,6 +275,7 @@ describe('Apps', function () {
                     result.should.have.property('secret');
                     result.should.have.property('google');
                     result.should.have.property('domains');
+                    result.should.have.property('private');
                     result.should.have.property('organizationOnly');
                     done();
                 } catch (e) {
@@ -306,6 +307,7 @@ describe('Apps', function () {
                     result[0].should.have.property('secret');
                     result[0].should.have.property('google');
                     result[0].should.have.property('domains');
+                    result[0].should.have.property('private');
                     result[0].should.have.property('organizationOnly');
                     done();
                 } catch (e) {
@@ -510,7 +512,6 @@ describe('Scopes', function () {
                     result.should.have.property('url');
                     result.should.have.property('app');
                     result.should.have.property('role');
-                    result.should.have.property('users');
                     result.should.have.property('appId');
                     result.should.have.property('roles');
                     result.should.have.property('scopeId');
@@ -537,7 +538,6 @@ describe('Scopes', function () {
                     result[0].should.have.property('url');
                     result[0].should.have.property('app');
                     result[0].should.have.property('role');
-                    result[0].should.have.property('users');
                     result[0].should.have.property('appId');
                     result[0].should.have.property('roles');
                     result[0].should.have.property('scopeId');
@@ -1016,6 +1016,7 @@ var tools = {
                     'scopes': [],
                     'secret': '123',
                     'domains': [],
+                    'private': false,
                     'organizationOnly': 1
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1038,6 +1039,7 @@ var tools = {
                         'secret',
                         'google',
                         'domains',
+                        'private',
                         'organizationOnly'
                     ],
                     'appId': appId
@@ -1062,6 +1064,7 @@ var tools = {
                         'secret',
                         'google',
                         'domains',
+                        'private',
                         'organizationOnly'
                     ],
                     'appId': appId
@@ -1519,7 +1522,6 @@ var tools = {
                         'url',
                         'app',
                         'role',
-                        'users',
                         'appId',
                         'roles',
                         'scopeId',
@@ -1539,7 +1541,6 @@ var tools = {
                         'url',
                         'app',
                         'role',
-                        'users',
                         'appId',
                         'roles',
                         'scopeId',

@@ -34,7 +34,9 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		name: new FormControl(null, [Validators.required]),
 		secret: new FormControl(null, [Validators.required]),
 		scopes: new FormControl([], [Validators.required]),
-		domains: new FormControl([], [Validators.required])
+		domains: new FormControl([], [Validators.required]),
+		private: new FormControl(null, [Validators.required]),
+		organizationOnly: new FormControl(null, [Validators.required])
 	});
 	public mode: string;
 	public appId: string;
@@ -52,7 +54,9 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		name: '',
 		secret: '',
 		scopes: '',
-		domains: ''
+		domains: '',
+		private: '',
+		organizationOnly: ''
 	};
 	public filter: FormGroup = new FormGroup({
 		scopes: new FormControl('', [Validators.required]),
@@ -74,7 +78,9 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				'secret',
 				'google',
 				'scopes',
-				'domains'
+				'domains',
+				'private',
+				'organizationOnly'
 			],
 			appId: this.appId
 		});
@@ -88,6 +94,8 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				this.form.controls.secret.setValue(app.secret);
 				this.form.controls.scopes.setValue(app.scopes);
 				this.form.controls.domains.setValue(app.domains);
+				this.form.controls.private.setValue(app.private);
+				this.form.controls.organizationOnly.setValue(app.organizationOnly);
 				(this.form.controls.theme as FormGroup).controls.color.setValue(app.theme.color);
 				(this.form.controls.theme as FormGroup).controls.background.setValue(app.theme.background);
 				(this.form.controls.google as FormGroup).controls.database.setValue(app.google.database);
@@ -147,7 +155,9 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			appId: this.appId,
 			secret: this.form.value.secret,
 			scopes: this.form.value.scopes,
-			domains: this.form.value.domains
+			private: this.form.value.private,
+			domains: this.form.value.domains,
+			organizationOnly: this.form.value.organizationOnly
 		});
 
 		if (response.ok) {
