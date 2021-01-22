@@ -1827,26 +1827,60 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {};
-
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'userId') {
-						filter['_id'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 4
+						},
+						'email': args.req.body.header.email
+					}
+				},
+				'_id': ObjectId(__settings.client.appId)
 			};
 
 			db.call({
 				'params': params,
-				'filter': filter,
 				'operation': 'find',
-				'collection': 'tblUsers'
+				'collection': 'tblApps'
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {};
+
+					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email !== null) {
+						if (Array.isArray(args.req.body.email) != 'undefined' && args.req.body.email.length > 0) {
+							params.email = {
+								$in: args.req.body.email
+							};
+						} else if (typeof (args.req.body.email) != 'string') {
+							params.email = args.req.body.email;
+						};
+					};
+
+					var filter = {};
+					if (typeof (args.req.body.filter) != 'undefined') {
+						filter['_id'] = 0;
+						args.req.body.filter.map(f => {
+							if (f == 'userId') {
+								filter['_id'] = 1;
+							} else {
+								filter[f] = 1;
+							};
+						});
+					};
+
+					deferred.resolve({
+						'params': params,
+						'filter': filter,
+						'operation': 'find',
+						'collection': 'tblUsers'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -2030,47 +2064,6 @@ var module = function () {
 				.then(db.call, null)
 				.then(result => {
 					args.result = result;
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
-		getUsers: (args) => {
-			var deferred = Q.defer();
-
-			var params = {
-				'email': {
-					$in: args.req.body.emails
-				}
-			};
-
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'userId') {
-						filter['_id'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
-			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblUsers'
-			})
-				.then(result => {
-					args.users = result;
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();

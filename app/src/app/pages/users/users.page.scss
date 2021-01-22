@@ -1,0 +1,17 @@
+mat-list mat-list-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+.mat-column-validated {
+    span {
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 12px;
+        background-color: #E0E0E0;
+    }
+    span.verified {
+        color: #FFFFFF;
+        background-color: #2196F3;
+    }
+}

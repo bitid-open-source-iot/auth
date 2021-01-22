@@ -151,6 +151,12 @@ body.dark-mode {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
     }
+    mat-checkbox {
+        padding: 2px;
+        padding-top: 0px;
+        border-radius: 2px;
+        background-color: rgba(255, 255, 255, 0.25) !important;
+    }
     [upload] {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
@@ -215,6 +221,9 @@ body.dark-mode {
     .mat-tab-header {
         border-color: #212121 !important;
     }
+    th mat-checkbox {
+        background-color: transparent !important;
+    }
     mat-dialog-container {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: #212121 !important;
@@ -228,6 +237,7 @@ input[type="color"] {
 }
 /* --- PAGES --- */
 apps-page,
+users-page,
 scopes-page,
 signin-page,
 signup-page,

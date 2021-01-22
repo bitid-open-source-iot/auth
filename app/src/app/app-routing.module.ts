@@ -9,6 +9,11 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/apps/apps.module').then(m => m.AppsModule)
 	},
 	{
+		path: 'users',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/users/users.module').then(m => m.UsersModule)
+	},
+	{
 		path: 'signin',
 		loadChildren: () => import('./pages/signin/signin.module').then(m => m.SignInModule)
 	},

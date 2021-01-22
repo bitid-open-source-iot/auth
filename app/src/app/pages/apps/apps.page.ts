@@ -1,5 +1,6 @@
 import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
+import { MatSort } from '@angular/material/sort';
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
@@ -8,7 +9,7 @@ import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'apps-page',
@@ -17,6 +18,8 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 })
 
 export class AppsPage implements OnInit, OnDestroy {
+
+	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private config: ConfigService, private sheet: OptionsService, private router: Router, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalstorageService) { }
 
@@ -166,6 +169,10 @@ export class AppsPage implements OnInit, OnDestroy {
 		this.buttons.hide('close');
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
+
+		this.apps.sort = this.sort;
+		this.apps.sort.active = 'name';
+		this.apps.sort.direction = 'asc';
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/apps', 'editor'], {

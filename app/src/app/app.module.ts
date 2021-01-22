@@ -21,10 +21,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ApiService } from './services/api/api.service';
 import { AppsService } from './services/apps/apps.service';
 import { ToastService } from './services/toast/toast.service';
+import { UsersService } from './services/users/users.service';
 import { ConfigService } from './services/config/config.service';
 import { ScopesService } from './services/scopes/scopes.service';
 import { TokensService } from './services/tokens/tokens.service';
 import { AccountService } from './services/account/account.service';
+import { ButtonsService } from './services/buttons/buttons.service';
 import { SettingsService } from './services/settings/settings.service';
 import { FeaturesService } from './services/features/features.service';
 import { FormErrorService } from './services/form-error/form-error.service';
@@ -35,7 +37,6 @@ import { AppComponent } from './app.component';
 
 /* --- ENVIRONMENT --- */
 import { environment } from '../environments/environment';
-import { ButtonsService } from './services/buttons/buttons.service';
 
 @NgModule({
 	imports: [
@@ -62,6 +63,7 @@ import { ButtonsService } from './services/buttons/buttons.service';
 		ApiService,
 		AppsService,
 		ToastService,
+		UsersService,
 		ConfigService,
 		ScopesService,
 		TokensService,

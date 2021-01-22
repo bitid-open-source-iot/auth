@@ -6,6 +6,7 @@ import { GenerateTokenPage } from './generate/generate.page';
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatSortModule } from '@angular/material/sort';
 import { OptionsModule } from 'src/app/libs/options/options.module';
 import { ConfirmModule } from 'src/app/libs/confirm/confirm.module';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -44,6 +45,7 @@ const routes: Routes = [
 	imports: [
 		FormsModule,
 		CommonModule,
+		MatSortModule,
 		OptionsModule,
 		ConfirmModule,
 		MatTabsModule,

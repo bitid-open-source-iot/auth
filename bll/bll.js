@@ -1,6 +1,5 @@
 const Q = require('q');
 const dal = require('../dal/dal');
-const fetch = require('node-fetch');
 const tools = require('../lib/tools');
 const emails = require('../emails/emails');
 const ErrorResponse = require('../lib/error-response');

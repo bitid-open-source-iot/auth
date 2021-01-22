@@ -10,6 +10,7 @@ export class Token {
 	public expiry: string;
 	public scopes: string[] = [];
 	public tokenId: string;
+	public selected: boolean;
 	public description: string;
 
 	constructor(args?: TOKEN) {
@@ -43,6 +44,9 @@ export class Token {
 			if (typeof (args.tokenId) != 'undefined' && args.tokenId !== null) {
 				this.tokenId = args.tokenId;
 			}
+			if (typeof (args.selected) != 'undefined' && args.selected !== null) {
+				this.selected = args.selected;
+			}
 			if (typeof (args.description) != 'undefined' && args.description !== null) {
 				this.description = args.description;
 			}
@@ -63,5 +67,6 @@ export interface TOKEN {
 	scopes?: string[];
 	expiry?: string;
 	tokenId?: string;
+	selected?: boolean;
 	description?: string;
 }

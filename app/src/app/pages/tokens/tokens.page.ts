@@ -1,5 +1,6 @@
 import { Token } from 'src/app/classes/token';
 import { Router } from '@angular/router';
+import { MatSort } from '@angular/material/sort';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
@@ -8,7 +9,7 @@ import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'tokens-page',
@@ -17,6 +18,8 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 })
 
 export class TokensPage implements OnInit, OnDestroy {
+
+	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private localstorage: LocalstorageService) { }
 
@@ -168,6 +171,10 @@ export class TokensPage implements OnInit, OnDestroy {
 		this.buttons.hide('close');
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
+
+		this.tokens.sort = this.sort;
+		this.tokens.sort.active = 'expiry'
+		this.tokens.sort.direction = 'desc';
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/tokens', 'generate'], {

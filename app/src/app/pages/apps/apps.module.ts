@@ -6,6 +6,7 @@ import { AppsEditorpage } from './editor/editor.page';
 import { NgModule } from '@angular/core';
 import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
+import { MatSortModule } from '@angular/material/sort';
 import { OptionsModule } from 'src/app/libs/options/options.module';
 import { ConfirmModule } from 'src/app/libs/confirm/confirm.module';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -42,6 +43,7 @@ const routes: Routes = [
 		FormsModule,
 		CommonModule,
 		UploadModule,
+		MatSortModule,
 		OptionsModule,
 		MatTabsModule,
 		MatIconModule,

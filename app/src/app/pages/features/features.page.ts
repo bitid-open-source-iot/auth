@@ -1,5 +1,6 @@
 import { Router } from '@angular/router';
 import { Feature } from 'src/app/classes/feature';
+import { MatSort } from '@angular/material/sort';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
@@ -7,7 +8,7 @@ import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FeaturesService } from 'src/app/services/features/features.service';
 import { MatTableDataSource } from '@angular/material/table';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'features-page',
@@ -16,6 +17,8 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 })
 
 export class FeaturesPage implements OnInit, OnDestroy {
+
+	@ViewChild(MatSort, {'static': true}) private sort: MatSort;
 
 	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private buttons: ButtonsService, private service: FeaturesService) { }
 
@@ -119,6 +122,10 @@ export class FeaturesPage implements OnInit, OnDestroy {
 		this.buttons.hide('close');
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
+
+		this.features.sort = this.sort;
+		this.features.sort.active = 'title';
+		this.features.sort.direction = 'asc';
 
 		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/features', 'editor'], {

@@ -5,6 +5,7 @@ import { FeaturesEditorPage } from './editor/editor.page';
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -42,6 +43,7 @@ const routes: Routes = [
 		ConfirmModule,
 		MatTabsModule,
 		MatIconModule,
+		MatSortModule,
 		MatListModule,
 		OptionsModule,
 		MatTableModule,
