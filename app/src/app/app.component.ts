@@ -16,6 +16,7 @@ import { OnInit, Component, ViewChild, Renderer2, AfterViewInit } from '@angular
 })
 
 export class AppComponent implements OnInit, AfterViewInit {
+
 	@ViewChild(MatDrawer, { static: true }) private drawer: MatDrawer;
 	@ViewChild(SplashScreen, { static: true }) private splashscreen: SplashScreen;
 	@ViewChild(MatDrawerContainer, { static: true }) private drawercontainer: MatDrawerContainer;

@@ -162,8 +162,6 @@ var module = function () {
 
 	var bllAuth = {
 		auth: (req, res) => {
-			var deferred = Q.defer();
-
 			var args = {
 				'req': req,
 				'res': res
@@ -176,8 +174,6 @@ var module = function () {
 				}, err => {
 					__responder.error(req, res, err);
 				});
-
-			return deferred.promise;
 		},
 
 		verify: (req, res) => {
@@ -533,7 +529,6 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-
 			myModule.tokens.get(args)
 				.then(tools.setRoleObject, null)
 				.then(args => {
@@ -550,7 +545,6 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-
 			myModule.tokens.list(args)
 				.then(tools.setRoleList, null)
 				.then(args => {

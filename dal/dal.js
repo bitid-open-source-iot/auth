@@ -635,9 +635,18 @@ var module = function () {
 				.then(result => {
 					var deferred = Q.defer();
 
+					var scopes = [];
+					token.scopes.map(scope => {
+						if (typeof(scope) == 'object' && typeof(scope) !== null) {
+							scopes.push(scope.url);
+						} else if (typeof(scope) == 'string' && typeof(scope) !== null) {
+							scopes.push(scope);
+						};
+					});
+
 					var params = {
 						'url': {
-							$in: token.scopes.map(scope => scope.url)
+							$in: scopes
 						}
 					};
 
@@ -659,8 +668,15 @@ var module = function () {
 				.then(result => {
 					var deferred = Q.defer();
 
-					var scopes = token.scopes;
-
+					var scopes = [];
+					token.scopes.map(scope => {
+						if (typeof(scope) == 'object' && typeof(scope) !== null) {
+							scopes.push(scope.url);
+						} else if (typeof(scope) == 'string' && typeof(scope) !== null) {
+							scopes.push(scope);
+						};
+					});
+				
 					var valid = false;
 					var found = false;
 					result.map(row => {
@@ -882,8 +898,16 @@ var module = function () {
 					var deferred = Q.defer();
 
 					if (result.length > 0) {
-						let found = args.req.headers.authorization.scopes.map(o => o.url).filter(scope => (scope == args.req.body.scope || scope == '*')).length;
-						if (found > 0) {
+						var scopes = [];
+						args.req.headers.authorization.scopes.map(scope => {
+							if (typeof(scope) == 'object') {
+								scopes.push(scope.url);
+							} else if (typeof(scope) == 'string') {
+								scopes.push(scope);
+							};
+						});
+
+						if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
 							var params = {
 								'url': args.req.body.scope
 							};
@@ -1151,58 +1175,6 @@ var module = function () {
 					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
-
-			return deferred.promise;
-		},
-
-		checkToken: (req) => {
-			var deferred = Q.defer();
-
-			var token = req.headers.authorization;
-
-			if (typeof (token) == 'undefined') {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = 401;
-				err.error.errors[0].reason = 'token not found';
-				err.error.errors[0].message = 'token not found';
-				deferred.reject(err);
-			} else {
-				try {
-					token = JSON.parse(req.headers.authorization);
-				} catch (e) {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = 401;
-					err.error.errors[0].reason = 'invalid token object';
-					err.error.errors[0].message = 'invalid token object';
-					deferred.reject(err);
-				};
-
-				var params = {
-					'token': token,
-					'appId': ObjectId(req.body.header.appId),
-					'bitid.auth.users.email': req.body.header.email
-				};
-
-				var filter = {
-					'_id': 1
-				};
-
-				db.call({
-					'params': params,
-					'filter': filter,
-					'operation': 'find',
-					'collection': 'tblTokens'
-				})
-					.then(result => {
-						deferred.resolve(req);
-					}, error => {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = error.code;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					});
-			};
 
 			return deferred.promise;
 		},
@@ -1649,128 +1621,6 @@ var module = function () {
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
-		checkTokenScope: (req) => {
-			var deferred = Q.defer();
-			var token = JSON.parse(req.headers.authorization);
-
-			dalAuth.processGetScopes()
-				.then(result => {
-					var role = 0;
-					var i = 0;
-					var bFound = false;
-					for (i = 0; i < token.scopes.length; i++) {
-						var scope = token.scopes[i];
-						if (scope.url == req.originalUrl || scope.url == req.body.reqURI || scope.url == '*') {
-							role = scope.role;
-
-							if (scope.url == '*' && role == 4) {
-								deferred.resolve(req);
-								bFound = true;
-								break;
-							}
-
-							var urlToTest = '';
-							if (typeof req.body.reqURI != 'undefined') {
-								urlToTest = req.body.reqURI;
-							} else {
-								urlToTest = req.originalUrl;
-							}
-
-							for (var y = 0; y < result.length; y++) {
-								if (result[y].url == urlToTest) {
-									if (result[y].roles.indexOf(parseInt(role)) > -1) {
-										deferred.resolve(req);
-										bFound = true;
-										break;
-									}
-								}
-							}
-							if (bFound) {
-								return;
-							}
-						}
-					}
-
-					if (!bFound) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope not allowed: ' + req.originalUrl;
-						err.error.errors[0].message = 'Scope not allowed: ' + req.originalUrl;
-						deferred.reject(err);
-					} else {
-						deferred.resolve(req);
-					};
-				}, err => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = 401;
-					err.error.errors[0].reason = 'Scope not allowed: ' + req.originalUrl;
-					err.error.errors[0].message = 'Scope not allowed: ' + req.originalUrl;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
-		checkTokenExpiry: (req) => {
-			var deferred = Q.defer();
-			var token = JSON.parse(req.headers.authorization);
-
-			var dateNow = new Date();
-			var expiryDate = new Date(token.expiry);
-
-			if (expiryDate < dateNow && req.body.header.email != 'admin@bitid.co.za') {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = 401;
-				err.error.errors[0].reason = 'Token Expired';
-				err.error.errors[0].message = 'Token Expired';
-				deferred.reject(err);
-			} else {
-				deferred.resolve(req);
-			};
-
-			return deferred.promise;
-		},
-
-		checkappValid: (req) => {
-			var deferred = Q.defer();
-			var args = {};
-			args.req = req;
-
-			dalapps.processSelectappByappAuthId(args)
-				.then(result => {
-					deferred.resolve(req);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
-		processGetScopes: (args) => {
-			var deferred = Q.defer();
-
-			db.call({
-				'params': {},
-				'operation': 'find',
-				'collection': 'tblScopes'
-			})
-				.then(result => {
-					deferred.resolve(result);
 				}, error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
