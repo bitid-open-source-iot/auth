@@ -1,12 +1,12 @@
-var Q = require('q');
-var chai = require('chai');
-var fetch = require('node-fetch');
-var assert = require('chai').assert;
-var expect = require('chai').expect;
-var should = require('chai').should();
-var config = require('./config.json');
-var chaiSubset = require('chai-subset');
-chai.use(chaiSubset);
+const Q = require('q');
+const chai = require('chai');
+const fetch = require('node-fetch');
+const assert = require('chai').assert;
+const expect = require('chai').expect;
+const should = require('chai').should();
+const config = require('./config.json');
+const subset = require('chai-subset');
+chai.use(subset);
 
 var email = config.email;
 var token = null;
@@ -773,6 +773,7 @@ describe('Features', function () {
         tools.api.features.get()
             .then((result) => {
                 try {
+                    result.should.have.property('app');
                     result.should.have.property('role');
                     result.should.have.property('appId');
                     result.should.have.property('title');
@@ -797,6 +798,7 @@ describe('Features', function () {
         tools.api.features.list()
             .then((result) => {
                 try {
+                    result[0].should.have.property('app');
                     result[0].should.have.property('role');
                     result[0].should.have.property('appId');
                     result[0].should.have.property('title');
@@ -1235,174 +1237,50 @@ var tools = {
 
                 tools.post('/auth/allowaccess', {
                     'scopes': [
-                        {
-                            'url': '/auth/verify',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/verify',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/register',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/validate',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/allowaccess',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/changeemail',
-                            'role': 5
-                        },
-                        {
-                            'url': '/auth/authenticate',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/resetpassword',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/retrievetoken',
-                            'role': 4
-                        },
-                        {
-                            'url': '/auth/changepassword',
-                            'role': 4
-                        },
-                        {
-                            'url': '/users/get',
-                            'role': 4
-                        },
-                        {
-                            'url': '/users/update',
-                            'role': 4
-                        },
-                        {
-                            'url': '/users/delete',
-                            'role': 4
-                        },
-                        {
-                            'url': '/users/getusers',
-                            'role': 4
-                        },
-                        {
-                            'url': '/scopes/add',
-                            'role': 4
-                        },
-                        {
-                            'url': '/scopes/get',
-                            'role': 4
-                        },
-                        {
-                            'url': '/scopes/list',
-                            'role': 4
-                        },
-                        {
-                            'url': '/scopes/update',
-                            'role': 4
-                        },
-                        {
-                            'url': '/scopes/delete',
-                            'role': 4
-                        },
-                        {
-                            'url': '/token/retrieve',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/get',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/list',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/share',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/revoke',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/retrieve',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/generate',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/unsubscribe',
-                            'role': 4
-                        },
-                        {
-                            'url': '/tokens/updatesubscriber',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/add',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/get',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/list',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/share',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/update',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/delete',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/listapp',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/unsubscribe',
-                            'role': 4
-                        },
-                        {
-                            'url': '/apps/updatesubscriber',
-                            'role': 4
-                        },
-                        {
-                            'url': '/features/add',
-                            'role': 4
-                        },
-                        {
-                            'url': '/features/get',
-                            'role': 4
-                        },
-                        {
-                            'url': '/features/list',
-                            'role': 4
-                        },
-                        {
-                            'url': '/features/update',
-                            'role': 4
-                        },
-                        {
-                            'url': '/features/delete',
-                            'role': 4
-                        }
+                        '/auth/verify',
+                        '/auth/register',
+                        '/auth/validate',
+                        '/auth/allowaccess',
+                        '/auth/changeemail',
+                        '/auth/authenticate',
+                        '/auth/resetpassword',
+                        '/auth/changepassword',
+
+                        '/users/get',
+                        '/users/update',
+                        '/users/delete',
+                        '/users/getusers',
+
+                        '/scopes/add',
+                        '/scopes/get',
+                        '/scopes/list',
+                        '/scopes/update',
+                        '/scopes/delete',
+
+                        '/tokens/get',
+                        '/tokens/list',
+                        '/tokens/share',
+                        '/tokens/revoke',
+                        '/tokens/retrieve',
+                        '/tokens/generate',
+                        '/tokens/unsubscribe',
+                        '/tokens/updatesubscriber',
+                        
+                        '/apps/add',
+                        '/apps/get',
+                        '/apps/list',
+                        '/apps/share',
+                        '/apps/update',
+                        '/apps/delete',
+                        '/apps/listapp',
+                        '/apps/unsubscribe',
+                        '/apps/updatesubscriber',
+
+                        '/features/add',
+                        '/features/get',
+                        '/features/list',
+                        '/features/update',
+                        '/features/delete',
                     ],
                     'appId': '000000000000000000000001',
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
@@ -1729,6 +1607,7 @@ var tools = {
 
                 tools.post('/features/get', {
                     'filter': [
+                        'app',
                         'role',
                         'title',
                         'appId',
@@ -1747,6 +1626,7 @@ var tools = {
 
                 tools.post('/features/list', {
                     'filter': [
+                        'app',
                         'role',
                         'title',
                         'appId',

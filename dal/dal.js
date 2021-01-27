@@ -2829,17 +2829,24 @@ var module = function () {
 				'bitid.auth.users': 1
 			};
 			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				filter['bitid.auth.users'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'featureId') {
-						filter['_id'] = 1;
-					} else if (f == 'role') {
-						filter['bitid.auth.users'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
+				if (!args.req.body.filter.includes('role')) {
+					delete filter['bitid.auth.users'];
+				};
+				if (!args.req.body.filter.includes('featureId')) {
+					delete filter['_id'];
+				};
+				if (!args.req.body.filter.includes('app')) {
+					delete filter['app'];
+				};
+				if (!args.req.body.filter.includes('appId')) {
+					delete filter['appId'];
+				};
+				if (!args.req.body.filter.includes('title')) {
+					delete filter['title'];
+				};
+				if (!args.req.body.filter.includes('description')) {
+					delete filter['description'];
+				};
 			};
 
 			var params = [
@@ -2936,17 +2943,24 @@ var module = function () {
 				'bitid.auth.users': 1
 			};
 			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				filter['bitid.auth.users'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'featureId') {
-						filter['_id'] = 1;
-					} else if (f == 'role') {
-						filter['bitid.auth.users'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
+				if (!args.req.body.filter.includes('role')) {
+					delete filter['bitid.auth.users'];
+				};
+				if (!args.req.body.filter.includes('featureId')) {
+					delete filter['_id'];
+				};
+				if (!args.req.body.filter.includes('app')) {
+					delete filter['app'];
+				};
+				if (!args.req.body.filter.includes('appId')) {
+					delete filter['appId'];
+				};
+				if (!args.req.body.filter.includes('title')) {
+					delete filter['title'];
+				};
+				if (!args.req.body.filter.includes('description')) {
+					delete filter['description'];
+				};
 			};
 
 			var params = [
