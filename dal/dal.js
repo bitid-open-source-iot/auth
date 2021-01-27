@@ -2823,10 +2823,22 @@ var module = function () {
 			var filter = {
 				'_id': 1,
 				'app': 1,
+				'bitid': 1,
 				'appId': 1,
 				'title': 1,
-				'description': 1,
-				'bitid.auth.users': 1
+				'description': 1
+			};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
+				filter = {};
+				args.req.body.filter.map(key => {
+					if (key == 'role') {
+						filter['bitid'] = 1;
+					} else if (key == 'featureId') {
+						filter['_id'] = 1;
+					} else {
+						filter[key] = 1;
+					};
+				})
 			};
 
 			var params = [
@@ -2917,10 +2929,22 @@ var module = function () {
 			var filter = {
 				'_id': 1,
 				'app': 1,
+				'bitid': 1,
 				'appId': 1,
 				'title': 1,
-				'description': 1,
-				'bitid.auth.users': 1
+				'description': 1
+			};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
+				filter = {};
+				args.req.body.filter.map(key => {
+					if (key == 'role') {
+						filter['bitid'] = 1;
+					} else if (key == 'featureId') {
+						filter['_id'] = 1;
+					} else {
+						filter[key] = 1;
+					};
+				})
 			};
 
 			var params = [
