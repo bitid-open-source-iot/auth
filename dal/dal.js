@@ -2828,26 +2828,6 @@ var module = function () {
 				'description': 1,
 				'bitid.auth.users': 1
 			};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				if (!args.req.body.filter.includes('role')) {
-					delete filter['bitid.auth.users'];
-				};
-				if (!args.req.body.filter.includes('featureId')) {
-					delete filter['_id'];
-				};
-				if (!args.req.body.filter.includes('app')) {
-					delete filter['app'];
-				};
-				if (!args.req.body.filter.includes('appId')) {
-					delete filter['appId'];
-				};
-				if (!args.req.body.filter.includes('title')) {
-					delete filter['title'];
-				};
-				if (!args.req.body.filter.includes('description')) {
-					delete filter['description'];
-				};
-			};
 
 			var params = [
 				{
@@ -2941,26 +2921,6 @@ var module = function () {
 				'title': 1,
 				'description': 1,
 				'bitid.auth.users': 1
-			};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				if (!args.req.body.filter.includes('role')) {
-					delete filter['bitid.auth.users'];
-				};
-				if (!args.req.body.filter.includes('featureId')) {
-					delete filter['_id'];
-				};
-				if (!args.req.body.filter.includes('app')) {
-					delete filter['app'];
-				};
-				if (!args.req.body.filter.includes('appId')) {
-					delete filter['appId'];
-				};
-				if (!args.req.body.filter.includes('title')) {
-					delete filter['title'];
-				};
-				if (!args.req.body.filter.includes('description')) {
-					delete filter['description'];
-				};
 			};
 
 			var params = [
