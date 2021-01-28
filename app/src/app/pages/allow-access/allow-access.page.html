@@ -29,6 +29,10 @@
                 {{ errors.password }}
             </mat-error>
         </mat-form-field>
+        
+        <a class="forgot-password" routerLink="/forgot-password" queryParamsHandling="preserve">
+            Forgot Password?
+        </a>
 
         <button type="submit" mat-flat-button color="primary">
             {{ loading ? '' : 'allow access' }}

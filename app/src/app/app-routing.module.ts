@@ -56,6 +56,10 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
 	},
 	{
+		path: 'forgot-password',
+		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordModule)
+	},
+	{
 		path: 'privacy-policy',
 		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
 	},

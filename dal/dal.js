@@ -491,11 +491,15 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
+					if (error instanceof ErrorResponse) {
+						deferred.reject(error);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 401;
+						err.error.errors[0].reason = error.message;
+						err.error.errors[0].message = error.message;
+						deferred.reject(err);
+					};
 				});
 
 			return deferred.promise;
@@ -637,9 +641,9 @@ var module = function () {
 
 					var scopes = [];
 					token.scopes.map(scope => {
-						if (typeof(scope) == 'object' && typeof(scope) !== null) {
+						if (typeof (scope) == 'object' && typeof (scope) !== null) {
 							scopes.push(scope.url);
-						} else if (typeof(scope) == 'string' && typeof(scope) !== null) {
+						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
 							scopes.push(scope);
 						};
 					});
@@ -670,13 +674,13 @@ var module = function () {
 
 					var scopes = [];
 					token.scopes.map(scope => {
-						if (typeof(scope) == 'object' && typeof(scope) !== null) {
+						if (typeof (scope) == 'object' && typeof (scope) !== null) {
 							scopes.push(scope.url);
-						} else if (typeof(scope) == 'string' && typeof(scope) !== null) {
+						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
 							scopes.push(scope);
 						};
 					});
-				
+
 					var valid = false;
 					var found = false;
 					result.map(row => {
@@ -900,9 +904,9 @@ var module = function () {
 					if (result.length > 0) {
 						var scopes = [];
 						args.req.headers.authorization.scopes.map(scope => {
-							if (typeof(scope) == 'object') {
+							if (typeof (scope) == 'object') {
 								scopes.push(scope.url);
-							} else if (typeof(scope) == 'string') {
+							} else if (typeof (scope) == 'string') {
 								scopes.push(scope);
 							};
 						});
