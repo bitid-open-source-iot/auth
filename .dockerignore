@@ -1,0 +1,5 @@
+app/src
+app/*.*
+app/node_modules
+app/browserlist
+app/e2e

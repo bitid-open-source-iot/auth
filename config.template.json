@@ -2,8 +2,7 @@
     "production": true,
     "authentication": true,
     "localwebserver": {
-        "port": 9000,
-        "ipAddress": "127.0.0.1"
+        "port": 9000
     },
     "client": {
         "auth": "https://auth.bitid.co.za",
