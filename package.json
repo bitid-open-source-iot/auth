@@ -2,10 +2,11 @@
   "name": "auth",
   "version": "1.0.0",
   "description": "",
-  "main": "auth.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha",
-    "start": "NODE_ENV=production node auth.js"
+    "start": "NODE_ENV=production node index.js",
+    "prepare": "node db/scripts/setup.js"
   },
   "repository": {
     "type": "git",

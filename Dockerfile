@@ -7,4 +7,5 @@ COPY config.json config.json
 RUN npm install
 # CMD npm start && tail -f /dev/null  
 # RUN export NODE_ENV=mixed
-CMD npm start && tail -f /dev/null  
+# CMD npm start && tail -f /dev/null  
+CMD npm run prepare && npm start && tail -f /dev/null  

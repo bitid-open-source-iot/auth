@@ -1,6 +1,6 @@
-var apps = db.getCollection('tblApps');
+const apps = db.collection('tblApps');
 if (apps.count() == 0) {
-    db.tblApps.insert({
+    db.tblApps.insertOne({
         'bitid': {
             'auth': {
                 'users': [
@@ -55,9 +55,9 @@ if (apps.count() == 0) {
     });
 };
 
-var users = db.getCollection('tblUsers');
+const users = db.collection('tblUsers');
 if (users.count() == 0) {
-    db.tblUsers.insert({
+    db.tblUsers.insertOne({
         'name': {
             'last': '',
             'first': '',
@@ -118,9 +118,9 @@ if (users.count() == 0) {
     });
 };
 
-var tokens = db.getCollection('tblTokens');
+const tokens = db.collection('tblTokens');
 if (tokens.count() == 0) {
-    db.tblTokens.insert({
+    db.tblTokens.insertOne({
         'bitid': {
             'auth': {
                 'users': [
@@ -160,9 +160,9 @@ if (tokens.count() == 0) {
     });
 };
 
-var scopes = db.getCollection('tblScopes');
+const scopes = db.collection('tblScopes');
 if (scopes.count() == 0) {
-    db.tblScopes.insert({
+    db.tblScopes.insertOne({
         '_id': ObjectId('000000000000000000000001'),
         'url': '/xxx/xxx',
         'appId': ObjectId('000000000000000000000001'),
@@ -178,9 +178,9 @@ if (scopes.count() == 0) {
     });
 };
 
-var features = db.getCollection('tblFeatures');
+const features = db.collection('tblFeatures');
 if (features.count() == 0) {
-    db.tblFeatures.insert({
+    db.tblFeatures.insertOne({
         '_id': ObjectId('000000000000000000000001'),
         'appId': ObjectId('000000000000000000000001'),
         'serverDate': new Date(),

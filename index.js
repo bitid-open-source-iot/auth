@@ -102,7 +102,7 @@ try {
                 });
 
                 var server = http.createServer(app);
-                server.listen(config.localwebserver.port);
+                server.listen(config.port);
 
                 deferred.resolve();
             } catch (err) {
@@ -141,8 +141,8 @@ try {
             portal.api()
                 .then(portal.database, null)
                 .then(args => {
-                    console.log('Webserver Running on port: ', config.localwebserver.port);
-                    __logger.info('Webserver Running on port: ' + config.localwebserver.port);
+                    console.log('Webserver Running on port: ', config.port);
+                    __logger.info('Webserver Running on port: ' + config.port);
                 }, err => {
                     console.log('Error Initializing: ', err);
                 });
