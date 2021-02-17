@@ -188,6 +188,9 @@ var module = function () {
 				.then(myModule.auth.verify, null)
 				.then(emails.welcome, null)
 				.then(args => {
+					if (__settings.production) {
+						delete args.result.code;
+					};
 					__responder.success(req, res, args.result);
 				}, err => {
 					__responder.error(req, res, err);
