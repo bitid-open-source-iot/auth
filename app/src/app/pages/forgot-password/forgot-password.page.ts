@@ -55,8 +55,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	public async submit() {
 		this.loading = true;
 
-		const response = await this.service.verify({
-			code: this.form.value.code,
+		const response = await this.service.resetpassword({
 			email: this.form.value.email
 		});
 

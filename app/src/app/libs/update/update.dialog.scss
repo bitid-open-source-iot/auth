@@ -4,7 +4,7 @@
     width: calc(100% - 40px);
     right: 20px;
     bottom: 20px;
-    height: 120px;
+    height: 130px;
     padding: 0px;
     position: fixed;
     max-width: 400px;
@@ -27,6 +27,7 @@
             margin-bottom: 10px;
         }
         button {
+            width: auto;
             margin: 0px 16px;
         }
     }
