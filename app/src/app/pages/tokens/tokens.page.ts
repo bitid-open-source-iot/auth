@@ -1,6 +1,7 @@
 import { Token } from 'src/app/classes/token';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
+import { Clipboard } from '@angular/cdk/clipboard';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
@@ -21,7 +22,7 @@ export class TokensPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
-	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private localstorage: LocalstorageService) { }
+	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private clipboard: Clipboard, private localstorage: LocalstorageService) { }
 
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
 	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'options'];
@@ -73,12 +74,20 @@ export class TokensPage implements OnInit, OnDestroy {
 					icon: 'content_copy',
 					title: 'Copy',
 					handler: async () => {
-						this.router.navigate(['/tokens', 'generate'], {
-							queryParams: {
-								mode: 'copy',
-								tokenId: token.tokenId
-							}
+						this.loading = true;
+
+						const response = await this.service.retrieve({
+							tokenId: token.tokenId
 						});
+
+						if (response.ok) {
+							this.clipboard.copy(JSON.stringify(response.result.token))
+							this.toast.show('Token was copied to clipboard!');
+						} else {
+							this.toast.show(response.error.message);
+						}
+
+						this.loading = false;
 					},
 					disabled: [0, 1]
 				},

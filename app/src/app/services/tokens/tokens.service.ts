@@ -31,7 +31,7 @@ export class TokensService {
 	}
 
 	public async retrieve(params) {
-		return await this.api.post(environment.auth, '/tokens/retrieve', params);
+		return await this.api.put(environment.auth, '/tokens/retrieve', params);
 	}
 
 	public async generate(params) {

@@ -14,6 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatFooterModule } from 'src/app/libs/mat-footer/mat-footer.module';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRippleModule } from '@angular/material/core';
@@ -53,6 +54,7 @@ const routes: Routes = [
 		MatListModule,
 		MatTableModule,
 		MatInputModule,
+		ClipboardModule,
 		MatFooterModule,
 		MatSelectModule,
 		MatRippleModule,
