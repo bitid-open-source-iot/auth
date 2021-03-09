@@ -35,7 +35,7 @@
 </mat-toolbar>
 
 <mat-drawer-container [class.minified]="minified" [class.authenticated]="authenticated">
-    <mat-drawer mode="side" [opened]="authenticated">
+    <mat-drawer mode="side" [opened]="authenticated" [disableClose]="true">
         <mat-list>
             <mat-list-item lines="full" matRipple routerLink="/account" routerLinkActive="active" matTooltip="Account" matTooltipPosition="right">
                 <mat-icon>

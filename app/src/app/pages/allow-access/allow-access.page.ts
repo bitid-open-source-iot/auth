@@ -2,6 +2,7 @@ import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { ActivatedRoute } from '@angular/router';
+import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
@@ -15,7 +16,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private formerror: FormErrorService, private service: AppsService, private localstorage: LocalstorageService) { }
+	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
 
 	public form: FormGroup = new FormGroup({
 		email: new FormControl('', [Validators.email, Validators.required]),
@@ -83,6 +84,11 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		this.buttons.hide('add');
+		this.buttons.hide('close');
+		this.buttons.hide('filter');
+		this.buttons.hide('search');
+
 		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});

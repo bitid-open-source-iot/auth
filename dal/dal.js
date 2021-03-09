@@ -2174,7 +2174,7 @@ var module = function () {
 					};
 					if (typeof (args.req.body.appId) != 'undefined') {
 						if (result.includes(args.req.body.appId)) {
-							update.$set.appId = args.req.body.appId;
+							update.$set.appId = ObjectId(args.req.body.appId);
 						};
 					};
 					if (typeof (args.req.body.description) != 'undefined') {

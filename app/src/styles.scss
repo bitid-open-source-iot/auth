@@ -12,7 +12,7 @@ table {
     background-color: transparent !important;
     .mat-header-row {
         height: 30px !important;
-        background-color: #FAFAFA;
+        background-color: #fafafa;
     }
     .mat-row .mat-cell {
         font-size: 15px;
@@ -23,6 +23,13 @@ table {
     -ms-user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
+}
+input,
+select {
+    user-select: all !important;
+    -ms-user-select: all !important;
+    -moz-user-select: all !important;
+    -webkit-user-select: all !important;
 }
 mat-chip-list mat-chip {
     cursor: pointer !important;
@@ -108,7 +115,7 @@ form {
 [mat-stroked-button].mat-primary mat-progress-spinner {
     margin: auto;
     circle {
-        stroke: #FFF;
+        stroke: #fff;
     }
 }
 mat-toolbar {
@@ -137,7 +144,13 @@ mat-tab-group {
 body.dark-mode {
     color: rgba(255, 255, 255, 0.8) !important;
     background-color: #000 !important;
-    h1, h2, h3, h4, h5, h6, p {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p {
         color: rgba(255, 255, 255, 0.8) !important;
     }
     splashscreen {
@@ -162,7 +175,7 @@ body.dark-mode {
         color: rgba(255, 255, 255, 0.8) !important;
         background-color: rgba(255, 255, 255, 0.05) !important;
         mat-list mat-list-item.danger * {
-            color: #F44336 !important;
+            color: #f44336 !important;
         }
     }
     mat-footer,
@@ -179,7 +192,7 @@ body.dark-mode {
     button:disabled {
         color: rgba(255, 255, 255, 0.25) !important;
     }
-    input, 
+    input,
     select {
         color: rgba(255, 255, 255, 0.8) !important;
     }
@@ -212,7 +225,8 @@ body.dark-mode {
             border-color: #212121 !important;
         }
     }
-    .mat-tab-group, .mat-tab-label {
+    .mat-tab-group,
+    .mat-tab-label {
         color: rgba(255, 255, 255, 0.8) !important;
     }
     .mat-tab-header {
