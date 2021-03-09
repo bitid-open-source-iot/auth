@@ -743,6 +743,31 @@ describe('Tokens', function () {
                 };
             });
     });
+
+    it('/tokens/download', function (done) {
+        this.timeout(5000);
+
+        tools.api.tokens.download(tokenId)
+            .then((result) => {
+                try {
+                    result.should.have.property('bearer');
+                    result.should.have.property('scopes');
+                    result.should.have.property('expiry');
+                    result.should.have.property('timeZone');
+                    result.should.have.property('tokenAddOn');
+                    result.should.have.property('description');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
 });
 
 describe('Features', function () {
@@ -1261,6 +1286,7 @@ var tools = {
                         '/tokens/list',
                         '/tokens/share',
                         '/tokens/revoke',
+                        '/tokens/download',
                         '/tokens/retrieve',
                         '/tokens/generate',
                         '/tokens/unsubscribe',
@@ -1536,6 +1562,16 @@ var tools = {
 
                 tools.post('/tokens/revoke', {
                     'tokenId': tokenIdToRevoke
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            download: (tokenId) => {
+                var deferred = Q.defer();
+
+                tools.post('/tokens/download', {
+                    'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
 

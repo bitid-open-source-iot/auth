@@ -30,6 +30,10 @@ export class TokensService {
 		return await this.api.post(environment.auth, '/tokens/revoke', params);
 	}
 
+	public async download(params) {
+		return await this.api.post(environment.auth, '/tokens/download', params);
+	}
+
 	public async retrieve(params) {
 		return await this.api.put(environment.auth, '/tokens/retrieve', params);
 	}

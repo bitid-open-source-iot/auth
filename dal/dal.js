@@ -2527,6 +2527,32 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		download: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.tokenId),
+				'bitid.auth.users.email': args.req.body.header.email
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblTokens'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+			return deferred.promise;
+		},
+
 		retrieve: (args) => {
 			var deferred = Q.defer();
 

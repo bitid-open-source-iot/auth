@@ -76,12 +76,12 @@ export class TokensPage implements OnInit, OnDestroy {
 					handler: async () => {
 						this.loading = true;
 
-						const response = await this.service.retrieve({
+						const response = await this.service.download({
 							tokenId: token.tokenId
 						});
 
 						if (response.ok) {
-							this.clipboard.copy(JSON.stringify(response.result.token))
+							this.clipboard.copy(JSON.stringify(response.result))
 							this.toast.show('Token was copied to clipboard!');
 						} else {
 							this.toast.show(response.error.message);
