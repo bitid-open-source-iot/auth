@@ -151,12 +151,22 @@ var module = function () {
 			};
 
 			if (typeof (args.req.body.appId) != 'undefined') {
-				if (Array.isArray(args.req.body.appId)) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					params._id = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
 					params._id = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (typeof (args.req.body.private) != 'undefined') {
+				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
+					params.private = {
+						$in: args.req.body.private
+					};
+				} else if (typeof (args.req.body.private) == 'boolean') {
+					params.private = args.req.body.private;
 				};
 			};
 
@@ -1713,6 +1723,16 @@ var module = function () {
 						};
 					};
 
+					if (typeof (args.req.body.validated) != 'undefined') {
+						if (Array.isArray(args.req.body.validated) && args.req.body.validated.length > 0) {
+							params.validated = {
+								$in: args.req.body.validated
+							};
+						} else if (typeof(args.req.body.validated) == 'boolean') {
+							params.validated = args.req.body.validated;
+						};
+					};
+
 					var filter = {};
 					if (typeof (args.req.body.filter) != 'undefined') {
 						filter['_id'] = 0;
@@ -2049,6 +2069,18 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			var match = {};
+
+			if (typeof (args.req.body.appId) != 'undefined') {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
 			var filter = {
 				'url': 1,
 				'_id': 1,
@@ -2083,6 +2115,9 @@ var module = function () {
 				},
 				{
 					$unwind: '$app'
+				},
+				{
+					$match: match
 				},
 				{
 					$project: filter
@@ -2364,6 +2399,20 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			var match = {
+				'bitid.auth.users.email': args.req.body.header.email
+			};
+
+			if (typeof (args.req.body.appId) != 'undefined') {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
 			var params = [
 				{
 					$lookup: {
@@ -2374,9 +2423,7 @@ var module = function () {
 					}
 				},
 				{
-					$match: {
-						'bitid.auth.users.email': args.req.body.header.email
-					}
+					$match: match
 				},
 				{
 					$unwind: '$app'
@@ -2841,7 +2888,7 @@ var module = function () {
 			};
 
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length < 0) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
@@ -2937,7 +2984,7 @@ var module = function () {
 			};
 
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length < 0) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};

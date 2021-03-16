@@ -1,5 +1,6 @@
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
+import { SearchModule } from './libs/search/search.module';
 import { UpdateModule } from './libs/update/update.module';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +28,7 @@ import { ScopesService } from './services/scopes/scopes.service';
 import { TokensService } from './services/tokens/tokens.service';
 import { AccountService } from './services/account/account.service';
 import { ButtonsService } from './services/buttons/buttons.service';
+import { FiltersService } from './services/filters/filters.service';
 import { SettingsService } from './services/settings/settings.service';
 import { FeaturesService } from './services/features/features.service';
 import { FormErrorService } from './services/form-error/form-error.service';
@@ -40,6 +42,7 @@ import { environment } from '../environments/environment';
 
 @NgModule({
 	imports: [
+		SearchModule,
 		UpdateModule,
 		MatIconModule,
 		BrowserModule,
@@ -69,6 +72,7 @@ import { environment } from '../environments/environment';
 		TokensService,
 		AccountService,
 		ButtonsService,
+		FiltersService,
 		FeaturesService,
 		SettingsService,
 		FormErrorService,

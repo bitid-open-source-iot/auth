@@ -1,0 +1,40 @@
+<mat-toolbar>
+    <mat-label class="spacer">
+        Filter Users
+    </mat-label>
+
+    <button mat-icon-button (click)="close()">
+        <mat-icon>
+            close
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-content>
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+    
+    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Validated
+            </mat-label>
+
+            <mat-select name="validated" formControlName="validated" multiple>
+                <mat-option [value]="1">
+                    Verified
+                </mat-option>
+                <mat-option [value]="0">
+                    Not Verified
+                </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="errors.validated">
+                {{ errors.validated }}
+            </mat-error>
+        </mat-form-field>
+
+        <button type="submit" color="primary" mat-flat-button>
+            submit
+        </button>
+    </form>
+</mat-content>

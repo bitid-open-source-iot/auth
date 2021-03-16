@@ -2,6 +2,7 @@
 import { TokensPage } from './tokens.page';
 import { ViewTokenPage } from './view/view.page';
 import { GenerateTokenPage } from './generate/generate.page';
+import { TokensFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
@@ -14,16 +15,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatInputModule } from '@angular/material/input';
 import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 import { ClipboardModule } from '@angular/cdk/clipboard';
 import { MatFooterModule } from 'src/app/libs/mat-footer/mat-footer.module';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRippleModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule } from '@angular/material/dialog';
+import { OrderPipeModule } from 'src/app/pipes/order/order.module';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { FilterPipeModule } from 'src/app/pipes/filter/filter.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -54,23 +60,29 @@ const routes: Routes = [
 		MatListModule,
 		MatTableModule,
 		MatInputModule,
+		MatChipsModule,
+		OrderPipeModule,
+		MatDialogModule,
 		ClipboardModule,
 		MatFooterModule,
 		MatSelectModule,
 		MatRippleModule,
 		MatButtonModule,
+		MatToolbarModule,
 		FlexLayoutModule,
 		FilterPipeModule,
 		MatContentModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,
+		MatProgressBarModule,
 		NgxMatSelectSearchModule,
 		RouterModule.forChild(routes)
 	],
 	declarations: [
 		TokensPage,
 		ViewTokenPage,
-		GenerateTokenPage
+		GenerateTokenPage,
+		TokensFilterDialog
 	]
 })
 

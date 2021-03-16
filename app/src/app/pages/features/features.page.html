@@ -1,3 +1,21 @@
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
+    <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
+        <mat-icon>
+            apps
+        </mat-icon>
+        
+        <mat-label>
+            {{ describe(apps.data, 'appId', id) }}
+        </mat-label>
+        
+        <mat-icon matChipRemove>
+            cancel
+        </mat-icon>
+    </mat-chip>
+</mat-chip-list>
+
 <table mat-table [dataSource]="features" fxShow fxHide.xs="true" matSort>
     <ng-container matColumnDef="title">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>

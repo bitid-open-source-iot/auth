@@ -1,5 +1,5 @@
-import { BehaviorSubject, Subject } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 @Injectable({
 	providedIn: 'root'
@@ -10,27 +10,30 @@ export class ButtonsService {
 	constructor() { }
 
 	public add: BUTTON = {
-		click: new Subject(),
-		change: new Subject(),
-		visible: new BehaviorSubject(true)
+		click: new Subject<MouseEvent | TouchEvent>(),
+		visible: new BehaviorSubject(false)
 	};
 
 	public close: BUTTON = {
-		click: new Subject(),
-		change: new Subject(),
-		visible: new BehaviorSubject(true)
+		click: new Subject<MouseEvent | TouchEvent>(),
+		visible: new BehaviorSubject(false)
 	};
 
 	public filter: BUTTON = {
-		click: new Subject(),
-		change: new Subject(),
-		visible: new BehaviorSubject(true)
+		click: new Subject<MouseEvent | TouchEvent>(),
+		visible: new BehaviorSubject(false)
 	};
 
 	public search: BUTTON = {
-		click: new Subject(),
-		change: new Subject(),
-		visible: new BehaviorSubject(true)
+		click: new Subject<MouseEvent | TouchEvent>(),
+		value: new Subject(),
+		reset: new Subject(),
+		visible: new BehaviorSubject(false)
+	};
+
+	public download: BUTTON = {
+		click: new Subject<MouseEvent | TouchEvent>(),
+		visible: new BehaviorSubject(false)
 	};
 
 	public show(button) {
@@ -41,10 +44,15 @@ export class ButtonsService {
 		this[button].visible.next(false);
 	}
 
+	public reset(button) {
+		this[button].reset.next();
+	}
+
 }
 
 interface BUTTON {
-	'click': Subject<any>;
-	'change'?: Subject<any>;
-	'visible': BehaviorSubject<boolean>;
+	click: Subject<MouseEvent | TouchEvent>;
+	reset?: Subject<MouseEvent | TouchEvent>;
+	value?: Subject<string>;
+	visible: BehaviorSubject<boolean>;
 }

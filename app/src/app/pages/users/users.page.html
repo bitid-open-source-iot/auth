@@ -1,3 +1,21 @@
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-chip-list class="filterbar" *ngIf="filter.validated.length > 0">
+    <mat-chip *ngFor="let id of filter.validated" (removed)="unfilter('validated', id)">
+        <mat-icon>
+            verified
+        </mat-icon>
+        
+        <mat-label>
+            {{ id == 1 ? 'Verified' : 'Not Verified' }}
+        </mat-label>
+        
+        <mat-icon matChipRemove>
+            cancel
+        </mat-icon>
+    </mat-chip>
+</mat-chip-list>
+
 <table mat-table [dataSource]="users" fxShow fxHide.xs="true" matSort>
     <ng-container matColumnDef="namefirst">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>

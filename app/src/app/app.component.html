@@ -9,11 +9,7 @@
         Auth
     </mat-label>
 
-    <button mat-icon-button #search>
-        <mat-icon>
-            search
-        </mat-icon>
-    </button>
+    <search></search>
 
     <button mat-icon-button #filter>
         <mat-icon>
@@ -57,13 +53,13 @@
                 </mat-label>
             </mat-list-item>
 
-            <mat-list-item lines="full" matRipple routerLink="/users" routerLinkActive="active" matTooltip="Users" matTooltipPosition="right">
+            <mat-list-item lines="full" matRipple routerLink="/features" routerLinkActive="active" matTooltip="Features" matTooltipPosition="right">
                 <mat-icon>
-                    people
+                    widgets
                 </mat-icon>
 
                 <mat-label>
-                    Users
+                    Features
                 </mat-label>
             </mat-list-item>
 
@@ -77,6 +73,16 @@
                 </mat-label>
             </mat-list-item>
 
+            <mat-list-item lines="full" matRipple routerLink="/settings" routerLinkActive="active" matTooltip="Settings" matTooltipPosition="right">
+                <mat-icon>
+                    settings
+                </mat-icon>
+
+                <mat-label>
+                    Settings
+                </mat-label>
+            </mat-list-item>
+
             <mat-list-item lines="full" matRipple routerLink="/tokens" routerLinkActive="active" matTooltip="Tokens" matTooltipPosition="right">
                 <mat-icon>
                     vpn_key
@@ -87,23 +93,13 @@
                 </mat-label>
             </mat-list-item>
 
-            <mat-list-item lines="full" matRipple routerLink="/features" routerLinkActive="active" matTooltip="Features" matTooltipPosition="right">
+            <mat-list-item lines="full" matRipple routerLink="/users" routerLinkActive="active" matTooltip="Users" matTooltipPosition="right">
                 <mat-icon>
-                    widgets
+                    people
                 </mat-icon>
 
                 <mat-label>
-                    Features
-                </mat-label>
-            </mat-list-item>
-
-            <mat-list-item lines="full" matRipple routerLink="/settings" routerLinkActive="active" matTooltip="Settings" matTooltipPosition="right">
-                <mat-icon>
-                    settings
-                </mat-icon>
-
-                <mat-label>
-                    Settings
+                    Users
                 </mat-label>
             </mat-list-item>
 
@@ -120,6 +116,8 @@
     </mat-drawer>
     
     <mat-drawer-content>
+        <div class="no-auth" *ngIf="!authenticated"></div>
+        
         <router-outlet></router-outlet>
     </mat-drawer-content>
 </mat-drawer-container>

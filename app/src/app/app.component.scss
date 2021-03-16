@@ -8,6 +8,9 @@ mat-toolbar {
         margin-left: 16px;
     }
 }
+.no-auth {
+    height: 56px;
+}
 mat-toolbar.authenticated {
     display: flex;
 }

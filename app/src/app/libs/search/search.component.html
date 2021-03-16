@@ -1,0 +1,9 @@
+<div class="search-container" [class.active]="active">
+    <input type="text" [autofocus]="true" matInput [placeholder]="placeholder" [(ngModel)]="value" (ngModelChange)="changes($event)" [hidden]="!active">
+
+    <button mat-icon-button (click)="toggle()">
+        <mat-icon [color]="color" matTooltip="search">
+            {{ active ? 'close' : 'search' }}
+        </mat-icon>
+    </button>
+</div>

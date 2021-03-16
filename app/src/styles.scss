@@ -78,10 +78,11 @@ mat-list {
     }
 }
 form {
-    width: calc(100% - 20px);
+    width: calc(100% - 32px);
     margin: 0px auto;
     display: flex;
-    padding: 0px 10px;
+    padding: 16px;
+    padding-bottom: 0px;
     flex-direction: column;
     h2 {
         font-size: 16px !important;
@@ -249,6 +250,7 @@ input[type="color"] {
 /* --- PAGES --- */
 apps-page,
 users-page,
+tokens-page,
 scopes-page,
 signin-page,
 signup-page,
@@ -268,7 +270,18 @@ features-editor-page,
 change-password-page,
 terms-and-conditions-page {
     height: calc(100vh - 56px);
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
 }
 /* --- PAGES --- */
+
+.filterbar {
+    padding: 8px 16px !important;
+    mat-chip {
+        padding: 0px 5px !important;
+        mat-label {
+            font-size: 12px !important;
+            padding-left: 8px !important;
+        }
+    }
+}

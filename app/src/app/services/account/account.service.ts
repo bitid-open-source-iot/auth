@@ -81,7 +81,7 @@ export class AccountService {
 
 		params.appId = environment.appId;
 		params.scopes = environment.scopes;
-		params.expiry = new Date(new Date().valueOf() + (60 * 60 * 1000));
+		params.expiry = new Date(new Date().valueOf() + (31 * 24 * 60 * 60 * 1000));
 		params.description = environment.appName;
 
 		const response = await this.api.put(environment.auth, '/auth/authenticate', params);

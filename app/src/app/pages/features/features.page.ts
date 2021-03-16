@@ -1,13 +1,18 @@
+import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
 import { Feature } from 'src/app/classes/feature';
 import { MatSort } from '@angular/material/sort';
+import { MatDialog } from '@angular/material/dialog';
+import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
+import { FiltersService } from 'src/app/services/filters/filters.service';
 import { FeaturesService } from 'src/app/services/features/features.service';
 import { MatTableDataSource } from '@angular/material/table';
+import { FeaturesFilterDialog } from './filter/filter.dialog';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
@@ -20,8 +25,11 @@ export class FeaturesPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
-	constructor(private toast: ToastService, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private buttons: ButtonsService, private service: FeaturesService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private buttons: ButtonsService, private service: FeaturesService) { }
 
+	public filter: any = this.filters.get({
+		appId: []
+	});
 	public columns: string[] = ['title', 'description', 'options'];
 	public loading: boolean;
 	public features: MatTableDataSource<Feature> = new MatTableDataSource<Feature>();
@@ -37,7 +45,8 @@ export class FeaturesPage implements OnInit, OnDestroy {
 				'title',
 				'featureId',
 				'description'
-			]
+			],
+			appId: this.filter.appId
 		});
 
 		if (response.ok) {
@@ -48,6 +57,31 @@ export class FeaturesPage implements OnInit, OnDestroy {
 
 		this.loading = false;
 	}
+
+	private async load() {
+		this.loading = true;
+
+		const apps = await this.apps.list({
+			filter: [
+				'name',
+				'appId'
+			]
+		});
+
+		if (apps.ok) {
+			this.apps.data = apps.result.map(o => new App(o));
+		} else {
+			this.apps.data = [];
+		}
+
+		this.loading = false;
+	}
+
+    public unfilter(key, value) {
+        this.filter[key] = this.filter[key].filter(o => o != value);
+        this.filters.update(this.filter);
+        this.list();
+    }
 
 	public async options(feature: Feature) {
 		this.sheet.show({
@@ -117,11 +151,21 @@ export class FeaturesPage implements OnInit, OnDestroy {
 		});
 	}
 
+    public describe(array: any[], key: string, id: string) {
+        let result = '-';
+        array.map(o => {
+            if (o[key] == id) {
+                result = o.name;
+            }
+        });
+        return result;
+    }
+
 	ngOnInit(): void {
 		this.buttons.show('add');
 		this.buttons.hide('close');
-		this.buttons.hide('filter');
-		this.buttons.hide('search');
+		this.buttons.show('filter');
+		this.buttons.show('search');
 
 		this.features.sort = this.sort;
 		this.features.sort.active = 'title';
@@ -135,16 +179,41 @@ export class FeaturesPage implements OnInit, OnDestroy {
 			});
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				this.list();
+				await this.list();
+				await this.load();
 			}
 		});
+
+        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+            this.features.filter = value;
+        });
+
+        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+            const dialog = await this.dialog.open(FeaturesFilterDialog, {
+                data: this.filter,
+                panelClass: 'filter-dialog'
+            });
+
+            await dialog.afterClosed().subscribe(async result => {
+                if (result) {
+                    Object.keys(result).map(key => {
+                        this.filter[key] = result[key];
+                    });
+                    this.filters.update(this.filter);
+                    this.list();
+                };
+            });
+        });
 	}
 
 	ngOnDestroy(): void {
+		this.buttons.reset('search');
 		this.subscriptions.add.unsubscribe();
 		this.subscriptions.loaded.unsubscribe();
+		this.subscriptions.filter.unsubscribe();
+		this.subscriptions.search.unsubscribe();
 	}
 
 }
