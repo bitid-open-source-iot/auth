@@ -118,6 +118,24 @@ if (users.count() == 0) {
     });
 };
 
+const usage = db.collection('tblUsage');
+if (usage.count() == 0) {
+    db.tblUsage.insertOne({
+        '_id': ObjectId('000000000000000000000001'),
+        'appId': ObjectId('000000000000000000000001'),
+        'email': 'xxx@xxx.co.za',
+        'scope': '/auth/authenticate',
+        'serverDate': new Date()
+    });
+
+    db.tblUsage.createIndex({
+        'email': 1,
+        'serverDate': 1
+    }, {
+        'unique': false
+    });
+};
+
 const tokens = db.collection('tblTokens');
 if (tokens.count() == 0) {
     db.tblTokens.insertOne({
