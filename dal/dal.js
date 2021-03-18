@@ -1,7 +1,6 @@
 const Q = require('q');
-const db = require('../db/mongo');
+const db = require('../db/sql');
 const tools = require('../lib/tools');
-const ObjectId = require('mongodb').ObjectId;
 const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
@@ -65,7 +64,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			var filter = {};
@@ -108,7 +107,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			var filter = {};
@@ -153,10 +152,10 @@ var module = function () {
 			if (typeof (args.req.body.appId) != 'undefined') {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					params._id = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
+						$in: args.req.body.appId
 					};
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					params._id = ObjectId(args.req.body.appId);
+					params._id = args.req.body.appId;
 				};
 			};
 
@@ -221,7 +220,7 @@ var module = function () {
 				'bitid.auth.users.email': {
 					$ne: args.req.body.email
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			var update = {
@@ -268,7 +267,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			var update = {
@@ -344,7 +343,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			db.call({
@@ -372,7 +371,7 @@ var module = function () {
 			var params = [
 				{
 					$match: {
-						'_id': ObjectId(args.req.body.header.appId)
+						'_id': args.req.body.header.appId
 					}
 				},
 				{
@@ -427,7 +426,7 @@ var module = function () {
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
 								var params = {
-									'_id': ObjectId(args.req.body.appId)
+									'_id': args.req.body.appId
 								};
 
 								deferred.resolve({
@@ -483,7 +482,7 @@ var module = function () {
 							'tokenAddOn': {},
 							'description': args.req.body.description
 						},
-						'appId': ObjectId(args.req.body.appId),
+						'appId': args.req.body.appId,
 						'device': args.req.headers['user-agent'],
 						'description': args.req.body.description
 					};
@@ -527,7 +526,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			var update = {
@@ -573,7 +572,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			db.call({
@@ -590,7 +589,7 @@ var module = function () {
 								'email': args.req.body.email
 							}
 						},
-						'_id': ObjectId(args.req.body.appId)
+						'_id': args.req.body.appId
 					};
 
 					var update = {
@@ -632,7 +631,7 @@ var module = function () {
 
 			var params = {
 				'token': token,
-				'appId': ObjectId(args.req.body.header.appId),
+				'appId': args.req.body.header.appId,
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 
@@ -742,7 +741,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.header.appId)
+						'_id': args.req.body.header.appId
 					};
 
 					var filter = {
@@ -893,7 +892,7 @@ var module = function () {
 
 			var params = {
 				'token': args.req.headers.authorization,
-				'appId': ObjectId(args.req.body.header.appId),
+				'appId': args.req.body.header.appId,
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 
@@ -957,7 +956,7 @@ var module = function () {
 
 					if (result.length > 0) {
 						var params = {
-							'_id': ObjectId(args.req.body.header.appId)
+							'_id': args.req.body.header.appId
 						};
 
 						deferred.resolve({
@@ -1359,7 +1358,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.header.appId)
+						'_id': args.req.body.header.appId
 					};
 
 					deferred.resolve({
@@ -1380,7 +1379,7 @@ var module = function () {
 
 						var params = {
 							'device': args.req.headers['user-agent'],
-							'appId': ObjectId(args.req.body.header.appId),
+							'appId': args.req.body.header.appId,
 							'description': args.req.body.description || args.app.name,
 							'bitid.auth.users.email': args.req.body.header.email
 						};
@@ -1427,7 +1426,7 @@ var module = function () {
 							'description': args.req.body.description || args.app.name
 						},
 						'device': args.req.headers['user-agent'],
-						'appId': ObjectId(args.req.body.header.appId),
+						'appId': args.req.body.header.appId,
 						'description': args.req.body.description || args.app.name
 					};
 
@@ -1509,7 +1508,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.header.appId)
+						'_id': args.req.body.header.appId
 					};
 
 					deferred.resolve({
@@ -1537,7 +1536,7 @@ var module = function () {
 
 						if (valid) {
 							var params = {
-								'appId': ObjectId(args.req.body.header.appId),
+								'appId': args.req.body.header.appId,
 								'device': args.req.headers['user-agent'],
 								'description': args.req.body.description || args.app.name,
 								'bitid.auth.users.email': args.req.body.header.email
@@ -1587,7 +1586,7 @@ var module = function () {
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
 						},
-						'appId': ObjectId(args.req.body.header.appId),
+						'appId': args.req.body.header.appId,
 						'device': args.req.headers['user-agent'],
 						'description': args.req.body.description || args.app.name
 					};
@@ -1700,7 +1699,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(__settings.client.appId)
+				'_id': __settings.client.appId
 			};
 
 			db.call({
@@ -1956,7 +1955,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.appId),
+				'_id': args.req.body.appId,
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 
@@ -1970,7 +1969,7 @@ var module = function () {
 
 					var params = {
 						'url': args.req.body.url,
-						'appId': ObjectId(args.req.body.appId),
+						'appId': args.req.body.appId,
 						'roles': args.req.body.roles,
 						'serverDate': new Date(),
 						'description': args.req.body.description
@@ -2028,7 +2027,7 @@ var module = function () {
 			var params = [
 				{
 					$match: {
-						'_id': ObjectId(args.req.body.scopeId)
+						'_id': args.req.body.scopeId
 					}
 				},
 				{
@@ -2074,10 +2073,10 @@ var module = function () {
 			if (typeof (args.req.body.appId) != 'undefined') {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
+						$in: args.req.body.appId
 					};
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = ObjectId(args.req.body.appId);
+					match.appId = args.req.body.appId;
 				};
 			};
 
@@ -2092,7 +2091,6 @@ var module = function () {
 			};
 			if (typeof (args.req.body.filter) != 'undefined') {
 				filter['_id'] = 0;
-				// filter['bitid'] = 0;
 				args.req.body.filter.map(f => {
 					if (f == 'scopeId') {
 						filter['_id'] = 1;
@@ -2147,7 +2145,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.scopeId)
+				'_id': args.req.body.scopeId
 			};
 
 			db.call({
@@ -2162,7 +2160,7 @@ var module = function () {
 						'_id': {
 							$in: [
 								result[0].appId,
-								ObjectId(args.req.body.appId)
+								args.req.body.appId
 							]
 						},
 						'bitid.auth.users': {
@@ -2194,7 +2192,7 @@ var module = function () {
 					result = result.map(app => app._id.toString());
 
 					var params = {
-						'_id': ObjectId(args.req.body.scopeId)
+						'_id': args.req.body.scopeId
 					};
 					var update = {
 						$set: {
@@ -2209,7 +2207,7 @@ var module = function () {
 					};
 					if (typeof (args.req.body.appId) != 'undefined') {
 						if (result.includes(args.req.body.appId)) {
-							update.$set.appId = ObjectId(args.req.body.appId);
+							update.$set.appId = args.req.body.appId;
 						};
 					};
 					if (typeof (args.req.body.description) != 'undefined') {
@@ -2244,7 +2242,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.scopeId)
+				'_id': args.req.body.scopeId
 			};
 
 			db.call({
@@ -2284,7 +2282,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.scopeId)
+						'_id': args.req.body.scopeId
 					};
 
 					deferred.resolve({
@@ -2326,7 +2324,7 @@ var module = function () {
 				},
 				{
 					$match: {
-						'_id': ObjectId(args.req.body.tokenId),
+						'_id': args.req.body.tokenId,
 						'bitid.auth.users.email': args.req.body.header.email
 					}
 				},
@@ -2406,10 +2404,10 @@ var module = function () {
 			if (typeof (args.req.body.appId) != 'undefined') {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
+						$in: args.req.body.appId
 					};
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = ObjectId(args.req.body.appId);
+					match.appId = args.req.body.appId;
 				};
 			};
 
@@ -2505,7 +2503,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
+				'_id': args.req.body.tokenId
 			};
 
 			var update = {
@@ -2552,7 +2550,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId),
+				'_id': args.req.body.tokenId,
 			};
 
 			db.call({
@@ -2578,7 +2576,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.tokenId),
+				'_id': args.req.body.tokenId,
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 
@@ -2604,8 +2602,8 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.tokenId),
-				'appId': ObjectId(args.req.body.header.appId),
+				'_id': args.req.body.tokenId,
+				'appId': args.req.body.header.appId,
 				'bitid.auth.users.email': args.req.body.header.email
 			};
 
@@ -2646,7 +2644,7 @@ var module = function () {
 					args.user = result[0];
 
 					var params = {
-						'_id': ObjectId(args.req.body.appId)
+						'_id': args.req.body.appId
 					};
 
 					deferred.resolve({
@@ -2681,7 +2679,7 @@ var module = function () {
 							'tokenAddOn': {},
 							'description': args.req.body.description
 						},
-						'appId': ObjectId(args.req.body.appId),
+						'appId': args.req.body.appId,
 						'device': args.req.headers['user-agent'],
 						'description': args.req.body.description
 					};
@@ -2721,7 +2719,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
+				'_id': args.req.body.tokenId
 			};
 
 			var update = {
@@ -2767,7 +2765,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
+				'_id': args.req.body.tokenId
 			};
 
 			db.call({
@@ -2784,7 +2782,7 @@ var module = function () {
 								'email': args.req.body.email
 							}
 						},
-						'_id': ObjectId(args.req.body.tokenId)
+						'_id': args.req.body.tokenId
 					};
 
 					var update = {
@@ -2831,7 +2829,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			db.call({
@@ -2843,7 +2841,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'appId': ObjectId(args.req.body.appId),
+						'appId': args.req.body.appId,
 						'title': args.req.body.title,
 						'serverDate': new Date(),
 						'description': args.req.body.description
@@ -2884,16 +2882,16 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.featureId)
+				'_id': args.req.body.featureId
 			};
 
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
+						$in: args.req.body.appId
 					};
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = ObjectId(args.req.body.appId);
+					match.appId = args.req.body.appId;
 				};
 			};
 
@@ -2986,20 +2984,20 @@ var module = function () {
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
+						$in: args.req.body.appId
 					};
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = ObjectId(args.req.body.appId);
+					match.appId = args.req.body.appId;
 				};
 			};
 
 			if (typeof (args.req.body.featureId) != 'undefined' && args.req.body.featureId !== null) {
 				if (Array.isArray(args.req.body.featureId) && args.req.body.featureId.length > 0) {
 					match._id = {
-						$in: args.req.body.featureId.map(id => ObjectId(id))
+						$in: args.req.body.featureId
 					};
 				} else if (typeof (args.req.body.featureId) == 'string' && args.req.body.featureId.length == 24) {
-					match._id = ObjectId(args.req.body.featureId);
+					match._id = args.req.body.featureId;
 				};
 			};
 
@@ -3087,7 +3085,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
+				'_id': args.req.body.appId
 			};
 
 			db.call({
@@ -3099,7 +3097,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.featureId)
+						'_id': args.req.body.featureId
 					};
 
 					var update = {
@@ -3151,7 +3149,7 @@ var module = function () {
 						'email': args.req.body.header.email
 					}
 				},
-				'_id': ObjectId(args.req.body.featureId)
+				'_id': args.req.body.featureId
 			};
 
 			var params = [
@@ -3192,7 +3190,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					var params = {
-						'_id': ObjectId(args.req.body.featureId)
+						'_id': args.req.body.featureId
 					};
 
 					deferred.resolve({
@@ -3226,7 +3224,7 @@ var module = function () {
 			var params = {
 				'email': args.req.body.header.email,
 				'scope': args.req.body.scope,
-				'appId': ObjectId(args.req.body.header.appId),
+				'appId': args.req.body.header.appId,
 				'serverDate': new Date()
 			};
 

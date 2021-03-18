@@ -2,6 +2,22 @@
     "port": 9000,
     "production": true,
     "authentication": true,
+    "smtp": {
+        "tls": {
+            "rejectUnauthorized": false
+        },
+        "host": "xxx",
+        "port": 80,
+        "secure": false,
+        "connectionTimeout": 10000
+    },
+    "mssql": {
+        "host": "localhost",
+        "port": 1433,
+        "username": "auth",
+        "password": "auth",
+        "database": "auth"
+    },
     "client": {
         "auth": "https://auth.bitid.co.za",
         "appId": "000000000000000000000001",
@@ -71,14 +87,5 @@
                 "level": "error"
             }
         }
-    },
-    "smtp": {
-        "tls": {
-            "rejectUnauthorized": false
-        },
-        "host": "xxx",
-        "port": 80,
-        "secure": false,
-        "connectionTimeout": 10000
     }
 }
