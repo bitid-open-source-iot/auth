@@ -6,7 +6,7 @@
         name VARCHAR(255) NOT NULL,
         icon VARCHAR(255) NOT NULL,
         secret VARCHAR(255) NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         themeColor VARCHAR(255) NOT NULL,
         googleDatabase VARCHAR(255),
         themeBackground VARCHAR(255) NOT NULL,
@@ -87,7 +87,7 @@
         timezone INT NOT NULL,
         username VARCHAR(255),
         validated INT NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         PRIMARY KEY (id)
     );
 
@@ -103,7 +103,7 @@
         id INT NOT NULL IDENTITY(1, 1),
         scope VARCHAR(255) NOT NULL,
         appId INT NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         PRIMARY KEY (id)
     );
 
@@ -117,7 +117,7 @@
         id INT NOT NULL IDENTITY(1, 1),
         appId VARCHAR(255) NOT NULL,
         device VARCHAR(255) NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         PRIMARY KEY (id)
     );
 
@@ -128,7 +128,7 @@
         role INT NOT NULL,
         email VARCHAR(255) NOT NULL,
         tokenId VARCHAR(255) NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         PRIMARY KEY (id)
     );
 
@@ -153,7 +153,7 @@
         id INT NOT NULL IDENTITY(1, 1),
         url VARCHAR(255) NOT NULL,
         appId VARCHAR(255) NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         description VARCHAR(255) NOT NULL,
         PRIMARY KEY (id)
     );
@@ -169,7 +169,7 @@
     CREATE TABLE auth.dbo.tblFeatures (
         id INT NOT NULL IDENTITY(1, 1),
         appId VARCHAR(255) NOT NULL,
-        serverDate TIMESTAMP NOT NULL,
+        serverDate [datetime] DEFAULT getdate() NOT NULL,
         description VARCHAR(255) NOT NULL,
         PRIMARY KEY (id)
     );
