@@ -65,7 +65,8 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'_id': ObjectId(args.req.body.appId)
+				'_id': ObjectId(args.req.body.appId),
+				'bitid.auth.users.email': args.req.body.header.email
 			};
 
 			var filter = {};
@@ -354,6 +355,38 @@ var module = function () {
 			})
 				.then(result => {
 					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		isadmin: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.header.appId),
+				'bitid.auth.users.email': args.req.body.header.email
+			};
+
+			var filter = {
+				'_id': 1
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = true;
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();
@@ -1728,7 +1761,7 @@ var module = function () {
 							params.validated = {
 								$in: args.req.body.validated
 							};
-						} else if (typeof(args.req.body.validated) == 'boolean') {
+						} else if (typeof (args.req.body.validated) == 'boolean') {
 							params.validated = args.req.body.validated;
 						};
 					};

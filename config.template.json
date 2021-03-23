@@ -2,6 +2,22 @@
     "port": 9000,
     "production": true,
     "authentication": true,
+    "smtp": {
+        "tls": {
+            "rejectUnauthorized": false
+        },
+        "host": "xxx",
+        "port": 80,
+        "secure": false,
+        "connectionTimeout": 10000
+    },
+    "mssql": {
+        "host": "xxx",
+        "port": 1433,
+        "username": "xxx",
+        "password": "xxx",
+        "database": "xxx"
+    },
     "client": {
         "auth": "https://auth.bitid.co.za",
         "appId": "000000000000000000000001",
@@ -49,10 +65,6 @@
             "/features/delete"
         ]
     },
-    "mongodb": {
-        "url": "xxx",
-        "database": "xxx"
-    },
     "logger": {
         "appenders": {
             "auth": {
@@ -72,13 +84,8 @@
             }
         }
     },
-    "smtp": {
-        "tls": {
-            "rejectUnauthorized": false
-        },
-        "host": "xxx",
-        "port": 80,
-        "secure": false,
-        "connectionTimeout": 10000
+    "mongodb": {
+        "url": "xxx",
+        "database": "xxx"
     }
 }

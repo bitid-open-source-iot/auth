@@ -390,6 +390,26 @@ describe('Apps', function () {
             });
     });
 
+    it('/apps/is-admin', function (done) {
+        this.timeout(5000);
+
+        tools.api.apps.isadmin()
+            .then((result) => {
+                try {
+                    result.should.have.property('admin');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
     it('/apps/updatesubscriber', function (done) {
         this.timeout(5000);
 
@@ -1134,6 +1154,14 @@ var tools = {
                 tools.post('/apps/delete', {
                     'appId': appId
                 })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            isadmin: () => {
+                var deferred = Q.defer();
+
+                tools.put('/apps/is-admin', {})
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;

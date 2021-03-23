@@ -40,6 +40,11 @@ router.post('/delete', (req, res) => {
 	myModule.apps.delete(req, res);
 });
 
+router.put('/is-admin', (req, res) => {
+	var myModule = new bll.module();
+	myModule.apps.isadmin(req, res);
+});
+
 router.put('/allowaccess', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.allowaccess(req, res);
