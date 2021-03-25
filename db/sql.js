@@ -17,6 +17,16 @@ exports.connect = async () => {
 
 	try {
 		const connection = await sql.connect(['mssql://', __settings.mssql.username, ':', __settings.mssql.password, '@', __settings.mssql.host, ':', __settings.mssql.port, '/', __settings.mssql.database].join(''));	
+		const request = new sql.Request();
+		request.input('userId', 1)
+		request.execute('v1_tblApps_List', (err, result) => {
+			if (err) {
+				console.log(err)
+			} else if (result) {
+				debugger
+				console.log(result.recordset)
+			}
+		})
 		deferred.resolve(connection);
 	} catch (error) {
 		deferred.reject(error.message);
