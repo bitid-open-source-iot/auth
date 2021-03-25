@@ -166,7 +166,7 @@ Set8 - Create stored procedure delete
 			FROM Inserted)) = 0 AND ((SELECT Count(ID)
 			FROM Deleted) != 0)
 		BEGIN
-			Insert into tblApps_AuditExact
+			INSERT INTO tblApps_AuditExact
 				(
 					[idOriginal],
 					[userId],
@@ -204,15 +204,15 @@ Set8 - Create stored procedure delete
 
 	INSERT INTO dbo.tblApps
 		(
-			icon,
-			userId,
-			appUrl,
-			appName,
-			appSecret,
-			themeColor,
-			googleDatabase,
-			themeBackground,
-			googleCredentials
+			[icon],
+			[userId],
+			[appUrl],
+			[appName],
+			[appSecret],
+			[themeColor],
+			[googleDatabase],
+			[themeBackground],
+			[googleCredentials]
 		)
 	VALUES
 		(
