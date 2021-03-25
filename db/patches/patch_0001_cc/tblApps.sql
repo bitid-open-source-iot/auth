@@ -9,8 +9,8 @@ Set4 - Create stored procedure crud (fred)
 -- drop table tblApps_AuditExact
 
 -- Set1
-USE auth
-    Go
+USE [auth]
+GO
 
 CREATE TABLE dbo.tblApps
 (
@@ -36,10 +36,10 @@ CREATE UNIQUE INDEX tblAppsName ON dbo.tblApps (appName);
 
 
 Print 'Executing dbo.tblApps_AuditExact.TAB'
-Go
+GO
 
 Use [auth]
-	GO
+GO
 
 If Not Exists (Select Name
 from sys.objects
@@ -63,7 +63,7 @@ where name = 'tblApps_AuditExact' and type = 'U')
 		Constraint PK_tblApps_AuditExact Primary Key Clustered (ID)
 	)
 End
-	Go
+GO
 
 
 -- Exec sp_Version @dboObject = 'dbo.tblApps_AuditExact.TAB', @Version = 1
@@ -73,20 +73,20 @@ End
 
 
 Print 'Executing dbo.tr_tblApps_AuditExact.TRG'
-Go
+GO
 
 -- sp_helptext tr_tblApps_AuditExact
 
 Use [auth]
-	Go
+GO
 
 If Exists (Select *
 from sys.objects
 where name = 'tr_tblApps_AuditExact' and type = 'TR')
-	Begin
+Begin
 	Drop Trigger tr_tblApps_AuditExact
 End
-	Go
+GO
 
 Create Trigger [dbo].[tr_tblApps_AuditExact]
 	on [dbo].[tblApps]
@@ -133,7 +133,7 @@ Create Trigger [dbo].[tr_tblApps_AuditExact]
 	END
 
 End
-	Go
+GO
 
 -- exec sp_Version @dboObject = 'dbo.tr_tblApps_AuditExact.TRG', @Version = 1
 -- Go
@@ -179,7 +179,7 @@ VALUES
 -- Set4
 
 Print 'Executing dbo.v1_tblApps_Add.PRC'
-Go
+GO
 
 If Exists (Select Name
 from sys.objects
@@ -187,7 +187,7 @@ where name = 'v1_tblApps_Add' and type = 'P')
 Begin
 	Drop Procedure dbo.v1_tblApps_Add
 End
-Go
+GO
 
 Create Procedure dbo.v1_tblApps_Add
 	@userId Int,
@@ -207,28 +207,28 @@ Begin Try
 	Begin Tran
 	print @userId
 		INSERT INTO dbo.tblApps
-		(
-			userId,
-			appUrl,
-			appName,
-			icon,
-			appSecret,
-			themeColor,
-			themeBackground,
-			googleDatabase,
-			googleCredentials
-		)
-	VALUES
-		(
-			@userId,
-			@appUrl,
-			@appName,
-			@icon,
-			@appSecret,
-			@themeColor,
-			@themeBackground,
-			@googleDatabase,
-			@googleCredentials
+	(
+	userId,
+	appUrl,
+	appName,
+	icon,
+	appSecret,
+	themeColor,
+	themeBackground,
+	googleDatabase,
+	googleCredentials
+	)
+VALUES
+	(
+		@userId,
+		@appUrl,
+		@appName,
+		@icon,
+		@appSecret,
+		@themeColor,
+		@themeBackground,
+		@googleDatabase,
+		@googleCredentials
 		);
 
 	commit tran
@@ -245,6 +245,6 @@ Begin Catch
 	-- Select @ErrorNumber = Error_number(), @ErrorMessage = Error_Message() Select @strErrorParameters = N'@UserID = ' + Cast(@UserID as NVarchar) + N', @ID = ' + Cast(@ID as NVarchar) exec Admin_LogUnhandledException @ErrorSource = 'CheechAndChong', @strParameters = @strErrorParameters, @ErrorNumber = @ErrorNumber, @ErrorMessage = @ErrorMessage Select dbo.fncV1_LanguageLookup(76,(Select LanguageOption From tblUsers Where ID = @UserID)) Return -1
 End Catch
 
-Go
+GO
 
 -- Set4
