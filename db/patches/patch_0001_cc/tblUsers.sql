@@ -54,8 +54,8 @@ CREATE TABLE [dbo].[tblUsers]
 	[username] VARCHAR(255),
 	[validated] INT NOT NULL,
 	PRIMARY KEY (id)
-);
-CREATE UNIQUE INDEX tblUsersemail ON [dbo].[tblUsers] (email);
+)
+CREATE UNIQUE INDEX tblUsersemail ON [dbo].[tblUsers] (email)
 
 -- Set1
 
@@ -472,7 +472,7 @@ VALUES
 		2,
 		'xxx',
 		1
-	);
+	)
 
 -- Set3
 
@@ -597,10 +597,10 @@ BEGIN TRY
 			@timezone,
 			@username,
 			@validated
-		);
+		)
 
-	SELECT @@ROWCOUNT;
-	RETURN @@ROWCOUNT;
+	SELECT @@ROWCOUNT AS [userId], @code AS [code], @email AS [email]
+	RETURN
 
 END TRY
 

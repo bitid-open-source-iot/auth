@@ -21,17 +21,17 @@ CREATE TABLE [dbo].[tblApps]
 	[id] INT NOT NULL IDENTITY(1, 1),
 	[userId] INT NOT NULL,
 	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
+	[url] VARCHAR(255) NOT NULL,
 	[icon] VARCHAR(255) NOT NULL,
-	[appUrl] VARCHAR(255) NOT NULL,
-	[appName] VARCHAR(255) NOT NULL,
-	[appSecret] VARCHAR(255) NOT NULL,
+	[name] VARCHAR(255) NOT NULL,
+	[secret] VARCHAR(255) NOT NULL,
 	[themeColor] VARCHAR(255) NOT NULL,
 	[googleDatabase] VARCHAR(255) DEFAULT (''),
 	[themeBackground] VARCHAR(255) NOT NULL,
 	[googleCredentials] VARCHAR(5000) DEFAULT ('{}'),
 	PRIMARY KEY (id)
 );
-CREATE UNIQUE INDEX tblAppsName ON [dbo].[tblApps] (appName);
+CREATE UNIQUE INDEX tblAppsName ON [dbo].[tblApps] (name);
 
 -- Set1
 
@@ -52,14 +52,14 @@ BEGIN
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
 		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblApps_AuditExact_dateAction DEFAULT getdate(),
-		[icon] [varchar](255) NOT NULL,
-		[appUrl] [varchar](255) NOT NULL,
-		[appName] [varchar](255) NOT NULL,
-		[appSecret] [varchar](255) NOT NULL,
-		[themeColor] [varchar](255) NOT NULL,
-		[googleDatabase] [varchar](255) NOT NULL,
-		[themeBackground] [varchar](255) NOT NULL,
-		[googleCredentials] [varchar](255) NOT NULL,
+		[url] VARCHAR(255) NOT NULL,
+		[icon] VARCHAR(255) NOT NULL,
+		[name] VARCHAR(255) NOT NULL,
+		[secret] VARCHAR(255) NOT NULL,
+		[themeColor] VARCHAR(255) NOT NULL,
+		[googleDatabase] VARCHAR(255) NOT NULL,
+		[themeBackground] VARCHAR(255) NOT NULL,
+		[googleCredentials] VARCHAR(255) NOT NULL,
 		CONSTRAINT PK_tblApps_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -102,10 +102,10 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
+				[url],
 				[icon],
-				[appUrl],
-				[appName],
-				[appSecret],
+				[name],
+				[secret],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -115,10 +115,10 @@ BEGIN
 			[id],
 			[userId],
 			1,
+			[url],
 			[icon],
-			[appUrl],
-			[appName],
-			[appSecret],
+			[name],
+			[secret],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -137,10 +137,10 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
+				[url],
 				[icon],
-				[appUrl],
-				[appName],
-				[appSecret],
+				[name],
+				[secret],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -150,10 +150,10 @@ BEGIN
 			[id],
 			[userId],
 			2,
+			[url],
 			[icon],
-			[appUrl],
-			[appName],
-			[appSecret],
+			[name],
+			[secret],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -171,10 +171,10 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
+				[url],
 				[icon],
-				[appUrl],
-				[appName],
-				[appSecret],
+				[name],
+				[secret],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -184,10 +184,10 @@ BEGIN
 			[id],
 			[userId],
 			3,
+			[url],
 			[icon],
-			[appUrl],
-			[appName],
-			[appSecret],
+			[name],
+			[secret],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -204,11 +204,11 @@ GO
 
 INSERT INTO [dbo].[tblApps]
 	(
+		[url],
 		[icon],
+		[name],
 		[userId],
-		[appUrl],
-		[appName],
-		[appSecret],
+		[secret],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
@@ -216,10 +216,10 @@ INSERT INTO [dbo].[tblApps]
 	)
 VALUES
 	(
-		'https://auth.bitid.co.za/assets/icons/icon-512x512.png',
-		1,
 		'https://auth.bitid.co.za',
+		'https://auth.bitid.co.za/assets/icons/icon-512x512.png',
 		'auth',
+		1,
 		'xxx',
 		'#FFFFFF',
 		'xxx',
@@ -241,11 +241,11 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblApps_Add]
+	@url VARCHAR(255),
 	@icon VARCHAR(255),
+	@name VARCHAR(255),
+	@secret VARCHAR(255),
 	@userId INT,
-	@appUrl VARCHAR(255),
-	@appName VARCHAR(255),
-	@appSecret VARCHAR(255),
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255) = NULL,
 	@themeBackground VARCHAR(255),
@@ -259,9 +259,9 @@ BEGIN TRY
 		(
 			[icon],
 			[userId],
-			[appUrl],
-			[appName],
-			[appSecret],
+			[url],
+			[name],
+			[secret],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -269,11 +269,11 @@ BEGIN TRY
 		)
 	VALUES
 		(
+			@url,
 			@icon,
+			@name,
 			@userId,
-			@appUrl,
-			@appName,
-			@appSecret,
+			@secret,
 			@themeColor,
 			@googleDatabase,
 			@themeBackground,
@@ -313,11 +313,11 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
+		[url],
 		[icon],
+		[name],
 		[userId],
-		[appUrl],
-		[appName],
-		[appSecret],
+		[secret],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
@@ -353,11 +353,11 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
+		[url],
 		[icon],
+		[name],
 		[userId],
-		[appUrl],
-		[appName],
-		[appSecret],
+		[secret],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
@@ -385,12 +385,12 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblApps_Update]
+	@url VARCHAR(255),
 	@icon VARCHAR(255),
+	@name VARCHAR(255),
 	@appId INT,
 	@userId INT,
-	@appUrl VARCHAR(255),
-	@appName VARCHAR(255),
-	@appSecret VARCHAR(255),
+	@secret VARCHAR(255),
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255) = NULL,
 	@themeBackground VARCHAR(255),
@@ -402,11 +402,11 @@ SET NOCOUNT ON
 BEGIN TRY
 	UPDATE [dbo].[tblApps]
 	SET
+		[url] = @url,
 		[icon] = @icon,
+		[name] = @name,
 		[userId] = @userId,
-		[appUrl] = @appUrl,
-		[appName] = @appName,
-		[appSecret] = @appSecret,
+		[secret] = @secret,
 		[themeColor] = @themeColor,
 		[googleDatabase] = @googleDatabase,
 		[themeBackground] = @themeBackground,
@@ -454,3 +454,38 @@ END CATCH
 GO
 
 -- Set8
+
+-- Set9
+
+PRINT 'Executing dbo.v1_tblApps_Validate.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_tblApps_Validate' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_tblApps_Validate]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_tblApps_Validate]
+	@appId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	SELECT
+		[url],
+		[icon],
+		[name],
+		[appId]
+	FROM [dbo].[tblApps]
+	WHERE [id] = @appId
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message()
+	RETURN -69
+END CATCH
+GO
+
+-- Set9

@@ -1,5 +1,6 @@
 const Q = require('q');
 const db = require('../db/sql');
+const sql = require('mssql');
 const tools = require('../lib/tools');
 const ErrorResponse = require('../lib/error-response');
 
@@ -384,21 +385,32 @@ var module = function () {
 				}
 			];
 
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					args.app = JSON.parse(JSON.stringify(result[0]));
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+			try {
+				var AppsValidate = require('../classes/apps.validate');
+				var params = new AppsValidate(args.req.body).wined();
+
+				const request = new sql.Request(__database);
+				Object.keys(params).map(key => request.input(key, params[key]));
+				
+				request.execute('v1_tblApps_Validate', (error, result) => {
+					if (error) {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = error.code;
+						err.error.errors[0].reason = error.message;
+						err.error.errors[0].message = error.message;
+						deferred.reject(err);
+					} else {
+						args.app = result.recordset[0];
+						deferred.resolve(args);
+					}
+				})
+			} catch (error) {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
+			};
 
 			return deferred.promise;
 		},
@@ -1018,176 +1030,34 @@ var module = function () {
 		register: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'name': {
-					'last': '',
-					'first': '',
-					'middle': ''
-				},
-				'number': {
-					'tel': '',
-					'mobile': ''
-				},
-				'address': {
-					'billing': {
-						'company': {
-							'vat': '',
-							'reg': ''
-						},
-						'street': '',
-						'suburb': '',
-						'country': '',
-						'cityTown': '',
-						'additional': '',
-						'postalCode': ''
-					},
-					'physical': {
-						'company': {
-							'vat': '',
-							'reg': ''
-						},
-						'street': '',
-						'suburb': '',
-						'country': '',
-						'cityTown': '',
-						'additional': '',
-						'postalCode': ''
-					},
-					'same': false
-				},
-				'identification': {
-					'type': '',
-					'number': ''
-				},
-				'code': Math.floor(Math.random() * 900000 + 100000),
-				'salt': args.req.body.salt,
-				'hash': args.req.body.hash,
-				'email': args.req.body.header.email,
-				'picture': '',
-				'language': '',
-				'timezone': 0,
-				'username': '',
-				'validated': 0,
-				'serverDate': new Date()
-			};
+			try {
+				var AuthRegister = require('../classes/auth.register');
+				args.req.body.email = args.req.body.header.email;
+				var params = new AuthRegister(args.req.body).wined();
 
-			if (typeof (args.req.body.picture) != 'undefined') {
-				params.picture = args.req.body.picture;
+				const request = new sql.Request(__database);
+				Object.keys(params).map(key => request.input(key, params[key]));
+				
+				request.execute('v1_tblUsers_Add', (error, result) => {
+					if (error) {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = error.code;
+						err.error.errors[0].reason = error.message;
+						err.error.errors[0].message = error.message;
+						deferred.reject(err);
+					} else {
+						args.user = result.recordset[0];
+						args.result = result.recordset[0];
+						deferred.resolve(args);
+					}
+				})
+			} catch (error) {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
 			};
-			if (typeof (args.req.body.language) != 'undefined') {
-				params.language = args.req.body.language;
-			};
-			if (typeof (args.req.body.timezone) != 'undefined') {
-				params.timezone = args.req.body.timezone;
-			};
-			if (typeof (args.req.body.username) != 'undefined') {
-				params.username = args.req.body.username;
-			};
-			if (typeof (args.req.body.name) != 'undefined') {
-				if (typeof (args.req.body.name.last) != 'undefined') {
-					params.name.last = args.req.body.name.last;
-				};
-				if (typeof (args.req.body.name.first) != 'undefined') {
-					params.name.first = args.req.body.name.first;
-				};
-				if (typeof (args.req.body.name.middle) != 'undefined') {
-					params.name.middle = args.req.body.name.middle;
-				};
-			};
-			if (typeof (args.req.body.number) != 'undefined') {
-				if (typeof (args.req.body.number.tel) != 'undefined') {
-					params.number.tel = args.req.body.number.tel;
-				};
-				if (typeof (args.req.body.number.mobile) != 'undefined') {
-					params.number.mobile = args.req.body.number.mobile;
-				};
-			};
-			if (typeof (args.req.body.address) != 'undefined') {
-				if (typeof (args.req.body.address.billing) != 'undefined') {
-					if (typeof (args.req.body.address.billing.company) != 'undefined') {
-						if (typeof (args.req.body.address.billing.company.vat) != 'undefined') {
-							params.address.billing.company.vat = args.req.body.address.billing.company.vat;
-						};
-						if (typeof (args.req.body.address.billing.company.reg) != 'undefined') {
-							params.address.billing.company.reg = args.req.body.address.billing.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.billing.street) != 'undefined') {
-						params.address.billing.street = args.req.body.address.billing.street;
-					};
-					if (typeof (args.req.body.address.billing.suburb) != 'undefined') {
-						params.address.billing.suburb = args.req.body.address.billing.suburb;
-					};
-					if (typeof (args.req.body.address.billing.country) != 'undefined') {
-						params.address.billing.country = args.req.body.address.billing.country;
-					};
-					if (typeof (args.req.body.address.billing.cityTown) != 'undefined') {
-						params.address.billing.cityTown = args.req.body.address.billing.cityTown;
-					};
-					if (typeof (args.req.body.address.billing.additional) != 'undefined') {
-						params.address.billing.additional = args.req.body.address.billing.additional;
-					};
-					if (typeof (args.req.body.address.billing.postalCode) != 'undefined') {
-						params.address.billing.postalCode = args.req.body.address.billing.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.physical) != 'undefined') {
-					if (typeof (args.req.body.address.physical.company) != 'undefined') {
-						if (typeof (args.req.body.address.physical.company.vat) != 'undefined') {
-							params.address.physical.company.vat = args.req.body.address.physical.company.vat;
-						};
-						if (typeof (args.req.body.address.physical.company.reg) != 'undefined') {
-							params.address.physical.company.reg = args.req.body.address.physical.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.physical.street) != 'undefined') {
-						params.address.physical.street = args.req.body.address.physical.street;
-					};
-					if (typeof (args.req.body.address.physical.suburb) != 'undefined') {
-						params.address.physical.suburb = args.req.body.address.physical.suburb;
-					};
-					if (typeof (args.req.body.address.physical.country) != 'undefined') {
-						params.address.physical.country = args.req.body.address.physical.country;
-					};
-					if (typeof (args.req.body.address.physical.cityTown) != 'undefined') {
-						params.address.physical.cityTown = args.req.body.address.physical.cityTown;
-					};
-					if (typeof (args.req.body.address.physical.additional) != 'undefined') {
-						params.address.physical.additional = args.req.body.address.physical.additional;
-					};
-					if (typeof (args.req.body.address.physical.postalCode) != 'undefined') {
-						params.address.physical.postalCode = args.req.body.address.physical.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.same) != 'undefined') {
-					params.address.same = args.req.body.address.same;
-				};
-			};
-			if (typeof (args.req.body.identification) != 'undefined') {
-				if (typeof (args.req.body.identification.type) != 'undefined') {
-					params.identification.type = args.req.body.identification.type;
-				};
-				if (typeof (args.req.body.identification.number) != 'undefined') {
-					params.identification.number = args.req.body.identification.number;
-				};
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'insert',
-				'collection': 'tblUsers'
-			})
-				.then(result => {
-					args.user = result[0];
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
 
 			return deferred.promise;
 		},
