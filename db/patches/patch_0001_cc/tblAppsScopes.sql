@@ -189,20 +189,18 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		INSERT INTO [dbo].[tblAppsScopes]
-			(
-				[scope],
-				[appId],
-				[userId]
-			)
-		VALUES
-			(
-				@scope,
-				@appId,
-				@userId
-			);
-	COMMIT TRAN
+	INSERT INTO [dbo].[tblAppsScopes]
+		(
+			[scope],
+			[appId],
+			[userId]
+		)
+	VALUES
+		(
+			@scope,
+			@appId,
+			@userId
+		);
 
 	SELECT @@ROWCOUNT;
 	RETURN @@ROWCOUNT;
@@ -210,7 +208,6 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -308,17 +305,14 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		UPDATE [dbo].[tblAppsScopes]
-		SET
-			[scope] = @scope
-		WHERE
-			[appId] = @appId
-	COMMIT TRAN
+	UPDATE [dbo].[tblAppsScopes]
+	SET
+		[scope] = @scope
+	WHERE
+		[appId] = @appId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -346,15 +340,12 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		DELETE FROM [dbo].[tblAppsScopes]
-		WHERE
-			[appId] = @appId AND [scope] = @scope
-	COMMIT TRAN
+	DELETE FROM [dbo].[tblAppsScopes]
+	WHERE
+		[appId] = @appId AND [scope] = @scope
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH

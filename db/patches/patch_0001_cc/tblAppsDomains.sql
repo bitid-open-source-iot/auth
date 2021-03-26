@@ -189,20 +189,18 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		INSERT INTO [dbo].[tblAppsDomains]
-			(
-				[appId],
-				[domain],
-				[userId]
-			)
-		VALUES
-			(
-				@appId,
-				@domain,
-				@userId
-			);
-	COMMIT TRAN
+	INSERT INTO [dbo].[tblAppsDomains]
+		(
+			[appId],
+			[domain],
+			[userId]
+		)
+	VALUES
+		(
+			@appId,
+			@domain,
+			@userId
+		);
 
 	SELECT @@ROWCOUNT;
 	RETURN @@ROWCOUNT;
@@ -210,7 +208,6 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -308,17 +305,14 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		UPDATE [dbo].[tblAppsDomains]
-		SET
-			[domain] = @domain
-		WHERE
-			[appId] = @appId
-	COMMIT TRAN
+	UPDATE [dbo].[tblAppsDomains]
+	SET
+		[domain] = @domain
+	WHERE
+		[appId] = @appId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -346,15 +340,12 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		DELETE FROM [dbo].[tblAppsDomains]
-		WHERE
-			[appId] = @appId AND [domain] = @domain
-	COMMIT TRAN
+	DELETE FROM [dbo].[tblAppsDomains]
+	WHERE
+		[appId] = @appId AND [domain] = @domain
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH

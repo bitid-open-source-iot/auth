@@ -189,20 +189,18 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		INSERT INTO [dbo].[tblAppsUsers]
-			(
-				[role],
-				[appId],
-				[userId]
-			)
-		VALUES
-			(
-				@role,
-				@appId,
-				@userId
-			);
-	COMMIT TRAN
+	INSERT INTO [dbo].[tblAppsUsers]
+		(
+			[role],
+			[appId],
+			[userId]
+		)
+	VALUES
+		(
+			@role,
+			@appId,
+			@userId
+		);
 
 	SELECT @@ROWCOUNT;
 	RETURN @@ROWCOUNT;
@@ -210,7 +208,6 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -307,17 +304,14 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		UPDATE [dbo].[tblAppsUsers]
-		SET
-			[role] = @role
-		WHERE
-			[appId] = @appId AND [userId] = @userId
-	COMMIT TRAN
+	UPDATE [dbo].[tblAppsUsers]
+	SET
+		[role] = @role
+	WHERE
+		[appId] = @appId AND [userId] = @userId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -344,15 +338,12 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		DELETE FROM [dbo].[tblAppsUsers]
-		WHERE
-			[appId] = @appId AND [userId] = @userId
-	COMMIT TRAN
+	DELETE FROM [dbo].[tblAppsUsers]
+	WHERE
+		[appId] = @appId AND [userId] = @userId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH

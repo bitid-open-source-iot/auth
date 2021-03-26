@@ -255,32 +255,30 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		INSERT INTO [dbo].[tblApps]
-			(
-				[icon],
-				[userId],
-				[appUrl],
-				[appName],
-				[appSecret],
-				[themeColor],
-				[googleDatabase],
-				[themeBackground],
-				[googleCredentials]
-			)
-		VALUES
-			(
-				@icon,
-				@userId,
-				@appUrl,
-				@appName,
-				@appSecret,
-				@themeColor,
-				@googleDatabase,
-				@themeBackground,
-				@googleCredentials
-			);
-	COMMIT TRAN
+	INSERT INTO [dbo].[tblApps]
+		(
+			[icon],
+			[userId],
+			[appUrl],
+			[appName],
+			[appSecret],
+			[themeColor],
+			[googleDatabase],
+			[themeBackground],
+			[googleCredentials]
+		)
+	VALUES
+		(
+			@icon,
+			@userId,
+			@appUrl,
+			@appName,
+			@appSecret,
+			@themeColor,
+			@googleDatabase,
+			@themeBackground,
+			@googleCredentials
+		);
 
 	SELECT @@ROWCOUNT;
 	RETURN @@ROWCOUNT;
@@ -288,7 +286,6 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -403,25 +400,22 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		UPDATE [dbo].[tblApps]
-		SET
-			[icon] = @icon,
-			[userId] = @userId,
-			[appUrl] = @appUrl,
-			[appName] = @appName,
-			[appSecret] = @appSecret,
-			[themeColor] = @themeColor,
-			[googleDatabase] = @googleDatabase,
-			[themeBackground] = @themeBackground,
-			[googleCredentials] = @googleCredentials
-		WHERE
-			[id] = @appId
-	COMMIT TRAN
+	UPDATE [dbo].[tblApps]
+	SET
+		[icon] = @icon,
+		[userId] = @userId,
+		[appUrl] = @appUrl,
+		[appName] = @appName,
+		[appSecret] = @appSecret,
+		[themeColor] = @themeColor,
+		[googleDatabase] = @googleDatabase,
+		[themeBackground] = @themeBackground,
+		[googleCredentials] = @googleCredentials
+	WHERE
+		[id] = @appId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
@@ -448,15 +442,12 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
-		DELETE FROM [dbo].[tblApps]
-		WHERE
-			[id] = @appId
-	COMMIT TRAN
+	DELETE FROM [dbo].[tblApps]
+	WHERE
+		[id] = @appId
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
 	SELECT Error_Message()
 	RETURN -69
 END CATCH
