@@ -55,7 +55,7 @@ CREATE TABLE [dbo].[tblUsers]
 	[validated] INT NOT NULL,
 	PRIMARY KEY (id)
 )
-CREATE UNIQUE INDEX tblUsersemail ON [dbo].[tblUsers] (email)
+CREATE UNIQUE INDEX tblUsersEmail ON [dbo].[tblUsers] (email)
 
 -- Set1
 
@@ -599,7 +599,7 @@ BEGIN TRY
 			@validated
 		)
 
-	SELECT @@ROWCOUNT AS [userId], @code AS [code], @email AS [email]
+	SELECT @@ROWCOUNT AS [userId], @code AS [code], @email AS [email], @nameLast AS [nameLast], @nameFirst AS [nameFirst]
 	RETURN
 
 END TRY

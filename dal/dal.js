@@ -369,22 +369,6 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			var params = [
-				{
-					$match: {
-						'_id': args.req.body.header.appId
-					}
-				},
-				{
-					$project: {
-						'url': 1,
-						'icon': 1,
-						'name': 1,
-						'appId': '$_id'
-					}
-				}
-			];
-
 			try {
 				var AppsValidate = require('../classes/apps.validate');
 				var params = new AppsValidate(args.req.body).wined();
@@ -1047,7 +1031,13 @@ var module = function () {
 						deferred.reject(err);
 					} else {
 						args.user = result.recordset[0];
-						args.result = result.recordset[0];
+						args.user.name = {
+							last: args.user.nameLast,
+							first: args.user.nameFirst
+						};
+						delete args.user.nameLast;
+						delete args.user.nameFirst;
+						args.result = args.user;
 						deferred.resolve(args);
 					}
 				})

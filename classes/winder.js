@@ -41,6 +41,14 @@ class Winder {
         return result;
     }
 
+	unwined() {
+		if (condition) {
+			
+		} else {
+			
+		}
+	}
+
 }
 
 module.exports = Winder;
