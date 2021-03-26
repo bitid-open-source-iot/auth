@@ -21,11 +21,11 @@ CREATE TABLE [dbo].[tblAppsScopes]
 	[id] INT NOT NULL IDENTITY(1, 1),
 	[userId] INT NOT NULL,
 	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
-	[scope] INT NOT NULL,
 	[appId] INT NOT NULL,
+	[scopeId] INT NOT NULL,
 	PRIMARY KEY (id)
 );
-CREATE UNIQUE INDEX tblAppsScopesAppIdScope ON [dbo].[tblAppsScopes] (appId, scope);
+CREATE UNIQUE INDEX tblAppsScopesAppIdScopeId ON [dbo].[tblAppsScopes] (appId, scopeId);
 
 -- Set1
 
@@ -46,8 +46,8 @@ BEGIN
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
 		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblAppsScopes_AuditExact_dateAction DEFAULT getdate(),
-		[scope] INT NOT NULL,
 		[appId] INT NOT NULL,
+		[scopeId] INT NOT NULL,
 		CONSTRAINT PK_tblAppsScopes_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -90,15 +90,15 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[scope],
-				[appId]
+				[appId],
+				[scopeId]
 			)
 		SELECT
 			[id],
 			[userId],
 			1,
-			[scope],
-			[appId]
+			[appId],
+			[scopeId]
 		FROM Inserted
 	END
 
@@ -113,15 +113,15 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[scope],
-			[appId]
+				[appId],
+				[scopeId]
 			)
 		SELECT
 			[id],
 			[userId],
 			2,
-			[scope],
-			[appId]
+			[appId],
+			[scopeId]
 		FROM Inserted
 	END
 
@@ -135,15 +135,15 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[scope],
-				[appId]
+				[appId],
+				[scopeId]
 			)
 		SELECT
 			[id],
 			[userId],
 			3,
-			[scope],
-			[appId]
+			[appId],
+			[scopeId]
 		FROM Deleted
 	END
 
@@ -156,9 +156,9 @@ GO
 
 INSERT INTO dbo.tblAppsScopes
 	(
-		[scope],
 		[appId],
-		[userId]
+		[userId],
+		[scopeId]
 	)
 VALUES
 	(
@@ -181,9 +181,9 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsScopes_Add]
-	@scope INT,
 	@appId INT,
-	@userId INT
+	@userId INT,
+	@scopeId INT
 AS
 
 SET NOCOUNT ON
@@ -191,15 +191,15 @@ SET NOCOUNT ON
 BEGIN TRY
 	INSERT INTO [dbo].[tblAppsScopes]
 		(
-			[scope],
 			[appId],
-			[userId]
+			[userId],
+			[scopeId]
 		)
 	VALUES
 		(
-			@scope,
 			@appId,
-			@userId
+			@userId,
+			@scopeId
 		);
 
 	SELECT @@ROWCOUNT;
@@ -227,18 +227,18 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsScopes_Get]
-	@scope INT,
 	@appId INT,
-	@userId INT
+	@userId INT,
+	@scopeId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scope],
 		[appId],
-		[userId]
+		[userId],
+		[scopeId]
 	FROM [dbo].[tblAppsScopes]
 	WHERE [appId] = @appId AND [scope] = @scope
 END TRY
@@ -270,9 +270,9 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scope],
 		[appId],
-		[userId]
+		[userId],
+		[scopeId]
 	FROM [dbo].[tblAppsScopes]
 	WHERE [appId] = @appId
 END TRY
@@ -297,9 +297,9 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsScopes_Update]
-	@scope INT,
 	@appId INT,
-	@userId INT
+	@userId INT,
+	@scopeId INT
 AS
 
 SET NOCOUNT ON
@@ -307,7 +307,7 @@ SET NOCOUNT ON
 BEGIN TRY
 	UPDATE [dbo].[tblAppsScopes]
 	SET
-		[scope] = @scope
+		[scopeId] = @scopeId
 	WHERE
 		[appId] = @appId
 END TRY
@@ -332,9 +332,9 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsScopes_Delete]
-	@scope INT,
 	@appId INT,
-	@userId INT
+	@userId INT,
+	@scopeId INT
 AS
 
 SET NOCOUNT ON
@@ -342,7 +342,7 @@ SET NOCOUNT ON
 BEGIN TRY
 	DELETE FROM [dbo].[tblAppsScopes]
 	WHERE
-		[appId] = @appId AND [scope] = @scope
+		[appId] = @appId AND [scopeId] = @scopeId
 END TRY
 
 BEGIN CATCH
