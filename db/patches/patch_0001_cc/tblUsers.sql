@@ -605,8 +605,8 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message], 70 AS [code]
+	RETURN
 END CATCH
 GO
 
@@ -624,8 +624,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblUsers_Get]
-	@appId INT,
-	@userId INT
+	@email VARCHAR(255)
 AS
 
 SET NOCOUNT ON
@@ -666,7 +665,7 @@ BEGIN TRY
 		[username],
 		[validated]
 	FROM [dbo].[tblUsers]
-	WHERE [id] = @userId
+	WHERE [email] = @email
 END TRY
 
 BEGIN CATCH

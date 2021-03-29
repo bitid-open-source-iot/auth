@@ -66,6 +66,11 @@ class AuthRegister extends Winder {
                     this.name.middle = args.name.middle;
                 };
             };
+            if (typeof(args.header) != 'undefined' && args.header != null) {
+                if (typeof(args.header.email) != 'undefined' && args.header.email != null) {
+                    this.email = args.header.email;
+                };
+            };
             if (typeof(args.number) != 'undefined' && args.number != null) {
                 if (typeof(args.number.tel) != 'undefined' && args.number.tel != null) {
                     this.number.tel = args.number.tel;
@@ -148,9 +153,6 @@ class AuthRegister extends Winder {
             };
             if (typeof(args.hash) != 'undefined' && args.hash != null) {
                 this.hash = args.hash;
-            };
-            if (typeof(args.email) != 'undefined' && args.email != null) {
-                this.email = args.email;
             };
             if (typeof(args.picture) != 'undefined' && args.picture != null) {
                 this.picture = args.picture;

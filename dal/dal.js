@@ -2,6 +2,7 @@ const Q = require('q');
 const db = require('../db/sql');
 const sql = require('mssql');
 const tools = require('../lib/tools');
+const unwind = require('../lib/unwind');
 const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
@@ -1016,7 +1017,6 @@ var module = function () {
 
 			try {
 				var AuthRegister = require('../classes/auth.register');
-				args.req.body.email = args.req.body.header.email;
 				var params = new AuthRegister(args.req.body).wined();
 
 				const request = new sql.Request(__database);
@@ -1031,6 +1031,7 @@ var module = function () {
 						deferred.reject(err);
 					} else {
 						args.user = result.recordset[0];
+						args.user._id = args.user.userId;
 						args.user.name = {
 							last: args.user.nameLast,
 							first: args.user.nameFirst
@@ -1510,39 +1511,34 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email
-			};
+			try {
+				var UsersGet = require('../classes/users.get');
+				var params = new UsersGet(args.req.body).wined();
 
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'userId') {
-						filter['_id'] = 1;
+				const request = new sql.Request(__database);
+				Object.keys(params).map(key => request.input(key, params[key]));
+				
+				request.execute('v1_tblUsers_Get', (error, result) => {
+					if (error) {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = error.code;
+						err.error.errors[0].reason = error.message;
+						err.error.errors[0].message = error.message;
+						deferred.reject(err);
 					} else {
-						filter[f] = 1;
-					};
-				});
+						args.user = unwind(result.recordset[0]);
+						args.user._id = args.user.userId;
+						args.result = args.user;
+						deferred.resolve(args);
+					}
+				})
+			} catch (error) {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
 			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblUsers'
-			})
-				.then(result => {
-					args.user = result[0];
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
 
 			return deferred.promise;
 		},

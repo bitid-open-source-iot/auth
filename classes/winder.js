@@ -1,3 +1,5 @@
+const caps = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+
 let capital = (ori) => Object.keys(ori).reduce((res, key) => {
 	let val = ori[key];
 	let newVal = (typeof val === 'object') ? capital(val) : val;

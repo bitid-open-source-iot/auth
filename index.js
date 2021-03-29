@@ -7,7 +7,6 @@ const chalk = require('chalk');
 const config = require('./config.json');
 const express = require('express');
 const responder = require('./lib/responder');
-const bodyparser = require('body-parser');
 const ErrorResponse = require('./lib/error-response');
 
 global.__base = __dirname + '/';
@@ -25,11 +24,11 @@ try {
             try {
                 var app = express();
                 app.use(cors());
-                app.use(bodyparser.urlencoded({
+                app.use(express.urlencoded({
                     'limit': '50mb',
                     'extended': true
                 }));
-                app.use(bodyparser.json({
+                app.use(express.json({
                     'limit': '50mb'
                 }));
 
