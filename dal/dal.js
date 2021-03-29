@@ -370,32 +370,29 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			try {
-				var AppsValidate = require('../classes/apps.validate');
-				var params = new AppsValidate(args.req.body).wined();
+			var AppsValidate = require('../classes/apps.validate');
+			var params = new AppsValidate(args.req.body).wined();
 
-				const request = new sql.Request(__database);
-				Object.keys(params).map(key => request.input(key, params[key]));
-				
-				request.execute('v1_tblApps_Validate', (error, result) => {
-					if (error) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = error.code;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					} else {
-						args.app = result.recordset[0];
-						deferred.resolve(args);
-					}
-				})
-			} catch (error) {
+			const request = new sql.Request(__database);
+			Object.keys(params).map(key => request.input(key, params[key]));
+			
+			request.execute('v1_tblApps_Validate', (error, result) => {
 				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			};
+				if (error) {
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				} else if (result.recordset.length == 0) {
+					err.error.errors[0].code = 69;
+					err.error.errors[0].reason = 'no records found';
+					err.error.errors[0].message = 'no records found';
+					deferred.reject(err);
+				} else {
+					args.app = unwind(result.recordset[0]);
+					deferred.resolve(args);
+				}
+			})
 
 			return deferred.promise;
 		},
@@ -770,94 +767,37 @@ var module = function () {
 		verify: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.body.code) != 'undefined') {
-				args.req.body.code = parseInt(args.req.body.code);
-			};
+			var AuthVerify = require('../classes/auth.verify');
+			var params = new AuthVerify(args.req.body).wined();
 
-			var params = {
-				'email': args.req.body.header.email
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsers',
-				'allowNoRecordsFound': true
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var user = result[0];
-
-						if (user.validated == 1) {
-							var err = new ErrorResponse();
-							err.error.errors[0].code = 409;
-							err.error.errors[0].reason = 'User is already verified';
-							err.error.errors[0].message = 'User is already verified';
-							deferred.reject(err);
-						} else {
-							var params = {
-								'code': args.req.body.code,
-								'email': args.req.body.header.email,
-								'validated': 0
-							};
-
-							deferred.resolve({
-								'params': params,
-								'operation': 'find',
-								'collection': 'tblUsers',
-								'allowNoRecordsFound': true
-							});
-						};
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var params = {
-							'email': args.req.body.header.email
-						};
-
-						var update = {
-							$set: {
-								'validated': 1
-							}
-						};
-
-						deferred.resolve({
-							'params': params,
-							'update': update,
-							'operation': 'update',
-							'collection': 'tblUsers'
-						});
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Account registered but verification incorrect!';
-						err.error.errors[0].message = 'Account registered but verification incorrect!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, err => {
+			const request = new sql.Request(__database);
+			Object.keys(params).map(key => request.input(key, params[key]));
+			
+			request.execute('v1_tblUsers_Verify', (error, result) => {
+				var err = new ErrorResponse();
+				if (error) {
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				});
+				} else if (result.recordset.length == 0) {
+					err.error.errors[0].code = 69;
+					err.error.errors[0].reason = 'no records found';
+					err.error.errors[0].message = 'no records found';
+					deferred.reject(err);
+				} else {
+					args.result = unwind(result.recordset[0]);
+					if (args.result.updated == 0) {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'Could not verify account, invalid code/email!';
+						err.error.errors[0].message = 'Could not verify account, invalid code/email!';
+						deferred.reject(err);
+					} else {
+						deferred.resolve(args);
+					}
+				}
+			})
 
 			return deferred.promise;
 		},
@@ -1015,40 +955,37 @@ var module = function () {
 		register: (args) => {
 			var deferred = Q.defer();
 
-			try {
-				var AuthRegister = require('../classes/auth.register');
-				var params = new AuthRegister(args.req.body).wined();
+			var AuthRegister = require('../classes/auth.register');
+			var params = new AuthRegister(args.req.body).wined();
 
-				const request = new sql.Request(__database);
-				Object.keys(params).map(key => request.input(key, params[key]));
-				
-				request.execute('v1_tblUsers_Add', (error, result) => {
-					if (error) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = error.code;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					} else {
-						args.user = result.recordset[0];
-						args.user._id = args.user.userId;
-						args.user.name = {
-							last: args.user.nameLast,
-							first: args.user.nameFirst
-						};
-						delete args.user.nameLast;
-						delete args.user.nameFirst;
-						args.result = args.user;
-						deferred.resolve(args);
-					}
-				})
-			} catch (error) {
+			const request = new sql.Request(__database);
+			Object.keys(params).map(key => request.input(key, params[key]));
+			
+			request.execute('v1_tblUsers_Add', (error, result) => {
 				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			};
+				if (error) {
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				} else if (result.recordset.length == 0) {
+					err.error.errors[0].code = 69;
+					err.error.errors[0].reason = 'no records found';
+					err.error.errors[0].message = 'no records found';
+					deferred.reject(err);
+				} else {
+					args.user = result.recordset[0];
+					args.user._id = args.user.userId;
+					args.user.name = {
+						last: args.user.nameLast,
+						first: args.user.nameFirst
+					};
+					delete args.user.nameLast;
+					delete args.user.nameFirst;
+					args.result = args.user;
+					deferred.resolve(args);
+				}
+			})
 
 			return deferred.promise;
 		},
@@ -1313,50 +1250,65 @@ var module = function () {
 		authenticate: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email
-			};
+			/*
+				-- get user
+				-- check password match
+				-- check user validated
+				-- check app validated
+				-- check allowed to log in to app
+				-- generate token
+			*/
 
-			if (typeof (args.req.body.expiry) == 'undefined') {
-				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
-			};
+			// var AuthVerify = require('../classes/auth.verify');
+			// var params = new AuthVerify(args.req.body).wined();
 
-			if (typeof (args.req.body.tokenAddOn) == 'undefined') {
-				args.req.body.tokenAddOn = {};
-			};
+			// const request = new sql.Request(__database);
+			// Object.keys(params).map(key => request.input(key, params[key]));
+			
+			// request.execute('v1_tblUsers_Verify', (error, result) => {});
 
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsers',
-				'allowNoRecordsFound': true
-			})
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
+
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
+			
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			// args.req.body.header.appId
+			
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('email', args.req.body.header.email)
+						.execute('v1_tblUsers_Get');
+				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					if (result.length > 0) {
-						args.user = result[0];
+					if (result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
 						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
 
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
 								deferred.resolve(args);
 							} else {
-								var err = new ErrorResponse();
 								err.error.errors[0].code = 401;
 								err.error.errors[0].reason = 'Account verification is required!';
 								err.error.errors[0].message = 'Account verification is required!';
 								deferred.reject(err);
 							};
 						} else {
-							var err = new ErrorResponse();
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Password is incorrect!';
 							err.error.errors[0].message = 'Password is incorrect!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -1365,59 +1317,20 @@ var module = function () {
 
 					return deferred.promise;
 				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.user.id)
+						.execute('v1_tblApps_Get');
+				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					var params = {
-						'_id': args.req.body.header.appId
-					};
-
-					deferred.resolve({
-						'params': params,
-						'operation': 'find',
-						'collection': 'tblApps',
-						'allowNoRecordsFound': true
-					});
-
-					return deferred.promise;
-				})
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						args.app = result[0];
-
-						var valid = true;
-
-						const users = args.app.bitid.auth.users.map(user => user.email);
-						if (args.app.private && !users.includes(args.req.body.header.email)) {
-							valid = false;
-						};
-
-						if (valid) {
-							var params = {
-								'appId': args.req.body.header.appId,
-								'device': args.req.headers['user-agent'],
-								'description': args.req.body.description || args.app.name,
-								'bitid.auth.users.email': args.req.body.header.email
-							};
-
-							deferred.resolve({
-								'params': params,
-								'operation': 'remove',
-								'collection': 'tblTokens',
-								'allowNoRecordsFound': true
-							});
-						} else {
-							var err = new ErrorResponse();
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Application is private!';
-							err.error.errors[0].message = 'Application is private!';
-							deferred.reject(err);
-						};
+					if (result.recordset.length > 0) {
+						args.app = unwind(result.recordset[0]);
+						args.app.bitid = {auth: {}};
+						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Application not found!';
 						err.error.errors[0].message = 'Application not found!';
@@ -1426,47 +1339,91 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.user.id)
+						.execute('v1_tblAppsUsers_Get');
+				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					var params = {
-						'bitid': {
-							'auth': {
-								'users': [{
-									'role': 5,
-									'email': args.req.body.header.email
-								}]
-							}
-						},
-						'token': {
-							'bearer': tools.encryption.generateRandomString(64),
-							'scopes': [{ 'url': '*', 'role': 4 }],
-							'expiry': args.req.body.expiry,
-							'timeZone': args.user.timeZone || 0,
-							'tokenAddOn': args.req.body.tokenAddOn,
-							'description': args.req.body.description || args.app.name
-						},
-						'appId': args.req.body.header.appId,
-						'device': args.req.headers['user-agent'],
-						'description': args.req.body.description || args.app.name
+					if (args.app.private) {
+						if (result.recordset.length == 0) {
+							err.error.errors[0].code = 401;
+							err.error.errors[0].reason = 'Application is private!';
+							err.error.errors[0].message = 'Application is private!';
+							deferred.reject(err);
+						} else {
+							deferred.resolve(args);
+						};
+					} else {
+						deferred.resolve(args);
 					};
 
-					deferred.resolve({
-						'params': params,
-						'operation': 'insert',
-						'collection': 'tblTokens'
-					});
-
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
+				})
+				.then(res => {
+					transaction.commit();
 				}, err => {
-					deferred.reject(err);
-				});
+					transaction.rollback();
+				})
+				
+				// var params = {
+				// 	'appId': args.req.body.header.appId,
+				// 	'device': args.req.headers['user-agent'],
+				// 	'description': args.req.body.description || args.app.name,
+				// 	'bitid.auth.users.email': args.req.body.header.email
+				// };
+
+				// deferred.resolve({
+				// 	'params': params,
+				// 	'operation': 'remove',
+				// 	'collection': 'tblTokens',
+				// 	'allowNoRecordsFound': true
+				// });
+			
+			// 	.then(db.call, null)
+			// 	.then(result => {
+			// 		var deferred = Q.defer();
+
+			// 		var params = {
+			// 			'bitid': {
+			// 				'auth': {
+			// 					'users': [{
+			// 						'role': 5,
+			// 						'email': args.req.body.header.email
+			// 					}]
+			// 				}
+			// 			},
+			// 			'token': {
+			// 				'bearer': tools.encryption.generateRandomString(64),
+			// 				'scopes': [{ 'url': '*', 'role': 4 }],
+			// 				'expiry': args.req.body.expiry,
+			// 				'timeZone': args.user.timeZone || 0,
+			// 				'tokenAddOn': args.req.body.tokenAddOn,
+			// 				'description': args.req.body.description || args.app.name
+			// 			},
+			// 			'appId': args.req.body.header.appId,
+			// 			'device': args.req.headers['user-agent'],
+			// 			'description': args.req.body.description || args.app.name
+			// 		};
+
+			// 		deferred.resolve({
+			// 			'params': params,
+			// 			'operation': 'insert',
+			// 			'collection': 'tblTokens'
+			// 		});
+
+			// 		return deferred.promise;
+			// 	}, null)
+			// 	.then(db.call, null)
+			// 	.then(result => {
+			// 		args.result = result[0];
+			// 		deferred.resolve(args);
+			// 	}, err => {
+			// 		deferred.reject(err);
+			// 	});
 
 			return deferred.promise;
 		},
@@ -1511,34 +1468,31 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			try {
-				var UsersGet = require('../classes/users.get');
-				var params = new UsersGet(args.req.body).wined();
+			var UsersGet = require('../classes/users.get');
+			var params = new UsersGet(args.req.body).wined();
 
-				const request = new sql.Request(__database);
-				Object.keys(params).map(key => request.input(key, params[key]));
-				
-				request.execute('v1_tblUsers_Get', (error, result) => {
-					if (error) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = error.code;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					} else {
-						args.user = unwind(result.recordset[0]);
-						args.user._id = args.user.userId;
-						args.result = args.user;
-						deferred.resolve(args);
-					}
-				})
-			} catch (error) {
+			const request = new sql.Request(__database);
+			Object.keys(params).map(key => request.input(key, params[key]));
+			
+			request.execute('v1_tblUsers_Get', (error, result) => {
 				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			};
+				if (error) {
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				} else if (result.recordset.length == 0) {
+					err.error.errors[0].code = 69;
+					err.error.errors[0].reason = 'no records found';
+					err.error.errors[0].message = 'no records found';
+					deferred.reject(err);
+				} else {
+					args.user = unwind(result.recordset[0]);
+					args.user._id = args.user.id;
+					args.result = args.user;
+					deferred.resolve(args);
+				}
+			})
 
 			return deferred.promise;
 		},

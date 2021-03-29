@@ -25,6 +25,7 @@ CREATE TABLE [dbo].[tblApps]
 	[icon] VARCHAR(255) NOT NULL,
 	[name] VARCHAR(255) NOT NULL,
 	[secret] VARCHAR(255) NOT NULL,
+	[private] INT NOT NULL,
 	[themeColor] VARCHAR(255) NOT NULL,
 	[googleDatabase] VARCHAR(255) DEFAULT (''),
 	[themeBackground] VARCHAR(255) NOT NULL,
@@ -56,6 +57,7 @@ BEGIN
 		[icon] VARCHAR(255) NOT NULL,
 		[name] VARCHAR(255) NOT NULL,
 		[secret] VARCHAR(255) NOT NULL,
+		[private] INT NOT NULL,
 		[themeColor] VARCHAR(255) NOT NULL,
 		[googleDatabase] VARCHAR(255) NOT NULL,
 		[themeBackground] VARCHAR(255) NOT NULL,
@@ -106,6 +108,7 @@ BEGIN
 				[icon],
 				[name],
 				[secret],
+				[private],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -119,6 +122,7 @@ BEGIN
 			[icon],
 			[name],
 			[secret],
+			[private],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -141,6 +145,7 @@ BEGIN
 				[icon],
 				[name],
 				[secret],
+				[private],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -154,6 +159,7 @@ BEGIN
 			[icon],
 			[name],
 			[secret],
+			[private],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -175,6 +181,7 @@ BEGIN
 				[icon],
 				[name],
 				[secret],
+				[private],
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
@@ -188,6 +195,7 @@ BEGIN
 			[icon],
 			[name],
 			[secret],
+			[private],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -209,6 +217,7 @@ INSERT INTO [dbo].[tblApps]
 		[name],
 		[userId],
 		[secret],
+		[private],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
@@ -221,6 +230,7 @@ VALUES
 		'auth',
 		1,
 		'xxx',
+		0,
 		'#FFFFFF',
 		'xxx',
 		'#000000',
@@ -246,6 +256,7 @@ CREATE PROCEDURE [dbo].[v1_tblApps_Add]
 	@name VARCHAR(255),
 	@secret VARCHAR(255),
 	@userId INT,
+	@private INT,
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255) = NULL,
 	@themeBackground VARCHAR(255),
@@ -262,6 +273,7 @@ BEGIN TRY
 			[url],
 			[name],
 			[secret],
+			[private],
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
@@ -274,6 +286,7 @@ BEGIN TRY
 			@name,
 			@userId,
 			@secret,
+			@private,
 			@themeColor,
 			@googleDatabase,
 			@themeBackground,
@@ -318,12 +331,14 @@ BEGIN TRY
 		[name],
 		[userId],
 		[secret],
+		[private],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
 		[googleCredentials]
 	FROM [dbo].[tblApps]
 	WHERE [id] = @appId
+	FOR JSON PATH
 END TRY
 
 BEGIN CATCH
@@ -358,11 +373,13 @@ BEGIN TRY
 		[name],
 		[userId],
 		[secret],
+		[private],
 		[themeColor],
 		[googleDatabase],
 		[themeBackground],
 		[googleCredentials]
 	FROM [dbo].[tblApps]
+	FOR JSON PATH
 END TRY
 
 BEGIN CATCH
@@ -391,6 +408,7 @@ CREATE PROCEDURE [dbo].[v1_tblApps_Update]
 	@appId INT,
 	@userId INT,
 	@secret VARCHAR(255),
+	@private INT,
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255) = NULL,
 	@themeBackground VARCHAR(255),
@@ -407,6 +425,7 @@ BEGIN TRY
 		[name] = @name,
 		[userId] = @userId,
 		[secret] = @secret,
+		[private] = @private,
 		[themeColor] = @themeColor,
 		[googleDatabase] = @googleDatabase,
 		[themeBackground] = @themeBackground,

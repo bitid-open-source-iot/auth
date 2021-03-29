@@ -631,6 +631,7 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
+		[id],
 		[nameLast],
 		[nameFirst],
 		[nameMiddle],
@@ -694,6 +695,7 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
+		[id],
 		[nameLast],
 		[nameFirst],
 		[nameMiddle],

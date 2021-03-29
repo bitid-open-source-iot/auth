@@ -171,7 +171,6 @@ GO
 
 INSERT INTO [dbo].[tblTokens]
 	(
-		[icon],
 		[appId],
 		[userId],
 		[device],
@@ -180,7 +179,6 @@ INSERT INTO [dbo].[tblTokens]
 	)
 VALUES
 	(
-		'xxx',
 		1,
 		1,
 		'xxx',
@@ -298,15 +296,11 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[icon],
+		[appId],
 		[userId],
-		[appUrl],
-		[appName],
-		[appSecret],
-		[themeColor],
-		[googleDatabase],
-		[themeBackground],
-		[googleCredentials]
+		[device],
+		[expiry],
+		[description]
 	FROM [dbo].[tblTokens]
 END TRY
 
@@ -330,16 +324,12 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblTokens_Update]
-	@icon VARCHAR(255),
 	@appId INT,
 	@userId INT,
-	@appUrl VARCHAR(255),
-	@appName VARCHAR(255),
-	@appSecret VARCHAR(255),
-	@themeColor VARCHAR(255),
-	@googleDatabase VARCHAR(255) = NULL,
-	@themeBackground VARCHAR(255),
-	@googleCredentials VARCHAR(5000) = NULL
+	@tokenId INT,
+	@device VARCHAR(255),
+	@expiry DATETIME,
+	@description VARCHAR(255)
 AS
 
 SET NOCOUNT ON
@@ -347,17 +337,13 @@ SET NOCOUNT ON
 BEGIN TRY
 	UPDATE [dbo].[tblTokens]
 	SET
-		[icon] = @icon,
+		[appId] = @appId,
 		[userId] = @userId,
-		[appUrl] = @appUrl,
-		[appName] = @appName,
-		[appSecret] = @appSecret,
-		[themeColor] = @themeColor,
-		[googleDatabase] = @googleDatabase,
-		[themeBackground] = @themeBackground,
-		[googleCredentials] = @googleCredentials
+		[device] = @device,
+		[expiry] = @expiry,
+		[description] = @description
 	WHERE
-		[id] = @appId
+		[id] = @tokenId
 END TRY
 
 BEGIN CATCH
@@ -380,8 +366,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblTokens_Delete]
-	@appId INT,
-	@userId INT
+	@userId INT,
+	@tokenId INT
 AS
 
 SET NOCOUNT ON
@@ -389,7 +375,7 @@ SET NOCOUNT ON
 BEGIN TRY
 	DELETE FROM [dbo].[tblTokens]
 	WHERE
-		[id] = @appId
+		[id] = @tokenId
 END TRY
 
 BEGIN CATCH
