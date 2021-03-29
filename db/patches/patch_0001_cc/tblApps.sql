@@ -32,6 +32,7 @@ CREATE TABLE [dbo].[tblApps]
 	[googleCredentials] VARCHAR(5000) DEFAULT ('{}'),
 	PRIMARY KEY (id)
 );
+
 CREATE UNIQUE INDEX tblAppsName ON [dbo].[tblApps] (name);
 
 -- Set1

@@ -1278,8 +1278,6 @@ var module = function () {
 				deferred.reject(err);
 			});
 
-			// args.req.body.header.appId
-			
 			transaction.begin()
 				.then(res => {
 					return new sql.Request(transaction)
@@ -1364,26 +1362,20 @@ var module = function () {
 					return deferred.promise;
 				})
 				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.user.userId)
+						.input('device', args.req.headers['user-agent'])
+						.input('expiry', args.req.body.expiry)
+						.input('description', args.req.body.description || args.app.name)
+						.execute('v1_Tokens_Add');
+				}, null)
+				.then(res => {
 					transaction.commit();
 				}, err => {
 					transaction.rollback();
 				})
 				
-				// var params = {
-				// 	'appId': args.req.body.header.appId,
-				// 	'device': args.req.headers['user-agent'],
-				// 	'description': args.req.body.description || args.app.name,
-				// 	'bitid.auth.users.email': args.req.body.header.email
-				// };
-
-				// deferred.resolve({
-				// 	'params': params,
-				// 	'operation': 'remove',
-				// 	'collection': 'tblTokens',
-				// 	'allowNoRecordsFound': true
-				// });
-			
-			// 	.then(db.call, null)
 			// 	.then(result => {
 			// 		var deferred = Q.defer();
 
