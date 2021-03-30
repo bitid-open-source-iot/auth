@@ -184,7 +184,6 @@ if (scopes.count() == 0) {
         '_id': ObjectId('000000000000000000000001'),
         'url': '/xxx/xxx',
         'appId': ObjectId('000000000000000000000001'),
-        'roles': [1, 2, 3, 4, 5],
         'serverDate': new Date(),
         'description': 'xxx'
     });

@@ -3,10 +3,10 @@ Set1 - Create stored procedure add
 Set2 - Create stored procedure get
 Set3 - Create stored procedure list
 Set4 - Create stored procedure share
-Set5 - Create stored procedure update
-Set6 - Create stored procedure delete
-Set7 - Create stored procedure unsubscribe
-Set8 - Create stored procedure update subscriber
+Set5 - Create stored procedure revoke
+Set6 - Create stored procedure unsubscribe
+Set7 - Create stored procedure update subscriber
+Set8 - Create stored procedure retrieve
 */
 
 -- Set1
@@ -50,6 +50,7 @@ BEGIN TRY
 				@description
 			)
 		
+		SELECT SCOPE_IDENTITY()
 		DECLARE @tokenId INT
 		SET @tokenId = SCOPE_IDENTITY()
 
@@ -67,15 +68,18 @@ BEGIN TRY
 			)
 
 		SELECT @tokenId AS [_id]
-		RETURN
+		RETURN 1
 
 	COMMIT TRAN
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
-	SELECT Error_Message()
-	RETURN -69
+	IF @@TRANCOUNT > 0
+		BEGIN
+			ROLLBACK TRAN
+		END
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -103,13 +107,15 @@ BEGIN TRY
 
 	SELECT
 		t.[id] AS [_id],
-		[appId],
 		[device],
 		[expiry],
 		tu.[role],
 		tu.[userId],
 		ts.[scopeId],
-		[description]
+		[description],
+		app.[id] AS appAppId,
+		app.[icon] AS appIcon,
+		app.[name] AS appName
 	FROM
 		[dbo].[tblTokens] AS t
 	INNER JOIN
@@ -120,14 +126,19 @@ BEGIN TRY
 		[dbo].[tblTokensScopes] AS ts
 	ON
 		tu.[tokenId] = ts.[tokenId]
+	INNER JOIN
+		[dbo].[tblApps] AS app
+	ON
+		t.[appId] = app.[id]
 	WHERE
-		ts.[tokenId] IN (SELECT [id] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+		ts.[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
 
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -154,13 +165,15 @@ BEGIN TRY
 
 	SELECT
 		t.[id] AS [_id],
-		[appId],
 		[device],
 		[expiry],
 		tu.[role],
 		tu.[userId],
 		ts.[scopeId],
-		[description]
+		[description],
+		app.[id] AS appAppId,
+		app.[icon] AS appIcon,
+		app.[name] AS appName
 	FROM
 		[dbo].[tblTokens] AS t
 	INNER JOIN
@@ -171,14 +184,19 @@ BEGIN TRY
 		[dbo].[tblTokensScopes] AS ts
 	ON
 		tu.[tokenId] = ts.[tokenId]
+	INNER JOIN
+		[dbo].[tblApps] AS app
+	ON
+		t.[appId] = app.[id]
 	WHERE
-		ts.[tokenId] IN (SELECT [id] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
+		ts.[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
 
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -205,7 +223,7 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
+	IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
 	BEGIN
 		INSERT INTO [dbo].[tblTokensUsers]
 			(
@@ -221,13 +239,13 @@ BEGIN TRY
 			)
 		
 		SELECT @@ROWCOUNT AS [n]
-		RETURN
+		RETURN 1
 	END
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -235,69 +253,16 @@ GO
 
 -- Set5
 
-PRINT 'Executing dbo.v1_Tokens_Update.PRC'
+PRINT 'Executing dbo.v1_Tokens_Revoke.PRC'
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Update' AND type = 'P')
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Revoke' AND type = 'P')
 BEGIN
-	DROP PROCEDURE [dbo].[v1_Tokens_Update]
+	DROP PROCEDURE [dbo].[v1_Tokens_Revoke]
 END
 GO
 
-CREATE PROCEDURE [dbo].[v1_Tokens_Update]
-	@appId INT,
-	@userId INT,
-	@device VARCHAR(255),
-	@expiry DATETIME,
-	@tokenId INT,
-	@description VARCHAR(255)
-AS
-
-SET NOCOUNT ON
-
-BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [role] >= 2 AND [userId] = @userId AND [tokenId] = @tokenId)
-	BEGIN
-		INSERT INTO [dbo].[tblTokens]
-			(
-				[appId],
-				[device],
-				[expiry],
-				[description]
-			)
-		VALUES
-			(
-				@appId,
-				@device,
-				@expiry,
-				@description
-			)
-		
-		SELECT @@ROWCOUNT AS [n]
-		RETURN
-	END
-END TRY
-
-BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
-END CATCH
-GO
-
--- Set5
-
--- Set6
-
-PRINT 'Executing dbo.v1_Tokens_Delete.PRC'
-GO
-
-IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Delete' AND type = 'P')
-BEGIN
-	DROP PROCEDURE [dbo].[v1_Tokens_Delete]
-END
-GO
-
-CREATE PROCEDURE [dbo].[v1_Tokens_Delete]
+CREATE PROCEDURE [dbo].[v1_Tokens_Revoke]
 	@userId INT,
 	@tokenId INT
 AS
@@ -307,34 +272,100 @@ SET NOCOUNT ON
 BEGIN TRY
 	BEGIN TRAN
 	
-	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [role] = 5 AND [userId] = @userId AND [tokenId] = @tokenId)
+	DECLARE @deleted INT = 0
+	
+	IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] = 5 AND [userId] = @userId AND [tokenId] = @tokenId)
 	BEGIN
+
 		DELETE FROM
 			[dbo].[tblTokens]
 		WHERE
 			[id] = @tokenId
+		
+		SET @deleted = @deleted + @@ROWCOUNT
 
 		DELETE FROM
 			[dbo].[tblTokensUsers]
 		WHERE
 			[tokenId] = @tokenId
-
+		
+		SET @deleted = @deleted + @@ROWCOUNT
+        
 		DELETE FROM
 			[dbo].[tblTokensScopes]
 		WHERE
 			[tokenId] = @tokenId
 		
-		SELECT @@ROWCOUNT AS [n]
-		RETURN
+		SET @deleted = @deleted + @@ROWCOUNT
 	END
 
 	COMMIT TRAN
+
+	SELECT @deleted AS [n]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	ROLLBACK TRAN
-	SELECT Error_Message()
-	RETURN -69
+	IF @@TRANCOUNT > 0
+	BEGIN
+		ROLLBACK TRAN
+	END
+
+	SELECT Error_Message() AS [message]
+	RETURN 0
+END CATCH
+GO
+
+-- Set5
+
+-- Set6
+
+PRINT 'Executing dbo.v1_Tokens_Unsubscribe.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Unsubscribe' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Unsubscribe]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Unsubscribe]
+	@userId INT,
+	@adminId INT,
+	@tokenId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF (@userId = @adminId)
+		BEGIN
+			DELETE FROM
+				[dbo].[tblTokensUsers]
+			WHERE
+				[userId] = @userId
+			
+			SELECT @@ROWCOUNT AS [n]
+			RETURN 1
+		END
+	ELSE
+		IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
+		BEGIN
+			DELETE FROM
+				[dbo].[tblTokensUsers]
+			WHERE
+				[userId] = @userId
+				AND
+				[tokenId] = @tokenId
+			
+			SELECT @@ROWCOUNT AS [n]
+			RETURN 1
+		END
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -342,16 +373,16 @@ GO
 
 -- Set7
 
-PRINT 'Executing dbo.v1_Tokens_Share.PRC'
+PRINT 'Executing dbo.v1_Tokens_Update_Subscriber.PRC'
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Share' AND type = 'P')
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Update_Subscriber' AND type = 'P')
 BEGIN
-	DROP PROCEDURE [dbo].[v1_Tokens_Share]
+	DROP PROCEDURE [dbo].[v1_Tokens_Update_Subscriber]
 END
 GO
 
-CREATE PROCEDURE [dbo].[v1_Tokens_Share]
+CREATE PROCEDURE [dbo].[v1_Tokens_Update_Subscriber]
 	@role INT,
 	@userId INT,
 	@adminId INT,
@@ -361,25 +392,125 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
-	BEGIN
-		DELETE FROM
-			[dbo].[tblTokensUsers]
-		WHERE
-			[userId] = @userId
-		
-		SELECT @@ROWCOUNT AS [n]
-		RETURN
-	END
+	IF (@userId = @adminId)
+		BEGIN
+			SELECT 'You cannot update yourself as a subscriber!' AS [message]
+			RETURN 0
+		END
+	ELSE
+		IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
+		BEGIN
+			UPDATE 
+				[dbo].[tblTokensUsers]
+			SET
+				[role] = @role
+			WHERE
+				[userId] = @userId
+				AND
+				[tokenId] = @tokenId
+			
+			SELECT @@ROWCOUNT AS [n]
+			RETURN 1
+		END
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
 -- Set7
 
 -- Set8
+
+PRINT 'Executing dbo.v1_Tokens_Retrieve.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Retrieve' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Retrieve]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Retrieve]
+	@appId INT,
+	@userId INT,
+	@tokenId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	SELECT
+		t.[id] AS [_id],
+		[device],
+		[expiry],
+		[bearer],
+		[timezone],
+		ts.[scopeId],
+		[description]
+	FROM
+		[dbo].[tblTokens] AS t
+	INNER JOIN
+		[dbo].[tblTokensScopes] AS ts
+	ON
+		t.[id] = ts.[tokenId]
+	WHERE
+		t.[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [appId] = @appId AND [userId] = @userId AND [tokenId] = @tokenId)
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message]
+	RETURN 0
+END CATCH
+GO
+
 -- Set8
+
+-- Set9
+
+PRINT 'Executing dbo.v1_Tokens_Download.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Download' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Download]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Download]
+	@userId INT,
+	@tokenId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	SELECT
+		t.[id] AS [_id],
+		[device],
+		[expiry],
+		[bearer],
+		[timezone],
+		ts.[scopeId],
+		[description]
+	FROM
+		[dbo].[tblTokens] AS t
+	INNER JOIN
+		[dbo].[tblTokensScopes] AS ts
+	ON
+		t.[id] = ts.[tokenId]
+	WHERE
+		t.[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message]
+	RETURN 0
+END CATCH
+GO
+
+-- Set9

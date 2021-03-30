@@ -24,8 +24,8 @@ CREATE TABLE [dbo].[tblAppsScopes]
 	[appId] INT NOT NULL,
 	[scopeId] INT NOT NULL,
 	PRIMARY KEY (id)
-);
-CREATE UNIQUE INDEX tblAppsScopesAppIdScopeId ON [dbo].[tblAppsScopes] (appId, scopeId);
+)
+CREATE UNIQUE INDEX tblAppsScopesAppIdScopeId ON [dbo].[tblAppsScopes] (appId, scopeId)
 
 -- Set1
 
@@ -78,7 +78,7 @@ BEGIN
 
 	-- SET NOCOUNT ON added to prevent extra result sets FROM
 	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
+	SET NOCOUNT ON
 
 	--Insert
 	IF ((SELECT Count(ID)
@@ -165,7 +165,7 @@ VALUES
 		5,
 		1,
 		1
-	);
+	)
 
 -- Set3
 
@@ -200,16 +200,15 @@ BEGIN TRY
 			@appId,
 			@userId,
 			@scopeId
-		);
+		)
 
-	SELECT @@ROWCOUNT;
-	RETURN @@ROWCOUNT;
-
+	SELECT @@ROWCOUNT AS [_id]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -239,13 +238,18 @@ BEGIN TRY
 		[appId],
 		[userId],
 		[scopeId]
-	FROM [dbo].[tblAppsScopes]
-	WHERE [appId] = @appId AND [scope] = @scope
+	FROM
+		[dbo].[tblAppsScopes]
+	WHERE
+		[appId] = @appId
+		AND
+		[scope] = @scope
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -273,13 +277,16 @@ BEGIN TRY
 		[appId],
 		[userId],
 		[scopeId]
-	FROM [dbo].[tblAppsScopes]
-	WHERE [appId] = @appId
+	FROM
+		[dbo].[tblAppsScopes]
+	WHERE
+		[appId] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -310,11 +317,12 @@ BEGIN TRY
 		[scopeId] = @scopeId
 	WHERE
 		[appId] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -340,14 +348,18 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM [dbo].[tblAppsScopes]
+	DELETE FROM
+		[dbo].[tblAppsScopes]
 	WHERE
-		[appId] = @appId AND [scopeId] = @scopeId
+		[appId] = @appId
+		AND
+		[scopeId] = @scopeId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

@@ -600,13 +600,13 @@ BEGIN TRY
 		)
 
 	SELECT @@ROWCOUNT AS [userId], @code AS [code], @email AS [email], @nameLast AS [nameLast], @nameFirst AS [nameFirst]
-	RETURN
+	RETURN 1
 
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message], 70 AS [code]
-	RETURN
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -624,7 +624,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblUsers_Get]
-	@email VARCHAR(255)
+	@userId INT
 AS
 
 SET NOCOUNT ON
@@ -665,13 +665,17 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated]
-	FROM [dbo].[tblUsers]
-	WHERE [email] = @email
+	FROM
+		[dbo].[tblUsers]
+	WHERE
+		[id] = @userId
+	
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -730,11 +734,13 @@ BEGIN TRY
 		[username],
 		[validated]
 	FROM [dbo].[tblUsers]
+
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -828,11 +834,13 @@ BEGIN TRY
 		[validated] = @validated
 	WHERE
 		[id] = @userId
+
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -856,14 +864,17 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM [dbo].[tblUsers]
+	DELETE FROM
+		[dbo].[tblUsers]
 	WHERE
 		[id] = @userId
+	
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

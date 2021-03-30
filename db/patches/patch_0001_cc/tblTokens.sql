@@ -22,8 +22,10 @@ CREATE TABLE [dbo].[tblTokens]
 	[userId] INT NOT NULL,
 	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
 	[appId] INT NOT NULL,
+	[bearer] VARCHAR(255) NOT NULL,
 	[device] VARCHAR(255) NOT NULL,
 	[expiry] DATETIME NOT NULL,
+	[timezone] INT NOT NULL,
 	[description] VARCHAR(255) NOT NULL,
 	PRIMARY KEY (id)
 );
@@ -48,8 +50,10 @@ BEGIN
 		[userAction] INT NOT NULL,
 		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblTokens_AuditExact_dateAction DEFAULT getdate(),
 		[appId] INT NOT NULL,
+		[bearer] VARCHAR(255) NOT NULL,
 		[device] VARCHAR(255) NOT NULL,
 		[expiry] DATETIME NOT NULL,
+		[timezone] INT NOT NULL,
 		[description] VARCHAR(255) NOT NULL,
 		CONSTRAINT PK_tblTokens_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
@@ -94,8 +98,10 @@ BEGIN
 				[userId],
 				[userAction],
 				[appId],
+				[bearer],
 				[device],
 				[expiry],
+				[timezone],
 				[description]
 			)
 		SELECT
@@ -103,8 +109,10 @@ BEGIN
 			[userId],
 			1,
 			[appId],
+			[bearer],
 			[device],
 			[expiry],
+			[timezone],
 			[description]
 		FROM Inserted
 	END
@@ -121,8 +129,10 @@ BEGIN
 				[userId],
 				[userAction],
 				[appId],
+				[bearer],
 				[device],
 				[expiry],
+				[timezone],
 				[description]
 			)
 		SELECT
@@ -130,8 +140,10 @@ BEGIN
 			[userId],
 			2,
 			[appId],
+			[bearer],
 			[device],
 			[expiry],
+			[timezone],
 			[description]
 		FROM Inserted
 	END
@@ -147,8 +159,10 @@ BEGIN
 				[userId],
 				[userAction],
 				[appId],
+				[bearer],
 				[device],
 				[expiry],
+				[timezone],
 				[description]
 			)
 		SELECT
@@ -156,8 +170,10 @@ BEGIN
 			[userId],
 			3,
 			[appId],
+			[bearer],
 			[device],
 			[expiry],
+			[timezone],
 			[description]
 		FROM Deleted
 	END
@@ -172,17 +188,19 @@ GO
 INSERT INTO [dbo].[tblTokens]
 	(
 		[appId],
-		[userId],
+		[bearer],
 		[device],
 		[expiry],
+		[timezone],
 		[description]
 	)
 VALUES
 	(
 		1,
-		1,
+		'xxx',
 		'xxx',
 		'2021-01-01T00:00:00.000Z',
+		2,
 		'xxx'
 	);
 
@@ -202,8 +220,10 @@ GO
 CREATE PROCEDURE [dbo].[v1_tblTokens_Add]
 	@appId INT,
 	@userId INT,
+	@bearer VARCHAR(255),
 	@device VARCHAR(255),
 	@expiry DATETIME,
+	@timezone INT,
 	@description VARCHAR(255)
 AS
 
@@ -214,27 +234,30 @@ BEGIN TRY
 		(
 			[appId],
 			[userId],
+			[bearer],
 			[device],
 			[expiry],
+			[timezone],
 			[description]
 		)
 	VALUES
 		(
 			@appId,
 			@userId,
+			@bearer,
 			@device,
 			@expiry,
+			@timezone,
 			@description
 		);
 
-	SELECT @@ROWCOUNT;
-	RETURN @@ROWCOUNT;
-
+	SELECT SCOPE_IDENTITY() AS [_id]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -262,16 +285,21 @@ BEGIN TRY
 	SELECT
 		[appId],
 		[userId],
+		[bearer],
 		[device],
 		[expiry],
+		[timezone],
 		[description]
-	FROM [dbo].[tblTokens]
-	WHERE [id] = @appId
+	FROM
+		[dbo].[tblTokens]
+	WHERE
+		[id] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -298,15 +326,19 @@ BEGIN TRY
 	SELECT
 		[appId],
 		[userId],
+		[bearer],
 		[device],
 		[expiry],
+		[timezone],
 		[description]
-	FROM [dbo].[tblTokens]
+	FROM
+		[dbo].[tblTokens]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -344,11 +376,12 @@ BEGIN TRY
 		[description] = @description
 	WHERE
 		[id] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -373,14 +406,16 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM [dbo].[tblTokens]
+	DELETE FROM
+		[dbo].[tblTokens]
 	WHERE
 		[id] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

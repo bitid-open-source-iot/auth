@@ -21,11 +21,11 @@ CREATE TABLE [dbo].[tblAppsDomains]
 	[id] INT NOT NULL IDENTITY(1, 1),
 	[userId] INT NOT NULL,
 	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
-	[domain] VARCHAR(255) NOT NULL,
+	[url] VARCHAR(255) NOT NULL,
 	[appId] INT NOT NULL,
 	PRIMARY KEY (id)
-);
-CREATE UNIQUE INDEX tblAppsDomainsAppIdDomain ON [dbo].[tblAppsDomains] (appId, domain);
+)
+CREATE UNIQUE INDEX tblAppsDomainsAppIdDomain ON [dbo].[tblAppsDomains] (appId, domain)
 
 -- Set1
 
@@ -46,8 +46,8 @@ BEGIN
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
 		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblAppsDomains_AuditExact_dateAction DEFAULT getdate(),
+		[url] VARCHAR(255) NOT NULL,
 		[appId] INT NOT NULL,
-		[domain] VARCHAR(255) NOT NULL,
 		CONSTRAINT PK_tblAppsDomains_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -78,7 +78,7 @@ BEGIN
 
 	-- SET NOCOUNT ON added to prevent extra result sets FROM
 	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
+	SET NOCOUNT ON
 
 	--Insert
 	IF ((SELECT Count(ID)
@@ -90,14 +90,14 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[domain],
+				[url],
 				[appId]
 			)
 		SELECT
 			[id],
 			[userId],
 			1,
-			[domain],
+			[url],
 			[appId]
 		FROM Inserted
 	END
@@ -113,14 +113,14 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[domain],
-			[appId]
+				[url],
+				[appId]
 			)
 		SELECT
 			[id],
 			[userId],
 			2,
-			[domain],
+			[url],
 			[appId]
 		FROM Inserted
 	END
@@ -135,14 +135,14 @@ BEGIN
 				[idOriginal],
 				[userId],
 				[userAction],
-				[domain],
+				[url],
 				[appId]
 			)
 		SELECT
 			[id],
 			[userId],
 			3,
-			[domain],
+			[url],
 			[appId]
 		FROM Deleted
 	END
@@ -157,7 +157,7 @@ GO
 INSERT INTO dbo.tblAppsDomains
 	(
 		[appId],
-		[domain],
+		[url],
 		[userId]
 	)
 VALUES
@@ -165,7 +165,7 @@ VALUES
 		5,
 		'xxx',
 		1
-	);
+	)
 
 -- Set3
 
@@ -181,8 +181,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsDomains_Add]
+	@url VARCHAR(255),
 	@appId INT,
-	@domain VARCHAR(255),
 	@userId INT
 AS
 
@@ -191,25 +191,23 @@ SET NOCOUNT ON
 BEGIN TRY
 	INSERT INTO [dbo].[tblAppsDomains]
 		(
+			[url],
 			[appId],
-			[domain],
 			[userId]
 		)
 	VALUES
 		(
+			@url,
 			@appId,
-			@domain,
 			@userId
-		);
-
-	SELECT @@ROWCOUNT;
-	RETURN @@ROWCOUNT;
-
+		)
+	SELECT @@ROWCOUNT AS [_id]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -227,8 +225,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsDomains_Get]
+	@url VARCHAR(255),
 	@appId INT,
-	@domain VARCHAR(255),
 	@userId INT
 AS
 
@@ -236,16 +234,21 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
+		[url],
 		[appId],
-		[domain],
 		[userId]
-	FROM [dbo].[tblAppsDomains]
-	WHERE [appId] = @appId AND [domain] = @domain
+	FROM
+		[dbo].[tblAppsDomains]
+	WHERE
+		[appId] = @appId
+		AND
+		[url] = @url
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -271,15 +274,18 @@ SET NOCOUNT ON
 BEGIN TRY
 	SELECT
 		[appId],
-		[domain],
+		[url],
 		[userId]
-	FROM [dbo].[tblAppsDomains]
-	WHERE [appId] = @appId
+	FROM
+		[dbo].[tblAppsDomains]
+	WHERE
+		[appId] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -297,8 +303,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsDomains_Update]
+	@url VARCHAR(255),
 	@appId INT,
-	@domain VARCHAR(255),
 	@userId INT
 AS
 
@@ -307,14 +313,15 @@ SET NOCOUNT ON
 BEGIN TRY
 	UPDATE [dbo].[tblAppsDomains]
 	SET
-		[domain] = @domain
+		[url] = @url
 	WHERE
 		[appId] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -332,8 +339,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblAppsDomains_Delete]
+	@url VARCHAR(255),
 	@appId INT,
-	@domain VARCHAR(255),
 	@userId INT
 AS
 
@@ -342,12 +349,15 @@ SET NOCOUNT ON
 BEGIN TRY
 	DELETE FROM [dbo].[tblAppsDomains]
 	WHERE
-		[appId] = @appId AND [domain] = @domain
+		[appId] = @appId
+		AND
+		[url] = @url
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

@@ -24,7 +24,7 @@ CREATE TABLE [dbo].[tblTokensScopes]
 	[scopeId] INT NOT NULL,
 	[tokenId] INT NOT NULL,
 	PRIMARY KEY (id)
-);
+)
 
 -- Set1
 
@@ -77,7 +77,7 @@ BEGIN
 
 	-- SET NOCOUNT ON added to prevent extra result sets FROM
 	-- interfering with SELECT statements.
-	SET NOCOUNT ON;
+	SET NOCOUNT ON
 
 	--Insert
 	IF ((SELECT Count(ID)
@@ -164,7 +164,7 @@ VALUES
 		5,
 		1,
 		1
-	);
+	)
 
 -- Set3
 
@@ -199,16 +199,15 @@ BEGIN TRY
 			@scopeId,
 			@userId,
 			@tokenId
-		);
+		)
 
-	SELECT @@ROWCOUNT;
-	RETURN @@ROWCOUNT;
-
+	SELECT @@ROWCOUNT AS [_id]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -226,8 +225,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblTokensScopes_Get]
-	@scopeId INT,
 	@userId INT,
+	@scopeId INT,
 	@tokenId INT
 AS
 
@@ -235,16 +234,19 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scopeId],
 		[userId],
+		[scopeId],
 		[tokenId]
-	FROM [dbo].[tblTokensScopes]
-	WHERE [id] = @tokenId
+	FROM
+		[dbo].[tblTokensScopes]
+	WHERE
+		[id] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -269,15 +271,17 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scopeId],
 		[userId],
+		[scopeId],
 		[tokenId]
-	FROM [dbo].[tblTokensScopes]
+	FROM
+		[dbo].[tblTokensScopes]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -295,8 +299,8 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_tblTokensScopes_Update]
-	@scopeId INT,
 	@userId INT,
+	@scopeId INT,
 	@tokenId INT
 AS
 
@@ -305,18 +309,19 @@ SET NOCOUNT ON
 BEGIN TRY
 	UPDATE [dbo].[tblTokensScopes]
 	SET
-		[scopeId] = @scopeId,
 		[userId] = @userId,
+		[scopeId] = @scopeId,
 		[tokenId] = @tokenId
 	WHERE
 		[userId] = @userId
 		AND
 		[tokenId] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -346,11 +351,12 @@ BEGIN TRY
 		[userId] = @userId
 		AND
 		[tokenId] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

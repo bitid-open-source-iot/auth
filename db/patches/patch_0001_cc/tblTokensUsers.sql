@@ -205,14 +205,14 @@ BEGIN TRY
 			@tokenId
 		)
 
-	SELECT @@ROWCOUNT
-	RETURN @@ROWCOUNT
+	SELECT @@ROWCOUNT AS [_id]
+	RETURN 1
 
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -242,13 +242,16 @@ BEGIN TRY
 		[role],
 		[userId],
 		[tokenId]
-	FROM [dbo].[tblTokensUsers]
-	WHERE [id] = @tokenId
+	FROM
+		[dbo].[tblTokensUsers]
+	WHERE
+		[id] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -276,12 +279,14 @@ BEGIN TRY
 		[role],
 		[userId],
 		[tokenId]
-	FROM [dbo].[tblTokensUsers]
+	FROM
+		[dbo].[tblTokensUsers]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -307,7 +312,8 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	UPDATE [dbo].[tblTokensUsers]
+	UPDATE
+		[dbo].[tblTokensUsers]
 	SET
 		[role] = @role,
 		[userId] = @userId,
@@ -316,11 +322,12 @@ BEGIN TRY
 		[userId] = @userId
 		AND
 		[tokenId] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 
@@ -345,16 +352,18 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM [dbo].[tblTokensUsers]
+	DELETE FROM
+		[dbo].[tblTokensUsers]
 	WHERE
 		[userId] = @userId
 		AND
 		[tokenId] = @tokenId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
 

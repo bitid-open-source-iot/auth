@@ -15,16 +15,35 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[id] AS [appId],
-		[url],
-		[icon],
-		[name]
-	FROM [dbo].[tblApps]
-	WHERE [id] = @appId
+		[app].[id] AS [_id],
+		[app].[url] AS [appUrl],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName],
+		[user].[role],
+		[user].[userId],
+		[scope].[scopeId],
+		[domain].[url] AS [domain]
+	FROM
+		[dbo].[tblApps] AS [app]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[app].[id] = [user].[appId]
+	INNER JOIN
+		[dbo].[tblAppsScopes] AS [scope]
+	ON
+		[user].[appId] = [scope].[appId]
+	INNER JOIN
+		[dbo].[tblAppsDomains] AS [domain]
+	ON
+		[scope].[appId] = [domain].[appId]
+	WHERE
+		[app].[id] = @appId
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -69
+	SELECT Error_Message() AS [message]
+	RETURN 0
 END CATCH
 GO
