@@ -469,7 +469,7 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.scopes.list(args)
+			myModule.scopes.load(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
