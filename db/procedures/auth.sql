@@ -2,6 +2,7 @@
 Set1 - Create stored procedure verify
 Set2 - Create stored procedure validate
 Set3 - Create stored procedure register
+Set4 - Create stored procedure reset password
 */
 
 -- Set1
@@ -17,26 +18,85 @@ GO
 
 CREATE PROCEDURE [dbo].[v1_Auth_Verify]
 	@code INT,
+	@appId INT,
 	@email VARCHAR(255)
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
-	UPDATE [dbo].[tblUsers]
+
+	DECLARE @url VARCHAR(255)
+	DECLARE @app INT = 0
+	DECLARE @icon VARCHAR(255)
+	DECLARE @userId INT
+	DECLARE @userCode INT
+	DECLARE @nameLast VARCHAR(255)
+	DECLARE @nameFirst VARCHAR(255)
+	DECLARE @validated INT
+
+	SELECT TOP 1
+		@app = [id],
+		@url = [url],
+		@icon = [icon]
+	FROM
+		[dbo].[tblApps]
+	WHERE
+		[id] = @appId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'App is not valid!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	SELECT TOP 1
+		@userId = [id],
+		@userCode = [code],
+		@nameLast = [nameLast],
+		@nameFirst = [nameFirst],
+		@validated = [validated]
+	FROM
+		[dbo].[tblUsers]
+	WHERE
+		[email] = @email
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'Account not found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	IF (@validated = 1)
+	BEGIN
+		SELECT 'Account already verified!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	IF (@code != @userCode)
+	BEGIN
+		SELECT 'Could not verify account, invalid code/email!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	UPDATE
+		[dbo].[tblUsers]
 	SET	
 		[validated] = 1
 	WHERE
-		[code] = @code AND 
-		[email] = @email AND 
+		[code] = @code
+		AND 
+		[email] = @email
+		AND 
 		[validated] = 0
-	SELECT @@ROWCOUNT AS [n]
-	RETURN
+
+	SELECT @@ROWCOUNT AS [n], @email AS [email], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message()
-	RETURN -401
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
 END CATCH
 GO
 
@@ -213,7 +273,7 @@ BEGIN TRY
 
 	IF (@@ROWCOUNT = 0)
 	BEGIN
-		SELECT 'App is no valid!' AS [message], 401 AS [code]
+		SELECT 'App is not valid!' AS [message], 401 AS [code]
 		RETURN 0
 	END
 
@@ -307,3 +367,90 @@ END CATCH
 GO
 
 -- Set3
+
+-- Set4
+
+PRINT 'Executing dbo.v1_Auth_Reset_Password.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Auth_Reset_Password' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Auth_Reset_Password]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Auth_Reset_Password]
+	@salt VARCHAR(255),
+	@hash VARCHAR(255),
+	@email VARCHAR(255),
+	@appId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+
+	DECLARE @url VARCHAR(255)
+	DECLARE @app INT = 0
+	DECLARE @icon VARCHAR(255)
+	DECLARE @userId INT
+	DECLARE @nameLast VARCHAR(255)
+	DECLARE @nameFirst VARCHAR(255)
+	DECLARE @validated INT
+	
+	SELECT TOP 1
+		@userId = [id],
+		@nameLast = [nameLast],
+		@nameFirst = [nameFirst],
+		@validated = [validated]
+	FROM
+		[dbo].[tblUsers]
+	WHERE
+		[email] = @email
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'Account does not exist!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	IF (@validated = 0)
+	BEGIN
+		SELECT 'Account requires verification, please check email!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	SELECT TOP 1
+		@app = [id],
+		@url = [url],
+		@icon = [icon]
+	FROM
+		[dbo].[tblApps]
+	WHERE
+		[id] = @appId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'App is not valid!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+	
+	UPDATE
+		[dbo].[tblUsers]
+	SET
+		[salt] = @salt,
+		[hash] = @hash
+	WHERE
+		[id] = @userId
+	
+	SELECT @userId AS [userId], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set4

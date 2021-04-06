@@ -281,42 +281,17 @@ var module = function () {
 				'res': res
 			};
 
-			/*
-				- select user by email
-				- generate random new password
-				- update user details
-				- send email to user with new password
-			*/
+			var password = tools.password();
+			args.req.body.salt = password.salt;
+			args.req.body.hash = password.hash;
+			args.req.body.password = password.value;
+
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(args => {
-					var deferred = Q.defer();
-
-					var length = 16;
-					var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-					args.user.password = '';
-
-					for (var i = 0, n = charset.length; i < length; ++i) {
-						args.user.password += charset.charAt(Math.floor(Math.random() * n));
-					};
-
-					var encryption = tools.encryption;
-					var newpassword = encryption.saltHashPassword(args.user.password);
-					args.password = {
-						'salt': newpassword.salt,
-						'hash': newpassword.hash
-					};
-
-					deferred.resolve(args);
-
-					return deferred.promise;
-				}, null)
-				.then(myModule.auth.changepassword, null)
-				.then(myModule.apps.validate, null)
+			myModule.auth.resetpassword(args)
 				.then(emails.resetpassword, null)
 				.then(args => {
 					if (!__settings.production) {
-						args.result.password = args.user.password;
+						args.result.password = args.req.body.password;
 					};
 					__responder.success(req, res, args.result);
 				}, err => {

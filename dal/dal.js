@@ -768,85 +768,32 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var err = new ErrorResponse();
-			const transaction = new sql.Transaction(__database);
-
-			transaction.on('commit', result => {
-				deferred.resolve(args);
-			});
-
-			transaction.on('rollback', aborted => {
-				deferred.reject(err);
-			});
-
-			transaction.begin()
-				.then(res => {
-					return new sql.Request(transaction)
-						.input('email', args.req.body.header.email)
-						.execute('v1_Users_Get_By_Email');
-				}, null)
+			const request = new sql.Request(__database);
+	
+			request.input('code', args.req.body.code)
+			request.input('email', args.req.body.header.email)
+			request.input('appId', args.req.body.header.appId)
+	
+			request.execute('v1_Auth_Verify')
 				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.recordset.length > 0) {
-						args.user = unwind(result.recordset[0]);
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(res => {
-					return new sql.Request(transaction)
-						.input('appId', args.req.body.header.appId)
-						.input('userId', args.user.id)
-						.execute('v1_tblApps_Get');
-				}, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.recordset.length > 0) {
-						args.app = unwind(result.recordset[0]);
-						args.app.bitid = { auth: {} };
-						deferred.resolve(args);
-					} else {
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Application not found!';
-						err.error.errors[0].message = 'Application not found!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(res => {
-					return new sql.Request(transaction)
-						.input('code', args.req.body.code)
-						.input('email', args.req.body.header.email)
-						.execute('v1_Auth_Verify');
-				}, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					args.result = unwind(result.recordset[0]);
-					if (args.result.n == 0) {
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Could not verify account, invalid code/email!';
-						err.error.errors[0].message = 'Could not verify account, invalid code/email!';
-						deferred.reject(err);
-					} else {
-						deferred.resolve(args);
 					}
-
-					return deferred.promise;
-				}, null)
-				.then(res => {
-					transaction.commit();
-				}, err => {
-					transaction.rollback();
 				})
+				.catch(error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
 
 			return deferred.promise;
 		},
@@ -891,7 +838,7 @@ var module = function () {
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
-						err.error.errors[0].code = 402;
+						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = result.recordset[0].message;
 						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
@@ -1423,6 +1370,41 @@ var module = function () {
 				.catch(err => {
 					transaction.rollback();
 				})
+
+			return deferred.promise;
+		},
+
+		resetpassword: (args) => {
+			var deferred = Q.defer();
+
+			const request = new sql.Request(__database);
+
+			request.input('salt', args.req.body.salt);
+			request.input('hash', args.req.body.hash);
+			request.input('email', args.req.body.header.email);
+			request.input('appId', args.req.body.header.appId);
+
+			request.execute('v1_Auth_Reset_Password')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						args.result.password = args.req.body.password;
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
 
 			return deferred.promise;
 		},
