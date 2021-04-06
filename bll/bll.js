@@ -204,7 +204,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.auth.register(args)
-				.then(myModule.apps.validate, null)
 				.then(emails.verify, null)
 				.then(args => {
 					if (__settings.production) {

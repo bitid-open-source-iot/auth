@@ -371,29 +371,28 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			var AppsValidate = require('../classes/apps.validate');
-			var params = new AppsValidate(args.req.body).wined();
-
 			const request = new sql.Request(__database);
-			Object.keys(params).map(key => request.input(key, params[key]));
-
-			request.execute('v1_tblApps_Validate', (error, result) => {
-				var err = new ErrorResponse();
-				if (error) {
+			request.input('appId', args.req.body.header.appId);
+			request.execute('v1_Apps_Validate')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.app = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'no records found';
+						err.error.errors[0].message = 'no records found';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
+					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				} else if (result.recordset.length == 0) {
-					err.error.errors[0].code = 69;
-					err.error.errors[0].reason = 'no records found';
-					err.error.errors[0].message = 'no records found';
-					deferred.reject(err);
-				} else {
-					args.app = unwind(result.recordset[0]);
-					deferred.resolve(args);
-				}
-			})
+				});
 
 			return deferred.promise;
 		},
@@ -830,7 +829,7 @@ var module = function () {
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
-					
+
 					args.result = unwind(result.recordset[0]);
 					if (args.result.n == 0) {
 						err.error.errors[0].code = 69;
@@ -876,7 +875,7 @@ var module = function () {
 					return deferred.promise;
 				};
 			};
-			
+
 			const request = new sql.Request(__database);
 			request.input('appId', args.req.body.header.appId);
 			request.input('scope', args.req.body.scope);
@@ -886,25 +885,25 @@ var module = function () {
 			request.input('description', args.req.headers.authorization.description);
 
 			request.execute('v1_Auth_Validate')
-			.then(result => {
-				if (result.returnValue == 1 && result.recordset.length > 0) {
-					args.result = unwind(result.recordset[0]);
-					deferred.resolve(args);
-				} else {
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 402;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
-					err.error.errors[0].code = 402;
-					err.error.errors[0].reason = result.recordset[0].message;
-					err.error.errors[0].message = result.recordset[0].message;
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				}
-			})
-			.catch(error => {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			});
+				});
 
 			return deferred.promise;
 		},
@@ -912,37 +911,61 @@ var module = function () {
 		register: (args) => {
 			var deferred = Q.defer();
 
-			var AuthRegister = require('../classes/auth.register');
-			var params = new AuthRegister(args.req.body).wined();
-
-			const request = new sql.Request(__database);
-			Object.keys(params).map(key => request.input(key, params[key]));
-
-			request.execute('v1_tblUsers_Add', (error, result) => {
-				var err = new ErrorResponse();
-				if (error) {
+			const request = new sql.Request(__database)
+			request.input('code', Math.floor(Math.random() * 900000 + 100000))
+			request.input('salt', args.req.body.salt)
+			request.input('hash', args.req.body.hash)
+			request.input('email', args.req.body.header.email)
+			request.input('appId', args.req.body.header.appId)
+			request.input('picture', args.req.body.picture || null)
+			request.input('language', args.req.body.language || 'english')
+			request.input('timezone', args.req.body.timezone || 0)
+			request.input('username', args.req.body.username || null)
+			request.input('nameLast', args.req.body.name.last || null)
+			request.input('validated', 0)
+			request.input('nameFirst', args.req.body.name.first || null)
+			request.input('numberTel', args.req.body.number.tel || null)
+			request.input('nameMiddle', args.req.body.name.middle || null)
+			request.input('addressSame', args.req.body.address.same || null)
+			request.input('numberMobile', args.req.body.number.mobile || null)
+			request.input('identificationType', args.req.body.identification.type || null)
+			request.input('identificationNumber', args.req.body.identification.number || null)
+			request.input('addressBillingStreet', args.req.body.address.billing.street || null)
+			request.input('addressBillingSuburb', args.req.body.address.billing.suburb || null)
+			request.input('addressBillingCountry', args.req.body.address.billing.country || null)
+			request.input('addressPhysicalStreet', args.req.body.address.physical.street || null)
+			request.input('addressPhysicalSuburb', args.req.body.address.physical.suburb || null)
+			request.input('addressBillingCityTown', args.req.body.address.billing.cityTown || null)
+			request.input('addressPhysicalCountry', args.req.body.address.physical.country || null)
+			request.input('addressPhysicalCityTown', args.req.body.address.physical.cityTown || null)
+			request.input('addressBillingAdditional', args.req.body.address.billing.additional || null)
+			request.input('addressBillingPostalCode', args.req.body.address.billing.postalCode || null)
+			request.input('addressBillingCompanyVat', args.req.body.address.billing.company.vat || null)
+			request.input('addressBillingCompanyReg', args.req.body.address.billing.company.reg || null)
+			request.input('addressPhysicalAdditional', args.req.body.address.physical.additional || null)
+			request.input('addressPhysicalPostalCode', args.req.body.address.physical.postalCode || null)
+			request.input('addressPhysicalCompanyVat', args.req.body.address.physical.company.vat || null)
+			request.input('addressPhysicalCompanyReg', args.req.body.address.physical.company.reg || null)
+			request.execute('v1_Auth_Register')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
+					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				} else if (result.recordset.length == 0) {
-					err.error.errors[0].code = 69;
-					err.error.errors[0].reason = 'no records found';
-					err.error.errors[0].message = 'no records found';
-					deferred.reject(err);
-				} else {
-					args.user = result.recordset[0];
-					args.user._id = args.user.userId;
-					args.user.name = {
-						last: args.user.nameLast,
-						first: args.user.nameFirst
-					};
-					delete args.user.nameLast;
-					delete args.user.nameFirst;
-					args.result = args.user;
-					deferred.resolve(args);
-				}
-			})
+				});
 
 			return deferred.promise;
 		},
@@ -1210,7 +1233,7 @@ var module = function () {
 			var err = new ErrorResponse();
 			const transaction = new sql.Transaction(__database);
 
-			if (typeof(args.req.body.expiry) == 'undefined' || args.req.body.expiry == null) {
+			if (typeof (args.req.body.expiry) == 'undefined' || args.req.body.expiry == null) {
 				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
 				args.req.body.expiry = new Date(args.req.body.expiry);
 			}
@@ -1401,47 +1424,6 @@ var module = function () {
 					transaction.rollback();
 				})
 
-			// 	.then(result => {
-			// 		var deferred = Q.defer();
-
-			// 		var params = {
-			// 			'bitid': {
-			// 				'auth': {
-			// 					'users': [{
-			// 						'role': 5,
-			// 						'email': args.req.body.header.email
-			// 					}]
-			// 				}
-			// 			},
-			// 			'token': {
-			// 				'bearer': tools.encryption.generateRandomString(64),
-			// 				'scopes': [{ 'url': '*', 'role': 4 }],
-			// 				'expiry': args.req.body.expiry,
-			// 				'timeZone': args.user.timeZone || 0,
-			// 				'tokenAddOn': args.req.body.tokenAddOn,
-			// 				'description': args.req.body.description || args.app.name
-			// 			},
-			// 			'appId': args.req.body.header.appId,
-			// 			'device': args.req.headers['user-agent'],
-			// 			'description': args.req.body.description || args.app.name
-			// 		};
-
-			// 		deferred.resolve({
-			// 			'params': params,
-			// 			'operation': 'insert',
-			// 			'collection': 'tblTokens'
-			// 		});
-
-			// 		return deferred.promise;
-			// 	}, null)
-			// 	.then(db.call, null)
-			// 	.then(result => {
-			// 		args.result = result[0];
-			// 		deferred.resolve(args);
-			// 	}, err => {
-			// 		deferred.reject(err);
-			// 	});
-
 			return deferred.promise;
 		},
 
@@ -1489,29 +1471,29 @@ var module = function () {
 			request.input('userId', args.req.body.header.userId);
 
 			request.execute('v1_Users_Get')
-			.then(result => {
-				if (result.returnValue == 1 && result.recordset.length > 0) {
-					args.result = unwind(result.recordset[0]);
-					deferred.resolve(args);
-				} else {
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'no records found';
+						err.error.errors[0].message = 'no records found';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
-					err.error.errors[0].code = 69;
-					err.error.errors[0].reason = 'no records found';
-					err.error.errors[0].message = 'no records found';
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				}
-			})
-			.catch(error => {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			});
+				});
 
 			return deferred.promise;
 		},
-		
+
 		list: (args) => {
 			var deferred = Q.defer();
 
@@ -1520,25 +1502,25 @@ var module = function () {
 			request.input('userId', args.req.body.header.userId);
 
 			request.execute('v1_Users_List')
-			.then(result => {
-				if (result.returnValue == 1 && result.recordset.length > 0) {
-					args.result = result.recordset.map(o => unwind(o));
-					deferred.resolve(args);
-				} else {
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = result.recordset.map(o => unwind(o));
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'no records found';
+						err.error.errors[0].message = 'no records found';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
-					err.error.errors[0].code = 69;
-					err.error.errors[0].reason = 'no records found';
-					err.error.errors[0].message = 'no records found';
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
-				}
-			})
-			.catch(error => {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = error.code;
-				err.error.errors[0].reason = error.message;
-				err.error.errors[0].message = error.message;
-				deferred.reject(err);
-			});
+				});
 
 			return deferred.promise;
 		},
@@ -2553,37 +2535,6 @@ var module = function () {
 	};
 
 	var dalStatistics = {
-		write: (args) => {
-			var deferred = Q.defer();
-
-			const request = new sql.Request(__database);
-			request.input('scope', args.req.body.scope);
-			request.input('appId', args.req.body.header.appId);
-			request.input('userId', args.req.body.header.userId);
-
-			request.execute('v1_Usage_Write')
-				.then(result => {
-					if (result.returnValue == 1 && result.recordset.length > 0) {
-						deferred.resolve(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 70;
-						err.error.errors[0].reason = 'no records inserted';
-						err.error.errors[0].message = 'no records inserted';
-						deferred.reject(err);
-					}
-				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
 		usage: (args) => {
 			var deferred = Q.defer();
 

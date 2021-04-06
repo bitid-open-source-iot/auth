@@ -20,11 +20,11 @@ exports.verify = (args) => {
 
     transporter.sendMail({
         'context': {
-            'name': [args.user.name.first, args.user.name.last].join(' '),
-            'code': args.user.code,
-            'verify': [__settings.client.auth, '/verify-account?email=', args.user.email, '&code=', args.user.code, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join('')
+            'name': [args.result.name.first, args.result.name.last].join(' '),
+            'code': args.result.code,
+            'verify': [__settings.client.auth, '/verify-account?email=', args.result.email, '&code=', args.result.code, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join('')
         },
-        'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
+        'to': __settings.production ? args.result.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
         'subject': 'Verify Account',
         'template': 'verify'
@@ -58,9 +58,9 @@ exports.welcome = (args) => {
 
     transporter.sendMail({
         'context': {
-            'name': [args.user.name.first, args.user.name.last].join(' ')
+            'name': [args.result.name.first, args.result.name.last].join(' ')
         },
-        'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
+        'to': __settings.production ? args.result.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
         'subject': 'Welcome',
         'template': 'welcome'
@@ -94,10 +94,10 @@ exports.resetpassword = (args) => {
 
     transporter.sendMail({
         'context': {
-            'link': [__settings.client.auth, '/reset-password?email=', args.user.email, '&password=', args.user.password, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join(''),
-            'name': [args.user.name.first, args.user.name.last].join(' ')
+            'link': [__settings.client.auth, '/reset-password?email=', args.result.email, '&password=', args.result.password, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join(''),
+            'name': [args.result.name.first, args.result.name.last].join(' ')
         },
-        'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
+        'to': __settings.production ? args.result.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
         'subject': 'Reset Password',
         'template': 'reset-password'
