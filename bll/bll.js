@@ -312,26 +312,7 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(args => {
-					var deferred = Q.defer();
-
-					var password = tools.encryption.sha512(args.req.body.old, args.result.salt);
-
-					if (password.hash == args.result.hash) {
-						deferred.resolve(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Password is incorrect!';
-						err.error.errors[0].message = 'Password is incorrect!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-
-				}, null)
-				.then(myModule.auth.changepassword, null)
+			myModule.auth.changepassword(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

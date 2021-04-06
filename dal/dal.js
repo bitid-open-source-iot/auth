@@ -922,113 +922,29 @@ var module = function () {
 		changeemail: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.body.email) == 'undefined') {
-				var err = new ErrorResponse();
-				err.error.errors[0].code = 503;
-				err.error.errors[0].reason = 'A replacement email is required!';
-				err.error.errors[0].message = 'A replacement email is required!';
-				deferred.reject(err);
-				return false;
-			};
+			const request = new sql.Request(__database);
+			
+			request.input('email', args.req.body.email);
+			request.input('userId', args.req.body.header.userId);
 
-			var params = {
-				'email': args.req.body.header.email
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsers',
-				'allowNoRecordsFound': true
-			})
+			request.execute('v1_Auth_Change_Email')
 				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var params = {
-							'email': args.req.body.email
-						};
-
-						deferred.resolve({
-							'params': params,
-							'operation': 'find',
-							'collection': 'tblUsers',
-							'allowNoRecordsFound': true
-						});
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length == 0) {
-						var params = {
-							'email': args.req.body.header.email
-						};
-
-						var update = {
-							$set: {
-								'email': args.req.body.email
-							}
-						};
-
-						deferred.resolve({
-							'params': params,
-							'update': update,
-							'operation': 'update',
-							'collection': 'tblUsers'
-						});
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 71;
-						err.error.errors[0].reason = 'An account with email address of ' + args.req.body.email + ' already exists!';
-						err.error.errors[0].message = 'An account with email address of ' + args.req.body.email + ' already exists!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
+					}
 				})
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					args.result = result;
-
-					var params = {
-						'bitid.auth.users': {
-							$elemMatch: {
-								'email': args.req.body.header.email
-							}
-						}
-					};
-
-					var update = {
-						$set: {
-							'bitid.auth.users.$.email': args.req.body.email
-						}
-					};
-
-					deferred.resolve({
-						'params': params,
-						'update': update,
-						'operation': 'updateMany',
-						'collection': 'tblTokens'
-					});
-
-					return deferred.promise;
-				})
-				.then(db.call, null)
-				.then(result => {
-					deferred.resolve(args);
-				}, err => {
+				.catch(error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
 
@@ -1414,34 +1330,92 @@ var module = function () {
 		changepassword: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email,
-				'validated': 1
-			};
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			var update = {
-				$set: {
-					'salt': args.password.salt,
-					'hash': args.password.hash
-				}
-			};
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblUsers'
-			})
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Users_Get');
+				}, null)
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
+						var password = tools.encryption.sha512(args.req.body.old, args.user.salt);
+
+						if (password.hash == args.user.hash) {
+							var password = tools.encryption.saltHashPassword(args.req.body.new);
+							args.req.body.salt = password.salt;
+							args.req.body.hash = password.hash;
+							deferred.resolve(args);
+						} else {
+							err.error.errors[0].code = 401;
+							err.error.errors[0].reason = 'Password is incorrect!';
+							err.error.errors[0].message = 'Password is incorrect!';
+							deferred.reject(err);
+						};
+					} else {
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'Account not yet registered!';
+						err.error.errors[0].message = 'Account not yet registered!';
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('salt', args.req.body.salt)
+						.input('hash', args.req.body.hash)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Auth_Change_Password');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.app = {
+							bitid: {
+								auth: {
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+								}
+							},
+							_id: result[0]._id,
+							app: result[0].app,
+							name: result[0].name,
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							domains: _.uniqBy(result, 'domain').map(o => o.domain),
+							private: result[0].private
+						};
+						args.result.token.scopes = args.app.scopes;
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		}
@@ -1729,6 +1703,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			const request = new sql.Request(__database);
+			
 			request.input('userId', args.req.body.header.userId);
 			request.input('scopeId', args.req.body.scopeId);
 

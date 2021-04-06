@@ -3,6 +3,8 @@ Set1 - Create stored procedure verify
 Set2 - Create stored procedure validate
 Set3 - Create stored procedure register
 Set4 - Create stored procedure reset password
+Set5 - Create stored procedure change email
+Set6 - Create stored procedure change password
 */
 
 -- Set1
@@ -454,3 +456,87 @@ END CATCH
 GO
 
 -- Set4
+
+-- Set5
+
+PRINT 'Executing dbo.v1_Auth_Change_Email.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Auth_Change_Email' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Auth_Change_Email]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Auth_Change_Email]
+	@email VARCHAR(255),
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblUsers] WHERE [id] != @userId AND [email] = @email)
+	BEGIN
+		SELECT 'An account with email address of ' + @email + ' already exists!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	UPDATE
+		[dbo].[tblUsers]
+	SET	
+		[email] = @email
+	WHERE
+		[id] = @userId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set5
+
+-- Set6
+
+PRINT 'Executing dbo.v1_Auth_Change_Password.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Auth_Change_Password' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Auth_Change_Password]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Auth_Change_Password]
+	@salt VARCHAR(255),
+	@hash VARCHAR(255),
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	UPDATE
+		[dbo].[tblUsers]
+	SET	
+		[salt] = @salt,
+		[hash] = @hash
+	WHERE
+		[id] = @userId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set6
