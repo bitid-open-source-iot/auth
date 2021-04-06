@@ -768,28 +768,71 @@ var module = function () {
 		verify: (args) => {
 			var deferred = Q.defer();
 
-			var AuthVerify = require('../classes/auth.verify');
-			var params = new AuthVerify(args.req.body).wined();
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			const request = new sql.Request(__database);
-			Object.keys(params).map(key => request.input(key, params[key]));
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_tblUsers_Verify', (error, result) => {
-				var err = new ErrorResponse();
-				if (error) {
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				} else if (result.recordset.length == 0) {
-					err.error.errors[0].code = 69;
-					err.error.errors[0].reason = 'no records found';
-					err.error.errors[0].message = 'no records found';
-					deferred.reject(err);
-				} else {
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('email', args.req.body.header.email)
+						.execute('v1_Users_Get_By_Email');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'Account not yet registered!';
+						err.error.errors[0].message = 'Account not yet registered!';
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.user.id)
+						.execute('v1_tblApps_Get');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.recordset.length > 0) {
+						args.app = unwind(result.recordset[0]);
+						args.app.bitid = { auth: {} };
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'Application not found!';
+						err.error.errors[0].message = 'Application not found!';
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('code', args.req.body.code)
+						.input('email', args.req.body.header.email)
+						.execute('v1_Auth_Verify');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+					
 					args.result = unwind(result.recordset[0]);
-					if (args.result.updated == 0) {
-						var err = new ErrorResponse();
+					if (args.result.n == 0) {
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Could not verify account, invalid code/email!';
 						err.error.errors[0].message = 'Could not verify account, invalid code/email!';
@@ -797,8 +840,14 @@ var module = function () {
 					} else {
 						deferred.resolve(args);
 					}
-				}
-			})
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				}, err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -806,149 +855,56 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.headers.authorization) == 'undefined') {
+			if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
 				var err = new ErrorResponse();
 				err.error.code = 401;
-				err.error.errors[0].coded = 401;
-				err.error.errors[0].reason = 'token not found';
-				err.error.errors[0].message = 'token not found';
+				err.error.errors[0].code = 401;
+				err.error.errors[0].reason = 'Token not found in header!';
+				err.error.errors[0].message = 'Token not found in header!';
 				deferred.reject(err);
-				return false;
+				return deferred.promise;
 			} else {
 				try {
 					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
 				} catch (error) {
 					var err = new ErrorResponse();
 					err.error.code = 401;
-					err.error.errors[0].coded = 401;
-					err.error.errors[0].reason = 'invalid token object';
-					err.error.errors[0].message = 'invalid token object';
+					err.error.errors[0].code = 401;
+					err.error.errors[0].reason = 'Invalid token object in header!';
+					err.error.errors[0].message = 'Invalid token object in header!';
 					deferred.reject(err);
-					return false;
+					return deferred.promise;
 				};
 			};
+			
+			const request = new sql.Request(__database);
+			request.input('appId', args.req.body.header.appId);
+			request.input('scope', args.req.body.scope);
+			request.input('userId', args.req.body.header.userId);
+			request.input('expiry', new Date(args.req.headers.authorization.expiry));
+			request.input('bearer', args.req.headers.authorization.bearer);
+			request.input('description', args.req.headers.authorization.description);
 
-			var params = {
-				'token': args.req.headers.authorization,
-				'appId': args.req.body.header.appId,
-				'bitid.auth.users.email': args.req.body.header.email
-			};
-
-			var filter = {
-				'_id': 1
-			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblTokens',
-				'allowNoRecordsFound': true
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var scopes = [];
-						args.req.headers.authorization.scopes.map(scope => {
-							if (typeof (scope) == 'object') {
-								scopes.push(scope.url);
-							} else if (typeof (scope) == 'string') {
-								scopes.push(scope);
-							};
-						});
-
-						if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
-							var params = {
-								'url': args.req.body.scope
-							};
-
-							deferred.resolve({
-								'params': params,
-								'operation': 'find',
-								'collection': 'tblScopes',
-								'allowNoRecordsFound': true
-							});
-						} else {
-							var err = new ErrorResponse();
-							err.error.code = 401;
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Scope not present in token!';
-							err.error.errors[0].message = 'Scope not present in token!';
-							deferred.reject(err);
-						};
-					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Token was not found!';
-						err.error.errors[0].message = 'Token was not found!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var params = {
-							'_id': args.req.body.header.appId
-						};
-
-						deferred.resolve({
-							'params': params,
-							'operation': 'find',
-							'collection': 'tblApps',
-							'allowNoRecordsFound': true
-						});
-					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope was not found!';
-						err.error.errors[0].message = 'Scope was not found!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var expiry = new Date(args.req.headers.authorization.expiry);
-						var current = new Date();
-
-						if (expiry < current) {
-							var err = new ErrorResponse();
-							err.error.code = 401;
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'This token has expired!';
-							err.error.errors[0].message = 'This token has expired!';
-							deferred.reject(err);
-						} else {
-							deferred.resolve(true);
-						};
-					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'App not found!';
-						err.error.errors[0].message = 'App not found!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(result => dalStatistics.write(args), null)
-				.then(result => {
-					deferred.resolve(result);
-				}, err => {
+			request.execute('v1_Auth_Validate')
+			.then(result => {
+				if (result.returnValue == 1 && result.recordset.length > 0) {
+					args.result = unwind(result.recordset[0]);
+					deferred.resolve(args);
+				} else {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = 402;
+					err.error.errors[0].reason = result.recordset[0].message;
+					err.error.errors[0].message = result.recordset[0].message;
 					deferred.reject(err);
-				});
+				}
+			})
+			.catch(error => {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
+			});
 
 			return deferred.promise;
 		},
@@ -1251,25 +1207,24 @@ var module = function () {
 		authenticate: (args) => {
 			var deferred = Q.defer();
 
-			/*
-				-- get user
-				-- check password match
-				-- check user validated
-				-- check app validated
-				-- check allowed to log in to app
-				-- generate token
-			*/
-
-			// var AuthVerify = require('../classes/auth.verify');
-			// var params = new AuthVerify(args.req.body).wined();
-
-			// const request = new sql.Request(__database);
-			// Object.keys(params).map(key => request.input(key, params[key]));
-
-			// request.execute('v1_tblUsers_Verify', (error, result) => {});
-
 			var err = new ErrorResponse();
 			const transaction = new sql.Transaction(__database);
+
+			if (typeof(args.req.body.expiry) == 'undefined' || args.req.body.expiry == null) {
+				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
+				args.req.body.expiry = new Date(args.req.body.expiry);
+			}
+
+			args.req.body.bearer = tools.encryption.generateRandomString(64);
+			args.result = {
+				token: {
+					scopes: [],
+					bearer: args.req.body.bearer,
+					expiry: args.req.body.expiry,
+					timezone: args.req.body.timezone,
+					description: args.req.body.description
+				}
+			};
 
 			transaction.on('commit', result => {
 				deferred.resolve(args);
@@ -1283,7 +1238,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('email', args.req.body.header.email)
-						.execute('v1_tblUsers_Get');
+						.execute('v1_Users_Get_By_Email');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1319,30 +1274,36 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.header.appId)
-						.input('userId', args.user.id)
-						.execute('v1_tblApps_Get');
+						.execute('v1_tblApps_Validate');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					if (result.recordset.length > 0) {
-						args.app = unwind(result.recordset[0]);
-						args.app.bitid = { auth: {} };
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.app = {
+							bitid: {
+								auth: {
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+								}
+							},
+							_id: result[0]._id,
+							app: result[0].app,
+							name: result[0].name,
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							domains: _.uniqBy(result, 'domain').map(o => o.domain),
+							private: result[0].private
+						};
+						args.result.token.scopes = args.app.scopes;
 						deferred.resolve(args);
 					} else {
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Application not found!';
-						err.error.errors[0].message = 'Application not found!';
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
 					};
 
 					return deferred.promise;
-				})
-				.then(res => {
-					return new sql.Request(transaction)
-						.input('appId', args.req.body.header.appId)
-						.input('userId', args.user.id)
-						.execute('v1_tblAppsUsers_Get');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1365,15 +1326,78 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.header.appId)
-						.input('userId', args.user.userId)
+						.input('userId', args.user.id)
+						.input('bearer', args.req.body.bearer)
 						.input('device', args.req.headers['user-agent'])
 						.input('expiry', args.req.body.expiry)
-						.input('description', args.req.body.description || args.app.name)
-						.execute('v1_Tokens_Add');
+						.input('timezone', args.user.timezone)
+						.input('description', args.req.body.description || args.app.app.name)
+						.execute('v1_tblTokens_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.tokenId = unwind(result.recordset[0])._id;
+						args.result._id = args.tokenId;
+						args.result.token.description = args.req.body.description || args.app.app.name;
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('role', 5)
+						.input('userId', args.user.id)
+						.input('tokenId', args.tokenId)
+						.execute('v1_tblTokensUsers_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.app.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
+						.input('userId', args.user.id)
+						.input('scopeId', scopeId)
+						.input('tokenId', args.tokenId)
+						.execute('v1_tblTokensScopes_Add')
+					), Promise.resolve())
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
 				}, null)
 				.then(res => {
 					transaction.commit();
-				}, err => {
+				})
+				.catch(err => {
 					transaction.rollback();
 				})
 
@@ -1461,112 +1485,60 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var UsersGet = require('../classes/users.get');
-			var params = new UsersGet(args.req.body).wined();
-
 			const request = new sql.Request(__database);
-			Object.keys(params).map(key => request.input(key, params[key]));
+			request.input('userId', args.req.body.header.userId);
 
-			request.execute('v1_tblUsers_Get', (error, result) => {
-				var err = new ErrorResponse();
-				if (error) {
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				} else if (result.recordset.length == 0) {
+			request.execute('v1_Users_Get')
+			.then(result => {
+				if (result.returnValue == 1 && result.recordset.length > 0) {
+					args.result = unwind(result.recordset[0]);
+					deferred.resolve(args);
+				} else {
+					var err = new ErrorResponse();
 					err.error.errors[0].code = 69;
 					err.error.errors[0].reason = 'no records found';
 					err.error.errors[0].message = 'no records found';
 					deferred.reject(err);
-				} else {
-					args.user = unwind(result.recordset[0]);
-					args.user._id = args.user.id;
-					args.result = args.user;
-					deferred.resolve(args);
 				}
 			})
+			.catch(error => {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
+			});
 
 			return deferred.promise;
 		},
-
+		
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': __settings.client.appId
-			};
+			const request = new sql.Request(__database);
+			request.input('appId', __settings.client.appId);
+			request.input('userId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {};
-
-					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email !== null) {
-						if (Array.isArray(args.req.body.email) != 'undefined' && args.req.body.email.length > 0) {
-							params.email = {
-								$in: args.req.body.email
-							};
-						} else if (typeof (args.req.body.email) != 'string') {
-							params.email = args.req.body.email;
-						};
-					};
-
-					if (typeof (args.req.body.validated) != 'undefined') {
-						if (Array.isArray(args.req.body.validated) && args.req.body.validated.length > 0) {
-							params.validated = {
-								$in: args.req.body.validated
-							};
-						} else if (typeof (args.req.body.validated) == 'boolean') {
-							params.validated = args.req.body.validated;
-						};
-					};
-
-					var filter = {};
-					if (typeof (args.req.body.filter) != 'undefined') {
-						filter['_id'] = 0;
-						args.req.body.filter.map(f => {
-							if (f == 'userId') {
-								filter['_id'] = 1;
-							} else {
-								filter[f] = 1;
-							};
-						});
-					};
-
-					deferred.resolve({
-						'params': params,
-						'filter': filter,
-						'operation': 'find',
-						'collection': 'tblUsers'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result;
+			request.execute('v1_Users_List')
+			.then(result => {
+				if (result.returnValue == 1 && result.recordset.length > 0) {
+					args.result = result.recordset.map(o => unwind(o));
 					deferred.resolve(args);
-				}, error => {
+				} else {
 					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					err.error.errors[0].code = 69;
+					err.error.errors[0].reason = 'no records found';
+					err.error.errors[0].message = 'no records found';
 					deferred.reject(err);
-				});
+				}
+			})
+			.catch(error => {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = error.code;
+				err.error.errors[0].reason = error.message;
+				err.error.errors[0].message = error.message;
+				deferred.reject(err);
+			});
 
 			return deferred.promise;
 		},
@@ -1852,7 +1824,6 @@ var module = function () {
 			var deferred = Q.defer();
 
 			const request = new sql.Request(__database);
-			request.input('userId', args.req.body.header.userId);
 
 			request.execute('v1_Scopes_Load')
 				.then(result => {
@@ -2424,46 +2395,26 @@ var module = function () {
 		add: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
+			const request = new sql.Request(__database);
+			request.input('appId', args.req.body.appId);
+			request.input('title', args.req.body.title);
+			request.input('userId', args.req.body.header.userId);
+			request.input('description', args.req.body.description);
+
+			request.execute('v1_Features_Add')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 70;
+						err.error.errors[0].reason = 'no records inserted';
+						err.error.errors[0].message = 'no records inserted';
+						deferred.reject(err);
 					}
-				},
-				'_id': args.req.body.appId
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'appId': args.req.body.appId,
-						'title': args.req.body.title,
-						'serverDate': new Date(),
-						'description': args.req.body.description
-					};
-
-					deferred.resolve({
-						'params': params,
-						'operation': 'insert',
-						'collection': 'tblFeatures'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2477,90 +2428,24 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var match = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': args.req.body.featureId
-			};
+			const request = new sql.Request(__database);
+			request.input('userId', args.req.body.header.userId);
+			request.input('featureId', args.req.body.featureId);
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
-					match.appId = {
-						$in: args.req.body.appId
-					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = args.req.body.appId;
-				};
-			};
-
-			var filter = {
-				'_id': 1,
-				'app': 1,
-				'bitid': 1,
-				'appId': 1,
-				'title': 1,
-				'description': 1
-			};
-			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
-				filter = {};
-				args.req.body.filter.map(key => {
-					if (key == 'role') {
-						filter['bitid'] = 1;
-					} else if (key == 'featureId') {
-						filter['_id'] = 1;
-					} else {
-						filter[key] = 1;
-					};
-				})
-			};
-
-			var params = [
-				{
-					$lookup: {
-						'as': 'app',
-						'from': 'tblApps',
-						'localField': 'appId',
-						'foreignField': '_id'
-					}
-				},
-				{
-					$unwind: '$app'
-				},
-				{
-					$project: {
-						'_id': 1,
-						'appId': 1,
-						'title': 1,
-						'bitid': '$app.bitid',
-						'app.icon': 1,
-						'app.name': 1,
-						'serverDate': 1,
-						'description': 1
-					}
-				},
-				{
-					$match: match
-				},
-				{
-					$project: filter
-				}
-			];
-
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblFeatures'
-			})
+			request.execute('v1_Features_Get')
 				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 70;
+						err.error.errors[0].reason = 'no records found';
+						err.error.errors[0].message = 'no records found';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2574,99 +2459,23 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var match = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
-					}
-				}
-			};
+			const request = new sql.Request(__database);
+			request.input('userId', args.req.body.header.userId);
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
-					match.appId = {
-						$in: args.req.body.appId
-					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					match.appId = args.req.body.appId;
-				};
-			};
-
-			if (typeof (args.req.body.featureId) != 'undefined' && args.req.body.featureId !== null) {
-				if (Array.isArray(args.req.body.featureId) && args.req.body.featureId.length > 0) {
-					match._id = {
-						$in: args.req.body.featureId
-					};
-				} else if (typeof (args.req.body.featureId) == 'string' && args.req.body.featureId.length == 24) {
-					match._id = args.req.body.featureId;
-				};
-			};
-
-			var filter = {
-				'_id': 1,
-				'app': 1,
-				'bitid': 1,
-				'appId': 1,
-				'title': 1,
-				'description': 1
-			};
-			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
-				filter = {};
-				args.req.body.filter.map(key => {
-					if (key == 'role') {
-						filter['bitid'] = 1;
-					} else if (key == 'featureId') {
-						filter['_id'] = 1;
-					} else {
-						filter[key] = 1;
-					};
-				})
-			};
-
-			var params = [
-				{
-					$lookup: {
-						'as': 'app',
-						'from': 'tblApps',
-						'localField': 'appId',
-						'foreignField': '_id'
-					}
-				},
-				{
-					$unwind: '$app'
-				},
-				{
-					$project: {
-						'_id': 1,
-						'appId': 1,
-						'title': 1,
-						'bitid': '$app.bitid',
-						'app.icon': 1,
-						'app.name': 1,
-						'serverDate': 1,
-						'description': 1
-					}
-				},
-				{
-					$match: match
-				},
-				{
-					$project: filter
-				}
-			];
-
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblFeatures'
-			})
+			request.execute('v1_Features_List')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = result.recordset.map(o => unwind(o));
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'no records found';
+						err.error.errors[0].message = 'no records found';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2680,57 +2489,27 @@ var module = function () {
 		update: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
+			const request = new sql.Request(__database);
+			request.input('title', args.req.body.title);
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.header.userId);
+			request.input('featureId', args.req.body.featureId);
+			request.input('description', args.req.body.description);
+
+			request.execute('v1_Features_Update')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 70;
+						err.error.errors[0].reason = 'no records updated';
+						err.error.errors[0].message = 'no records updated';
+						deferred.reject(err);
 					}
-				},
-				'_id': args.req.body.appId
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'_id': args.req.body.featureId
-					};
-
-					var update = {
-						$set: {
-							'serverDate': new Date()
-						}
-					};
-
-					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title !== null) {
-						update.$set.title = args.req.body.title;
-					};
-					if (typeof (args.req.body.description) != 'undefined' && args.req.body.description !== null) {
-						update.$set.description = args.req.body.description;
-					};
-
-					deferred.resolve({
-						'params': params,
-						'update': update,
-						'operation': 'update',
-						'collection': 'tblFeatures'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2744,72 +2523,24 @@ var module = function () {
 		delete: (args) => {
 			var deferred = Q.defer();
 
-			var match = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': args.req.body.featureId
-			};
+			const request = new sql.Request(__database);
+			request.input('userId', args.req.body.header.userId);
+			request.input('featureId', args.req.body.featureId);
 
-			var params = [
-				{
-					$lookup: {
-						'as': 'app',
-						'from': 'tblApps',
-						'localField': 'appId',
-						'foreignField': '_id'
-					}
-				},
-				{
-					$unwind: '$app'
-				},
-				{
-					$project: {
-						'_id': 1,
-						'appId': 1,
-						'title': 1,
-						'bitid': '$app.bitid',
-						'app.icon': 1,
-						'app.name': 1,
-						'serverDate': 1,
-						'description': 1
-					}
-				},
-				{
-					$match: match
-				}
-			];
-
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblFeatures'
-			})
+			request.execute('v1_Features_Delete')
 				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'_id': args.req.body.featureId
-					};
-
-					deferred.resolve({
-						'params': params,
-						'operation': 'remove',
-						'collection': 'tblFeatures'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 70;
+						err.error.errors[0].reason = 'no records updated';
+						err.error.errors[0].message = 'no records updated';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2825,21 +2556,24 @@ var module = function () {
 		write: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email,
-				'scope': args.req.body.scope,
-				'appId': args.req.body.header.appId,
-				'serverDate': new Date()
-			};
+			const request = new sql.Request(__database);
+			request.input('scope', args.req.body.scope);
+			request.input('appId', args.req.body.header.appId);
+			request.input('userId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'operation': 'insert',
-				'collection': 'tblUsage'
-			})
+			request.execute('v1_Usage_Write')
 				.then(result => {
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 70;
+						err.error.errors[0].reason = 'no records inserted';
+						err.error.errors[0].message = 'no records inserted';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -2853,17 +2587,23 @@ var module = function () {
 		usage: (args) => {
 			var deferred = Q.defer();
 
-			var params = {};
+			const request = new sql.Request(__database);
+			request.input('userId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsage'
-			})
+			request.execute('v1_Usage_List')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = result.recordset.map(o => unwind(o));
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'no records found!';
+						err.error.errors[0].message = 'no records found!';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;

@@ -31,53 +31,46 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	BEGIN TRAN
+	INSERT INTO [dbo].[tblTokens]
+		(
+			[appId],
+			[userId],
+			[device],
+			[expiry],
+			[description]
+		)
+	VALUES
+		(
+			@appId,
+			@userId,
+			@device,
+			@expiry,
+			@description
+		)
+	
+	SELECT SCOPE_IDENTITY()
+	DECLARE @tokenId INT
+	SET @tokenId = SCOPE_IDENTITY()
 
-		INSERT INTO [dbo].[tblTokens]
-			(
-				[appId],
-				[userId],
-				[device],
-				[expiry],
-				[description]
-			)
-		VALUES
-			(
-				@appId,
-				@userId,
-				@device,
-				@expiry,
-				@description
-			)
-		
-		SELECT SCOPE_IDENTITY()
-		DECLARE @tokenId INT
-		SET @tokenId = SCOPE_IDENTITY()
+	INSERT INTO [dbo].[tblTokensUsers]
+		(
+			[role],
+			[userId],
+			[tokenId]
+		)
+	VALUES
+		(
+			5,
+			@userId,
+			@tokenId
+		)
 
-		INSERT INTO [dbo].[tblTokensUsers]
-			(
-				[role],
-				[userId],
-				[tokenId]
-			)
-		VALUES
-			(
-				5,
-				@userId,
-				@tokenId
-			)
+	SELECT @tokenId AS [_id]
 
-		SELECT @tokenId AS [_id]
-		RETURN 1
-
-	COMMIT TRAN
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	IF @@TRANCOUNT > 0
-		BEGIN
-			ROLLBACK TRAN
-		END
 	SELECT Error_Message() AS [message]
 	RETURN 0
 END CATCH
@@ -164,32 +157,32 @@ SET NOCOUNT ON
 BEGIN TRY
 
 	SELECT
-		t.[id] AS [_id],
+		[token].[id] AS [_id],
 		[device],
 		[expiry],
-		tu.[role],
-		tu.[userId],
-		ts.[scopeId],
+		[user].[role],
+		[user].[userId],
+		[scope].[scopeId],
 		[description],
-		app.[id] AS appAppId,
-		app.[icon] AS appIcon,
-		app.[name] AS appName
+		[app].[id] AS appAppId,
+		[app].[icon] AS appIcon,
+		[app].[name] AS appName
 	FROM
-		[dbo].[tblTokens] AS t
+		[dbo].[tblTokens] AS [token]
 	INNER JOIN
-		[dbo].[tblTokensUsers] AS tu
+		[dbo].[tblTokensUsers] AS [user]
 	ON
-		t.[id] = tu.[tokenId]
+		[token].[id] = [user].[tokenId]
 	INNER JOIN
-		[dbo].[tblTokensScopes] AS ts
+		[dbo].[tblTokensScopes] AS [scope]
 	ON
-		tu.[tokenId] = ts.[tokenId]
+		[user].[tokenId] = [scope].[tokenId]
 	INNER JOIN
-		[dbo].[tblApps] AS app
+		[dbo].[tblApps] AS [app]
 	ON
-		t.[appId] = app.[id]
+		[token].[appId] = [app].[id]
 	WHERE
-		ts.[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
+		[scope].[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
 
 	RETURN 1
 END TRY
@@ -271,33 +264,33 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	BEGIN TRAN
-	
-	DECLARE @deleted INT = 0
-	
-	IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] = 5 AND [userId] = @userId AND [tokenId] = @tokenId)
-	BEGIN
+		
+		DECLARE @deleted INT = 0
+		
+		IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] = 5 AND [userId] = @userId AND [tokenId] = @tokenId)
+		BEGIN
 
-		DELETE FROM
-			[dbo].[tblTokens]
-		WHERE
-			[id] = @tokenId
-		
-		SET @deleted = @deleted + @@ROWCOUNT
+			DELETE FROM
+				[dbo].[tblTokens]
+			WHERE
+				[id] = @tokenId
+			
+			SET @deleted = @deleted + @@ROWCOUNT
 
-		DELETE FROM
-			[dbo].[tblTokensUsers]
-		WHERE
-			[tokenId] = @tokenId
-		
-		SET @deleted = @deleted + @@ROWCOUNT
-        
-		DELETE FROM
-			[dbo].[tblTokensScopes]
-		WHERE
-			[tokenId] = @tokenId
-		
-		SET @deleted = @deleted + @@ROWCOUNT
-	END
+			DELETE FROM
+				[dbo].[tblTokensUsers]
+			WHERE
+				[tokenId] = @tokenId
+			
+			SET @deleted = @deleted + @@ROWCOUNT
+			
+			DELETE FROM
+				[dbo].[tblTokensScopes]
+			WHERE
+				[tokenId] = @tokenId
+			
+			SET @deleted = @deleted + @@ROWCOUNT
+		END
 
 	COMMIT TRAN
 
@@ -306,11 +299,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	IF @@TRANCOUNT > 0
-	BEGIN
-		ROLLBACK TRAN
-	END
-
+	ROLLBACK TRAN
 	SELECT Error_Message() AS [message]
 	RETURN 0
 END CATCH

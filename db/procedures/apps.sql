@@ -4,16 +4,16 @@ Set1 - Create stored procedure add
 
 -- Set1
 
-	PRINT 'Executing dbo.v1_Add_App.PRC'
+	PRINT 'Executing dbo.v1_Apps_Add.PRC'
 	GO
 
-	IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Add_App' AND type = 'P')
+	IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Add' AND type = 'P')
 	BEGIN
-		DROP PROCEDURE [dbo].[v1_Add_App]
+		DROP PROCEDURE [dbo].[v1_Apps_Add]
 	END
 	GO
 
-	CREATE PROCEDURE [dbo].[v1_Add_App]
+	CREATE PROCEDURE [dbo].[v1_Apps_Add]
 		@icon VARCHAR(255),
 		@userId INT,
 		@appUrl VARCHAR(255),
@@ -29,7 +29,7 @@ Set1 - Create stored procedure add
 
 	BEGIN TRY
 		BEGIN TRAN
-			EXEC [dbo].[v1_Add_App]
+			EXEC [dbo].[v1_Apps_Add]
 				@icon = @icon,
 				@userId = @userId,
 				@appUrl = @appUrl,
@@ -55,3 +55,48 @@ Set1 - Create stored procedure add
 	GO
 
 -- Set1
+
+-- Set2
+
+PRINT 'Executing dbo.v1_Apps_Get.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Get' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Get]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Get]
+	@appId INT,
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	SELECT
+		[url],
+		[icon],
+		[name],
+		[userId],
+		[secret],
+		[private],
+		[themeColor],
+		[googleDatabase],
+		[themeBackground],
+		[googleCredentials]
+	FROM
+		[dbo].[tblApps]
+	WHERE
+		[id] = @appId
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() as [message]
+	RETURN 0
+END CATCH
+GO
+
+-- Set2

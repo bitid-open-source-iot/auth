@@ -19,6 +19,7 @@ BEGIN TRY
 		[app].[url] AS [appUrl],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName],
+		[app].[private],
 		[user].[role],
 		[user].[userId],
 		[scope].[scopeId],

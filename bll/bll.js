@@ -183,9 +183,7 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(myModule.apps.validate, null)
-				.then(myModule.auth.verify, null)
+			myModule.auth.verify(args)
 				.then(emails.welcome, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
