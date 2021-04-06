@@ -859,6 +859,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			const request = new sql.Request(__database)
+
 			request.input('code', Math.floor(Math.random() * 900000 + 100000))
 			request.input('salt', args.req.body.salt)
 			request.input('hash', args.req.body.hash)
@@ -893,6 +894,7 @@ var module = function () {
 			request.input('addressPhysicalPostalCode', args.req.body.address.physical.postalCode || null)
 			request.input('addressPhysicalCompanyVat', args.req.body.address.physical.company.vat || null)
 			request.input('addressPhysicalCompanyReg', args.req.body.address.physical.company.reg || null)
+			
 			request.execute('v1_Auth_Register')
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {

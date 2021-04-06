@@ -1,6 +1,10 @@
 const bll = require('../bll/bll');
 const router = require('express').Router();
 
+router.use((req, res, next) => {
+	next();
+});
+
 router.post('/auth', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.auth(req, res);
@@ -21,7 +25,7 @@ router.put('/validate', (req, res) => {
 	myModule.auth.validate(req, res);
 });
 
-router.post('/changeemail', (req, res) => {
+router.post('/change-email', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.changeemail(req, res);
 });
@@ -31,17 +35,17 @@ router.put('/authenticate', (req, res) => {
 	myModule.auth.authenticate(req, res);
 });
 
-router.post('/allowaccess', (req, res) => {
+router.post('/allow-access', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.allowaccess(req, res);
 });
 
-router.put('/resetpassword', (req, res) => {
+router.put('/reset-password', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.resetpassword(req, res);
 });
 
-router.put('/changepassword', (req, res) => {
+router.put('/change-password', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.changepassword(req, res);
 });

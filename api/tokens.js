@@ -1,6 +1,10 @@
 const bll = require('../bll/bll');
 const router = require('express').Router();
 
+router.use((req, res, next) => {
+	next();
+});
+
 router.post('/get', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tokens.get(req, res);
@@ -41,7 +45,7 @@ router.post('/unsubscribe', (req, res) => {
 	myModule.tokens.unsubscribe(req, res);
 });
 
-router.post('/updatesubscriber', (req, res) => {
+router.post('/update-subscriber', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tokens.updatesubscriber(req, res);
 });

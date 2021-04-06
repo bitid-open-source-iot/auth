@@ -11,6 +11,7 @@ chai.use(subset);
 var email = config.email;
 var token = null;
 var appId = null;
+var userId = null;
 var scopeId = null;
 var tokenId = null;
 var featureId = null;
@@ -47,7 +48,7 @@ describe('Config', function () {
 
 describe('Auth', function () {
     it('/auth/register', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.register()
             .then((result) => {
@@ -69,7 +70,7 @@ describe('Auth', function () {
     });
 
     it('/auth/verify', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.verify()
             .then((result) => {
@@ -90,7 +91,7 @@ describe('Auth', function () {
     });
 
     it('/auth/authenticate', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.authenticate()
             .then((result) => {
@@ -111,7 +112,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/allowaccess', function (done) {
+    it('/auth/allow-access', function (done) {
         this.timeout(5000);
 
         tools.api.auth.allowaccess()
@@ -175,7 +176,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/changeemail', function (done) {
+    it('/auth/change-email', function (done) {
         this.timeout(5000);
 
         tools.api.auth.changeemail(config.email, 'aaa@xxx.co.za')
@@ -196,7 +197,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/changeemail', function (done) {
+    it('/auth/change-email', function (done) {
         this.timeout(5000);
 
         tools.api.auth.changeemail('aaa@xxx.co.za', email)
@@ -218,8 +219,8 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/changepassword', function (done) {
-        this.timeout(10000);
+    it('/auth/change-password', function (done) {
+        this.timeout(5000);
 
         tools.api.auth.changepassword()
             .then((result) => {
@@ -239,8 +240,8 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/resetpassword', function (done) {
-        this.timeout(10000);
+    it('/auth/reset-password', function (done) {
+        this.timeout(5000);
 
         tools.api.auth.resetpassword()
             .then((result) => {
@@ -390,7 +391,7 @@ describe('Apps', function () {
             });
     });
 
-    it('/apps/updatesubscriber', function (done) {
+    it('/apps/update-subscriber', function (done) {
         this.timeout(5000);
 
         tools.api.apps.updatesubscriber()
@@ -680,7 +681,7 @@ describe('Tokens', function () {
             });
     });
 
-    it('/tokens/updatesubscriber', function (done) {
+    it('/tokens/update-subscriber', function (done) {
         this.timeout(5000);
 
         tools.api.tokens.updatesubscriber()
@@ -1152,7 +1153,7 @@ var tools = {
             updatesubscriber: () => {
                 var deferred = Q.defer();
 
-                tools.post('/apps/updatesubscriber', {
+                tools.post('/apps/update-subscriber', {
                     'role': 3,
                     'email': 'shared@email.com',
                     'appId': appId
@@ -1250,7 +1251,7 @@ var tools = {
             changeemail: (current, replacement) => {
                 var deferred = Q.defer();
                 config.email = current;
-                tools.post('/auth/changeemail', {
+                tools.post('/auth/change-email', {
                     'email': replacement
                 }, loginToken)
                     .then(deferred.resolve, deferred.resolve);
@@ -1260,16 +1261,16 @@ var tools = {
             allowaccess: () => {
                 var deferred = Q.defer();
 
-                tools.post('/auth/allowaccess', {
+                tools.post('/auth/allow-access', {
                     'scopes': [
                         '/auth/verify',
                         '/auth/register',
                         '/auth/validate',
-                        '/auth/allowaccess',
-                        '/auth/changeemail',
+                        '/auth/allow-access',
+                        '/auth/change-email',
                         '/auth/authenticate',
-                        '/auth/resetpassword',
-                        '/auth/changepassword',
+                        '/auth/reset-password',
+                        '/auth/change-password',
 
                         '/users/get',
                         '/users/update',
@@ -1290,7 +1291,7 @@ var tools = {
                         '/tokens/retrieve',
                         '/tokens/generate',
                         '/tokens/unsubscribe',
-                        '/tokens/updatesubscriber',
+                        '/tokens/update-subscriber',
                         
                         '/apps/add',
                         '/apps/get',
@@ -1300,7 +1301,7 @@ var tools = {
                         '/apps/delete',
                         '/apps/listapp',
                         '/apps/unsubscribe',
-                        '/apps/updatesubscriber',
+                        '/apps/update-subscriber',
 
                         '/features/add',
                         '/features/get',
@@ -1335,7 +1336,7 @@ var tools = {
             resetpassword: () => {
                 var deferred = Q.defer();
 
-                tools.put('/auth/resetpassword', {})
+                tools.put('/auth/reset-password', {})
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1343,7 +1344,7 @@ var tools = {
             changepassword: () => {
                 var deferred = Q.defer();
 
-                tools.put('/auth/changepassword', {
+                tools.put('/auth/change-password', {
                     'old': config.password,
                     'new': 'QWERTY'
                 }, loginToken)
@@ -1615,7 +1616,7 @@ var tools = {
             updatesubscriber: () => {
                 var deferred = Q.defer();
 
-                tools.post('/tokens/updatesubscriber', {
+                tools.post('/tokens/update-subscriber', {
                     'role': 3,
                     'email': 'shared@test.co.za',
                     'tokenId': tokenId
@@ -1714,7 +1715,8 @@ var tools = {
 
         payload.header = {
             'email': config.email,
-            'appId': config.appId
+            'appId': config.appId,
+            'userId': userId
         };
 
         payload = JSON.stringify(payload);
@@ -1741,7 +1743,8 @@ var tools = {
 
         payload.header = {
             'email': config.email,
-            'appId': config.appId
+            'appId': config.appId,
+            'userId': userId
         };
 
         payload = JSON.stringify(payload);

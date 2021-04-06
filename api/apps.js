@@ -40,7 +40,7 @@ router.post('/delete', (req, res) => {
 	myModule.apps.delete(req, res);
 });
 
-router.put('/allowaccess', (req, res) => {
+router.put('/allow-access', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.allowaccess(req, res);
 });
@@ -50,7 +50,7 @@ router.post('/unsubscribe', (req, res) => {
 	myModule.apps.unsubscribe(req, res);
 });
 
-router.post('/updatesubscriber', (req, res) => {
+router.post('/update-subscriber', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.updatesubscriber(req, res);
 });
