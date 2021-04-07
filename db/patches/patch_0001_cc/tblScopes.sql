@@ -1,11 +1,7 @@
 /*
 Set1 - Create tblScopes including Unique index
 Set2 - Create AuditExact and Triggers
-Set3 - Insert initial record
 */
-
--- drop table tblScopes
--- drop table tblScopes_AuditExact
 
 -- Set1
 USE [auth]
@@ -53,8 +49,6 @@ GO
 
 PRINT 'Executing dbo.tr_tblScopes_AuditExact.TRG'
 GO
-
--- sp_helptext tr_tblScopes_AuditExact
 
 USE [auth]
 GO
@@ -152,22 +146,3 @@ END
 GO
 
 -- Set2
-
--- Set3
-
-INSERT INTO [dbo].[tblScopes]
-	(
-		[url],
-		[appId],
-		[userId],
-		[description]
-	)
-VALUES
-	(
-		'/auth/auth',
-		1,
-		1,
-		'authenticate'
-	)
-
--- Set3

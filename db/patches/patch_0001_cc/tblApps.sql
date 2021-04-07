@@ -1,7 +1,6 @@
 /*
 Set1 - Create tblApps including Unique index
 Set2 - Create AuditExact and Triggers
-Set3 - Insert initial record
 */
 
 -- Set1
@@ -194,34 +193,3 @@ END
 GO
 
 -- Set2
-
--- Set3
-
-INSERT INTO [dbo].[tblApps]
-	(
-		[url],
-		[icon],
-		[name],
-		[userId],
-		[secret],
-		[private],
-		[themeColor],
-		[googleDatabase],
-		[themeBackground],
-		[googleCredentials]
-	)
-VALUES
-	(
-		'https://auth.bitid.co.za',
-		'https://auth.bitid.co.za/assets/icons/icon-512x512.png',
-		'auth',
-		1,
-		'xxx',
-		0,
-		'#FFFFFF',
-		'xxx',
-		'#000000',
-		'{}'
-	)
-
--- Set3

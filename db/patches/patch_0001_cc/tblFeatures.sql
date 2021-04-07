@@ -1,11 +1,7 @@
 /*
 Set1 - Create tblFeatures including Unique index
 Set2 - Create AuditExact and Triggers
-Set3 - Insert initial record
 */
-
--- drop table tblFeatures
--- drop table tblFeatures_AuditExact
 
 -- Set1
 
@@ -52,8 +48,6 @@ GO
 
 PRINT 'Executing dbo.tr_tblFeatures_AuditExact.TRG'
 GO
-
--- sp_helptext tr_tblFeatures_AuditExact
 
 USE [auth]
 GO
@@ -151,22 +145,3 @@ END
 GO
 
 -- Set2
-
--- Set3
-
-INSERT INTO [dbo].[tblFeatures]
-	(
-		[title],
-		[appId],
-		[userId],
-		[description]
-	)
-VALUES
-	(
-		'/auth/auth',
-		1,
-		1,
-		'authenticate'
-	)
-
--- Set3

@@ -11,54 +11,122 @@ var module = function () {
 		add: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid': {
-					'auth': {
-						'users': args.req.body.users,
-						'organizationOnly': args.req.body.organizationOnly || 0
-					}
-				},
-				'url': args.req.body.url,
-				'icon': args.req.body.icon,
-				'name': args.req.body.name,
-				'theme': args.req.body.theme || {},
-				'scopes': args.req.body.scopes || [],
-				'secret': args.req.body.secret,
-				'domains': args.req.body.domains || [],
-				'private': args.req.body.private || false,
-				'serverDate': new Date()
-			};
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			if (typeof (args.req.body.google) != 'undefined') {
-				params.google = {};
-				if (typeof (args.req.body.google.database) != 'undefined') {
-					params.google.database = args.req.body.google.database;
-				};
-				if (typeof (args.req.body.google.credentials) == 'object') {
-					params.google.credentials = args.req.body.google.credentials;
-				};
-			} else {
-				params.google = {
-					'database': '',
-					'credentials': {}
-				};
-			};
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			db.call({
-				'params': params,
-				'operation': 'insert',
-				'collection': 'tblApps'
-			})
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			args.req.body.private = Number(args.req.body.private)
+			args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('url', args.req.body.url)
+						.input('icon', args.req.body.icon)
+						.input('name', args.req.body.name)
+						.input('secret', args.req.body.secret)
+						.input('userId', args.req.body.header.userId)
+						.input('private', args.req.body.private)
+						.input('themeColor', args.req.body.theme.color)
+						.input('googleDatabase', args.req.body.google.database)
+						.input('themeBackground', args.req.body.theme.background)
+						.input('googleCredentials', args.req.body.google.credentials)
+						.execute('v1_Apps_Add');
+				}, null)
 				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.req.body.users.reduce((promise, user) => promise.then(() => new sql.Request(transaction)
+						.input('role', user.role)
+						.input('appId', args.result._id)
+						.input('userId', user.userId)
+						.execute('v1_Apps_Add_User')
+					), Promise.resolve())
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.req.body.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
+						.input('appId', args.result._id)
+						.input('userId', args.req.body.header.userId)
+						.input('scopeId', scopeId)
+						.execute('v1_Apps_Add_Scope')
+					), Promise.resolve())
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.req.body.domains.reduce((promise, url) => promise.then(() => new sql.Request(transaction)
+						.input('url', url)
+						.input('appId', args.result._id)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Apps_Add_Domain')
+					), Promise.resolve())
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -66,36 +134,42 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': args.req.body.appId
-			};
+			const request = new sql.Request(__database);
 
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'appId') {
-						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
-						filter['bitid.auth.users'] = 1;
-					} else if (f == 'organizationOnly') {
-						filter['bitid.auth.organizationOnly'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
-			};
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
+			request.execute('v1_Apps_Get')
 				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.result = {
+							bitid: {
+								auth: {
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+								}
+							},
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							domains: _.uniqBy(result, 'domain').map(o => o.domain),
+							_id: result[0]._id,
+							url: result[0].url,
+							icon: result[0].icon,
+							name: result[0].name,
+							theme: result[0].theme,
+							google: result[0].google,
+							secret: result[0].secret,
+							private: result[0].private
+						};
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -109,32 +183,34 @@ var module = function () {
 		load: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': args.req.body.appId
-			};
+			const request = new sql.Request(__database);
 
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'appId') {
-						filter['_id'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
-			};
+			request.input('appId', args.req.body.appId);
 
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
+			request.execute('v1_Apps_Load')
 				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.result = {
+							_id: result[0]._id,
+							url: result[0].url,
+							icon: result[0].icon,
+							name: result[0].name,
+							theme: result[0].theme,
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							domains: _.uniqBy(result, 'domain').map(o => o.domain),
+							private: result[0].private
+						};
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -148,56 +224,42 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users.email': args.req.body.header.email
-			};
+			const request = new sql.Request(__database);
 
-			if (typeof (args.req.body.appId) != 'undefined') {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
-					params._id = {
-						$in: args.req.body.appId
-					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
-					params._id = args.req.body.appId;
-				};
-			};
+			request.input('userId', args.req.body.header.userId);
 
-			if (typeof (args.req.body.private) != 'undefined') {
-				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
-					params.private = {
-						$in: args.req.body.private
-					};
-				} else if (typeof (args.req.body.private) == 'boolean') {
-					params.private = args.req.body.private;
-				};
-			};
-
-			var filter = {};
-			if (typeof (args.req.body.filter) != 'undefined') {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'appId') {
-						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
-						filter['bitid.auth.users'] = 1;
-					} else if (f == 'organizationOnly') {
-						filter['bitid.auth.organizationOnly'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
-			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
+			request.execute('v1_Apps_List')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = _.chain(result.recordset.map(o => unwind(o))).groupBy('_id').map((apps, key) => {
+							return {
+								bitid: {
+									auth: {
+										users: _.uniqBy(apps.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+									}
+								},
+								scopes: _.uniqBy(apps, 'scopeId').map(o => o.scopeId),
+								domains: _.uniqBy(apps, 'domain').map(o => o.domain),
+								_id: apps[0]._id,
+								url: apps[0].url,
+								icon: apps[0].icon,
+								name: apps[0].name,
+								theme: apps[0].theme,
+								google: apps[0].google,
+								secret: apps[0].secret,
+								private: apps[0].private
+							}
+						}).value();
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -211,43 +273,27 @@ var module = function () {
 		share: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'bitid.auth.users.email': {
-					$ne: args.req.body.email
-				},
-				'_id': args.req.body.appId
-			};
+			const request = new sql.Request(__database);
 
-			var update = {
-				$set: {
-					'serverDate': new Date()
-				},
-				$push: {
-					'bitid.auth.users': {
-						'role': args.req.body.role,
-						'email': args.req.body.email
-					}
-				}
-			};
+			request.input('role', args.req.body.role);
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.userId);
+			request.input('adminId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblApps'
-			})
+			request.execute('v1_Apps_Share')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -337,27 +383,25 @@ var module = function () {
 		delete: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': args.req.body.appId
-			};
+			const request = new sql.Request(__database);
 
-			db.call({
-				'params': params,
-				'operation': 'remove',
-				'collection': 'tblApps'
-			})
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.header.userId);
+
+			request.execute('v1_Apps_Delete')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -1688,7 +1732,7 @@ var module = function () {
 
 			return deferred.promise;
 		},
-		
+
 		delete: (args) => {
 			var deferred = Q.defer();
 

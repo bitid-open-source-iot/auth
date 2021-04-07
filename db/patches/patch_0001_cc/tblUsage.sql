@@ -1,6 +1,5 @@
 /*
-Set1 - Create tblUsage including Unique index
-Set2 - Insert initial record
+Set1 - Create tblUsage
 */
 
 -- Set1
@@ -19,20 +18,3 @@ CREATE TABLE [dbo].[tblUsage]
 );
 
 -- Set1
-
--- Set3
-
-INSERT INTO [dbo].[tblUsage]
-	(
-		[appId],
-		[userId],
-		[scopeId]
-	)
-VALUES
-	(
-		1,
-		1,
-		1
-	);
-
--- Set3
