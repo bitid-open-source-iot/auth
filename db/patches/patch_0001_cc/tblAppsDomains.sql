@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[tblAppsDomains]
 	[appId] INT NOT NULL,
 	PRIMARY KEY (id)
 )
-CREATE UNIQUE INDEX tblAppsDomainsAppIdDomain ON [dbo].[tblAppsDomains] (appId, domain)
+CREATE UNIQUE INDEX tblAppsDomainsUrlAppId ON [dbo].[tblAppsDomains] (url, appId)
 
 -- Set1
 
