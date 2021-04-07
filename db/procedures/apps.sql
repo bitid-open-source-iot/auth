@@ -770,6 +770,12 @@ BEGIN TRY
 		SELECT 'You are not an admin user on this application!' AS [message], 503 AS [code]
 		RETURN 0
 	END
+	
+	IF NOT EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [appId] = @appId AND [userId] = @userId)
+	BEGIN
+		SELECT 'User is not shared to this application!' AS [message], 503 AS [code]
+		RETURN 0
+	END
 
 	IF (@role > 4)
 	BEGIN

@@ -444,8 +444,8 @@ var module = function () {
 			transaction.begin()
 				.then(res => {
 					return new sql.Request(transaction)
-						.input('userId', args.req.body.header.userId)
-						.execute('v1_Users_Get');
+						.input('email', args.req.body.header.email)
+						.execute('v1_Users_Get_By_Email');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -458,14 +458,12 @@ var module = function () {
 							if (args.user.validated == 1) {
 								deferred.resolve(args);
 							} else {
-								var err = new ErrorResponse();
 								err.error.errors[0].code = 401;
 								err.error.errors[0].reason = 'Account verification is required!';
 								err.error.errors[0].message = 'Account verification is required!';
 								deferred.reject(err);
 							};
 						} else {
-							var err = new ErrorResponse();
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Password is incorrect!';
 							err.error.errors[0].message = 'Password is incorrect!';
@@ -515,12 +513,12 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.appId)
-						.input('userId', args.req.body.header.userId)
+						.input('userId', args.user.id)
 						.input('bearer', args.req.body.bearer)
 						.input('device', args.req.headers['user-agent'])
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
-						.input('description', args.req.body.description || args.app.name)
+						.input('description', args.req.body.description || args.app.app.name)
 						.execute('v1_tblTokens_Add');
 				}, null)
 				.then(result => {
@@ -529,6 +527,8 @@ var module = function () {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.tokenId = unwind(result.recordset[0])._id;
 						args.result._id = args.tokenId;
+						args.result.token.timezone = args.user.timezone;
+						args.result.token.description = args.req.body.description || args.app.app.name;
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -542,7 +542,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('role', 5)
-						.input('userId', args.req.body.header.userId)
+						.input('userId', args.user.id)
 						.input('tokenId', args.tokenId)
 						.execute('v1_tblTokensUsers_Add');
 				}, null)
@@ -562,7 +562,7 @@ var module = function () {
 				}, null)
 				.then(res => {
 					return args.app.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
-						.input('userId', args.req.body.header.userId)
+						.input('userId', args.user.id)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
 						.execute('v1_tblTokensScopes_Add')
@@ -1735,33 +1735,83 @@ var module = function () {
 		delete: (args) => {
 			var deferred = Q.defer();
 
-			const request = new sql.Request(__database);
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			request.input('userId', args.req.body.header.userId);
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_Users_Delete')
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Users_Get');
+				}, null)
 				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
+						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
+
+						if (password.hash == args.user.hash) {
+							if (args.user.validated == 1) {
+								deferred.resolve(args);
+							} else {
+								err.error.errors[0].code = 401;
+								err.error.errors[0].reason = 'Account verification is required!';
+								err.error.errors[0].message = 'Account verification is required!';
+								deferred.reject(err);
+							};
+						} else {
+							err.error.errors[0].code = 401;
+							err.error.errors[0].reason = 'Password is incorrect!';
+							err.error.errors[0].message = 'Password is incorrect!';
+							deferred.reject(err);
+						};
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Users_Delete');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
 						err.error.errors[0].code = result.recordset[0].code;
 						err.error.errors[0].reason = result.recordset[0].message;
 						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
-					}
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
 				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
-		}
+		},
 	};
 
 	var dalScopes = {

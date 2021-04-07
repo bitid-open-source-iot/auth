@@ -228,3 +228,42 @@ END CATCH
 GO
 
 -- Set3
+
+-- Set4
+
+PRINT 'Executing dbo.v1_Users_Delete.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Users_Delete' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Users_Delete]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Users_Delete]
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DECLARE @deleted INT = 0
+
+	DELETE FROM
+		[dbo].[tblUsers]
+	WHERE
+		[id] = @userId
+
+	SET @deleted = @deleted + @@ROWCOUNT
+
+	SELECT @deleted AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set4
