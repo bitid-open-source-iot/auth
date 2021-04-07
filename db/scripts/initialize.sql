@@ -1,17 +1,27 @@
 USE [auth]
 
-TRUNCATE TABLE [dbo].[tblScopes]
-TRUNCATE TABLE [dbo].[tblScopes_AuditExact]
-TRUNCATE TABLE [dbo].[tblApps]
-TRUNCATE TABLE [dbo].[tblApps_AuditExact]
-TRUNCATE TABLE [dbo].[tblAppsUsers]
-TRUNCATE TABLE [dbo].[tblAppsUsers_AuditExact]
-TRUNCATE TABLE [dbo].[tblAppsScopes]
-TRUNCATE TABLE [dbo].[tblAppsScopes_AuditExact]
-TRUNCATE TABLE [dbo].[tblAppsDomains]
-TRUNCATE TABLE [dbo].[tblAppsDomains_AuditExact]
-TRUNCATE TABLE [dbo].[tblUsers]
-TRUNCATE TABLE [dbo].[tblUsers_AuditExact]
+TRUNCATE TABLE tblApps
+TRUNCATE TABLE tblApps_AuditExact
+TRUNCATE TABLE tblAppsDomains
+TRUNCATE TABLE tblAppsDomains_AuditExact
+TRUNCATE TABLE tblAppsScopes
+TRUNCATE TABLE tblAppsScopes_AuditExact
+TRUNCATE TABLE tblAppsUsers
+TRUNCATE TABLE tblAppsUsers_AuditExact
+TRUNCATE TABLE tblFeatures
+TRUNCATE TABLE tblFeatures_AuditExact
+TRUNCATE TABLE tblScopes
+TRUNCATE TABLE tblScopes_AuditExact
+TRUNCATE TABLE tblTokens
+TRUNCATE TABLE tblTokens_AuditExact
+TRUNCATE TABLE tblTokensScopes
+TRUNCATE TABLE tblTokensScopes_AuditExact
+TRUNCATE TABLE tblTokensUsers
+TRUNCATE TABLE tblTokensUsers_AuditExact
+TRUNCATE TABLE tblUsage
+-- TRUNCATE TABLE tblUsage_AuditExact
+TRUNCATE TABLE tblUsers
+TRUNCATE TABLE tblUsers_AuditExact
 
 DECLARE @url VARCHAR(255) = 'https://auth.bitid.co.za'
 DECLARE @icon VARCHAR(255) = 'https://auth.bitid.co.za/assets/icons/icon-512x512.png'

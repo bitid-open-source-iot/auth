@@ -48,7 +48,7 @@ describe('Config', function () {
 
 describe('Auth', function () {
     it('/auth/register', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
 
         tools.api.auth.register()
             .then((result) => {
@@ -70,7 +70,7 @@ describe('Auth', function () {
     });
 
     it('/auth/verify', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
 
         tools.api.auth.verify()
             .then((result) => {
@@ -96,9 +96,10 @@ describe('Auth', function () {
         tools.api.auth.authenticate()
             .then((result) => {
                 try {
-                    token = result[0].token;
-                    result[0].should.have.property('email');
-                    result[0].should.have.property('token');
+                    result.should.have.property('token');
+                    result.should.have.property('userId');
+                    token = result.token;
+                    userId = result.userId;
                     done();
                 } catch (e) {
                     done(e);
@@ -118,10 +119,10 @@ describe('Auth', function () {
         tools.api.auth.allowaccess()
             .then((result) => {
                 try {
-                    token = result[0].token;
-                    tokenId = result[0]._id;
-                    result[0].should.have.property('_id');
-                    result[0].should.have.property('token');
+                    token = result.token;
+                    tokenId = result.tokenId;
+                    result.should.have.property('token');
+                    result.should.have.property('tokenId');
                     done();
                 } catch (e) {
                     done(e);
@@ -136,7 +137,7 @@ describe('Auth', function () {
     });
 
     it('/auth/validate', function (done) {
-        this.timeout(5000);
+        this.timeout(500000);
 
         tools.api.auth.validate()
             .then((result) => {
@@ -220,7 +221,7 @@ describe('Auth', function () {
     });
 
     it('/auth/reset-password', function (done) {
-        this.timeout(5000);
+        this.timeout(10000);
 
         tools.api.auth.resetpassword()
             .then((result) => {
@@ -869,27 +870,6 @@ describe('Health Check', function () {
 });
 
 describe('Remove Added Items', function () {
-    it('/users/delete', function (done) {
-        this.timeout(5000);
-
-        tools.api.users.delete()
-            .then((result) => {
-                try {
-                    result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
     it('/features/delete', function (done) {
         this.timeout(5000);
 
@@ -936,6 +916,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.apps.delete()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+    
+    it('/users/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.users.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1232,56 +1233,53 @@ var tools = {
 
                 tools.post('/auth/allow-access', {
                     'scopes': [
-                        '/auth/verify',
-                        '/auth/register',
-                        '/auth/validate',
-                        '/auth/allow-access',
-                        '/auth/change-email',
-                        '/auth/authenticate',
-                        '/auth/reset-password',
-                        '/auth/change-password',
-
-                        '/users/get',
-                        '/users/update',
-                        '/users/delete',
-                        '/users/getusers',
-
-                        '/scopes/add',
-                        '/scopes/get',
-                        '/scopes/list',
-                        '/scopes/update',
-                        '/scopes/delete',
-
-                        '/tokens/get',
-                        '/tokens/list',
-                        '/tokens/share',
-                        '/tokens/revoke',
-                        '/tokens/download',
-                        '/tokens/retrieve',
-                        '/tokens/generate',
-                        '/tokens/unsubscribe',
-                        '/tokens/update-subscriber',
-                        
-                        '/apps/add',
-                        '/apps/get',
-                        '/apps/list',
-                        '/apps/share',
-                        '/apps/update',
-                        '/apps/delete',
-                        '/apps/listapp',
-                        '/apps/unsubscribe',
-                        '/apps/update-subscriber',
-
-                        '/features/add',
-                        '/features/get',
-                        '/features/list',
-                        '/features/update',
-                        '/features/delete',
+                        1,
+                        2,
+                        3,
+                        4,
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                        42,
+                        43,
+                        44
                     ],
-                    'appId': appId,
+                    'appId': config.appId,
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-                    // 'password': config.password,
-                    // 'tokenAddOn': {},
                     'description': 'test'
                 }, loginToken)
                     .then(deferred.resolve, deferred.resolve);
@@ -1296,7 +1294,7 @@ var tools = {
                     'password': config.password
                 })
                     .then(res => {
-                        loginToken = res[0].token;
+                        loginToken = res.token;
                         deferred.resolve(res);
                     }, deferred.resolve);
 

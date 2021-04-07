@@ -1,6 +1,5 @@
 const Q = require('q');
 const _ = require('lodash');
-const db = require('../db/sql');
 const sql = require('mssql');
 const tools = require('../lib/tools');
 const unwind = require('../lib/unwind');
@@ -849,11 +848,14 @@ var module = function () {
 				};
 			};
 
+			args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
+
 			const request = new sql.Request(__database);
+			
 			request.input('appId', args.req.body.header.appId);
 			request.input('scope', args.req.body.scope);
 			request.input('userId', args.req.body.header.userId);
-			request.input('expiry', new Date(args.req.headers.authorization.expiry));
+			request.input('expiry', args.req.headers.authorization.expiry);
 			request.input('bearer', args.req.headers.authorization.bearer);
 			request.input('description', args.req.headers.authorization.description);
 
@@ -1040,6 +1042,7 @@ var module = function () {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.user = unwind(result.recordset[0]);
 						if (args.user.validated == 1) {
+							args.result.userId = args.user.id;
 							deferred.resolve(args);
 						} else {
 							err.error.errors[0].code = 401;
@@ -1126,7 +1129,7 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.tokenId = unwind(result.recordset[0])._id;
-						args.result._id = args.tokenId;
+						args.result.tokenId = args.tokenId;
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -1229,12 +1232,14 @@ var module = function () {
 				.then(result => {
 					var deferred = Q.defer();
 
-					if (result.recordset.length > 0) {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.user = unwind(result.recordset[0]);
 						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
 
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
+								args.result.userId = args.user.id;
+								args.result.token.timezone = args.user.timezone;
 								deferred.resolve(args);
 							} else {
 								err.error.errors[0].code = 401;
@@ -1249,9 +1254,9 @@ var module = function () {
 							deferred.reject(err);
 						};
 					} else {
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
 					};
 

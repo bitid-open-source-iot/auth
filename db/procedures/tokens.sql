@@ -133,6 +133,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_Add_Scope]
+	@userId INT,
 	@scopeId INT,
 	@tokenId INT
 AS
@@ -148,11 +149,13 @@ BEGIN TRY
 
 	INSERT INTO [dbo].[tblTokensScopes]
 		(
+			[userId],
 			[scopeId],
 			[tokenId]
 		)
 	VALUES
 		(
+			@userId,
 			@scopeId,
 			@tokenId
 		)
