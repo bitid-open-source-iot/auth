@@ -160,6 +160,11 @@ var module = function () {
 							secret: result[0].secret,
 							private: result[0].private
 						};
+						try {
+							args.result.google.credentials = JSON.parse(args.result.google.credentials);
+						} catch (error) {
+							args.result.google.credentials = {};
+						};
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -232,6 +237,11 @@ var module = function () {
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = _.chain(result.recordset.map(o => unwind(o))).groupBy('_id').map((apps, key) => {
+							try {
+								apps[0].google.credentials = JSON.parse(apps[0].google.credentials);
+							} catch (error) {
+								apps[0].google.credentials = {};
+							};
 							return {
 								bitid: {
 									auth: {
@@ -307,75 +317,194 @@ var module = function () {
 		update: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': args.req.body.appId
-			};
-
-			var update = {
-				$set: {
-					'serverDate': new Date()
+			if (typeof (args.req.body.url) == 'undefined' || args.req.body.url == null) {
+				args.req.body.url = null
+			}
+			if (typeof (args.req.body.icon) == 'undefined' || args.req.body.icon == null) {
+				args.req.body.icon = null
+			}
+			if (typeof (args.req.body.name) == 'undefined' || args.req.body.name == null) {
+				args.req.body.name = null
+			}
+			if (typeof (args.req.body.secret) == 'undefined' || args.req.body.secret == null) {
+				args.req.body.secret = null
+			}
+			if (typeof (args.req.body.private) == 'undefined' || args.req.body.private == null) {
+				args.req.body.private = null
+			}
+			if (typeof (args.req.body.theme) == 'undefined' || args.req.body.theme == null) {
+				args.req.body.theme = {}
+				if (typeof (args.req.body.theme.color) == 'undefined' || args.req.body.theme.color == null) {
+					args.req.body.theme.color = null
 				}
-			};
-			if (typeof (args.req.body.google) != 'undefined') {
-				if (typeof (args.req.body.google.database) != 'undefined') {
-					update.$set['google.database'] = args.req.body.google.database;
-				};
-				if (typeof (args.req.body.google.credentials) == 'object') {
-					update.$set['google.credentials'] = args.req.body.google.credentials;
-				};
-			};
-			if (typeof (args.req.body.url) != 'undefined') {
-				update.$set.url = args.req.body.url;
-			};
-			if (typeof (args.req.body.name) != 'undefined') {
-				update.$set.name = args.req.body.name;
-			};
-			if (typeof (args.req.body.icon) != 'undefined') {
-				update.$set.icon = args.req.body.icon;
-			};
-			if (typeof (args.req.body.theme) != 'undefined') {
-				update.$set.theme = args.req.body.theme;
-			};
-			if (typeof (args.req.body.secret) != 'undefined') {
-				update.$set.secret = args.req.body.secret;
-			};
-			if (typeof (args.req.body.scopes) != 'undefined') {
-				update.$set.scopes = args.req.body.scopes;
-			};
-			if (typeof (args.req.body.domains) != 'undefined') {
-				update.$set.domains = args.req.body.domains;
-			};
-			if (typeof (args.req.body.private) != 'undefined') {
-				update.$set.private = args.req.body.private;
-			};
-			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly !== null) {
-				update.$set['bitid.auth.organizationOnly'] = args.req.body.organizationOnly;
-			};
+				if (typeof (args.req.body.theme.background) == 'undefined' || args.req.body.theme.background == null) {
+					args.req.body.theme.background = null
+				}
+			}
+			if (typeof (args.req.body.google) == 'undefined' || args.req.body.google == null) {
+				args.req.body.google = {}
+				if (typeof (args.req.body.google.color) == 'undefined' || args.req.body.google.color == null) {
+					args.req.body.google.color = null
+				}
+				if (typeof (args.req.body.google.background) == 'undefined' || args.req.body.google.background == null) {
+					args.req.body.google.background = null
+				}
+			}
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblApps'
-			})
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
+
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
+
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('url', args.req.body.url)
+						.input('icon', args.req.body.icon)
+						.input('name', args.req.body.name)
+						.input('appId', args.req.body.appId)
+						.input('secret', args.req.body.secret)
+						.input('userId', args.req.body.header.userId)
+						.input('private', args.req.body.private)
+						.input('themeColor', args.req.body.theme.color)
+						.input('googleDatabase', args.req.body.google.database)
+						.input('themeBackground', args.req.body.theme.background)
+						.input('googleCredentials', args.req.body.google.credentials)
+						.execute('v1_Apps_Update');
+				}, null)
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					if (Array.isArray(args.req.body.scopes) && args.req.body.scopes.length > 0) {
+						return new sql.Request(transaction)
+							.input('appId', args.req.body.appId)
+							.execute('v1_Apps_Purge_Scopes');
+					} else {
+						return Promise.resolve();
+					};
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (typeof (args.req.body.scopes) == 'undefined' && args.req.body.scopes == null) {
+						deferred.resolve(args);
+					} else if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					if (Array.isArray(args.req.body.scopes) && args.req.body.scopes.length > 0) {
+						return args.req.body.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
+							.input('appId', args.req.body.appId)
+							.input('userId', args.req.body.header.userId)
+							.input('scopeId', scopeId)
+							.execute('v1_Apps_Add_Scope')
+						), Promise.resolve());
+					} else {
+						return Promise.resolve();
+					};
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (typeof (args.req.body.scopes) == 'undefined' && args.req.body.scopes == null) {
+						deferred.resolve(args);
+					} else if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					if (Array.isArray(args.req.body.domains) && args.req.body.domains.length > 0) {
+						return new sql.Request(transaction)
+							.input('appId', args.req.body.appId)
+							.execute('v1_Apps_Purge_Domains');
+					} else {
+						return Promise.resolve();
+					};
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (typeof (args.req.body.domains) == 'undefined' && args.req.body.domains == null) {
+						deferred.resolve(args);
+					} else if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					if (Array.isArray(args.req.body.domains) && args.req.body.domains.length > 0) {
+						return args.req.body.domains.reduce((promise, url) => promise.then(() => new sql.Request(transaction)
+							.input('url', url)
+							.input('appId', args.req.body.appId)
+							.input('userId', args.req.body.header.userId)
+							.execute('v1_Apps_Add_Domain')
+						), Promise.resolve())
+					} else {
+						return Promise.resolve();
+					};
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (typeof (args.req.body.domains) == 'undefined' && args.req.body.domains == null) {
+						deferred.resolve(args);
+					} else if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -661,152 +790,6 @@ var module = function () {
 	};
 
 	var dalAuth = {
-		auth: (args) => {
-			var deferred = Q.defer();
-
-			var token = JSON.parse(args.req.headers.authorization);
-
-			var params = {
-				'token': token,
-				'appId': args.req.body.header.appId,
-				'bitid.auth.users.email': args.req.body.header.email
-			};
-
-			var filter = {
-				'_id': 1
-			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblTokens'
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var scopes = [];
-					token.scopes.map(scope => {
-						if (typeof (scope) == 'object' && typeof (scope) !== null) {
-							scopes.push(scope.url);
-						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
-							scopes.push(scope);
-						};
-					});
-
-					var params = {
-						'url': {
-							$in: scopes
-						}
-					};
-
-					var filter = {
-						'url': 1,
-						'roles': 1
-					};
-
-					deferred.resolve({
-						'params': params,
-						'filter': filter,
-						'operation': 'find',
-						'collection': 'tblScopes'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					var scopes = [];
-					token.scopes.map(scope => {
-						if (typeof (scope) == 'object' && typeof (scope) !== null) {
-							scopes.push(scope.url);
-						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
-							scopes.push(scope);
-						};
-					});
-
-					var valid = false;
-					var found = false;
-					result.map(row => {
-						if (row.url == args.req.originalUrl || row.url == args.req.body.reqURI || row.url == '*') {
-							found = true;
-							scopes.map(scope => {
-								if (row.roles.includes(scope.role)) {
-									valid = true;
-								};
-							});
-						};
-					});
-
-					if (!found) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope not allowed: ' + args.req.reqURI;
-						err.error.errors[0].message = 'Scope not allowed: ' + args.req.reqURI;
-						deferred.reject(err);
-					} else if (!valid) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope role not allowed: ' + args.req.reqURI;
-						err.error.errors[0].message = 'Scope role not allowed: ' + args.req.reqURI;
-						deferred.reject(err);
-					} else {
-						deferred.resolve(args);
-					};
-				}, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					var now = new Date();
-					var expiry = new Date(token.expiry);
-
-					if (expiry < now) {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Token Expired';
-						err.error.errors[0].message = 'Token Expired';
-						deferred.reject(err);
-					} else {
-						deferred.resolve(args);
-					};
-
-					return deferred.promise;
-				}, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'_id': args.req.body.header.appId
-					};
-
-					var filter = {
-						'_id': 1
-					};
-
-					deferred.resolve({
-						'params': params,
-						'filter': filter,
-						'operation': 'find',
-						'collection': 'tblApps'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					deferred.resolve([{
-						'email': args.req.body.header.email,
-						'appId': args.req.body.header.appId
-					}]);
-				}, err => {
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
 		verify: (args) => {
 			var deferred = Q.defer();
 
@@ -1602,126 +1585,161 @@ var module = function () {
 		update: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email
-			};
-
-			var update = {
-				$set: {
-					'serverDate': new Date()
+			if (typeof (args.req.body.picture) == 'undefined' || args.req.body.picture == null) {
+				args.req.body.picture = null
+			}
+			if (typeof (args.req.body.language) == 'undefined' || args.req.body.language == null) {
+				args.req.body.language = null
+			}
+			if (typeof (args.req.body.timezone) == 'undefined' || args.req.body.timezone == null) {
+				args.req.body.timezone = null
+			}
+			if (typeof (args.req.body.username) == 'undefined' || args.req.body.username == null) {
+				args.req.body.username = null
+			}
+			if (typeof (args.req.body.name) == 'undefined' || args.req.body.name == null) {
+				args.req.body.name = {};
+				if (typeof (args.req.body.name.last) == 'undefined' || args.req.body.name.last == null) {
+					args.req.body.name.last = null
 				}
-			};
-			if (typeof (args.req.body.picture) != 'undefined') {
-				update.$set.picture = args.req.body.picture;
-			};
-			if (typeof (args.req.body.language) != 'undefined') {
-				update.$set.language = args.req.body.language;
-			};
-			if (typeof (args.req.body.timezone) != 'undefined') {
-				update.$set.timezone = args.req.body.timezone;
-			};
-			if (typeof (args.req.body.username) != 'undefined') {
-				update.$set.username = args.req.body.username;
-			};
-			if (typeof (args.req.body.name) != 'undefined') {
-				if (typeof (args.req.body.name.last) != 'undefined') {
-					update.$set['name.last'] = args.req.body.name.last;
-				};
-				if (typeof (args.req.body.name.first) != 'undefined') {
-					update.$set['name.first'] = args.req.body.name.first;
-				};
-				if (typeof (args.req.body.name.middle) != 'undefined') {
-					update.$set['name.middle'] = args.req.body.name.middle;
-				};
-			};
-			if (typeof (args.req.body.number) != 'undefined') {
-				if (typeof (args.req.body.number.tel) != 'undefined') {
-					update.$set['number.tel'] = args.req.body.number.tel;
-				};
-				if (typeof (args.req.body.number.mobile) != 'undefined') {
-					update.$set['number.mobile'] = args.req.body.number.mobile;
-				};
-			};
-			if (typeof (args.req.body.address) != 'undefined') {
-				if (typeof (args.req.body.address.billing) != 'undefined') {
-					if (typeof (args.req.body.address.billing.company) != 'undefined') {
-						if (typeof (args.req.body.address.billing.company.vat) != 'undefined') {
-							update.$set['address.billing.company.vat'] = args.req.body.address.billing.company.vat;
-						};
-						if (typeof (args.req.body.address.billing.company.reg) != 'undefined') {
-							update.$set['address.billing.company.reg'] = args.req.body.address.billing.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.billing.street) != 'undefined') {
-						update.$set['address.billing.street'] = args.req.body.address.billing.street;
-					};
-					if (typeof (args.req.body.address.billing.suburb) != 'undefined') {
-						update.$set['address.billing.suburb'] = args.req.body.address.billing.suburb;
-					};
-					if (typeof (args.req.body.address.billing.country) != 'undefined') {
-						update.$set['address.billing.country'] = args.req.body.address.billing.country;
-					};
-					if (typeof (args.req.body.address.billing.cityTown) != 'undefined') {
-						update.$set['address.billing.cityTown'] = args.req.body.address.billing.cityTown;
-					};
-					if (typeof (args.req.body.address.billing.additional) != 'undefined') {
-						update.$set['address.billing.additional'] = args.req.body.address.billing.additional;
-					};
-					if (typeof (args.req.body.address.billing.postalCode) != 'undefined') {
-						update.$set['address.billing.postalCode'] = args.req.body.address.billing.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.physical) != 'undefined') {
-					if (typeof (args.req.body.address.physical.company) != 'undefined') {
-						if (typeof (args.req.body.address.physical.company.vat) != 'undefined') {
-							update.$set['address.physical.company.vat'] = args.req.body.address.physical.company.vat;
-						};
-						if (typeof (args.req.body.address.physical.company.reg) != 'undefined') {
-							update.$set['address.physical.company.reg'] = args.req.body.address.physical.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.physical.street) != 'undefined') {
-						update.$set['address.physical.street'] = args.req.body.address.physical.street;
-					};
-					if (typeof (args.req.body.address.physical.suburb) != 'undefined') {
-						update.$set['address.physical.suburb'] = args.req.body.address.physical.suburb;
-					};
-					if (typeof (args.req.body.address.physical.country) != 'undefined') {
-						update.$set['address.physical.country'] = args.req.body.address.physical.country;
-					};
-					if (typeof (args.req.body.address.physical.cityTown) != 'undefined') {
-						update.$set['address.physical.cityTown'] = args.req.body.address.physical.cityTown;
-					};
-					if (typeof (args.req.body.address.physical.additional) != 'undefined') {
-						update.$set['address.physical.additional'] = args.req.body.address.physical.additional;
-					};
-					if (typeof (args.req.body.address.physical.postalCode) != 'undefined') {
-						update.$set['address.physical.postalCode'] = args.req.body.address.physical.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.same) != 'undefined') {
-					update.$set['address.same'] = args.req.body.address.same;
-				};
-			};
-			if (typeof (args.req.body.identification) != 'undefined') {
-				if (typeof (args.req.body.identification.type) != 'undefined') {
-					update.$set['identification.type'] = args.req.body.identification.type;
-				};
-				if (typeof (args.req.body.identification.number) != 'undefined') {
-					update.$set['identification.number'] = args.req.body.identification.number;
-				};
-			};
+				if (typeof (args.req.body.name.first) == 'undefined' || args.req.body.name.first == null) {
+					args.req.body.name.first = null
+				}
+				if (typeof (args.req.body.name.middle) == 'undefined' || args.req.body.name.middle == null) {
+					args.req.body.name.middle = null
+				}
+			}
+			if (typeof (args.req.body.number) == 'undefined' || args.req.body.number == null) {
+				args.req.body.number = {};
+				if (typeof (args.req.body.number.tel) == 'undefined' || args.req.body.number.tel == null) {
+					args.req.body.number.tel = null
+				}
+				if (typeof (args.req.body.number.mobile) == 'undefined' || args.req.body.number.mobile == null) {
+					args.req.body.number.mobile = null
+				}
+			}
+			if (typeof (args.req.body.address) == 'undefined' || args.req.body.address == null) {
+				args.req.body.address = {};
+				if (typeof (args.req.body.address.same) == 'undefined' || args.req.body.address.same == null) {
+					args.req.body.address.same = null
+				}
+				if (typeof (args.req.body.address.billing) == 'undefined' || args.req.body.address.billing == null) {
+					args.req.body.address.billing = {}
+					if (typeof (args.req.body.address.billing.street) == 'undefined' || args.req.body.address.billing.street == null) {
+						args.req.body.address.billing.street = null
+					}
+					if (typeof (args.req.body.address.billing.suburb) == 'undefined' || args.req.body.address.billing.suburb == null) {
+						args.req.body.address.billing.suburb = null
+					}
+					if (typeof (args.req.body.address.billing.country) == 'undefined' || args.req.body.address.billing.country == null) {
+						args.req.body.address.billing.country = null
+					}
+					if (typeof (args.req.body.address.billing.cityTown) == 'undefined' || args.req.body.address.billing.cityTown == null) {
+						args.req.body.address.billing.cityTown = null
+					}
+					if (typeof (args.req.body.address.billing.additional) == 'undefined' || args.req.body.address.billing.additional == null) {
+						args.req.body.address.billing.additional = null
+					}
+					if (typeof (args.req.body.address.billing.postalCode) == 'undefined' || args.req.body.address.billing.postalCode == null) {
+						args.req.body.address.billing.postalCode = null
+					}
+					if (typeof (args.req.body.address.billing.company) == 'undefined' || args.req.body.address.billing.company == null) {
+						args.req.body.address.billing.company = {}
+						if (typeof (args.req.body.address.billing.company.vat) == 'undefined' || args.req.body.address.billing.company.vat == null) {
+							args.req.body.address.billing.company.vat = null
+						}
+						if (typeof (args.req.body.address.billing.company.reg) == 'undefined' || args.req.body.address.billing.company.reg == null) {
+							args.req.body.address.billing.company.reg = null
+						}
+					}
+				}
+				if (typeof (args.req.body.address.physical) == 'undefined' || args.req.body.address.physical == null) {
+					args.req.body.address.physical = {}
+					if (typeof (args.req.body.address.physical.street) == 'undefined' || args.req.body.address.physical.street == null) {
+						args.req.body.address.physical.street = null
+					}
+					if (typeof (args.req.body.address.physical.suburb) == 'undefined' || args.req.body.address.physical.suburb == null) {
+						args.req.body.address.physical.suburb = null
+					}
+					if (typeof (args.req.body.address.physical.country) == 'undefined' || args.req.body.address.physical.country == null) {
+						args.req.body.address.physical.country = null
+					}
+					if (typeof (args.req.body.address.physical.cityTown) == 'undefined' || args.req.body.address.physical.cityTown == null) {
+						args.req.body.address.physical.cityTown = null
+					}
+					if (typeof (args.req.body.address.physical.additional) == 'undefined' || args.req.body.address.physical.additional == null) {
+						args.req.body.address.physical.additional = null
+					}
+					if (typeof (args.req.body.address.physical.postalCode) == 'undefined' || args.req.body.address.physical.postalCode == null) {
+						args.req.body.address.physical.postalCode = null
+					}
+					if (typeof (args.req.body.address.physical.company) == 'undefined' || args.req.body.address.physical.company == null) {
+						args.req.body.address.physical.company = {}
+						if (typeof (args.req.body.address.physical.company.vat) == 'undefined' || args.req.body.address.physical.company.vat == null) {
+							args.req.body.address.physical.company.vat = null
+						}
+						if (typeof (args.req.body.address.physical.company.reg) == 'undefined' || args.req.body.address.physical.company.reg == null) {
+							args.req.body.address.physical.company.reg = null
+						}
+					}
+				}
+			}
+			if (typeof (args.req.body.identification) == 'undefined' || args.req.body.identification == null) {
+				args.req.body.identification = {}
+				if (typeof (args.req.body.identification.type) == 'undefined' || args.req.body.identification.type == null) {
+					args.req.body.identification.type = null
+				}
+				if (typeof (args.req.body.identification.number) == 'undefined' || args.req.body.identification.number == null) {
+					args.req.body.identification.number = null
+				}
+			}
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblUsers'
-			})
+			const request = new sql.Request(__database);
+
+			request.input('userId', args.req.body.header.userId);
+			request.input('picture', args.req.body.picture);
+			request.input('nameLast', args.req.body.name.last);
+			request.input('language', args.req.body.language);
+			request.input('timezone', args.req.body.timezone);
+			request.input('username', args.req.body.username);
+			request.input('nameFirst', args.req.body.name.first);
+			request.input('numberTel', args.req.body.number.tel);
+			request.input('nameMiddle', args.req.body.name.middle);
+			request.input('addressSame', args.req.body.address.same);
+			request.input('numberMobile', args.req.body.number.mobile);
+			request.input('identificationType', args.req.body.identification.type);
+			request.input('identificationNumber', args.req.body.identification.number);
+			request.input('addressBillingStreet', args.req.body.address.billing.street);
+			request.input('addressBillingSuburb', args.req.body.address.billing.suburb);
+			request.input('addressBillingCountry', args.req.body.address.billing.country);
+			request.input('addressPhysicalStreet', args.req.body.address.physical.street);
+			request.input('addressPhysicalSuburb', args.req.body.address.physical.suburb);
+			request.input('addressPhysicalCountry', args.req.body.address.physical.country);
+			request.input('addressBillingCityTown', args.req.body.address.billing.cityTown);
+			request.input('addressPhysicalCityTown', args.req.body.address.physical.cityTown);
+			request.input('addressBillingCompanyVat', args.req.body.address.billing.company.vat);
+			request.input('addressBillingCompanyReg', args.req.body.address.billing.company.reg);
+			request.input('addressBillingAdditional', args.req.body.address.billing.additional);
+			request.input('addressBillingPostalCode', args.req.body.address.billing.postalCode);
+			request.input('addressPhysicalCompanyVat', args.req.body.address.physical.company.vat);
+			request.input('addressPhysicalCompanyReg', args.req.body.address.physical.company.reg);
+			request.input('addressPhysicalAdditional', args.req.body.address.physical.additional);
+			request.input('addressPhysicalPostalCode', args.req.body.address.physical.postalCode);
+
+			request.execute('v1_Users_Update')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -1811,7 +1829,7 @@ var module = function () {
 				})
 
 			return deferred.promise;
-		},
+		}
 	};
 
 	var dalScopes = {

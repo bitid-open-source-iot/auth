@@ -11,6 +11,9 @@ Set9 - Create stored procedure share
 Set10 - Create stored procedure delete
 Set11 - Create stored procedure unsubscribe
 Set12 - Create stored procedure update subscriber
+Set13 - Create stored procedure update
+Set14 - Create stored procedure purge scopes
+Set15 - Create stored procedure purge domains
 */
 
 -- Set1
@@ -803,3 +806,164 @@ END CATCH
 GO
 
 -- Set12
+
+-- Set13
+
+PRINT 'Executing dbo.v1_Apps_Update.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Update' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Update]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Update]
+	@url VARCHAR(255),
+	@icon VARCHAR(255),
+	@name VARCHAR(255),
+	@appId INT,
+	@secret VARCHAR(255),
+	@userId INT,
+	@private INT,
+	@themeColor VARCHAR(255),
+	@googleDatabase VARCHAR(255),
+	@themeBackground VARCHAR(255),
+	@googleCredentials VARCHAR(5000)
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DECLARE @role INT = 0
+	DECLARE @updated INT = 0
+
+	SELECT TOP 1
+		@role = [role]
+	FROM
+		[dbo].[tblAppsUsers]
+	WHERE
+		[appId] = @appId
+		AND
+		[userId] = @userId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'App does not exist!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	IF (@role < 2)
+	BEGIN
+		SELECT 'You cannot update application!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	UPDATE [dbo].[tblApps] SET [url] = @url WHERE [id] = @appId AND @url IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [icon] = @icon WHERE [id] = @appId AND @icon IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [name] = @name WHERE [id] = @appId AND @name IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [secret] = @secret WHERE [id] = @appId AND @secret IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [private] = @private WHERE [id] = @appId AND @private IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [themeColor] = @themeColor WHERE [id] = @appId AND @themeColor IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [googleDatabase] = @googleDatabase WHERE [id] = @appId AND @googleDatabase IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [themeBackground] = @themeBackground WHERE [id] = @appId AND @themeBackground IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [googleCredentials] = @googleCredentials WHERE [id] = @appId AND @googleCredentials IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+	
+	SELECT @updated AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set13
+
+-- Set14
+
+PRINT 'Executing dbo.v1_Apps_Purge_Scopes.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Purge_Scopes' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Purge_Scopes]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Purge_Scopes]
+	@appId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DELETE FROM
+		[dbo].[tblAppsScopes]
+	WHERE
+		[appId] = @appId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set14
+
+-- Set15
+
+PRINT 'Executing dbo.v1_Apps_Purge_Domains.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Purge_Domains' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Purge_Domains]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Purge_Domains]
+	@appId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DELETE FROM
+		[dbo].[tblAppsDomains]
+	WHERE
+		[appId] = @appId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set15
