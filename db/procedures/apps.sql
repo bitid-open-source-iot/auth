@@ -1,58 +1,81 @@
 /*
 Set1 - Create stored procedure add
+Set2 - Create stored procedure get
+Set3 - Create stored procedure list
+Set4 - Create stored procedure validate
 */
 
 -- Set1
 
-	PRINT 'Executing dbo.v1_Apps_Add.PRC'
-	GO
+PRINT 'Executing dbo.v1_Apps_Add.PRC'
+GO
 
-	IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Add' AND type = 'P')
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Add' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Add]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Add]
+	@url VARCHAR(255),
+	@icon VARCHAR(255),
+	@name VARCHAR(255),
+	@secret VARCHAR(255),
+	@userId INT,
+	@private INT = 0,
+	@themeColor VARCHAR(255),
+	@googleDatabase VARCHAR(255) = NULL,
+	@themeBackground VARCHAR(255),
+	@googleCredentials VARCHAR(5000) = NULL
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DECLARE @appId INT
+
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblApps] WHERE [name] = @name)
 	BEGIN
-		DROP PROCEDURE [dbo].[v1_Apps_Add]
+		SELECT 'App with same name already exists!' AS [message], 70 AS [code]
+		RETURN 0
 	END
-	GO
 
-	CREATE PROCEDURE [dbo].[v1_Apps_Add]
-		@icon VARCHAR(255),
-		@userId INT,
-		@appUrl VARCHAR(255),
-		@appName VARCHAR(255),
-		@appSecret VARCHAR(255),
-		@themeColor VARCHAR(255),
-		@googleDatabase VARCHAR(255) = NULL,
-		@themeBackground VARCHAR(255),
-		@googleCredentials VARCHAR(5000) = NULL
-	AS
+	INSERT INTO [dbo].[tblApps]
+		(
+			[icon],
+			[userId],
+			[url],
+			[name],
+			[secret],
+			[private],
+			[themeColor],
+			[googleDatabase],
+			[themeBackground],
+			[googleCredentials]
+		)
+	VALUES
+		(
+			@url,
+			@icon,
+			@name,
+			@userId,
+			@secret,
+			@private,
+			@themeColor,
+			@googleDatabase,
+			@themeBackground,
+			@googleCredentials
+		)
 
-	SET NOCOUNT ON
+	SELECT SCOPE_IDENTITY() AS [_id]
+	RETURN 1
+END TRY
 
-	BEGIN TRY
-		BEGIN TRAN
-			EXEC [dbo].[v1_Apps_Add]
-				@icon = @icon,
-				@userId = @userId,
-				@appUrl = @appUrl,
-				@appName = @appName,
-				@appSecret = @appSecret,
-				@themeColor = @themeColor,
-				@googleDatabase = @googleDatabase,
-				@themeBackground = @themeBackground,
-				@googleCredentials = @googleCredentials
-
-		COMMIT TRAN
-
-		SELECT @@ROWCOUNT;
-		RETURN @@ROWCOUNT;
-
-	END TRY
-
-	BEGIN CATCH
-		ROLLBACK TRAN
-		SELECT Error_Message()
-		RETURN -69
-	END CATCH
-	GO
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
 
 -- Set1
 
@@ -75,26 +98,51 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
+	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	BEGIN
+		SELECT 'App not found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	SELECT
-		[url],
-		[icon],
-		[name],
-		[userId],
-		[secret],
-		[private],
-		[themeColor],
-		[googleDatabase],
-		[themeBackground],
-		[googleCredentials]
+		[app].[url],
+		[app].[icon],
+		[app].[name],
+		[user].[role],
+		[app].[userId],
+		[app].[secret],
+		[app].[private],
+		[user].[userId],
+		[scope].[scopeId],
+		[app].[themeColor],
+		[app].[id] AS [_id],
+		[app].[googleDatabase],
+		[app].[themeBackground],
+		[app].[googleCredentials],
+		[domain].[url] AS [domain]
 	FROM
-		[dbo].[tblApps]
+		[dbo].[tblApps] AS [app]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[app].[id] = [user].[appId]
+	INNER JOIN
+		[dbo].[tblAppsScopes] AS [scope]
+	ON
+		[user].[appId] = [scope].[appId]
+	INNER JOIN
+		[dbo].[tblAppsDomains] AS [domain]
+	ON
+		[scope].[appId] = [domain].[appId]
 	WHERE
-		[id] = @appId
+		[app].[id] = @appId
+		AND
+		[user].[userId] = @userId
 	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() as [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -102,6 +150,76 @@ GO
 -- Set2
 
 -- Set3
+
+PRINT 'Executing dbo.v1_Apps_List.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_List' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_List]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_List]
+	@appId INT,
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	BEGIN
+		SELECT 'App not found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	SELECT
+		[app].[url],
+		[app].[icon],
+		[app].[name],
+		[user].[role],
+		[app].[userId],
+		[app].[secret],
+		[app].[private],
+		[user].[userId],
+		[scope].[scopeId],
+		[app].[themeColor],
+		[app].[id] AS [_id],
+		[app].[googleDatabase],
+		[app].[themeBackground],
+		[app].[googleCredentials],
+		[domain].[url] AS [domain]
+	FROM
+		[dbo].[tblApps] AS [app]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[app].[id] = [user].[appId]
+	INNER JOIN
+		[dbo].[tblAppsScopes] AS [scope]
+	ON
+		[user].[appId] = [scope].[appId]
+	INNER JOIN
+		[dbo].[tblAppsDomains] AS [domain]
+	ON
+		[scope].[appId] = [domain].[appId]
+	WHERE
+		[app].[id] = @appId
+		AND
+		[user].[userId] = @userId
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set3
+
+-- Set4
 
 PRINT 'Executing dbo.v1_Apps_Validate.PRC'
 GO
@@ -149,9 +267,9 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
 
--- Set3
+-- Set4
