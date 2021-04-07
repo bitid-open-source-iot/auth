@@ -1,66 +1,253 @@
-/* --- TOKENS --- */
+USE [auth]
 
-    CREATE TABLE auth.dbo.tblTokens (
-        id INT NOT NULL IDENTITY(1, 1),
-        appId VARCHAR(255) NOT NULL,
-        device VARCHAR(255) NOT NULL,
-        serverDate [datetime] DEFAULT getdate() NOT NULL,
-        PRIMARY KEY (id)
-    );
+TRUNCATE TABLE [dbo].[tblScopes]
+TRUNCATE TABLE [dbo].[tblScopes_AuditExact]
+TRUNCATE TABLE [dbo].[tblApps]
+TRUNCATE TABLE [dbo].[tblApps_AuditExact]
+TRUNCATE TABLE [dbo].[tblAppsUsers]
+TRUNCATE TABLE [dbo].[tblAppsUsers_AuditExact]
+TRUNCATE TABLE [dbo].[tblAppsScopes]
+TRUNCATE TABLE [dbo].[tblAppsScopes_AuditExact]
+TRUNCATE TABLE [dbo].[tblAppsDomains]
+TRUNCATE TABLE [dbo].[tblAppsDomains_AuditExact]
+TRUNCATE TABLE [dbo].[tblUsers]
+TRUNCATE TABLE [dbo].[tblUsers_AuditExact]
 
-    INSERT INTO auth.dbo.tblTokens (appId, device) VALUES (1, 'xxx');
+DECLARE @url VARCHAR(255) = 'https://auth.bitid.co.za'
+DECLARE @icon VARCHAR(255) = 'https://auth.bitid.co.za/assets/icons/icon-512x512.png'
+DECLARE @name VARCHAR(255) = 'auth'
+DECLARE @salt VARCHAR(255) = 'xxx'
+DECLARE @hash VARCHAR(255) = 'xxx'
+DECLARE @email VARCHAR(255) = 'admin@bitid.co.za'
+DECLARE @domain VARCHAR(255) = 'auth.bitid.co.za'
 
-    CREATE TABLE auth.dbo.tblTokensUsers (
-        id INT NOT NULL IDENTITY(1, 1),
-        role INT NOT NULL,
-        email VARCHAR(255) NOT NULL,
-        tokenId VARCHAR(255) NOT NULL,
-        serverDate [datetime] DEFAULT getdate() NOT NULL,
-        PRIMARY KEY (id)
-    );
+INSERT INTO [dbo].[tblScopes]
+    (
+        [url],
+        [appId],
+        [userId],
+        [description]
+    )
+VALUES
+    ('/apps/add', 1, 1, '/apps/add'),
+    ('/apps/allow-access', 1, 1, '/apps/allow-access'),
+    ('/apps/delete', 1, 1, '/apps/delete'),
+    ('/apps/get', 1, 1, '/apps/get'),
+    ('/apps/list', 1, 1, '/apps/list'),
+    ('/apps/load', 1, 1, '/apps/load'),
+    ('/apps/share', 1, 1, '/apps/share'),
+    ('/apps/unsubscribe', 1, 1, '/apps/unsubscribe'),
+    ('/apps/update', 1, 1, '/apps/update'),
+    ('/apps/update-subscriber', 1, 1, '/apps/update-subscriber'),
+    ('/auth/allow-access', 1, 1, '/auth/allow-access'),
+    ('/auth/authenticate', 1, 1, '/auth/authenticate'),
+    ('/auth/change-email', 1, 1, '/auth/change-email'),
+    ('/auth/change-password', 1, 1, '/auth/change-password'),
+    ('/auth/register', 1, 1, '/auth/register'),
+    ('/auth/reset-password', 1, 1, '/auth/reset-password'),
+    ('/auth/validate', 1, 1, '/auth/validate'),
+    ('/auth/verify', 1, 1, '/auth/verify'),
+    ('/config/get', 1, 1, '/config/get'),
+    ('/features/add', 1, 1, '/features/add'),
+    ('/features/delete', 1, 1, '/features/delete'),
+    ('/features/get', 1, 1, '/features/get'),
+    ('/features/list', 1, 1, '/features/list'),
+    ('/features/update', 1, 1, '/features/update'),
+    ('/scopes/add', 1, 1, '/scopes/add'),
+    ('/scopes/delete', 1, 1, '/scopes/delete'),
+    ('/scopes/get', 1, 1, '/scopes/get'),
+    ('/scopes/list', 1, 1, '/scopes/list'),
+    ('/scopes/load', 1, 1, '/scopes/load'),
+    ('/scopes/update', 1, 1, '/scopes/update'),
+    ('/statistics/usage', 1, 1, '/statistics/usage'),
+    ('/tokens/download', 1, 1, '/tokens/download'),
+    ('/tokens/generate', 1, 1, '/tokens/generate'),
+    ('/tokens/get', 1, 1, '/tokens/get'),
+    ('/tokens/list', 1, 1, '/tokens/list'),
+    ('/tokens/retrieve', 1, 1, '/tokens/retrieve'),
+    ('/tokens/revoke', 1, 1, '/tokens/revoke'),
+    ('/tokens/share', 1, 1, '/tokens/share'),
+    ('/tokens/unsubscribe', 1, 1, '/tokens/unsubscribe'),
+    ('/tokens/update-subscriber', 1, 1, '/tokens/update-subscriber'),
+    ('/users/delete', 1, 1, '/users/delete'),
+    ('/users/get', 1, 1, '/users/get'),
+    ('/users/list', 1, 1, '/users/list'),
+    ('/users/update', 1, 1, '/users/update')
 
-    CREATE UNIQUE INDEX tblTokensUsersEmail ON auth.dbo.tblTokensUsers (tokenId, email);
+INSERT INTO [dbo].[tblApps]
+    (
+        [url],
+        [icon],
+        [name],
+        [userId],
+        [secret],
+        [private],
+        [themeColor],
+        [googleDatabase],
+        [themeBackground],
+        [googleCredentials]
+    )
+VALUES
+    (
+        @url,
+        @icon,
+        @name,
+        1,
+        'xxx',
+        0,
+        '#FFFFFF',
+        'NA',
+        '#000000',
+        '{}'
+    )
 
-    INSERT INTO auth.dbo.tblTokensUsers (role, tokenId, email) VALUES (5, 1, 'clayton@bitid.co.za');
+INSERT INTO [dbo].[tblAppsUsers]
+    (
+        [role],
+        [appId],
+        [userId]
+    )
+VALUES
+    (
+        5,
+        1,
+        1
+    )
 
-    CREATE TABLE auth.dbo.tblTokensScopes (
-        id INT NOT NULL IDENTITY(1, 1),
-        scope VARCHAR(255) NOT NULL,
-        tokenId INT NOT NULL,
-        PRIMARY KEY (id)
-    );
+INSERT INTO [dbo].[tblAppsScopes]
+    (
+        [appId],
+        [userId],
+        [scopeId]
+    )
+VALUES
+    (1, 1, 1),
+    (1, 1, 2),
+    (1, 1, 3),
+    (1, 1, 4),
+    (1, 1, 5),
+    (1, 1, 6),
+    (1, 1, 7),
+    (1, 1, 8),
+    (1, 1, 9),
+    (1, 1, 10),
+    (1, 1, 11),
+    (1, 1, 12),
+    (1, 1, 13),
+    (1, 1, 14),
+    (1, 1, 15),
+    (1, 1, 16),
+    (1, 1, 17),
+    (1, 1, 18),
+    (1, 1, 19),
+    (1, 1, 20),
+    (1, 1, 21),
+    (1, 1, 22),
+    (1, 1, 23),
+    (1, 1, 24),
+    (1, 1, 25),
+    (1, 1, 26),
+    (1, 1, 27),
+    (1, 1, 28),
+    (1, 1, 29),
+    (1, 1, 30),
+    (1, 1, 31),
+    (1, 1, 32),
+    (1, 1, 33),
+    (1, 1, 34),
+    (1, 1, 35),
+    (1, 1, 36),
+    (1, 1, 37),
+    (1, 1, 38),
+    (1, 1, 39),
+    (1, 1, 41),
+    (1, 1, 42),
+    (1, 1, 43),
+    (1, 1, 44),
+    (1, 1, 45)
 
-    INSERT INTO auth.dbo.tblTokensScopes (scope, tokenId) VALUES ('/auth/authenticate', 1);
+INSERT INTO [dbo].[tblAppsDomains]
+    (
+        [url],
+        [appId],
+        [userId]
+    )
+VALUES
+    (
+        @domain,
+        1,
+        1
+    )
 
-/* --- TOKENS --- */
-
-/* --- SCOPES --- */
-
-    CREATE TABLE auth.dbo.tblScopes (
-        id INT NOT NULL IDENTITY(1, 1),
-        url VARCHAR(255) NOT NULL,
-        appId VARCHAR(255) NOT NULL,
-        serverDate [datetime] DEFAULT getdate() NOT NULL,
-        description VARCHAR(255) NOT NULL,
-        PRIMARY KEY (id)
-    );
-
-    CREATE UNIQUE INDEX tblScopesUrl ON auth.dbo.tblScopes (url);
-
-    INSERT INTO auth.dbo.tblScopes (url, appId, description) VALUES ('/auth/authenticate', 1, 'xxx');
-
-/* --- SCOPES --- */
-
-/* --- FEATURES --- */
-
-    CREATE TABLE auth.dbo.tblFeatures (
-        id INT NOT NULL IDENTITY(1, 1),
-        appId VARCHAR(255) NOT NULL,
-        serverDate [datetime] DEFAULT getdate() NOT NULL,
-        description VARCHAR(255) NOT NULL,
-        PRIMARY KEY (id)
-    );
-
-    INSERT INTO auth.dbo.tblFeatures (appId, description) VALUES (1, 'xxx');
-
-/* --- FEATURES --- */
+INSERT INTO [dbo].[tblUsers]
+    (
+        [code],
+        [salt],
+        [hash],
+        [email],
+        [picture],
+        [language],
+        [timezone],
+        [username],
+        [nameLast],
+        [validated],
+        [nameFirst],
+        [numberTel],
+        [nameMiddle],
+        [addressSame],
+        [numberMobile],
+        [identificationType],
+        [identificationNumber],
+        [addressBillingStreet],
+        [addressBillingSuburb],
+        [addressBillingCountry],
+        [addressPhysicalStreet],
+        [addressPhysicalSuburb],
+        [addressBillingCityTown],
+        [addressPhysicalCountry],
+        [addressPhysicalCityTown],
+        [addressBillingCompanyVat],
+        [addressBillingCompanyReg],
+        [addressBillingAdditional],
+        [addressBillingPostalCode],
+        [addressPhysicalCompanyVat],
+        [addressPhysicalCompanyReg],
+        [addressPhysicalAdditional],
+        [addressPhysicalPostalCode]
+    )
+VALUES
+    (
+        999999,
+        @salt,
+        @hash,
+        @email,
+        @icon,
+        'english',
+        0,
+        'admin',
+        'admin',
+        1,
+        'admin',
+        NULL,
+        NULL,
+        1,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+        NULL
+    )
