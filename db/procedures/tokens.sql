@@ -1,12 +1,16 @@
 /*
 Set1 - Create stored procedure add
-Set2 - Create stored procedure get
-Set3 - Create stored procedure list
-Set4 - Create stored procedure share
-Set5 - Create stored procedure revoke
-Set6 - Create stored procedure unsubscribe
-Set7 - Create stored procedure update subscriber
-Set8 - Create stored procedure retrieve
+Set2 - Create stored procedure add user
+Set3 - Create stored procedure add scope
+Set4 - Create stored procedure get
+Set5 - Create stored procedure list
+Set6 - Create stored procedure share
+Set7 - Create stored procedure revoke
+Set8 - Create stored procedure unsubscribe
+Set9 - Create stored procedure update subscriber
+Set10 - Create stored procedure retrieve
+Set11 - Create stored procedure download
+Set12 - Create stored procedure revoke self
 */
 
 -- Set1
@@ -23,8 +27,10 @@ GO
 CREATE PROCEDURE [dbo].[v1_Tokens_Add]
 	@appId INT,
 	@userId INT,
+	@bearer VARCHAR(255),
 	@device VARCHAR(255),
 	@expiry DATETIME,
+	@timezone INT,
 	@description VARCHAR(255)
 AS
 
@@ -35,22 +41,60 @@ BEGIN TRY
 		(
 			[appId],
 			[userId],
+			[bearer],
 			[device],
 			[expiry],
+			[timezone],
 			[description]
 		)
 	VALUES
 		(
 			@appId,
 			@userId,
+			@bearer,
 			@device,
 			@expiry,
+			@timezone,
 			@description
 		)
 	
-	SELECT SCOPE_IDENTITY()
-	DECLARE @tokenId INT
-	SET @tokenId = SCOPE_IDENTITY()
+	SELECT SCOPE_IDENTITY() AS [_id]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set1
+
+-- Set2
+
+PRINT 'Executing dbo.v1_Tokens_Add_User.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Add_User' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Add_User]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Add_User]
+	@role INT,
+	@userId INT,
+	@tokenId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [tokenId] = @tokenId AND [userId] = @userId)
+	BEGIN
+		SELECT 'User already shared to token!' AS [message], 70 AS [code]
+		RETURN 0
+	END
 
 	INSERT INTO [dbo].[tblTokensUsers]
 		(
@@ -60,25 +104,72 @@ BEGIN TRY
 		)
 	VALUES
 		(
-			5,
+			@role,
 			@userId,
 			@tokenId
 		)
-
-	SELECT @tokenId AS [_id]
-
+	
+	SELECT SCOPE_IDENTITY() AS [_id]
 	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
 
--- Set1
-
 -- Set2
+
+-- Set3
+
+PRINT 'Executing dbo.v1_Tokens_Add_Scope.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Add_Scope' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Add_Scope]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Add_Scope]
+	@scopeId INT,
+	@tokenId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensScopes] WHERE [tokenId] = @tokenId AND [scopeId] = @scopeId)
+	BEGIN
+		SELECT 'Scope already linked to token!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	INSERT INTO [dbo].[tblTokensScopes]
+		(
+			[scopeId],
+			[tokenId]
+		)
+	VALUES
+		(
+			@scopeId,
+			@tokenId
+		)
+	
+	SELECT SCOPE_IDENTITY() AS [_id]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set3
+
+-- Set4
 
 PRINT 'Executing dbo.v1_Tokens_Get.PRC'
 GO
@@ -135,9 +226,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- Set4
 
--- Set3
+-- Set5
 
 PRINT 'Executing dbo.v1_Tokens_List.PRC'
 GO
@@ -193,9 +284,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- Set5
 
--- Set4
+-- Set6
 
 PRINT 'Executing dbo.v1_Tokens_Share.PRC'
 GO
@@ -242,9 +333,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- Set6
 
--- Set5
+-- Set7
 
 PRINT 'Executing dbo.v1_Tokens_Revoke.PRC'
 GO
@@ -305,9 +396,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- Set7
 
--- Set6
+-- Set8
 
 PRINT 'Executing dbo.v1_Tokens_Unsubscribe.PRC'
 GO
@@ -358,9 +449,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set6
+-- Set8
 
--- Set7
+-- Set9
 
 PRINT 'Executing dbo.v1_Tokens_Update_Subscriber.PRC'
 GO
@@ -409,9 +500,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set7
+-- Set9
 
--- Set8
+-- Set10
 
 PRINT 'Executing dbo.v1_Tokens_Retrieve.PRC'
 GO
@@ -456,9 +547,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set8
+-- Set10
 
--- Set9
+-- Set11
 
 PRINT 'Executing dbo.v1_Tokens_Download.PRC'
 GO
@@ -502,9 +593,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set9
+-- Set11
 
--- Set10
+-- Set12
 
 PRINT 'Executing dbo.v1_Tokens_Revoke_Self.PRC'
 GO
@@ -582,4 +673,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set10
+-- Set12

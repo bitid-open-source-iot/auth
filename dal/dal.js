@@ -519,7 +519,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description || args.app.app.name)
-						.execute('v1_tblTokens_Add');
+						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -544,7 +544,7 @@ var module = function () {
 						.input('role', 5)
 						.input('userId', args.user.id)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensUsers_Add');
+						.execute('v1_Tokens_Add_User');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -565,7 +565,7 @@ var module = function () {
 						.input('userId', args.user.id)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensScopes_Add')
+						.execute('v1_Tokens_Add_Scope')
 					), Promise.resolve())
 				}, null)
 				.then(result => {
@@ -1136,7 +1136,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description)
-						.execute('v1_tblTokens_Add');
+						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1159,7 +1159,7 @@ var module = function () {
 						.input('role', 5)
 						.input('userId', args.req.body.header.userId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensUsers_Add');
+						.execute('v1_Tokens_Add_User');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1180,7 +1180,7 @@ var module = function () {
 						.input('userId', args.req.body.header.userId)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensScopes_Add')
+						.execute('v1_Tokens_Add_Scope')
 					), Promise.resolve())
 				}, null)
 				.then(result => {
@@ -1335,7 +1335,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description || args.app.app.name)
-						.execute('v1_tblTokens_Add');
+						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1359,7 +1359,7 @@ var module = function () {
 						.input('role', 5)
 						.input('userId', args.user.id)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensUsers_Add');
+						.execute('v1_Tokens_Add_User');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1380,7 +1380,7 @@ var module = function () {
 						.input('userId', args.user.id)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensScopes_Add')
+						.execute('v1_Tokens_Add_Scope')
 					), Promise.resolve())
 				}, null)
 				.then(result => {
@@ -2354,7 +2354,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description)
-						.execute('v1_tblTokens_Add');
+						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -2377,7 +2377,7 @@ var module = function () {
 						.input('role', 5)
 						.input('userId', args.req.body.header.userId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensUsers_Add');
+						.execute('v1_Tokens_Add_User');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -2398,7 +2398,7 @@ var module = function () {
 						.input('userId', args.req.body.header.userId)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
-						.execute('v1_tblTokensScopes_Add')
+						.execute('v1_Tokens_Add_Scope')
 					), Promise.resolve())
 				}, null)
 				.then(result => {
