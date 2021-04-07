@@ -5,11 +5,6 @@ router.use((req, res, next) => {
 	next();
 });
 
-router.post('/auth', (req, res) => {
-	var myModule = new bll.module();
-	myModule.auth.auth(req, res);
-});
-
 router.put('/verify', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.verify(req, res);

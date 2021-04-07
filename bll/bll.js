@@ -1,8 +1,6 @@
-const Q = require('q');
 const dal = require('../dal/dal');
 const tools = require('../lib/tools');
 const emails = require('../emails/emails');
-const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
 	var bllApps = {
@@ -161,21 +159,6 @@ var module = function () {
 	};
 
 	var bllAuth = {
-		auth: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.auth.auth(args)
-				.then(result => {
-					__responder.success(req, res, result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
 		verify: (req, res) => {
 			var args = {
 				'req': req,

@@ -155,27 +155,6 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/auth', function (done) {
-        this.timeout(5000);
-
-        tools.api.auth.auth()
-            .then((result) => {
-                try {
-                    result[0].should.have.property('email');
-                    result[0].should.have.property('appId');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
     it('/auth/change-email', function (done) {
         this.timeout(5000);
 
@@ -1164,16 +1143,6 @@ var tools = {
             }
         },
         auth: {
-            auth: () => {
-                var deferred = Q.defer();
-
-                tools.post('/auth/auth', {
-                    'reqURI': '/users/get'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
-            },
             verify: () => {
                 var deferred = Q.defer();
 
@@ -1309,10 +1278,10 @@ var tools = {
                         '/features/update',
                         '/features/delete',
                     ],
-                    'appId': '000000000000000000000001',
+                    'appId': appId,
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-                    'password': config.password,
-                    'tokenAddOn': {},
+                    // 'password': config.password,
+                    // 'tokenAddOn': {},
                     'description': 'test'
                 }, loginToken)
                     .then(deferred.resolve, deferred.resolve);

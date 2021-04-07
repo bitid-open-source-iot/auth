@@ -503,3 +503,83 @@ END CATCH
 GO
 
 -- Set9
+
+-- Set10
+
+PRINT 'Executing dbo.v1_Tokens_Revoke_Self.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Tokens_Revoke_Self' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Tokens_Revoke_Self]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Tokens_Revoke_Self]
+	@appId INT,
+	@userId INT,
+	@bearer VARCHAR(255),
+	@description VARCHAR(255)
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DECLARE @tokenId INT
+	DECLARE @deleted INT = 0
+	
+	SELECT TOP 1
+		@tokenId = [token].[id]
+	FROM
+		[dbo].[tblTokens] AS [token]
+	INNER JOIN
+		[dbo].[tblTokensUsers] AS [user]
+	ON
+		[token].[id] = [user].[tokenId]
+	WHERE
+		[user].[userId] = @userId
+		AND
+		[token].[appId] = @appId
+		AND
+		[token].[bearer] = @bearer
+		AND
+		[token].[description] = @description
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'Token was not found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	DELETE FROM
+		[dbo].[tblTokens]
+	WHERE
+		[id] = @tokenId
+
+	SET @deleted = @deleted + @@ROWCOUNT
+
+	DELETE FROM
+		[dbo].[tblTokensUsers]
+	WHERE
+		[tokenId] = @tokenId
+
+	SET @deleted = @deleted + @@ROWCOUNT
+
+	DELETE FROM
+		[dbo].[tblTokensScopes]
+	WHERE
+		[tokenId] = @tokenId
+
+	SET @deleted = @deleted + @@ROWCOUNT
+
+	SELECT @deleted AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set10
