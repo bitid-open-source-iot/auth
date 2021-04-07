@@ -412,66 +412,51 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		validate: (args) => {
-			var deferred = Q.defer();
-
-			const request = new sql.Request(__database);
-			request.input('appId', args.req.body.header.appId);
-			request.execute('v1_Apps_Validate')
-				.then(result => {
-					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.app = unwind(result.recordset[0]);
-						deferred.resolve(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'no records found';
-						err.error.errors[0].message = 'no records found';
-						deferred.reject(err);
-					}
-				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
 		allowaccess: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'email': args.req.body.header.email,
-				'validated': 1
+			if (typeof (args.req.body.expiry) == 'undefined') {
+				args.req.body.expiry = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
 			};
 
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsers'
-			})
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
+
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
+
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			args.req.body.bearer = tools.encryption.generateRandomString(64);
+			args.result = {
+				token: {
+					scopes: [],
+					bearer: args.req.body.bearer,
+					expiry: args.req.body.expiry,
+					timezone: args.req.body.timezone,
+					description: args.req.body.description
+				}
+			};
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Users_Get');
+				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					if (result.length > 0) {
-						args.user = result[0];
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
 						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
 
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
-								var params = {
-									'_id': args.req.body.appId
-								};
-
-								deferred.resolve({
-									'params': params,
-									'operation': 'find',
-									'collection': 'tblApps'
-								});
+								deferred.resolve(args);
 							} else {
 								var err = new ErrorResponse();
 								err.error.errors[0].code = 401;
@@ -487,67 +472,122 @@ var module = function () {
 							deferred.reject(err);
 						};
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
 					};
 
 					return deferred.promise;
 				}, null)
-				.then(db.call, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.appId)
+						.execute('v1_Apps_Validate');
+				}, null)
 				.then(result => {
 					var deferred = Q.defer();
 
-					args.app = result[0];
-
-					var params = {
-						'bitid': {
-							'auth': {
-								'users': [{
-									'role': 5,
-									'email': args.req.body.header.email
-								}]
-							}
-						},
-						'token': {
-							'alias': [],
-							'bearer': tools.encryption.generateRandomString(64),
-							'scopes': args.app.scopes,
-							'expiry': args.req.body.expiry,
-							'timeZone': args.user.timeZone || 0,
-							'tokenAddOn': {},
-							'description': args.req.body.description
-						},
-						'appId': args.req.body.appId,
-						'device': args.req.headers['user-agent'],
-						'description': args.req.body.description
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.app = {
+							bitid: {
+								auth: {
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+								}
+							},
+							_id: result[0]._id,
+							app: result[0].app,
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							domains: _.uniqBy(result, 'domain').map(o => o.domain)
+						};
+						args.result.token.scopes = args.app.scopes;
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
 					};
-
-					deferred.resolve({
-						'params': params,
-						'operation': 'insert',
-						'collection': 'tblTokens'
-					});
 
 					return deferred.promise;
 				}, null)
-				.then(db.call, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', args.req.body.appId)
+						.input('userId', args.req.body.header.userId)
+						.input('bearer', args.req.body.bearer)
+						.input('device', args.req.headers['user-agent'])
+						.input('expiry', args.req.body.expiry)
+						.input('timezone', args.user.timezone)
+						.input('description', args.req.body.description || args.app.name)
+						.execute('v1_tblTokens_Add');
+				}, null)
 				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					if (error instanceof ErrorResponse) {
-						deferred.reject(error);
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.tokenId = unwind(result.recordset[0])._id;
+						args.result._id = args.tokenId;
+						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
 					};
-				});
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('role', 5)
+						.input('userId', args.req.body.header.userId)
+						.input('tokenId', args.tokenId)
+						.execute('v1_tblTokensUsers_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.app.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.input('scopeId', scopeId)
+						.input('tokenId', args.tokenId)
+						.execute('v1_tblTokensScopes_Add')
+					), Promise.resolve())
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -555,39 +595,26 @@ var module = function () {
 		unsubscribe: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
-						},
-						'email': args.req.body.header.email
-					}
-				},
-				'_id': args.req.body.appId
-			};
+			const request = new sql.Request(__database);
 
-			var update = {
-				$set: {
-					'serverDate': new Date()
-				},
-				$pull: {
-					'bitid.auth.users': {
-						'email': args.req.body.email
-					}
-				}
-			};
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.userId);
+			request.input('adminId', args.req.body.header.userId);
 
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblApps'
-			})
+			request.execute('v1_Apps_Unsubscribe')
 				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -601,55 +628,27 @@ var module = function () {
 		updatesubscriber: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
-						},
-						'email': args.req.body.header.email
+			const request = new sql.Request(__database);
+
+			request.input('role', args.req.body.role);
+			request.input('appId', args.req.body.appId);
+			request.input('userId', args.req.body.userId);
+			request.input('adminId', args.req.body.header.userId);
+
+			request.execute('v1_Apps_Update_Subscriber')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
 					}
-				},
-				'_id': args.req.body.appId
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					var params = {
-						'bitid.auth.users': {
-							$elemMatch: {
-								'email': args.req.body.email
-							}
-						},
-						'_id': args.req.body.appId
-					};
-
-					var update = {
-						$set: {
-							'bitid.auth.users.$.role': args.req.body.role
-						}
-					};
-
-					deferred.resolve({
-						'params': params,
-						'update': update,
-						'operation': 'update',
-						'collection': 'tblApps'
-					});
-
-					return deferred.promise;
-				}, null)
-				.then(db.call, null)
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
+				})
+				.catch(error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
@@ -1077,7 +1076,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.appId)
-						.execute('v1_tblApps_Validate');
+						.execute('v1_Apps_Validate');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -1278,7 +1277,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.header.appId)
-						.execute('v1_tblApps_Validate');
+						.execute('v1_Apps_Validate');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();
@@ -2267,7 +2266,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.appId)
-						.execute('v1_tblApps_Validate');
+						.execute('v1_Apps_Validate');
 				}, null)
 				.then(result => {
 					var deferred = Q.defer();

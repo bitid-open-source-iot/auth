@@ -8,6 +8,9 @@ Set6 - Create stored procedure load
 Set7 - Create stored procedure list
 Set8 - Create stored procedure validate
 Set9 - Create stored procedure share
+Set10 - Create stored procedure delete
+Set11 - Create stored procedure unsubscribe
+Set12 - Create stored procedure update subscriber
 */
 
 -- Set1
@@ -453,6 +456,12 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
+	IF NOT EXISTS(SELECT TOP 1 [id] FROM [dbo].[tblApps] WHERE [id] = @appId)
+	BEGIN
+		SELECT 'Application not found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	SELECT
 		[app].[id] AS [_id],
 		[app].[url] AS [appUrl],
@@ -479,6 +488,7 @@ BEGIN TRY
 		[scope].[appId] = [domain].[appId]
 	WHERE
 		[app].[id] = @appId
+
 	RETURN 1
 END TRY
 
@@ -662,3 +672,128 @@ END CATCH
 GO
 
 -- Set10
+
+-- Set11
+
+PRINT 'Executing dbo.v1_Apps_Unsubscribe.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Unsubscribe' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Unsubscribe]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Unsubscribe]
+	@appId INT,
+	@userId INT,
+	@adminId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	DECLARE @id INT
+	DECLARE @role INT = 0
+	DECLARE @deleted INT = 0
+
+	SELECT TOP 1
+		@id = [appId],
+		@role = [role]
+	FROM
+		[dbo].[tblAppsUsers]
+	WHERE
+		[appId] = @appId
+		AND
+		[userId] = @adminId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'You are not a user on this application!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	IF (@role = 5)
+	BEGIN
+		SELECT 'An owner can not unsubscribe from their applications' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	IF (@userId != @adminId AND @role < 4)
+	BEGIN
+		SELECT 'Only administrators can unsubscribe other users from applications' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	DELETE FROM
+		[dbo].[tblAppsUsers]
+	WHERE
+		[appId] = @appId
+		AND
+		[userId] = @userId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set11
+
+-- Set12
+
+PRINT 'Executing dbo.v1_Apps_Update_Subscriber.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Update_Subscriber' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Update_Subscriber]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Update_Subscriber]
+	@role INT,
+	@appId INT,
+	@userId INT,
+	@adminId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF NOT EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [role] >= 4 AND [appId] = @appId AND [userId] = @adminId)
+	BEGIN
+		SELECT 'You are not an admin user on this application!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	IF (@role > 4)
+	BEGIN
+		SELECT 'You cannot make this user the owner without changing ownership of this application!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	UPDATE
+		[dbo].[tblAppsUsers]
+	SET
+		[role] = @role
+	WHERE
+		[appId] = @appId
+		AND
+		[userId] = @userId
+	
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- Set12
