@@ -414,40 +414,58 @@ GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_Unsubscribe]
 	@userId INT,
-	@adminId INT,
-	@tokenId INT
+	@tokenId INT,
+	@adminId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF (@userId = @adminId)
-		BEGIN
-			DELETE FROM
-				[dbo].[tblTokensUsers]
-			WHERE
-				[userId] = @userId
-			
-			SELECT @@ROWCOUNT AS [n]
-			RETURN 1
-		END
-	ELSE
-		IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
-		BEGIN
-			DELETE FROM
-				[dbo].[tblTokensUsers]
-			WHERE
-				[userId] = @userId
-				AND
-				[tokenId] = @tokenId
-			
-			SELECT @@ROWCOUNT AS [n]
-			RETURN 1
-		END
+	DECLARE @id INT
+	DECLARE @role INT = 0
+	DECLARE @deleted INT = 0
+
+	SELECT TOP 1
+		@id = [tokenId],
+		@role = [role]
+	FROM
+		[dbo].[tblTokensUsers]
+	WHERE
+		[tokenId] = @tokenId
+		AND
+		[userId] = @adminId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'You are not a user on this token!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	IF (@userId = @adminId AND @role = 5)
+	BEGIN
+		SELECT 'An owner can not unsubscribe from their tokens' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	IF (@userId != @adminId AND @role < 4)
+	BEGIN
+		SELECT 'Only administrators can unsubscribe other users from tokens' AS [message], 503 AS [code]
+		RETURN 0
+	END
+
+	DELETE FROM
+		[dbo].[tblTokensUsers]
+	WHERE
+		[tokenId] = @tokenId
+		AND
+		[userId] = @userId
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -517,7 +535,6 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_Retrieve]
-	@appId INT,
 	@userId INT,
 	@tokenId INT
 AS
@@ -526,21 +543,27 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		t.[id] AS [_id],
-		[device],
-		[expiry],
-		[bearer],
-		[timezone],
-		ts.[scopeId],
-		[description]
+		[token].[id] AS [_id],
+		[token].[device],
+		[token].[expiry],
+		[token].[bearer],
+		[scope].[scopeId],
+		[token].[timezone],
+		[token].[description]
 	FROM
-		[dbo].[tblTokens] AS t
+		[dbo].[tblTokens] AS [token]
 	INNER JOIN
-		[dbo].[tblTokensScopes] AS ts
+		[dbo].[tblTokensUsers] AS [user]
 	ON
-		t.[id] = ts.[tokenId]
+		[token].[id] = [user].[tokenId]
+	INNER JOIN
+		[dbo].[tblTokensScopes] AS [scope]
+	ON
+		[user].[tokenId] = [scope].[tokenId]
 	WHERE
-		t.[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [appId] = @appId AND [userId] = @userId AND [tokenId] = @tokenId)
+		[user].[userId] = @userId
+		AND
+		[token].[id] = @tokenId
 	RETURN 1
 END TRY
 

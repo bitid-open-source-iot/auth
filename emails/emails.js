@@ -94,7 +94,7 @@ exports.resetpassword = (args) => {
 
     transporter.sendMail({
         'context': {
-            'link': [__settings.client.auth, '/reset-password?email=', args.result.email, '&password=', args.result.password, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join(''),
+            'link': [__settings.client.auth, '/reset-password?userId=', args.result.userId, '&password=', args.result.password, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join(''),
             'name': [args.result.name.first, args.result.name.last].join(' ')
         },
         'to': __settings.production ? args.result.email : __settings.smtp.auth.user,

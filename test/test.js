@@ -76,7 +76,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -100,6 +100,7 @@ describe('Auth', function () {
                     result.should.have.property('userId');
                     token = result.token;
                     userId = result.userId;
+                    loginToken = result.token;
                     done();
                 } catch (e) {
                     done(e);
@@ -119,10 +120,11 @@ describe('Auth', function () {
         tools.api.auth.allowaccess()
             .then((result) => {
                 try {
-                    token = result.token;
-                    tokenId = result.tokenId;
                     result.should.have.property('token');
                     result.should.have.property('tokenId');
+                    token = result.token;
+                    tokenId = result.tokenId;
+                    loginToken = result.token;
                     done();
                 } catch (e) {
                     done(e);
@@ -137,7 +139,7 @@ describe('Auth', function () {
     });
 
     it('/auth/validate', function (done) {
-        this.timeout(500000);
+        this.timeout(5000);
 
         tools.api.auth.validate()
             .then((result) => {
@@ -163,7 +165,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -185,7 +187,7 @@ describe('Auth', function () {
                 try {
                     config.email = email;
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -206,7 +208,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -227,7 +229,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     config.password = result.password;
                     done();
                 } catch (e) {
@@ -336,7 +338,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -357,7 +359,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -378,7 +380,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -399,7 +401,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -452,7 +454,7 @@ describe('Users', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -499,7 +501,6 @@ describe('Scopes', function () {
                     result.should.have.property('app');
                     result.should.have.property('role');
                     result.should.have.property('appId');
-                    result.should.have.property('roles');
                     result.should.have.property('scopeId');
                     result.should.have.property('description');
                     done();
@@ -525,7 +526,6 @@ describe('Scopes', function () {
                     result[0].should.have.property('app');
                     result[0].should.have.property('role');
                     result[0].should.have.property('appId');
-                    result[0].should.have.property('roles');
                     result[0].should.have.property('scopeId');
                     result[0].should.have.property('description');
                     done();
@@ -548,7 +548,7 @@ describe('Scopes', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -625,7 +625,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -668,7 +668,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -689,7 +689,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -704,7 +704,7 @@ describe('Tokens', function () {
     });
 
     it('/tokens/retrieve', function (done) {
-        this.timeout(5000);
+        this.timeout(500000);
 
         tools.api.tokens.retrieve(tokenId)
             .then((result) => {
@@ -731,11 +731,10 @@ describe('Tokens', function () {
         tools.api.tokens.download(tokenId)
             .then((result) => {
                 try {
-                    result.should.have.property('bearer');
                     result.should.have.property('scopes');
                     result.should.have.property('expiry');
-                    result.should.have.property('timeZone');
-                    result.should.have.property('tokenAddOn');
+                    result.should.have.property('bearer');
+                    result.should.have.property('timezone');
                     result.should.have.property('description');
                     done();
                 } catch (e) {
@@ -830,7 +829,7 @@ describe('Features', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -877,7 +876,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -898,7 +897,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -919,7 +918,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -940,7 +939,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -961,7 +960,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -982,7 +981,7 @@ describe('Remove Added Items', function () {
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
+                    expect(result.deleted).to.not.equal(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -1026,9 +1025,17 @@ var tools = {
                     'url': 'https://www.bitid.co.za',
                     'name': 'Mocha App',
                     'icon': 'https://www.bitid.co.za/assets/logo.png',
-                    'scopes': [],
+                    'scopes': [
+                        1,
+                        2,
+                        3,
+                        4,
+                        5
+                    ],
                     'secret': '123',
-                    'domains': [],
+                    'domains': [
+                        'www.bitid.co.za'
+                    ],
                     'private': false,
                     'organizationOnly': 1
                 })
@@ -1090,9 +1097,9 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/apps/share', {
-                    'role': 4,
-                    'email': 'shared@email.com',
-                    'appId': appId
+                    'role': 1,
+                    'appId': appId,
+                    'userId': userId + 1
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1123,8 +1130,8 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/apps/unsubscribe', {
-                    'email': 'shared@email.com',
-                    'appId': appId
+                    'appId': appId,
+                    'userId': userId + 1
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1135,8 +1142,8 @@ var tools = {
 
                 tools.post('/apps/update-subscriber', {
                     'role': 3,
-                    'email': 'shared@email.com',
-                    'appId': appId
+                    'appId': appId,
+                    'userId': userId + 1
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1404,7 +1411,6 @@ var tools = {
                 tools.post('/scopes/add', {
                     'url': '/mocha/test/scopes',
                     'appId': appId,
-                    'roles': [1, 2, 3, 4, 5],
                     'description': 'Test Scopes'
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1420,7 +1426,6 @@ var tools = {
                         'app',
                         'role',
                         'appId',
-                        'roles',
                         'scopeId',
                         'description'
                     ],
@@ -1439,7 +1444,6 @@ var tools = {
                         'app',
                         'role',
                         'appId',
-                        'roles',
                         'scopeId',
                         'description'
                     ]
@@ -1453,7 +1457,6 @@ var tools = {
 
                 tools.post('/scopes/update', {
                     'url': '/mocha/test/scopes/update',
-                    'roles': [1, 2, 3],
                     'scopeId': scopeId,
                     'description': 'Test Scopes Updated'
                 })
@@ -1517,8 +1520,8 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/tokens/share', {
-                    'role': 2,
-                    'email': 'shared@test.co.za',
+                    'role': 1,
+                    'userId': userId + 1,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1573,7 +1576,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/tokens/unsubscribe', {
-                    'email': 'shared@test.co.za',
+                    'userId': userId + 1,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1585,7 +1588,7 @@ var tools = {
 
                 tools.post('/tokens/update-subscriber', {
                     'role': 3,
-                    'email': 'shared@test.co.za',
+                    'userId': userId + 1,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);

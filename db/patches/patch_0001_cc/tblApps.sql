@@ -21,6 +21,7 @@ CREATE TABLE [dbo].[tblApps]
 	[themeColor] VARCHAR(255) NOT NULL,
 	[googleDatabase] VARCHAR(255) DEFAULT (''),
 	[themeBackground] VARCHAR(255) NOT NULL,
+	[organizationOnly] INT NOT NULL,
 	[googleCredentials] VARCHAR(5000) DEFAULT ('{}'),
 	PRIMARY KEY (id)
 )
@@ -54,6 +55,7 @@ BEGIN
 		[themeColor] VARCHAR(255) NOT NULL,
 		[googleDatabase] VARCHAR(255) NOT NULL,
 		[themeBackground] VARCHAR(255) NOT NULL,
+		[organizationOnly] INT NOT NULL,
 		[googleCredentials] VARCHAR(255) NOT NULL,
 		CONSTRAINT PK_tblApps_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
@@ -98,6 +100,7 @@ BEGIN
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
+				[organizationOnly],
 				[googleCredentials]
 			)
 		SELECT
@@ -112,6 +115,7 @@ BEGIN
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
+			[organizationOnly],
 			[googleCredentials]
 		FROM Inserted
 	END
@@ -135,6 +139,7 @@ BEGIN
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
+				[organizationOnly],
 				[googleCredentials]
 			)
 		SELECT
@@ -149,6 +154,7 @@ BEGIN
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
+			[organizationOnly],
 			[googleCredentials]
 		FROM Inserted
 	END
@@ -171,6 +177,7 @@ BEGIN
 				[themeColor],
 				[googleDatabase],
 				[themeBackground],
+				[organizationOnly],
 				[googleCredentials]
 			)
 		SELECT
@@ -185,6 +192,7 @@ BEGIN
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
+			[organizationOnly],
 			[googleCredentials]
 		FROM Deleted
 	END

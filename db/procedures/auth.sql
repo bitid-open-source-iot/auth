@@ -445,7 +445,7 @@ BEGIN TRY
 	WHERE
 		[id] = @userId
 	
-	SELECT @userId AS [userId], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
+	SELECT @email AS [email],  @userId AS [userId], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
 	RETURN 1
 END TRY
 

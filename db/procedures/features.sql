@@ -51,7 +51,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -79,17 +79,24 @@ SET NOCOUNT ON
 BEGIN TRY
 	SELECT
 		[feature].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName],
+		[user].[role],
 		[feature].[title],
 		[feature].[appId],
 		[feature].[description]
 	FROM
 		[dbo].[tblFeatures] AS [feature]
 	INNER JOIN
+		[dbo].[tblApps] AS [app]
+	ON
+		[feature].[appId] = [app].[id]
+	INNER JOIN
 		[dbo].[tblAppsUsers] AS [user]
 	ON
-		[feature].[appId] = [user].[appId]
+		[app].[id] = [user].[appId]
 	WHERE
-		[user].[role] >= 2
+		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
 		AND
@@ -98,7 +105,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -125,15 +132,22 @@ SET NOCOUNT ON
 BEGIN TRY
 	SELECT
 		[feature].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName],
+		[user].[role],
 		[feature].[title],
 		[feature].[appId],
 		[feature].[description]
 	FROM
 		[dbo].[tblFeatures] AS [feature]
 	INNER JOIN
+		[dbo].[tblApps] AS [app]
+	ON
+		[feature].[appId] = [app].[id]
+	INNER JOIN
 		[dbo].[tblAppsUsers] AS [user]
 	ON
-		[feature].[appId] = [user].[appId]
+		[app].[id] = [user].[appId]
 	WHERE
 		[user].[role] >= 1
 		AND
@@ -142,7 +156,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -150,6 +164,7 @@ GO
 -- Set3
 
 -- Set4
+
 
 PRINT 'Executing dbo.v1_Features_Update.PRC'
 GO
@@ -162,7 +177,6 @@ GO
 
 CREATE PROCEDURE [dbo].[v1_Features_Update]
 	@title VARCHAR(255),
-	@appId INT,
 	@userId INT,
 	@featureId INT,
 	@description VARCHAR(255)
@@ -171,25 +185,44 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [appId] = @appId AND [userId] = @userId)
+    DECLARE @role INT = 0
+	DECLARE @updated INT = 0
+    
+    SELECT TOP 1
+		@role = [role]
+	FROM
+		[dbo].[tblFeatures] AS [feature]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[feature].[appId] = [user].[appId]
+	WHERE
+		[feature].[id] = @featureId
+	
+    IF (@@ROWCOUNT = 0)
 	BEGIN
-		UPDATE
-			[dbo].[tblFeatures]
-		SET
-			[title] = @title,
-			[appId] = @appId,
-			[description] = @description
-		WHERE
-			[id] = @featureId
-			AND
-			[appId] IN (SELECT [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [userId] = @userId)
-		SELECT @@ROWCOUNT AS [n]
-		RETURN 1
+		SELECT 'App does not exist!' AS [message], 69 AS [code]
+		RETURN 0
 	END
+
+	IF (@role <= 2)
+	BEGIN
+		SELECT 'You cannot update this feature!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+	
+    UPDATE [dbo].[tblFeatures] SET [title] = @title WHERE [id] = @featureId AND @title IS NOT NULL
+    SET @updated = @updated + @@ROWCOUNT
+
+    UPDATE [dbo].[tblFeatures] SET [description] = @description WHERE [id] = @featureId AND @description IS NOT NULL
+    SET @updated = @updated + @@ROWCOUNT
+    
+    SELECT @updated AS [n]
+    RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -215,18 +248,42 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM
+    DECLARE @role INT = 0
+    
+    SELECT TOP 1
+		@role = [role]
+	FROM
+		[dbo].[tblFeatures] AS [feature]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[feature].[appId] = [user].[appId]
+	WHERE
+		[feature].[id] = @featureId
+	
+    IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'App does not exist!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	IF (@role <= 2)
+	BEGIN
+		SELECT 'You cannot delete this feature!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+	
+    DELETE FROM
 		[dbo].[tblFeatures]
 	WHERE
 		[id] = @featureId
-		AND
-		[appId] IN (SELECT [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [userId] = @userId)
-	SELECT @@ROWCOUNT AS [n]
-	RETURN 1
+    
+    SELECT @@ROWCOUNT AS [n]
+    RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO

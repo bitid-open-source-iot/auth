@@ -31,7 +31,7 @@ BEGIN TRY
 	END
 
 	SELECT
-		[id],
+		[id] AS [_id],
 		[nameLast],
 		[nameFirst],
 		[nameMiddle],
@@ -64,7 +64,8 @@ BEGIN TRY
 		[language],
 		[timezone],
 		[username],
-		[validated]
+		[validated],
+		[serverDate]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -105,7 +106,7 @@ BEGIN TRY
 	END
 
 	SELECT
-		[id],
+		[id] AS [_id],
 		[nameLast],
 		[nameFirst],
 		[nameMiddle],
@@ -138,7 +139,8 @@ BEGIN TRY
 		[language],
 		[timezone],
 		[username],
-		[validated]
+		[validated],
+		[serverDate]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -182,7 +184,7 @@ BEGIN TRY
 		END
 
 		SELECT
-			[id],
+			[id] AS [_id],
 			[nameLast],
 			[nameFirst],
 			[nameMiddle],
@@ -215,7 +217,8 @@ BEGIN TRY
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[serverDate]
 		FROM
 			[dbo].[tblUsers]
 		RETURN 1

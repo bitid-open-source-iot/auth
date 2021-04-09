@@ -51,7 +51,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -79,17 +79,24 @@ SET NOCOUNT ON
 BEGIN TRY
 	SELECT
 		[scope].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName],
+		[user].[role],
 		[scope].[url],
 		[scope].[appId],
 		[scope].[description]
 	FROM
 		[dbo].[tblScopes] AS [scope]
 	INNER JOIN
+		[dbo].[tblApps] AS [app]
+	ON
+		[scope].[appId] = [app].[id]
+	INNER JOIN
 		[dbo].[tblAppsUsers] AS [user]
 	ON
-		[scope].[appId] = [user].[appId]
+		[app].[id] = [user].[appId]
 	WHERE
-		[user].[role] >= 2
+		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
 		AND
@@ -98,7 +105,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -125,15 +132,22 @@ SET NOCOUNT ON
 BEGIN TRY
 	SELECT
 		[scope].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName],
+		[user].[role],
 		[scope].[url],
 		[scope].[appId],
 		[scope].[description]
 	FROM
 		[dbo].[tblScopes] AS [scope]
 	INNER JOIN
+		[dbo].[tblApps] AS [app]
+	ON
+		[scope].[appId] = [app].[id]
+	INNER JOIN
 		[dbo].[tblAppsUsers] AS [user]
 	ON
-		[scope].[appId] = [user].[appId]
+		[app].[id] = [user].[appId]
 	WHERE
 		[user].[role] >= 1
 		AND
@@ -142,7 +156,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -177,7 +191,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -197,7 +211,6 @@ GO
 
 CREATE PROCEDURE [dbo].[v1_Scopes_Update]
 	@url VARCHAR(255),
-	@appId INT,
 	@userId INT,
 	@scopeId INT,
 	@description VARCHAR(255)
@@ -206,25 +219,44 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [appId] = @appId AND [userId] = @userId)
+    DECLARE @role INT = 0
+	DECLARE @updated INT = 0
+    
+    SELECT TOP 1
+		@role = [role]
+	FROM
+		[dbo].[tblScopes] AS [scope]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[scope].[appId] = [user].[appId]
+	WHERE
+		[scope].[id] = @scopeId
+	
+    IF (@@ROWCOUNT = 0)
 	BEGIN
-		UPDATE
-			[dbo].[tblScopes]
-		SET
-			[url] = @url,
-			[appId] = @appId,
-			[description] = @description
-		WHERE
-			[id] = @scopeId
-			AND
-			[appId] IN (SELECT [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [userId] = @userId)
-		SELECT @@ROWCOUNT AS [n]
-		RETURN 1
+		SELECT 'App does not exist!' AS [message], 69 AS [code]
+		RETURN 0
 	END
+
+	IF (@role <= 2)
+	BEGIN
+		SELECT 'You cannot update this scope!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+	
+    UPDATE [dbo].[tblScopes] SET [url] = @url WHERE [id] = @scopeId AND @url IS NOT NULL
+    SET @updated = @updated + @@ROWCOUNT
+
+    UPDATE [dbo].[tblScopes] SET [description] = @description WHERE [id] = @scopeId AND @description IS NOT NULL
+    SET @updated = @updated + @@ROWCOUNT
+    
+    SELECT @updated AS [n]
+    RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -250,18 +282,42 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DELETE FROM
+    DECLARE @role INT = 0
+    
+    SELECT TOP 1
+		@role = [role]
+	FROM
+		[dbo].[tblScopes] AS [scope]
+	INNER JOIN
+		[dbo].[tblAppsUsers] AS [user]
+	ON
+		[scope].[appId] = [user].[appId]
+	WHERE
+		[scope].[id] = @scopeId
+	
+    IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'App does not exist!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
+	IF (@role <= 2)
+	BEGIN
+		SELECT 'You cannot delete this scope!' AS [message], 503 AS [code]
+		RETURN 0
+	END
+	
+    DELETE FROM
 		[dbo].[tblScopes]
 	WHERE
 		[id] = @scopeId
-		AND
-		[appId] IN (SELECT [appId] FROM [dbo].[tblAppsUsers] WHERE [role] >= 2 AND [userId] = @userId)
-	SELECT @@ROWCOUNT AS [n]
-	RETURN 1
+    
+    SELECT @@ROWCOUNT AS [n]
+    RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO

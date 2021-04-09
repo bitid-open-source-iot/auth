@@ -4,8 +4,8 @@ Set2 - Create stored procedure add user
 Set3 - Create stored procedure add scope
 Set4 - Create stored procedure add domain
 Set5 - Create stored procedure get
-Set6 - Create stored procedure load
-Set7 - Create stored procedure list
+Set6 - Create stored procedure list
+Set7 - Create stored procedure load
 Set8 - Create stored procedure validate
 Set9 - Create stored procedure share
 Set10 - Create stored procedure delete
@@ -37,6 +37,7 @@ CREATE PROCEDURE [dbo].[v1_Apps_Add]
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255) = NULL,
 	@themeBackground VARCHAR(255),
+	@organizationOnly INT,
 	@googleCredentials VARCHAR(5000) = NULL
 AS
 
@@ -60,6 +61,7 @@ BEGIN TRY
 			[themeColor],
 			[googleDatabase],
 			[themeBackground],
+			[organizationOnly],
 			[googleCredentials]
 		)
 	VALUES
@@ -73,6 +75,7 @@ BEGIN TRY
 			@themeColor,
 			@googleDatabase,
 			@themeBackground,
+			@organizationOnly,
 			@googleCredentials
 		)
 
@@ -279,6 +282,7 @@ BEGIN TRY
 		[app].[id] AS [_id],
 		[app].[googleDatabase],
 		[app].[themeBackground],
+		[app].[organizationOnly],
 		[app].[googleCredentials],
 		[domain].[url] AS [domain]
 	FROM
@@ -310,24 +314,23 @@ GO
 
 -- Set6
 
-PRINT 'Executing dbo.v1_Apps_Get.PRC'
+PRINT 'Executing dbo.v1_Apps_List.PRC'
 GO
 
-IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Get' AND type = 'P')
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_List' AND type = 'P')
 BEGIN
-	DROP PROCEDURE [dbo].[v1_Apps_Get]
+	DROP PROCEDURE [dbo].[v1_Apps_List]
 END
 GO
 
-CREATE PROCEDURE [dbo].[v1_Apps_Get]
-	@appId INT,
+CREATE PROCEDURE [dbo].[v1_Apps_List]
 	@userId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
 	BEGIN
 		SELECT 'App not found!' AS [message], 69 AS [code]
 		RETURN 0
@@ -346,6 +349,7 @@ BEGIN TRY
 		[app].[id] AS [_id],
 		[app].[googleDatabase],
 		[app].[themeBackground],
+		[app].[organizationOnly],
 		[app].[googleCredentials],
 		[domain].[url] AS [domain]
 	FROM
@@ -363,7 +367,7 @@ BEGIN TRY
 	ON
 		[scope].[appId] = [domain].[appId]
 	WHERE
-		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
 	RETURN 1
 END TRY
 
@@ -412,6 +416,7 @@ BEGIN TRY
 		[app].[id] AS [_id],
 		[app].[googleDatabase],
 		[app].[themeBackground],
+		[app].[organizationOnly],
 		[app].[googleCredentials],
 		[domain].[url] AS [domain]
 	FROM
@@ -716,7 +721,7 @@ BEGIN TRY
 		RETURN 0
 	END
 
-	IF (@role = 5)
+	IF (@userId = @adminId AND @role = 5)
 	BEGIN
 		SELECT 'An owner can not unsubscribe from their applications' AS [message], 503 AS [code]
 		RETURN 0

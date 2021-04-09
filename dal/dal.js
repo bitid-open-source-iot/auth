@@ -36,6 +36,7 @@ var module = function () {
 						.input('themeColor', args.req.body.theme.color)
 						.input('googleDatabase', args.req.body.google.database)
 						.input('themeBackground', args.req.body.theme.background)
+						.input('organizationOnly', args.req.body.organizationOnly)
 						.input('googleCredentials', args.req.body.google.credentials)
 						.execute('v1_Apps_Add');
 				}, null)
@@ -145,7 +146,8 @@ var module = function () {
 						args.result = {
 							bitid: {
 								auth: {
-									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId'),
+									organizationOnly: result[0].organization.only
 								}
 							},
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
@@ -244,7 +246,8 @@ var module = function () {
 							return {
 								bitid: {
 									auth: {
-										users: _.uniqBy(apps.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+										users: _.uniqBy(apps.map(o => ({ role: o.role, userId: o.userId })), 'userId'),
+										organizationOnly: apps[0].organization.only
 									}
 								},
 								scopes: _.uniqBy(apps, 'scopeId').map(o => o.scopeId),
@@ -641,7 +644,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.appId)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('bearer', args.req.body.bearer)
 						.input('device', args.req.headers['user-agent'])
 						.input('expiry', args.req.body.expiry)
@@ -670,7 +673,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('role', 5)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('tokenId', args.tokenId)
 						.execute('v1_Tokens_Add_User');
 				}, null)
@@ -690,7 +693,7 @@ var module = function () {
 				}, null)
 				.then(res => {
 					return args.app.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
 						.execute('v1_Tokens_Add_Scope')
@@ -1042,7 +1045,7 @@ var module = function () {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.user = unwind(result.recordset[0]);
 						if (args.user.validated == 1) {
-							args.result.userId = args.user.id;
+							args.result.userId = args.user._id;
 							deferred.resolve(args);
 						} else {
 							err.error.errors[0].code = 401;
@@ -1117,7 +1120,7 @@ var module = function () {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.appId)
 						.input('userId', args.req.body.header.userId)
-						.input('bearer', tools.encryption.generateRandomString(64))
+						.input('bearer', args.req.body.bearer)
 						.input('device', args.req.headers['user-agent'])
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
@@ -1238,7 +1241,7 @@ var module = function () {
 
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
-								args.result.userId = args.user.id;
+								args.result.userId = args.user._id;
 								args.result.token.timezone = args.user.timezone;
 								deferred.resolve(args);
 							} else {
@@ -1317,7 +1320,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.header.appId)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('bearer', args.req.body.bearer)
 						.input('device', args.req.headers['user-agent'])
 						.input('expiry', args.req.body.expiry)
@@ -1345,7 +1348,7 @@ var module = function () {
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('role', 5)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('tokenId', args.tokenId)
 						.execute('v1_Tokens_Add_User');
 				}, null)
@@ -1365,7 +1368,7 @@ var module = function () {
 				}, null)
 				.then(res => {
 					return args.app.scopes.reduce((promise, scopeId) => promise.then(() => new sql.Request(transaction)
-						.input('userId', args.user.id)
+						.input('userId', args.user._id)
 						.input('scopeId', scopeId)
 						.input('tokenId', args.tokenId)
 						.execute('v1_Tokens_Add_Scope')
@@ -1488,21 +1491,7 @@ var module = function () {
 					var deferred = Q.defer();
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
-						result = result.recordset.map(o => unwind(o));
-						args.app = {
-							bitid: {
-								auth: {
-									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
-								}
-							},
-							_id: result[0]._id,
-							app: result[0].app,
-							name: result[0].name,
-							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
-							domains: _.uniqBy(result, 'domain').map(o => o.domain),
-							private: result[0].private
-						};
-						args.result.token.scopes = args.app.scopes;
+						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -1970,7 +1959,6 @@ var module = function () {
 			const request = new sql.Request(__database);
 
 			request.input('url', args.req.body.url);
-			request.input('appId', args.req.body.appId);
 			request.input('userId', args.req.body.header.userId);
 			request.input('scopeId', args.req.body.scopeId);
 			request.input('description', args.req.body.description);
@@ -2209,14 +2197,11 @@ var module = function () {
 						result = result.recordset.map(o => unwind(o));
 
 						args.result = {
-							token: {
-								scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
-								device: result[0].device,
-								expiry: result[0].expiry,
-								bearer: result[0].bearer,
-								timezone: result[0].timezone,
-								description: result[0].description,
-							}
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							expiry: result[0].expiry,
+							bearer: result[0].bearer,
+							timezone: result[0].timezone,
+							description: result[0].description,
 						};
 						deferred.resolve(args);
 					} else {
@@ -2243,7 +2228,6 @@ var module = function () {
 
 			const request = new sql.Request(__database);
 
-			request.input('appId', args.req.body.appId);
 			request.input('userId', args.req.body.header.userId);
 			request.input('tokenId', args.req.body.tokenId);
 
@@ -2620,7 +2604,6 @@ var module = function () {
 			const request = new sql.Request(__database);
 
 			request.input('title', args.req.body.title);
-			request.input('appId', args.req.body.appId);
 			request.input('userId', args.req.body.header.userId);
 			request.input('featureId', args.req.body.featureId);
 			request.input('description', args.req.body.description);
