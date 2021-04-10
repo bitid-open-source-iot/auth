@@ -704,7 +704,7 @@ describe('Tokens', function () {
     });
 
     it('/tokens/retrieve', function (done) {
-        this.timeout(500000);
+        this.timeout(5000);
 
         tools.api.tokens.retrieve(tokenId)
             .then((result) => {
@@ -1030,7 +1030,46 @@ var tools = {
                         2,
                         3,
                         4,
-                        5
+                        5,
+                        6,
+                        7,
+                        8,
+                        9,
+                        10,
+                        11,
+                        12,
+                        13,
+                        14,
+                        15,
+                        16,
+                        17,
+                        18,
+                        19,
+                        20,
+                        21,
+                        22,
+                        23,
+                        24,
+                        25,
+                        26,
+                        27,
+                        28,
+                        29,
+                        30,
+                        31,
+                        32,
+                        33,
+                        34,
+                        35,
+                        36,
+                        37,
+                        38,
+                        39,
+                        40,
+                        41,
+                        42,
+                        43,
+                        44
                     ],
                     'secret': '123',
                     'domains': [
@@ -1561,11 +1600,9 @@ var tools = {
             generate: () => {
                 var deferred = Q.defer();
 
-                var expiry = new Date(Date.now() + 600000000);
-
                 tools.post('/tokens/generate', {
-                    'appId': '000000000000000000000001',
-                    'expiry': expiry,
+                    'appId': appId,
+                    'expiry': new Date(Date.now() + 600000000),
                     'description': 'My New Generated Token'
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1704,6 +1741,10 @@ var tools = {
 
         const result = await response.json();
 
+        if (!response.ok) {
+            console.log(result);
+        }
+
         deferred.resolve(result);
 
         return deferred.promise;
@@ -1731,6 +1772,10 @@ var tools = {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            console.log(result);
+        }
 
         deferred.resolve(result);
 
