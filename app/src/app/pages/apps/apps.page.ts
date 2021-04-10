@@ -119,7 +119,7 @@ export class AppsPage implements OnInit, OnDestroy {
 
 								const response = await this.service.unsubscribe({
 									appId: app.appId,
-									email: this.localstorage.get('email')
+									userId: this.localstorage.get('userId')
 								});
 
 								if (response.ok) {

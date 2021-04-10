@@ -66,7 +66,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		const params: any = {
 			role: user.role,
-			email: user.email
+			userId: user.userId
 		};
 		let service: any;
 
@@ -103,7 +103,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		dialog.afterClosed().subscribe(result => {
 			if (result) {
 				if (user) {
-					this.updatesubscriber(user.email, result.role);
+					this.updatesubscriber(user.userId, result.role);
 				} else {
 					this.share(result);
 				}
@@ -111,11 +111,11 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		});
 	}
 
-	public async unsubscribe(email) {
+	public async unsubscribe(userId) {
 		this.loading = true;
 
 		const params: any = {
-			email
+			userId
 		};
 		let service: any;
 
@@ -134,7 +134,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		if (response.ok) {
 			for (let i = 0; i < this.users.data.length; i++) {
-				if (this.users.data[i].email == email) {
+				if (this.users.data[i].userId == userId) {
 					this.users.data.splice(i, 1);
 				}
 			}
@@ -147,12 +147,12 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public async updatesubscriber(email, role) {
+	public async updatesubscriber(userId, role) {
 		this.loading = true;
 
 		const params: any = {
 			role,
-			email
+			userId
 		};
 		let service: any;
 

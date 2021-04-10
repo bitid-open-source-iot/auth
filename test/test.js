@@ -1099,7 +1099,7 @@ var tools = {
                 tools.post('/apps/share', {
                     'role': 1,
                     'appId': appId,
-                    'userId': userId + 1
+                    'email': 'admin@bitid.co.za'
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1131,7 +1131,7 @@ var tools = {
 
                 tools.post('/apps/unsubscribe', {
                     'appId': appId,
-                    'userId': userId + 1
+                    'userId': 1
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1143,7 +1143,7 @@ var tools = {
                 tools.post('/apps/update-subscriber', {
                     'role': 3,
                     'appId': appId,
-                    'userId': userId + 1
+                    'userId': 1
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1521,7 +1521,7 @@ var tools = {
 
                 tools.post('/tokens/share', {
                     'role': 1,
-                    'userId': userId + 1,
+                    'email': 'admin@bitid.co.za',
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1576,7 +1576,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/tokens/unsubscribe', {
-                    'userId': userId + 1,
+                    'userId': 1,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1588,7 +1588,7 @@ var tools = {
 
                 tools.post('/tokens/update-subscriber', {
                     'role': 3,
-                    'userId': userId + 1,
+                    'userId': 1,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);

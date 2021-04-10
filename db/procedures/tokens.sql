@@ -302,36 +302,76 @@ GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_Share]
 	@role INT,
-	@userId INT,
-	@adminId INT,
-	@tokenId INT
+	@tokenId INT,
+	@email VARCHAR(255),
+	@adminId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF EXISTS (SELECT TOP 1 [tokenId] FROM [dbo].[tblTokensUsers] WHERE [role] >= 4 AND [userId] = @adminId AND [tokenId] = @tokenId)
+	DECLARE @userId INT = 0
+	DECLARE @adminrole INT = 0
+
+	SELECT TOP 1
+		@userId = [id]
+	FROM
+		[dbo].[tblUsers]
+	WHERE
+		[email] = @email
+
+	IF (@@ROWCOUNT = 0)
 	BEGIN
-		INSERT INTO [dbo].[tblTokensUsers]
-			(
-				[role],
-				[userId],
-				[tokenId]
-			)
-		VALUES
-			(
-				@role,
-				@userId,
-				@tokenId
-			)
-		
-		SELECT @@ROWCOUNT AS [n]
-		RETURN 1
+		SELECT 'This user does not have an account on the system!' AS [message], 401 AS [code]
+		RETURN 0
 	END
+
+	SELECT TOP 1
+		@adminrole = [role]
+	FROM
+		[dbo].[tblTokensUsers]
+	WHERE
+		[userId] = @adminId
+		AND
+		[tokenId] = @tokenId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'You are not a user on this token!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	IF (@adminrole < 4)
+	BEGIN
+		SELECT 'You are not an admin on this token!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+	BEGIN
+		SELECT 'User already shared to token!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	INSERT INTO [dbo].[tblTokensUsers]
+		(
+			[role],
+			[userId],
+			[tokenId]
+		)
+	VALUES
+		(
+			@role,
+			@userId,
+			@tokenId
+		)
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO

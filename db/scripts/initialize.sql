@@ -95,6 +95,7 @@ INSERT INTO [dbo].[tblApps]
         [themeColor],
         [googleDatabase],
         [themeBackground],
+        [organizationOnly],
         [googleCredentials]
     )
 VALUES
@@ -108,6 +109,7 @@ VALUES
         '#FFFFFF',
         'NA',
         '#000000',
+        1,
         '{}'
     )
 

@@ -149,7 +149,7 @@ export class TokensPage implements OnInit, OnDestroy {
 								this.loading = true;
 
 								const response = await this.service.unsubscribe({
-									email: this.localstorage.get('email'),
+									userId: this.localstorage.get('userId'),
 									tokenId: token.tokenId
 								});
 

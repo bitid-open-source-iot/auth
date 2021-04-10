@@ -13,7 +13,7 @@
             Role
         </th>
         <td mat-cell *matCellDef="let element">
-            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.email, $event)" [disabled]="role < 4 || element.role >= role || element.role == 5" required>
+            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.userId, $event)" [disabled]="role < 4 || element.role >= role || element.role == 5" required>
                 <mat-option [value]="1">
                     Read
                 </mat-option>
@@ -36,7 +36,7 @@
     <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
-            <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.email)">
+            <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.userId)">
                 <mat-icon>
                     delete
                 </mat-icon>
@@ -69,7 +69,7 @@
             </mat-icon>
         </button>
 
-        <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.email)">
+        <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5" (click)="unsubscribe(element.userId)">
             <mat-icon>
                 delete
             </mat-icon>

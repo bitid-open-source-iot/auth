@@ -53,8 +53,8 @@
                 <mat-option [formGroup]="filter">
                     <ngx-mat-select-search placeholderLabel="filter scopes" noEntriesFoundLabel="no scopes found" formControlName="scopes"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let scope of scopes.data | filterBy : {'url': filter.value.scopes}" [value]="scope.url">
-                    {{ scope.url }}
+                <mat-option *ngFor="let scope of scopes.data | filterBy : {'description': filter.value.scopes}" [value]="scope.scopeId">
+                    {{ scope.description }}
                 </mat-option>
             </mat-select>
     

@@ -23,8 +23,7 @@ export class AccountService {
 				'email',
 				'picture',
 				'username'
-			],
-			email: this.localstorage.get('email')
+			]
 		};
 
 		const response = await this.api.post(environment.auth, '/users/get', params);
@@ -87,7 +86,8 @@ export class AccountService {
 		const response = await this.api.put(environment.auth, '/auth/authenticate', params);
 
 		if (response.ok) {
-			this.localstorage.setObject('token', response.result[0].token);
+			this.localstorage.setObject('token', response.result.token);
+			this.localstorage.setObject('userId', response.result.userId);
 			this.init();
 		} else {
 			this.authenticated.next(false);
@@ -127,12 +127,12 @@ export class AccountService {
 
 		this.localstorage.set('email', params.email);
 
-		return await this.api.put(environment.auth, '/auth/resetpassword', params);
+		return await this.api.put(environment.auth, '/auth/reset-password', params);
 	}
 
 	public async changepassword(params) {
 		this.localstorage.set('email', params.email);
-		return await this.api.put(environment.auth, '/auth/changepassword', params);
+		return await this.api.put(environment.auth, '/auth/change-password', params);
 	}
 
 }

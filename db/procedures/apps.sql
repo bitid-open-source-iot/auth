@@ -278,6 +278,7 @@ BEGIN TRY
 		[app].[private],
 		[user].[userId],
 		[scope].[scopeId],
+		[account].[email],
 		[app].[themeColor],
 		[app].[id] AS [_id],
 		[app].[googleDatabase],
@@ -299,6 +300,10 @@ BEGIN TRY
 		[dbo].[tblAppsDomains] AS [domain]
 	ON
 		[scope].[appId] = [domain].[appId]
+	INNER JOIN
+		[dbo].[tblUsers] AS [account]
+	ON
+		[account].[id] = [user].[userId]
 	WHERE
 		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
 	RETURN 1
@@ -345,6 +350,7 @@ BEGIN TRY
 		[app].[private],
 		[user].[userId],
 		[scope].[scopeId],
+		[account].[email],
 		[app].[themeColor],
 		[app].[id] AS [_id],
 		[app].[googleDatabase],
@@ -366,8 +372,12 @@ BEGIN TRY
 		[dbo].[tblAppsDomains] AS [domain]
 	ON
 		[scope].[appId] = [domain].[appId]
+	INNER JOIN
+		[dbo].[tblUsers] AS [account]
+	ON
+		[account].[id] = [user].[userId]
 	WHERE
-		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
+		[app].[id] IN (SELECT [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
 	RETURN 1
 END TRY
 
@@ -522,22 +532,47 @@ GO
 CREATE PROCEDURE [dbo].[v1_Apps_Share]
 	@role INT,
 	@appId INT,
-	@userId INT,
+	@email VARCHAR(255),
 	@adminId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF NOT EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [appId] = @appId AND [userId] = @adminId)
+	DECLARE @userId INT = 0
+	DECLARE @adminrole INT = 0
+
+	SELECT TOP 1
+		@userId = [id]
+	FROM
+		[dbo].[tblUsers]
+	WHERE
+		[email] = @email
+
+	IF (@@ROWCOUNT = 0)
 	BEGIN
-		SELECT 'You are not an admin on this app!' AS [message], 401 AS [code]
+		SELECT 'This user does not have an account on the system!' AS [message], 401 AS [code]
 		RETURN 0
 	END
 
-	IF NOT EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [role] >= 4 AND [appId] = @appId AND [userId] = @adminId)
+	SELECT TOP 1
+		@adminrole = [role]
+	FROM
+		[dbo].[tblAppsUsers]
+	WHERE
+		[appId] = @appId
+		AND
+		[userId] = @adminId
+
+	IF (@@ROWCOUNT = 0)
 	BEGIN
-		SELECT 'Your role is not high enought to share users!' AS [message], 70 AS [code]
+		SELECT 'You are not a user on this app!' AS [message], 401 AS [code]
+		RETURN 0
+	END
+
+	IF (@adminrole < 4)
+	BEGIN
+		SELECT 'You are not an admin on this app!' AS [message], 401 AS [code]
 		RETURN 0
 	END
 

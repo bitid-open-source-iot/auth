@@ -21,8 +21,10 @@ var module = function () {
 				deferred.reject(err);
 			});
 
-			args.req.body.private = Number(args.req.body.private)
-			args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
+			args.req.body.private = Number(args.req.body.private);
+			if (typeof(args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
+				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
+			};
 
 			transaction.begin()
 				.then(res => {
@@ -146,7 +148,7 @@ var module = function () {
 						args.result = {
 							bitid: {
 								auth: {
-									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId'),
+									users: _.uniqBy(result.map(o => ({ role: o.role, email: o.email, userId: o.userId })), 'userId'),
 									organizationOnly: result[0].organization.only
 								}
 							},
@@ -159,7 +161,7 @@ var module = function () {
 							theme: result[0].theme,
 							google: result[0].google,
 							secret: result[0].secret,
-							private: result[0].private
+							private: new Boolean(result[0].private)
 						};
 						try {
 							args.result.google.credentials = JSON.parse(args.result.google.credentials);
@@ -205,7 +207,7 @@ var module = function () {
 							theme: result[0].theme,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
 							domains: _.uniqBy(result, 'domain').map(o => o.domain),
-							private: result[0].private
+							private: new Boolean(result[0].private)
 						};
 						deferred.resolve(args);
 					} else {
@@ -246,7 +248,7 @@ var module = function () {
 							return {
 								bitid: {
 									auth: {
-										users: _.uniqBy(apps.map(o => ({ role: o.role, userId: o.userId })), 'userId'),
+										users: _.uniqBy(apps.map(o => ({ role: o.role, email: o.email, userId: o.userId })), 'userId'),
 										organizationOnly: apps[0].organization.only
 									}
 								},
@@ -259,7 +261,7 @@ var module = function () {
 								theme: apps[0].theme,
 								google: apps[0].google,
 								secret: apps[0].secret,
-								private: apps[0].private
+								private: new Boolean(apps[0].private)
 							}
 						}).value();
 						deferred.resolve(args);
@@ -289,7 +291,7 @@ var module = function () {
 
 			request.input('role', args.req.body.role);
 			request.input('appId', args.req.body.appId);
-			request.input('userId', args.req.body.userId);
+			request.input('email', args.req.body.email);
 			request.input('adminId', args.req.body.header.userId);
 
 			request.execute('v1_Apps_Share')
@@ -328,12 +330,6 @@ var module = function () {
 			if (typeof (args.req.body.name) == 'undefined' || args.req.body.name == null) {
 				args.req.body.name = null
 			}
-			if (typeof (args.req.body.secret) == 'undefined' || args.req.body.secret == null) {
-				args.req.body.secret = null
-			}
-			if (typeof (args.req.body.private) == 'undefined' || args.req.body.private == null) {
-				args.req.body.private = null
-			}
 			if (typeof (args.req.body.theme) == 'undefined' || args.req.body.theme == null) {
 				args.req.body.theme = {}
 				if (typeof (args.req.body.theme.color) == 'undefined' || args.req.body.theme.color == null) {
@@ -343,15 +339,24 @@ var module = function () {
 					args.req.body.theme.background = null
 				}
 			}
+			if (typeof (args.req.body.secret) == 'undefined' || args.req.body.secret == null) {
+				args.req.body.secret = null
+			}
+			if (typeof (args.req.body.private) == 'undefined' || args.req.body.private == null) {
+				args.req.body.private = null
+			}
 			if (typeof (args.req.body.google) == 'undefined' || args.req.body.google == null) {
 				args.req.body.google = {}
-				if (typeof (args.req.body.google.color) == 'undefined' || args.req.body.google.color == null) {
+				if (typeof (args.req.body.google.database) == 'undefined' || args.req.body.google.database == null) {
 					args.req.body.google.color = null
 				}
-				if (typeof (args.req.body.google.background) == 'undefined' || args.req.body.google.background == null) {
+				if (typeof (args.req.body.google.credentials) == 'undefined' || args.req.body.google.credentials == null) {
 					args.req.body.google.background = null
 				}
 			}
+			if (typeof(args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
+				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
+			};
 
 			var err = new ErrorResponse();
 			const transaction = new sql.Transaction(__database);
@@ -888,6 +893,115 @@ var module = function () {
 
 		register: (args) => {
 			var deferred = Q.defer();
+
+			if (typeof (args.req.body.picture) == 'undefined' || args.req.body.picture == null) {
+				args.req.body.picture = null
+			}
+			if (typeof (args.req.body.language) == 'undefined' || args.req.body.language == null) {
+				args.req.body.language = null
+			}
+			if (typeof (args.req.body.timezone) == 'undefined' || args.req.body.timezone == null) {
+				args.req.body.timezone = null
+			}
+			if (typeof (args.req.body.username) == 'undefined' || args.req.body.username == null) {
+				args.req.body.username = null
+			}
+			if (typeof (args.req.body.name) == 'undefined' || args.req.body.name == null) {
+				args.req.body.name = {};
+				if (typeof (args.req.body.name.last) == 'undefined' || args.req.body.name.last == null) {
+					args.req.body.name.last = null
+				}
+				if (typeof (args.req.body.name.first) == 'undefined' || args.req.body.name.first == null) {
+					args.req.body.name.first = null
+				}
+				if (typeof (args.req.body.name.middle) == 'undefined' || args.req.body.name.middle == null) {
+					args.req.body.name.middle = null
+				}
+			}
+			if (typeof (args.req.body.number) == 'undefined' || args.req.body.number == null) {
+				args.req.body.number = {};
+				if (typeof (args.req.body.number.tel) == 'undefined' || args.req.body.number.tel == null) {
+					args.req.body.number.tel = null
+				}
+				if (typeof (args.req.body.number.mobile) == 'undefined' || args.req.body.number.mobile == null) {
+					args.req.body.number.mobile = null
+				}
+			}
+			if (typeof (args.req.body.address) == 'undefined' || args.req.body.address == null) {
+				args.req.body.address = {};
+				if (typeof (args.req.body.address.same) == 'undefined' || args.req.body.address.same == null) {
+					args.req.body.address.same = null
+				}
+				if (typeof (args.req.body.address.billing) == 'undefined' || args.req.body.address.billing == null) {
+					args.req.body.address.billing = {}
+					if (typeof (args.req.body.address.billing.street) == 'undefined' || args.req.body.address.billing.street == null) {
+						args.req.body.address.billing.street = null
+					}
+					if (typeof (args.req.body.address.billing.suburb) == 'undefined' || args.req.body.address.billing.suburb == null) {
+						args.req.body.address.billing.suburb = null
+					}
+					if (typeof (args.req.body.address.billing.country) == 'undefined' || args.req.body.address.billing.country == null) {
+						args.req.body.address.billing.country = null
+					}
+					if (typeof (args.req.body.address.billing.cityTown) == 'undefined' || args.req.body.address.billing.cityTown == null) {
+						args.req.body.address.billing.cityTown = null
+					}
+					if (typeof (args.req.body.address.billing.additional) == 'undefined' || args.req.body.address.billing.additional == null) {
+						args.req.body.address.billing.additional = null
+					}
+					if (typeof (args.req.body.address.billing.postalCode) == 'undefined' || args.req.body.address.billing.postalCode == null) {
+						args.req.body.address.billing.postalCode = null
+					}
+					if (typeof (args.req.body.address.billing.company) == 'undefined' || args.req.body.address.billing.company == null) {
+						args.req.body.address.billing.company = {}
+						if (typeof (args.req.body.address.billing.company.vat) == 'undefined' || args.req.body.address.billing.company.vat == null) {
+							args.req.body.address.billing.company.vat = null
+						}
+						if (typeof (args.req.body.address.billing.company.reg) == 'undefined' || args.req.body.address.billing.company.reg == null) {
+							args.req.body.address.billing.company.reg = null
+						}
+					}
+				}
+				if (typeof (args.req.body.address.physical) == 'undefined' || args.req.body.address.physical == null) {
+					args.req.body.address.physical = {}
+					if (typeof (args.req.body.address.physical.street) == 'undefined' || args.req.body.address.physical.street == null) {
+						args.req.body.address.physical.street = null
+					}
+					if (typeof (args.req.body.address.physical.suburb) == 'undefined' || args.req.body.address.physical.suburb == null) {
+						args.req.body.address.physical.suburb = null
+					}
+					if (typeof (args.req.body.address.physical.country) == 'undefined' || args.req.body.address.physical.country == null) {
+						args.req.body.address.physical.country = null
+					}
+					if (typeof (args.req.body.address.physical.cityTown) == 'undefined' || args.req.body.address.physical.cityTown == null) {
+						args.req.body.address.physical.cityTown = null
+					}
+					if (typeof (args.req.body.address.physical.additional) == 'undefined' || args.req.body.address.physical.additional == null) {
+						args.req.body.address.physical.additional = null
+					}
+					if (typeof (args.req.body.address.physical.postalCode) == 'undefined' || args.req.body.address.physical.postalCode == null) {
+						args.req.body.address.physical.postalCode = null
+					}
+					if (typeof (args.req.body.address.physical.company) == 'undefined' || args.req.body.address.physical.company == null) {
+						args.req.body.address.physical.company = {}
+						if (typeof (args.req.body.address.physical.company.vat) == 'undefined' || args.req.body.address.physical.company.vat == null) {
+							args.req.body.address.physical.company.vat = null
+						}
+						if (typeof (args.req.body.address.physical.company.reg) == 'undefined' || args.req.body.address.physical.company.reg == null) {
+							args.req.body.address.physical.company.reg = null
+						}
+					}
+				}
+			}
+			if (typeof (args.req.body.identification) == 'undefined' || args.req.body.identification == null) {
+				args.req.body.identification = {}
+				if (typeof (args.req.body.identification.type) == 'undefined' || args.req.body.identification.type == null) {
+					args.req.body.identification.type = null
+				}
+				if (typeof (args.req.body.identification.number) == 'undefined' || args.req.body.identification.number == null) {
+					args.req.body.identification.number = null
+				}
+			}
 
 			const request = new sql.Request(__database)
 
@@ -2123,7 +2237,7 @@ var module = function () {
 			const request = new sql.Request(__database);
 
 			request.input('role', args.req.body.role);
-			request.input('userId', args.req.body.userId);
+			request.input('email', args.req.body.email);
 			request.input('adminId', args.req.body.header.userId);
 			request.input('tokenId', args.req.body.tokenId);
 

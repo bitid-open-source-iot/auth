@@ -133,8 +133,10 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 				if (this.mode != 'add') {
 					await this.get();
 					await this.load();
+					this.form.controls.appId.disable();
 				} else {
 					await this.load();
+					this.form.controls.appId.enable();
 				}
 			}
 		});

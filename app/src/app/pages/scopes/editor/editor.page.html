@@ -2,18 +2,6 @@
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
-                Url
-            </mat-label>
-            
-            <input matInput type="url" name="url" placeholder="url" formControlName="url" required>
-    
-            <mat-error *ngIf="errors.url">
-                {{ errors.url }}
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>
                 App
             </mat-label>
             
@@ -28,6 +16,18 @@
     
             <mat-error *ngIf="errors.appId">
                 {{ errors.appId }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Url
+            </mat-label>
+            
+            <input matInput type="url" name="url" placeholder="url" formControlName="url" required>
+    
+            <mat-error *ngIf="errors.url">
+                {{ errors.url }}
             </mat-error>
         </mat-form-field>
 

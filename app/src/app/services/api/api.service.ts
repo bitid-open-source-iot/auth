@@ -19,7 +19,8 @@ export class ApiService {
 
 		payload.header = {
 			appId: environment.appId,
-			email: this.localstorage.get('email')
+			email: this.localstorage.get('email'),
+			userId: parseInt(this.localstorage.get('userId'))
 		};
 
 		return await this.http.put(url + endpoint, payload, options)
@@ -38,8 +39,9 @@ export class ApiService {
 	public async post(url, endpoint, payload) {
 		const email = this.localstorage.get('email');
 		const token = this.localstorage.get('token');
+		const userId = this.localstorage.get('userId');
 
-		if (typeof (token) == 'undefined' || (typeof (email) == 'undefined')) {
+		if (!token || !email || !userId) {
 			this.localstorage.clear();
 			this.router.navigate(['/signin']);
 		}
@@ -53,7 +55,8 @@ export class ApiService {
 
 		payload.header = {
 			email,
-			appId: environment.appId
+			appId: environment.appId,
+			userId: parseInt(userId)
 		};
 
 		return await this.http.post(url + endpoint, payload, options)
