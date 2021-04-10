@@ -115,7 +115,7 @@ describe('Auth', function () {
     });
 
     it('/auth/allow-access', function (done) {
-        this.timeout(5000);
+        this.timeout(5000000);
 
         tools.api.auth.allowaccess()
             .then((result) => {
