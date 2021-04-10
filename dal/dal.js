@@ -844,7 +844,9 @@ var module = function () {
 				return deferred.promise;
 			} else {
 				try {
-					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
+					if (typeof(args.req.headers.authorization) == 'string') {
+						args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
+					};
 				} catch (error) {
 					var err = new ErrorResponse();
 					err.error.code = 401;
@@ -1109,7 +1111,9 @@ var module = function () {
 				return deferred.promise;
 			} else {
 				try {
-					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
+					if (typeof(args.req.headers.authorization) == 'string') {
+						args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
+					};
 				} catch (error) {
 					var err = new ErrorResponse();
 					err.error.code = 401;
