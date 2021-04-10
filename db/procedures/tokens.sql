@@ -193,38 +193,42 @@ SET NOCOUNT ON
 BEGIN TRY
 
 	SELECT
-		t.[id] AS [_id],
-		[device],
-		[expiry],
-		tu.[role],
-		tu.[userId],
-		ts.[scopeId],
-		[description],
-		app.[id] AS appAppId,
-		app.[icon] AS appIcon,
-		app.[name] AS appName
+		[user].[role],
+		[scope].[url],
+		[user].[userId],
+		[token].[device],
+		[token].[expiry],
+		[token].[id] AS [_id],
+		[token].[description],
+		[app].[id] AS [appAppId],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName]
 	FROM
-		[dbo].[tblTokens] AS t
+		[dbo].[tblTokens] AS [token]
 	INNER JOIN
-		[dbo].[tblTokensUsers] AS tu
+		[dbo].[tblTokensUsers] AS [user]
 	ON
-		t.[id] = tu.[tokenId]
+		[token].[id] = [user].[tokenId]
 	INNER JOIN
-		[dbo].[tblTokensScopes] AS ts
+		[dbo].[tblTokensScopes] AS [ts]
 	ON
-		tu.[tokenId] = ts.[tokenId]
+		[user].[tokenId] = [ts].[tokenId]
 	INNER JOIN
-		[dbo].[tblApps] AS app
+		[dbo].[tblScopes] AS [scope]
 	ON
-		t.[appId] = app.[id]
+		[scope].[id] = [ts].[scopeId]
+	INNER JOIN
+		[dbo].[tblApps] AS [app]
+	ON
+		[token].[appId] = [app].[id]
 	WHERE
-		ts.[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
 
 	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -251,16 +255,16 @@ SET NOCOUNT ON
 BEGIN TRY
 
 	SELECT
-		[token].[id] AS [_id],
-		[device],
-		[expiry],
 		[user].[role],
+		[scope].[url],
 		[user].[userId],
-		[scope].[scopeId],
-		[description],
-		[app].[id] AS appAppId,
-		[app].[icon] AS appIcon,
-		[app].[name] AS appName
+		[token].[device],
+		[token].[expiry],
+		[token].[id] AS [_id],
+		[token].[description],
+		[app].[id] AS [appAppId],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName]
 	FROM
 		[dbo].[tblTokens] AS [token]
 	INNER JOIN
@@ -268,21 +272,25 @@ BEGIN TRY
 	ON
 		[token].[id] = [user].[tokenId]
 	INNER JOIN
-		[dbo].[tblTokensScopes] AS [scope]
+		[dbo].[tblTokensScopes] AS [ts]
 	ON
-		[user].[tokenId] = [scope].[tokenId]
+		[user].[tokenId] = [ts].[tokenId]
+	INNER JOIN
+		[dbo].[tblScopes] AS [scope]
+	ON
+		[scope].[id] = [ts].[scopeId]
 	INNER JOIN
 		[dbo].[tblApps] AS [app]
 	ON
 		[token].[appId] = [app].[id]
 	WHERE
-		[scope].[tokenId] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
+		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
 
 	RETURN 1
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -434,7 +442,7 @@ END TRY
 
 BEGIN CATCH
 	ROLLBACK TRAN
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -556,7 +564,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -608,7 +616,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
@@ -654,7 +662,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	SELECT Error_Message() AS [message]
+	SELECT Error_Message() AS [message], 503 AS [code]
 	RETURN 0
 END CATCH
 GO
