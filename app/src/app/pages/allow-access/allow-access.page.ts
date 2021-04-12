@@ -77,7 +77,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 
 		if (response.ok) {
 			debugger
-			const url = [this.returl, '?', 'email=', this.form.value.email, 'userId=', response.result.userId, '&', 'tokenId=', response.result.tokenId].join('');
+			const url = [this.returl, '?', 'email=', this.form.value.email, '&userId=', response.result.userId, '&tokenId=', response.result.tokenId].join('');
 			window.open(url, '_parent');
 		} else {
 			this.toast.show(response.error.message);
