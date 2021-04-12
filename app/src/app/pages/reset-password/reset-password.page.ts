@@ -20,7 +20,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	public form: FormGroup = new FormGroup({
 		old: new FormControl('', [Validators.required]),
 		new: new FormControl('', [Validators.required]),
-		email: new FormControl('', [Validators.required]),
+		userId: new FormControl('', [Validators.required]),
 		confirm: new FormControl('', [Validators.required])
 	});
 	public app: any = { };
@@ -28,7 +28,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	public errors: any = {
 		old: '',
 		new: '',
-		email: '',
+		userId: '',
 		confirm: ''
 	};
 	public loading: boolean;
@@ -62,7 +62,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		const response = await this.service.changepassword({
 			old: this.form.value.old,
 			new: this.form.value.new,
-			email: this.form.value.email
+			userId: this.form.value.userId
 		});
 
 		this.loading = false;
@@ -72,7 +72,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 				this.router.navigate(['/allow-access'], {
 					queryParams: {
 						appId: this.app.appId,
-						email: this.form.value.email,
+						userId: this.form.value.userId,
 						returl: this.app.url + '/authenticate'
 					},
 					replaceUrl: true
@@ -80,7 +80,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 			} else {
 				this.router.navigate(['/signin'], {
 					queryParams: {
-						email: this.form.value.email
+						userId: this.form.value.userId
 					},
 					replaceUrl: true
 				});
@@ -98,9 +98,10 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 
 		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
+				debugger
 				const params = this.route.snapshot.queryParams;
-				if (typeof (params.email) != 'undefined') {
-					this.form.controls.email.setValue(params.email);
+				if (typeof (params.userId) != 'undefined') {
+					this.form.controls.userId.setValue(params.userId);
 				}
 				if (typeof (params.password) != 'undefined') {
 					this.form.controls.old.setValue(params.password);
@@ -109,7 +110,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 					this.appId = params.appId;
 					this.load();
 				}
-				if (params.email == '' || params.email == null || typeof (params.email) == 'undefined' || params.password == '' || params.password == null || typeof (params.password) == 'undefined') {
+				if (params.userId == '' || params.userId == null || typeof (params.userId) == 'undefined' || params.password == '' || params.password == null || typeof (params.password) == 'undefined') {
 					this.router.navigate(['/']);
 				}
 			}

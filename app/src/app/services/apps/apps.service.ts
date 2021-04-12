@@ -41,7 +41,7 @@ export class AppsService {
 	}
 
 	public async allowaccess(params) {
-		return await this.api.put(environment.auth, '/apps/allowaccess', params);
+		return await this.api.put(environment.auth, '/apps/allow-access', params);
 	}
 
 	public async unsubscribe(params) {
@@ -49,7 +49,7 @@ export class AppsService {
 	}
 
 	public async updatesubscriber(params) {
-		return await this.api.post(environment.auth, '/apps/updatesubscriber', params);
+		return await this.api.post(environment.auth, '/apps/update-subscriber', params);
 	}
 
 }

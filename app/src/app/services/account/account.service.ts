@@ -79,7 +79,6 @@ export class AccountService {
 		this.localstorage.set('email', params.email);
 
 		params.appId = environment.appId;
-		params.scopes = environment.scopes;
 		params.expiry = new Date(new Date().valueOf() + (31 * 24 * 60 * 60 * 1000));
 		params.description = environment.appName;
 

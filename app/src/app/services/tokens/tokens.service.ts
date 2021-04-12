@@ -47,7 +47,7 @@ export class TokensService {
 	}
 
 	public async updatesubscriber(params) {
-		return await this.api.post(environment.auth, '/tokens/updatesubscriber', params);
+		return await this.api.post(environment.auth, '/tokens/update-subscriber', params);
 	}
 
 }
