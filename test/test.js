@@ -30,7 +30,6 @@ describe('Config', function () {
                     result.should.have.property('auth');
                     result.should.have.property('appId');
                     result.should.have.property('drive');
-                    result.should.have.property('scopes');
                     result.should.have.property('appName');
                     done();
                 } catch (e) {
@@ -121,6 +120,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('token');
+                    result.should.have.property('userId');
                     result.should.have.property('tokenId');
                     token = result.token;
                     tokenId = result.tokenId;

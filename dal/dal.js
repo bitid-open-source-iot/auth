@@ -592,6 +592,7 @@ var module = function () {
 
 						if (password.hash == args.user.hash) {
 							if (args.user.validated == 1) {
+								args.result.userId = args.user._id;
 								deferred.resolve(args);
 							} else {
 								err.error.errors[0].code = 401;
