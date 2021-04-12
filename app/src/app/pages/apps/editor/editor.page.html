@@ -147,6 +147,18 @@
         
         <mat-form-field appearance="outline">
             <mat-label>
+                Token Expiry (ms)
+            </mat-label>
+            
+            <input matInput min="60000" type="number" name="expiry" placeholder="token expiry" formControlName="expiry" required>
+    
+            <mat-error *ngIf="errors.expiry">
+                {{ errors.expiry }}
+            </mat-error>
+        </mat-form-field>
+        
+        <mat-form-field appearance="outline">
+            <mat-label>
                 Access Mode
             </mat-label>
             

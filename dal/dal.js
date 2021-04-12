@@ -558,8 +558,8 @@ var module = function () {
 		allowaccess: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.body.expiry) == 'undefined') {
-				args.req.body.expiry = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+			if (typeof (args.req.body.expiry) != 'undefined' && args.req.body.expiry != null) {
+				args.req.body.expiry = new Date(args.req.body.expiry);
 			};
 
 			var err = new ErrorResponse();
@@ -640,10 +640,17 @@ var module = function () {
 							},
 							_id: result[0]._id,
 							app: result[0].app,
+							expiry: result[0].expiry,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
+
 						args.result.token.scopes = args.app.scopes;
+
+						if (typeof (args.req.body.expiry) == 'undefined') {
+							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+						};
+
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -1202,8 +1209,8 @@ var module = function () {
 				};
 			};
 
-			if (typeof (args.req.body.expiry) == 'undefined') {
-				args.req.body.expiry = new Date(Date.now() + 31 * 24 * 60 * 60 * 1000);
+			if (typeof (args.req.body.expiry) != 'undefined' && args.req.body.expiry != null) {
+				args.req.body.expiry = new Date(args.req.body.expiry);
 			};
 
 			var err = new ErrorResponse();
@@ -1275,10 +1282,17 @@ var module = function () {
 							},
 							_id: result[0]._id,
 							app: result[0].app,
+							expiry: result[0].expiry,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
+						
 						args.result.token.scopes = args.app.scopes;
+
+						if (typeof (args.req.body.expiry) == 'undefined') {
+							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+						};
+
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -1397,8 +1411,7 @@ var module = function () {
 			var err = new ErrorResponse();
 			const transaction = new sql.Transaction(__database);
 
-			if (typeof (args.req.body.expiry) == 'undefined' || args.req.body.expiry == null) {
-				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
+			if (typeof (args.req.body.expiry) != 'undefined' || args.req.body.expiry != null) {
 				args.req.body.expiry = new Date(args.req.body.expiry);
 			}
 
@@ -1470,6 +1483,7 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						result = result.recordset.map(o => unwind(o));
+						
 						args.app = {
 							bitid: {
 								auth: {
@@ -1480,10 +1494,19 @@ var module = function () {
 							app: result[0].app,
 							name: result[0].name,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							expiry: result[0].expiry,
 							domains: _.uniqBy(result, 'domain').map(o => o.domain),
 							private: result[0].private
 						};
+
 						args.result.token.scopes = args.app.scopes;
+
+						if (typeof (args.req.body.expiry) == 'undefined') {
+							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+						};
+
+						args.result.token.expiry = args.req.body.expiry;
+
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;

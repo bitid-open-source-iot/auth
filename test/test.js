@@ -1077,7 +1077,7 @@ var tools = {
                     'domains': [
                         'www.bitid.co.za'
                     ],
-                    'expiry': 1000000,
+                    'expiry': 86400000,
                     'private': false,
                     'organizationOnly': 1
                 })

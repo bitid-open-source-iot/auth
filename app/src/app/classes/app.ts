@@ -9,6 +9,7 @@ export class App {
 	public users: USER[] = [];
 	public appId: string|number;
 	public theme: any = {};
+	public expiry: number;
 	public google: any = {};
 	public scopes: string[] = [];
 	public secret: string;
@@ -58,6 +59,9 @@ export class App {
 			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
 				this.appId = args.appId;
 			}
+			if (typeof (args.expiry) != 'undefined' && args.expiry !== null) {
+				this.expiry = args.expiry;
+			}
 			if (typeof (args.private) != 'undefined' && args.private !== null) {
 				this.private = args.private;
 			}
@@ -87,6 +91,7 @@ export interface APP {
 	name?: string;
 	users?: USER[];
 	appId?: string|number;
+	expiry?: number;
 	scopes?: string[];
 	secret?: string;
 	private?: boolean;

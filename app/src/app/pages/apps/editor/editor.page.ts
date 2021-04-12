@@ -33,6 +33,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		icon: new FormControl(null, [Validators.required]),
 		name: new FormControl(null, [Validators.required]),
 		secret: new FormControl(null, [Validators.required]),
+		expiry: new FormControl(60000, [Validators.required, Validators.min(60000)]),
 		scopes: new FormControl([], [Validators.required]),
 		domains: new FormControl([], [Validators.required]),
 		private: new FormControl(null, [Validators.required]),
@@ -52,6 +53,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		url: '',
 		icon: '',
 		name: '',
+		expiry: '',
 		secret: '',
 		scopes: '',
 		domains: '',
@@ -75,6 +77,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				'icon',
 				'name',
 				'theme',
+				'expiry',
 				'secret',
 				'google',
 				'scopes',
@@ -93,6 +96,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				this.form.controls.name.setValue(app.name);
 				this.form.controls.secret.setValue(app.secret);
 				this.form.controls.scopes.setValue(app.scopes);
+				this.form.controls.expiry.setValue(app.expiry);
 				this.form.controls.domains.setValue(app.domains);
 				this.form.controls.private.setValue(app.private);
 				this.form.controls.organizationOnly.setValue(app.organizationOnly);
