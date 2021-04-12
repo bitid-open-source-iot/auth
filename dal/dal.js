@@ -342,6 +342,9 @@ var module = function () {
 					args.req.body.theme.background = null
 				}
 			}
+			if (typeof (args.req.body.expiry) == 'undefined' || args.req.body.expiry == null) {
+				args.req.body.expiry = null
+			}
 			if (typeof (args.req.body.secret) == 'undefined' || args.req.body.secret == null) {
 				args.req.body.secret = null
 			}
@@ -379,6 +382,7 @@ var module = function () {
 						.input('icon', args.req.body.icon)
 						.input('name', args.req.body.name)
 						.input('appId', args.req.body.appId)
+						.input('expiry', args.req.body.expiry)
 						.input('secret', args.req.body.secret)
 						.input('userId', args.req.body.header.userId)
 						.input('private', args.req.body.private)
