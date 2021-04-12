@@ -3,7 +3,11 @@ Set1 - Create tblTokens including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblTokens]
+-- DROP TABLE [dbo].[tblTokens_AuditExact]
+
 -- Set1
+
 USE [auth]
 GO
 

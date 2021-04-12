@@ -3,6 +3,9 @@ Set1 - Create tblUsers including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblUsers]
+-- DROP TABLE [dbo].[tblUsers_AuditExact]
+
 -- Set1
 USE [auth]
 GO

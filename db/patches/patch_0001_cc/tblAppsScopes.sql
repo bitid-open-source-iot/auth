@@ -3,7 +3,11 @@ Set1 - Create tblAppsScopes including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblAppsScopes]
+-- DROP TABLE [dbo].[tblAppsScopes_AuditExact]
+
 -- Set1
+
 USE [auth]
 GO
 
@@ -30,7 +34,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblAppsScopes_AuditExact' AND type = 'U')
 BEGIN
-	CREATE TABLE tblAppsScopes_AuditExact
+	CREATE TABLE [dbo].[tblAppsScopes_AuditExact]
 	(
 		[id] INT IDENTITY (1, 1) NOT NULL,
 		[userId] INT NOT NULL,

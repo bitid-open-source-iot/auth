@@ -4,6 +4,7 @@ Set2 - Create AuditExact and Triggers
 */
 
 -- Set1
+
 USE [auth]
 GO
 

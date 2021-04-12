@@ -32,6 +32,7 @@ CREATE PROCEDURE [dbo].[v1_Apps_Add]
 	@icon VARCHAR(255),
 	@name VARCHAR(255),
 	@secret VARCHAR(255),
+	@expiry INT,
 	@userId INT,
 	@private INT = 0,
 	@themeColor VARCHAR(255),
@@ -56,6 +57,7 @@ BEGIN TRY
 			[icon],
 			[name],
 			[userId],
+			[expiry],
 			[secret],
 			[private],
 			[themeColor],
@@ -70,6 +72,7 @@ BEGIN TRY
 			@icon,
 			@name,
 			@userId,
+			@expiry,
 			@secret,
 			@private,
 			@themeColor,
@@ -274,6 +277,7 @@ BEGIN TRY
 		[app].[icon],
 		[app].[name],
 		[user].[role],
+		[app].[expiry],
 		[app].[secret],
 		[app].[private],
 		[user].[userId],
@@ -346,6 +350,7 @@ BEGIN TRY
 		[app].[icon],
 		[app].[name],
 		[user].[role],
+		[app].[expiry],
 		[app].[secret],
 		[app].[private],
 		[user].[userId],
@@ -418,6 +423,7 @@ BEGIN TRY
 		[app].[icon],
 		[app].[name],
 		[user].[role],
+		[app].[expiry],
 		[app].[secret],
 		[app].[private],
 		[user].[userId],
@@ -485,6 +491,7 @@ BEGIN TRY
 		[app].[url] AS [appUrl],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName],
+		[app].[expiry],
 		[app].[private],
 		[user].[role],
 		[user].[userId],
@@ -865,6 +872,7 @@ CREATE PROCEDURE [dbo].[v1_Apps_Update]
 	@appId INT,
 	@secret VARCHAR(255),
 	@userId INT,
+	@expiry INT,
 	@private INT,
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255),
@@ -906,6 +914,9 @@ BEGIN TRY
 	SET @updated = @updated + @@ROWCOUNT
 
 	UPDATE [dbo].[tblApps] SET [name] = @name WHERE [id] = @appId AND @name IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblApps] SET [expiry] = @expiry WHERE [id] = @appId AND @expiry IS NOT NULL
 	SET @updated = @updated + @@ROWCOUNT
 
 	UPDATE [dbo].[tblApps] SET [secret] = @secret WHERE [id] = @appId AND @secret IS NOT NULL

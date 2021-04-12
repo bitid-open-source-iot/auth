@@ -3,6 +3,9 @@ Set1 - Create tblApps including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblApps]
+-- DROP TABLE [dbo].[tblApps_AuditExact]
+
 -- Set1
 
 USE [auth]
@@ -17,6 +20,7 @@ CREATE TABLE [dbo].[tblApps]
 	[icon] VARCHAR(255) NOT NULL,
 	[name] VARCHAR(255) NOT NULL,
 	[secret] VARCHAR(255) NOT NULL,
+	[expiry] INT NOT NULL,
 	[private] INT NOT NULL,
 	[themeColor] VARCHAR(255) NOT NULL,
 	[googleDatabase] VARCHAR(255) DEFAULT (''),
@@ -40,7 +44,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblApps_AuditExact' AND type = 'U')
 BEGIN
-	CREATE TABLE tblApps_AuditExact
+	CREATE TABLE [dbo].[tblApps_AuditExact]
 	(
 		[id] INT IDENTITY (1, 1) NOT NULL,
 		[userId] INT NOT NULL,
@@ -51,6 +55,7 @@ BEGIN
 		[icon] VARCHAR(255) NOT NULL,
 		[name] VARCHAR(255) NOT NULL,
 		[secret] VARCHAR(255) NOT NULL,
+		[expiry] INT NOT NULL,
 		[private] INT NOT NULL,
 		[themeColor] VARCHAR(255) NOT NULL,
 		[googleDatabase] VARCHAR(255) NOT NULL,
@@ -95,6 +100,7 @@ BEGIN
 				[url],
 				[icon],
 				[name],
+				[expiry],
 				[secret],
 				[private],
 				[themeColor],
@@ -110,6 +116,7 @@ BEGIN
 			[url],
 			[icon],
 			[name],
+			[expiry],
 			[secret],
 			[private],
 			[themeColor],
@@ -134,6 +141,7 @@ BEGIN
 				[url],
 				[icon],
 				[name],
+				[expiry],
 				[secret],
 				[private],
 				[themeColor],
@@ -149,6 +157,7 @@ BEGIN
 			[url],
 			[icon],
 			[name],
+			[expiry],
 			[secret],
 			[private],
 			[themeColor],
@@ -172,6 +181,7 @@ BEGIN
 				[url],
 				[icon],
 				[name],
+				[expiry],
 				[secret],
 				[private],
 				[themeColor],
@@ -187,6 +197,7 @@ BEGIN
 			[url],
 			[icon],
 			[name],
+			[expiry],
 			[secret],
 			[private],
 			[themeColor],

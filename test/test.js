@@ -282,6 +282,7 @@ describe('Apps', function () {
                     result.should.have.property('theme');
                     result.should.have.property('scopes');
                     result.should.have.property('secret');
+                    result.should.have.property('expiry');
                     result.should.have.property('google');
                     result.should.have.property('domains');
                     result.should.have.property('private');
@@ -312,6 +313,7 @@ describe('Apps', function () {
                     result[0].should.have.property('appId');
                     result[0].should.have.property('users');
                     result[0].should.have.property('theme');
+                    result[0].should.have.property('expiry');
                     result[0].should.have.property('scopes');
                     result[0].should.have.property('secret');
                     result[0].should.have.property('google');
@@ -1075,6 +1077,7 @@ var tools = {
                     'domains': [
                         'www.bitid.co.za'
                     ],
+                    'expiry': 1000000,
                     'private': false,
                     'organizationOnly': 1
                 })
@@ -1094,6 +1097,7 @@ var tools = {
                         'appId',
                         'users',
                         'theme',
+                        'expiry',
                         'scopes',
                         'secret',
                         'google',
@@ -1119,6 +1123,7 @@ var tools = {
                         'appId',
                         'users',
                         'theme',
+                        'expiry',
                         'scopes',
                         'secret',
                         'google',

@@ -3,7 +3,11 @@ Set1 - Create tblAppsDomains including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblAppsDomains]
+-- DROP TABLE [dbo].[tblAppsDomains_AuditExact]
+
 -- Set1
+
 USE [auth]
 GO
 
@@ -30,7 +34,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblAppsDomains_AuditExact' AND type = 'U')
 BEGIN
-	CREATE TABLE tblAppsDomains_AuditExact
+	CREATE TABLE [dbo].[tblAppsDomains_AuditExact]
 	(
 		[id] INT IDENTITY (1, 1) NOT NULL,
 		[userId] INT NOT NULL,

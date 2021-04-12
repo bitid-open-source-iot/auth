@@ -3,6 +3,9 @@ Set1 - Create tblFeatures including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblFeatures]
+-- DROP TABLE [dbo].[tblFeatures_AuditExact]
+
 -- Set1
 
 USE [auth]
@@ -31,7 +34,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblFeatures_AuditExact' AND type = 'U')
 BEGIN
-	CREATE TABLE tblFeatures_AuditExact
+	CREATE TABLE [dbo].[tblFeatures_AuditExact]
 	(
 		[id] INT IDENTITY (1, 1) NOT NULL,
 		[userId] INT NOT NULL,

@@ -3,7 +3,11 @@ Set1 - Create tblTokensUsers including Unique index
 Set2 - Create AuditExact and Triggers
 */
 
+-- DROP TABLE [dbo].[tblTokensUsers]
+-- DROP TABLE [dbo].[tblTokensUsers_AuditExact]
+
 -- Set1
+
 USE [auth]
 GO
 
@@ -33,7 +37,7 @@ GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblTokensUsers_AuditExact' AND type = 'U')
 BEGIN
-	CREATE TABLE tblTokensUsers_AuditExact
+	CREATE TABLE [dbo].[tblTokensUsers_AuditExact]
 	(
 		[id] INT IDENTITY (1, 1) NOT NULL,
 		[userId] INT NOT NULL,

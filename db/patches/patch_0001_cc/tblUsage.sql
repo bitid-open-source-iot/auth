@@ -2,6 +2,8 @@
 Set1 - Create tblUsage
 */
 
+-- DROP TABLE [dbo].[tblUsage]
+
 -- Set1
 
 USE [auth]

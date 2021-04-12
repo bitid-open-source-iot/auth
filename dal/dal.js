@@ -34,6 +34,7 @@ var module = function () {
 						.input('name', args.req.body.name)
 						.input('secret', args.req.body.secret)
 						.input('userId', args.req.body.header.userId)
+						.input('expiry', args.req.body.expiry)
 						.input('private', args.req.body.private)
 						.input('themeColor', args.req.body.theme.color)
 						.input('googleDatabase', args.req.body.google.database)
@@ -159,6 +160,7 @@ var module = function () {
 							icon: result[0].icon,
 							name: result[0].name,
 							theme: result[0].theme,
+							expiry: result[0].expiry,
 							google: result[0].google,
 							secret: result[0].secret,
 							private: new Boolean(result[0].private)
@@ -260,6 +262,7 @@ var module = function () {
 								name: apps[0].name,
 								theme: apps[0].theme,
 								google: apps[0].google,
+								expiry: apps[0].expiry,
 								secret: apps[0].secret,
 								private: new Boolean(apps[0].private)
 							}
