@@ -22,7 +22,7 @@ var module = function () {
 			});
 
 			args.req.body.private = Number(args.req.body.private);
-			if (typeof(args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
+			if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
 			};
 
@@ -354,7 +354,7 @@ var module = function () {
 					args.req.body.google.background = null
 				}
 			}
-			if (typeof(args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
+			if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
 			};
 
@@ -802,32 +802,66 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var err = new ErrorResponse();
-			const request = new sql.Request(__database);
+			const transaction = new sql.Transaction(__database);
 
-			request.input('code', args.req.body.code)
-			request.input('email', args.req.body.header.email)
-			request.input('appId', args.req.body.header.appId)
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_Auth_Verify')
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('code', args.req.body.code)
+						.input('email', args.req.body.header.email)
+						.input('appId', args.req.body.header.appId)
+						.execute('v1_Auth_Verify');
+				}, null)
 				.then(result => {
+					var deferred = Q.defer();
+
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].code = 503;
 						err.error.errors[0].reason = result.recordset[0].message;
 						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
-					}
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.result.userId)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
 				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -845,7 +879,7 @@ var module = function () {
 				return deferred.promise;
 			} else {
 				try {
-					if (typeof(args.req.headers.authorization) == 'string') {
+					if (typeof (args.req.headers.authorization) == 'string') {
 						args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
 					};
 				} catch (error) {
@@ -862,7 +896,7 @@ var module = function () {
 			args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
 
 			const request = new sql.Request(__database);
-			
+
 			request.input('appId', args.req.body.header.appId);
 			request.input('scope', args.req.body.scope);
 			request.input('userId', args.req.body.header.userId);
@@ -1006,63 +1040,98 @@ var module = function () {
 				}
 			}
 
-			const request = new sql.Request(__database)
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			request.input('code', Math.floor(Math.random() * 900000 + 100000))
-			request.input('salt', args.req.body.salt)
-			request.input('hash', args.req.body.hash)
-			request.input('email', args.req.body.header.email)
-			request.input('appId', args.req.body.header.appId)
-			request.input('picture', args.req.body.picture || null)
-			request.input('language', args.req.body.language || 'english')
-			request.input('timezone', args.req.body.timezone || 0)
-			request.input('username', args.req.body.username || null)
-			request.input('nameLast', args.req.body.name.last || null)
-			request.input('validated', 0)
-			request.input('nameFirst', args.req.body.name.first || null)
-			request.input('numberTel', args.req.body.number.tel || null)
-			request.input('nameMiddle', args.req.body.name.middle || null)
-			request.input('addressSame', args.req.body.address.same || null)
-			request.input('numberMobile', args.req.body.number.mobile || null)
-			request.input('identificationType', args.req.body.identification.type || null)
-			request.input('identificationNumber', args.req.body.identification.number || null)
-			request.input('addressBillingStreet', args.req.body.address.billing.street || null)
-			request.input('addressBillingSuburb', args.req.body.address.billing.suburb || null)
-			request.input('addressBillingCountry', args.req.body.address.billing.country || null)
-			request.input('addressPhysicalStreet', args.req.body.address.physical.street || null)
-			request.input('addressPhysicalSuburb', args.req.body.address.physical.suburb || null)
-			request.input('addressBillingCityTown', args.req.body.address.billing.cityTown || null)
-			request.input('addressPhysicalCountry', args.req.body.address.physical.country || null)
-			request.input('addressPhysicalCityTown', args.req.body.address.physical.cityTown || null)
-			request.input('addressBillingAdditional', args.req.body.address.billing.additional || null)
-			request.input('addressBillingPostalCode', args.req.body.address.billing.postalCode || null)
-			request.input('addressBillingCompanyVat', args.req.body.address.billing.company.vat || null)
-			request.input('addressBillingCompanyReg', args.req.body.address.billing.company.reg || null)
-			request.input('addressPhysicalAdditional', args.req.body.address.physical.additional || null)
-			request.input('addressPhysicalPostalCode', args.req.body.address.physical.postalCode || null)
-			request.input('addressPhysicalCompanyVat', args.req.body.address.physical.company.vat || null)
-			request.input('addressPhysicalCompanyReg', args.req.body.address.physical.company.reg || null)
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_Auth_Register')
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('code', Math.floor(Math.random() * 900000 + 100000))
+						.input('salt', args.req.body.salt)
+						.input('hash', args.req.body.hash)
+						.input('email', args.req.body.header.email)
+						.input('appId', args.req.body.header.appId)
+						.input('picture', args.req.body.picture || null)
+						.input('language', args.req.body.language || 'english')
+						.input('timezone', args.req.body.timezone || 0)
+						.input('username', args.req.body.username || null)
+						.input('nameLast', args.req.body.name.last || null)
+						.input('validated', 0)
+						.input('nameFirst', args.req.body.name.first || null)
+						.input('numberTel', args.req.body.number.tel || null)
+						.input('nameMiddle', args.req.body.name.middle || null)
+						.input('addressSame', args.req.body.address.same || null)
+						.input('numberMobile', args.req.body.number.mobile || null)
+						.input('identificationType', args.req.body.identification.type || null)
+						.input('identificationNumber', args.req.body.identification.number || null)
+						.input('addressBillingStreet', args.req.body.address.billing.street || null)
+						.input('addressBillingSuburb', args.req.body.address.billing.suburb || null)
+						.input('addressBillingCountry', args.req.body.address.billing.country || null)
+						.input('addressPhysicalStreet', args.req.body.address.physical.street || null)
+						.input('addressPhysicalSuburb', args.req.body.address.physical.suburb || null)
+						.input('addressBillingCityTown', args.req.body.address.billing.cityTown || null)
+						.input('addressPhysicalCountry', args.req.body.address.physical.country || null)
+						.input('addressPhysicalCityTown', args.req.body.address.physical.cityTown || null)
+						.input('addressBillingAdditional', args.req.body.address.billing.additional || null)
+						.input('addressBillingPostalCode', args.req.body.address.billing.postalCode || null)
+						.input('addressBillingCompanyVat', args.req.body.address.billing.company.vat || null)
+						.input('addressBillingCompanyReg', args.req.body.address.billing.company.reg || null)
+						.input('addressPhysicalAdditional', args.req.body.address.physical.additional || null)
+						.input('addressPhysicalPostalCode', args.req.body.address.physical.postalCode || null)
+						.input('addressPhysicalCompanyVat', args.req.body.address.physical.company.vat || null)
+						.input('addressPhysicalCompanyReg', args.req.body.address.physical.company.reg || null)
+						.execute('v1_Auth_Register');
+				}, null)
 				.then(result => {
+					var deferred = Q.defer();
+
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = result.recordset[0].code;
+						err.error.errors[0].code = 503;
 						err.error.errors[0].reason = result.recordset[0].message;
 						err.error.errors[0].message = result.recordset[0].message;
 						deferred.reject(err);
-					}
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.result._id)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
 				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -1112,7 +1181,7 @@ var module = function () {
 				return deferred.promise;
 			} else {
 				try {
-					if (typeof(args.req.headers.authorization) == 'string') {
+					if (typeof (args.req.headers.authorization) == 'string') {
 						args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
 					};
 				} catch (error) {
@@ -1508,6 +1577,27 @@ var module = function () {
 					return deferred.promise;
 				}, null)
 				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.result.userId)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
 					transaction.commit();
 				})
 				.catch(err => {
@@ -1548,6 +1638,76 @@ var module = function () {
 					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
+
+			return deferred.promise;
+		},
+
+		resetpassword: (args) => {
+			var deferred = Q.defer();
+
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
+
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
+
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('salt', args.req.body.salt)
+						.input('hash', args.req.body.hash)
+						.input('email', args.req.body.header.email)
+						.input('appId', args.req.body.header.appId)
+						.execute('v1_Auth_Reset_Password');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = unwind(result.recordset[0]);
+						args.result.password = args.req.body.password;
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.result.userId)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},
@@ -1611,6 +1771,27 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -2345,13 +2526,27 @@ var module = function () {
 		retrieve: (args) => {
 			var deferred = Q.defer();
 
-			const request = new sql.Request(__database);
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			request.input('userId', args.req.body.header.userId);
-			request.input('tokenId', args.req.body.tokenId);
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_Tokens_Retrieve')
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.input('tokenId', args.req.body.tokenId)
+						.execute('v1_Tokens_Retrieve');
+				}, null)
 				.then(result => {
+					var deferred = Q.defer();
+
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						result = result.recordset.map(o => unwind(o));
 
@@ -2374,14 +2569,36 @@ var module = function () {
 						err.error.errors[0].message = 'no records found';
 						deferred.reject(err);
 					}
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('scope', args.req.originalUrl)
+						.input('appId', args.req.body.header.appId)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Usage_Add');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
 				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		},

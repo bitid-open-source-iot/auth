@@ -92,7 +92,7 @@ BEGIN TRY
 		AND 
 		[validated] = 0
 
-	SELECT @@ROWCOUNT AS [n], @email AS [email], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
+	SELECT @@ROWCOUNT AS [n], @userId AS [userId], @email AS [email], @nameLast AS [nameLast], @nameFirst AS [nameFirst], @url AS [appUrl], @icon AS [appIcon], @app AS [appAppId]
 	RETURN 1
 END TRY
 

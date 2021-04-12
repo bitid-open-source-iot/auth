@@ -1,5 +1,5 @@
 /*
-Set1 - Create stored procedure write
+Set1 - Create stored procedure add
 Set2 - Create stored procedure list
 */
 
