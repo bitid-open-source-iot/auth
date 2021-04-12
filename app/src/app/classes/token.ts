@@ -2,14 +2,17 @@ import { User, USER } from './user';
 
 export class Token {
 
-	public app: any = { };
-	public role = 0;
-	public appId: string;
+	public app = {
+		icon: null,
+		name: null
+	};
+	public role: number = 0;
+	public appId: string|number;
 	public users: USER[] = [];
 	public device: string;
 	public expiry: string;
 	public scopes: string[] = [];
-	public tokenId: string;
+	public tokenId: string|number;
 	public selected: boolean;
 	public description: string;
 
@@ -58,15 +61,15 @@ export class Token {
 export interface TOKEN {
 	app?: {
 		icon?: string;
-		name?: any;
+		name?: string;
 	};
 	role?: number;
-	appId?: string;
+	appId?: string|number;
 	users?: USER[];
 	device?: string;
 	scopes?: string[];
 	expiry?: string;
-	tokenId?: string;
+	tokenId?: string|number;
 	selected?: boolean;
 	description?: string;
 }

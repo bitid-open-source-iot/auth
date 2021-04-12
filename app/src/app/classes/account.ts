@@ -41,7 +41,7 @@ export class Account {
 		number: null
 	};
 	public email: string;
-	public userId: string;
+	public userId: string|number;
 	public picture: string;
 	public language: string;
 	public timezone: number;
@@ -174,7 +174,7 @@ export interface ACCOUNT {
 	address?: ADDRESS;
 	identification?: IDENTIFICATION;
 	email?: string;
-	userId?: string;
+	userId?: string|number;
 	picture?: string;
 	language?: string;
 	timezone?: number;

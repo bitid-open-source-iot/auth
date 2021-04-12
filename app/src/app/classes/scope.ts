@@ -1,10 +1,13 @@
 export class Scope {
 
-	public app: any = {};
+	public app = {
+		name: null,
+		icon: null
+	};
 	public url: string;
-	public role = 0;
-	public appId: string;
-	public scopeId: string;
+	public role: number = 0;
+	public appId: string|number;
+	public scopeId: string|number;
 	public description: string;
 
 	constructor(args?: FEATURE) {
@@ -44,7 +47,7 @@ export interface FEATURE {
 	};
 	url: string;
 	role: number;
-	appId: string;
-	scopeId: string;
+	appId: string|number;
+	scopeId: string|number;
 	description: string;
 }

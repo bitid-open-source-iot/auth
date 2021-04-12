@@ -1,10 +1,13 @@
 export class Feature {
 
-	public app: any = {};
-	public role = 0;
-	public appId: string;
+	public app = {
+		name: null,
+		icon: null
+	};
+	public role: number = 0;
+	public appId: string|number;
 	public title: string;
-	public featureId: string;
+	public featureId: string|number;
 	public description: string;
 
 	constructor(args?: FEATURE) {
@@ -43,8 +46,8 @@ export interface FEATURE {
 		icon: string;
 	};
 	role: number;
-	appId: string;
+	appId: string|number;
 	title: string;
-	featureId: string;
+	featureId: string|number;
 	description: string;
 }

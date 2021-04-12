@@ -69,8 +69,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 		if (window.location.pathname == '/signin' || window.location.pathname == '/signup' || window.location.pathname == '/reset-password' || window.location.pathname == '/forgot-password' || window.location.pathname == '/allow-access' || window.location.pathname == '/verify-account') {
 			this.drawer.close();
 			this.authenticated = false;
-		} else {
-			this.drawer.open();
 		};
 		
 		this.router.events.subscribe(event => {

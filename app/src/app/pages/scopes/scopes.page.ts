@@ -31,7 +31,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 		appId: []
 	});
 	public scopes: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['app', 'url', 'description', 'options'];
+	public columns: string[] = ['app.name', 'url', 'description', 'options'];
 	public loading: boolean;
 	private subscriptions: any = {};
 

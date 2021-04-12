@@ -7,7 +7,7 @@ export class App {
 	public icon: string;
 	public name: string;
 	public users: USER[] = [];
-	public appId: string;
+	public appId: string|number;
 	public theme: any = {};
 	public google: any = {};
 	public scopes: string[] = [];
@@ -86,7 +86,7 @@ export interface APP {
 	icon?: string;
 	name?: string;
 	users?: USER[];
-	appId?: string;
+	appId?: string|number;
 	scopes?: string[];
 	secret?: string;
 	private?: boolean;

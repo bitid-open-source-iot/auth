@@ -68,7 +68,7 @@
                 Domains
             </mat-label>
 
-            <mat-chip-list #domainlist aria-label="domain selection">
+            <mat-chip-list #domainlist aria-label="domain selection" required>
               <mat-chip *ngFor="let domain of form.value.domains" (removed)="remove(domain)">
                     {{ domain }}
                     
@@ -79,6 +79,10 @@
 
               <input placeholder="New domain..." [matChipInputFor]="domainlist" [matChipInputSeparatorKeyCodes]="keycodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="add($event)">
             </mat-chip-list>
+
+            <mat-error *ngIf="form.value.domains.length == 0">
+                You must have at least one doamin here!
+            </mat-error>
         </mat-form-field>
 
         <h2>
@@ -182,7 +186,7 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid || form.value.domains.length == 0" (click)="!loading && !form.invalid && submit()">
         {{ mode }}
     </button>
 </mat-footer>

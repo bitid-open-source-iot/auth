@@ -30,7 +30,7 @@ export class FeaturesPage implements OnInit, OnDestroy {
 	public filter: any = this.filters.get({
 		appId: []
 	});
-	public columns: string[] = ['title', 'description', 'options'];
+	public columns: string[] = ['app.name', 'title', 'description', 'options'];
 	public loading: boolean;
 	public features: MatTableDataSource<Feature> = new MatTableDataSource<Feature>();
 	private subscriptions: any = {};
