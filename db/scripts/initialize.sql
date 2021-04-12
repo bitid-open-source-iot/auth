@@ -25,7 +25,7 @@ TRUNCATE TABLE tblUsers_AuditExact
 
 DECLARE @url VARCHAR(255) = 'https://auth.bitid.co.za'
 DECLARE @icon VARCHAR(255) = 'https://auth.bitid.co.za/assets/icons/icon-512x512.png'
-DECLARE @name VARCHAR(255) = 'auth'
+DECLARE @name VARCHAR(255) = 'Auth'
 DECLARE @salt VARCHAR(255) = 'xxx'
 DECLARE @hash VARCHAR(255) = 'xxx'
 DECLARE @email VARCHAR(255) = 'admin@bitid.co.za'
