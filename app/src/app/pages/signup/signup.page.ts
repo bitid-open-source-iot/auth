@@ -23,8 +23,8 @@ export class SignUpPage implements OnInit, OnDestroy {
 			first: new FormControl('', [Validators.required])
 		}),
 		email: new FormControl('', [Validators.email, Validators.required]),
-		confirm: new FormControl('', [Validators.required]),
-		password: new FormControl('', [Validators.required])
+		confirm: new FormControl('', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]),
+		password: new FormControl('', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)])
 	});
 	public app: any = {};
 	public appId: string;

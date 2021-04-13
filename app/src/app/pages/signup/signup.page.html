@@ -53,7 +53,11 @@
                 Password
             </mat-label>
 
-            <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+            <input matInput type="password" name="password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" minlength="8" placeholder="password" formControlName="password" required>
+
+            <mat-hint>
+                Must contain at least one lowercase, uppercase & special character
+            </mat-hint>
 
             <mat-error *ngIf="errors.password">
                 {{ errors.password }}
@@ -65,7 +69,11 @@
                 Confirm Password
             </mat-label>
 
-            <input matInput type="password" name="confirm password" placeholder="confirm password" formControlName="confirm" required>
+            <input matInput type="password" name="confirm password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" minlength="8" placeholder="confirm password" formControlName="confirm" required>
+
+            <mat-hint>
+                Must contain at least one lowercase, uppercase & special character
+            </mat-hint>
 
             <mat-error *ngIf="errors.confirm || form.value.password != form.value.confirm">
                 {{ errors.confirm }}

@@ -10,6 +10,7 @@ export class FormErrorService {
 	public validationMessages() {
 		const messages = {
 			email: 'This email address is invalid',
+			pattern: 'This field does not match the required pattern',
 			required: 'This field is required',
 			not_allowed_characters: (matches: any[]) => {
 				let matchedCharacters = matches;

@@ -19,9 +19,9 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 
 	public form: FormGroup = new FormGroup({
 		old: new FormControl('', [Validators.required]),
-		new: new FormControl('', [Validators.required]),
+		new: new FormControl('', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)]),
 		userId: new FormControl('', [Validators.required]),
-		confirm: new FormControl('', [Validators.required])
+		confirm: new FormControl('', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)])
 	});
 	public app: any = { };
 	public appId: string;
@@ -98,7 +98,6 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 
 		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				debugger
 				const params = this.route.snapshot.queryParams;
 				if (typeof (params.userId) != 'undefined') {
 					this.form.controls.userId.setValue(params.userId);
