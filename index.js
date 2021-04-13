@@ -1,5 +1,6 @@
 const Q = require('q');
 const db = require('./db/sql');
+const bll = require('./bll/bll');
 const dal = require('./dal/dal');
 const cors = require('cors');
 const http = require('http');
@@ -139,6 +140,7 @@ try {
 
             portal.api()
                 .then(portal.database, null)
+                .then(portal.triggers, null)
                 .then(args => {
                     console.log('Webserver Running on port: ', config.port);
                     __logger.info('Webserver Running on port: ' + config.port);
@@ -157,6 +159,24 @@ try {
                 __logger.error('Database Connection Error: ' + err);
                 deferred.reject(err);
             });
+
+            return deferred.promise;
+        },
+
+        triggers: () => {
+            var deferred = Q.defer();
+
+            try {
+                var myModule = new bll.module();
+    
+                myModule.auth.changePasswordOnPeriod();
+
+                setInterval(() => myModule.auth.changePasswordOnPeriod(), (60 * 60 * 1000));
+
+                deferred.resolve();
+            } catch(err) {
+                deferred.reject(err);
+            };
 
             return deferred.promise;
         }

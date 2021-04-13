@@ -2,6 +2,7 @@
     "port": 9000,
     "production": true,
     "authentication": true,
+    "passwordResetDuration": 2678400000,
     "smtp": {
         "tls": {
             "rejectUnauthorized": false

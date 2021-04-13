@@ -301,6 +301,18 @@ var module = function () {
 				}, err => {
 					__responder.error(req, res, err);
 				});
+		},
+
+		changePasswordOnPeriod: () => {
+			var args = {};
+
+			var myModule = new dal.module();
+			myModule.auth.changePasswordOnPeriod(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
 		}
 	};
 

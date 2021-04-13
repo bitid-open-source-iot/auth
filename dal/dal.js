@@ -1888,6 +1888,37 @@ var module = function () {
 				})
 
 			return deferred.promise;
+		},
+
+		changePasswordOnPeriod: (args) => {
+			var deferred = Q.defer();
+
+			const request = new sql.Request(__database);
+
+			request.input('duration', __settings.passwordResetDuration);
+
+			request.execute('v1_Check_Last_Password_Change')
+				.then(result => {
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.users = result.recordset.map(o => unwind(o));
+						deferred.resolve(args);
+					} else {
+						var err = new ErrorResponse();
+						err.error.errors[0].code = 69;
+						err.error.errors[0].reason = 'No accounts found!';
+						err.error.errors[0].message = 'No accounts found!';
+						deferred.reject(err);
+					}
+				})
+				.catch(error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
 		}
 	};
 
