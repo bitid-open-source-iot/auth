@@ -308,6 +308,15 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.auth.changePasswordOnPeriod(args)
+				.then(args => args.users.reduce((promise, user) => promise.then(() => emails.resetpassword({
+					result: {
+						app: args.app,
+						name: user.name,
+						email: user.email,
+						userId: user.userId,
+						password: user.password
+					}
+				})), Promise.resolve()), null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

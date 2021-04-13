@@ -1334,7 +1334,7 @@ var module = function () {
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
-						
+
 						args.result.token.scopes = args.app.scopes;
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
@@ -1531,7 +1531,7 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						result = result.recordset.map(o => unwind(o));
-						
+
 						args.app = {
 							bitid: {
 								auth: {
@@ -1893,14 +1893,61 @@ var module = function () {
 		changePasswordOnPeriod: (args) => {
 			var deferred = Q.defer();
 
-			const request = new sql.Request(__database);
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
 
-			request.input('duration', __settings.passwordResetDuration);
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
 
-			request.execute('v1_Check_Last_Password_Change')
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			transaction.begin()
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('appId', __settings.client.appId)
+						.execute('v1_Apps_Validate');
+				}, null)
 				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.app = {
+							url: result[0].app.url,
+							name: result[0].app.name,
+							icon: result[0].app.icon,
+							appId: result[0]._id
+						};
+
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('duration', __settings.passwordResetDuration)
+						.execute('v1_Check_Last_Password_Change');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.users = result.recordset.map(o => unwind(o));
+						args.users.map(user => {
+							var password = tools.password();
+							user.salt = password.salt;
+							user.hash = password.hash;
+							user.password = password.value;
+						});
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -1909,14 +1956,24 @@ var module = function () {
 						err.error.errors[0].message = 'No accounts found!';
 						deferred.reject(err);
 					}
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					return args.users.reduce((promise, user) => promise.then(() => new sql.Request(transaction)
+						.input('salt', user.salt)
+						.input('hash', user.hash)
+						.input('email', user.email)
+						.input('appId', __settings.client.appId)
+						.execute('v1_Auth_Reset_Password')
+					), Promise.resolve())
+				}, null)
+				.then(res => {
+					transaction.commit();
 				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+				.catch(err => {
+					transaction.rollback();
+				})
 
 			return deferred.promise;
 		}
@@ -2300,7 +2357,7 @@ var module = function () {
 
 		get: (args) => {
 			var deferred = Q.defer();
-			
+
 			var filter = {};
 			if (typeof (args.req.body.filter) != 'undefined') {
 				filter['_id'] = 0;
@@ -2345,7 +2402,7 @@ var module = function () {
 
 		list: (args) => {
 			var deferred = Q.defer();
-			
+
 			var filter = {};
 			if (typeof (args.req.body.filter) != 'undefined') {
 				filter['_id'] = 0;
@@ -2388,7 +2445,7 @@ var module = function () {
 
 		load: (args) => {
 			var deferred = Q.defer();
-			
+
 			var filter = {};
 			if (typeof (args.req.body.filter) != 'undefined') {
 				filter['_id'] = 0;
