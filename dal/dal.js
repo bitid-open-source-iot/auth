@@ -3,6 +3,7 @@ const _ = require('lodash');
 const sql = require('mssql');
 const tools = require('../lib/tools');
 const unwind = require('../lib/unwind');
+const project = require('../lib/project');
 const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
@@ -137,6 +138,22 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'appId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('appId', args.req.body.appId);
@@ -170,6 +187,7 @@ var module = function () {
 						} catch (error) {
 							args.result.google.credentials = {};
 						};
+						args.result = project(args.result, filter);
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -193,6 +211,18 @@ var module = function () {
 		load: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'appId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('appId', args.req.body.appId);
@@ -211,6 +241,7 @@ var module = function () {
 							domains: _.uniqBy(result, 'domain').map(o => o.domain),
 							private: new Boolean(result[0].private)
 						};
+						args.result = project(args.result, filter);
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -233,6 +264,22 @@ var module = function () {
 
 		list: (args) => {
 			var deferred = Q.defer();
+
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'appId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
 
 			const request = new sql.Request(__database);
 
@@ -267,6 +314,7 @@ var module = function () {
 								private: new Boolean(apps[0].private)
 							}
 						}).value();
+						args.result = args.result.map(o => project(o, filter));
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -1847,6 +1895,20 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'userId') {
+						filter['_id'] = 1;
+					} else if (f == 'serverDate') {
+						filter['server.date'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('userId', args.req.body.header.userId);
@@ -1855,6 +1917,7 @@ var module = function () {
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
+						args.result = project(args.result, filter);
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -1878,14 +1941,27 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'userId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
+
 			request.input('appId', __settings.client.appId);
 			request.input('userId', args.req.body.header.userId);
 
 			request.execute('v1_Users_List')
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.result = result.recordset.map(o => unwind(o));
+						args.result = result.recordset.map(o => unwind(o)).map(o => project(o, filter));
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2193,6 +2269,18 @@ var module = function () {
 
 		get: (args) => {
 			var deferred = Q.defer();
+			
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'scopeId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
 
 			const request = new sql.Request(__database);
 
@@ -2203,6 +2291,7 @@ var module = function () {
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
+						args.result = project(args.result, filter);
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2225,6 +2314,18 @@ var module = function () {
 
 		list: (args) => {
 			var deferred = Q.defer();
+			
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'scopeId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
 
 			const request = new sql.Request(__database);
 
@@ -2233,7 +2334,7 @@ var module = function () {
 			request.execute('v1_Scopes_List')
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.result = result.recordset.map(o => unwind(o));
+						args.result = result.recordset.map(o => unwind(o)).map(o => project(o, filter));
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2256,13 +2357,25 @@ var module = function () {
 
 		load: (args) => {
 			var deferred = Q.defer();
+			
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'scopeId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
 
 			const request = new sql.Request(__database);
 
 			request.execute('v1_Scopes_Load')
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.result = result.recordset.map(o => unwind(o));
+						args.result = result.recordset.map(o => unwind(o)).map(o => project(o, filter));
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2354,6 +2467,22 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'tokenId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('userId', args.req.body.header.userId);
@@ -2377,6 +2506,9 @@ var module = function () {
 							expiry: result[0].expiry,
 							description: result[0].description,
 						};
+
+						args.result = project(args.result, filter);
+
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2399,6 +2531,22 @@ var module = function () {
 
 		list: (args) => {
 			var deferred = Q.defer();
+
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'tokenId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
 
 			const request = new sql.Request(__database);
 
@@ -2425,7 +2573,9 @@ var module = function () {
 								description: result[tokenId][0].description,
 							};
 							args.result.push(tmp);
-						})
+						});
+
+						args.result = args.result.map(o => project(o, filter));
 
 						deferred.resolve(args);
 					} else {
@@ -2904,6 +3054,18 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'featureId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('userId', args.req.body.header.userId);
@@ -2913,6 +3075,7 @@ var module = function () {
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result = unwind(result.recordset[0]);
+						args.result = project(args.result, filter);
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
@@ -2936,6 +3099,18 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'featureId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('userId', args.req.body.header.userId);
@@ -2943,7 +3118,7 @@ var module = function () {
 			request.execute('v1_Features_List')
 				.then(result => {
 					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.result = result.recordset.map(o => unwind(o));
+						args.result = result.recordset.map(o => unwind(o)).map(o => project(o, filter));
 						deferred.resolve(args);
 					} else {
 						var err = new ErrorResponse();
