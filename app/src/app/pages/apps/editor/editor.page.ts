@@ -121,7 +121,9 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 
 		const response = await this.scopes.load({
 			filter: [
-				'url'
+				'url',
+				'scopeId',
+				'description'
 			]
 		});
 
@@ -157,6 +159,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			icon: this.form.value.icon,
 			name: this.form.value.name,
 			appId: this.appId,
+			expiry: this.form.value.expiry,
 			secret: this.form.value.secret,
 			scopes: this.form.value.scopes,
 			private: this.form.value.private,
