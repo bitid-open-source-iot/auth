@@ -29,7 +29,6 @@ describe('Config', function () {
                     result.should.have.property('auth');
                     result.should.have.property('appId');
                     result.should.have.property('drive');
-                    result.should.have.property('scopes');
                     result.should.have.property('appName');
                     done();
                 } catch (e) {

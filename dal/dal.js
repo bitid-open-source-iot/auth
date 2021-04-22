@@ -740,12 +740,14 @@ var module = function () {
 
 					if (!found) {
 						var err = new ErrorResponse();
+						err.error.code = 401;
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Scope not allowed: ' + args.req.reqURI;
 						err.error.errors[0].message = 'Scope not allowed: ' + args.req.reqURI;
 						deferred.reject(err);
 					} else if (!valid) {
 						var err = new ErrorResponse();
+						err.error.code = 401;
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Scope role not allowed: ' + args.req.reqURI;
 						err.error.errors[0].message = 'Scope role not allowed: ' + args.req.reqURI;
@@ -762,6 +764,7 @@ var module = function () {
 
 					if (expiry < now) {
 						var err = new ErrorResponse();
+						err.error.code = 401;
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Token Expired';
 						err.error.errors[0].message = 'Token Expired';
