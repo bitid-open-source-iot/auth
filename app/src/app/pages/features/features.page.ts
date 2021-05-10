@@ -40,9 +40,11 @@ export class FeaturesPage implements OnInit, OnDestroy {
 
 		const response = await this.service.list({
 			filter: [
+				'app',
 				'icon',
 				'role',
 				'title',
+				'appId',
 				'featureId',
 				'description'
 			],

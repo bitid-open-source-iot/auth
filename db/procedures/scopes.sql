@@ -124,6 +124,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Scopes_List]
+	@appId VARCHAR,
 	@userId INT
 AS
 

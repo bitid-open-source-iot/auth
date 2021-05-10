@@ -247,6 +247,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_List]
+	@appId VARCHAR,
 	@userId INT
 AS
 

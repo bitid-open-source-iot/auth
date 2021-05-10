@@ -10,6 +10,6 @@ GO
 CREATE TYPE [dbo].[appId]
 AS TABLE
 (
-  id INT NOT NULL
+	id INT NOT NULL
 )
 GO

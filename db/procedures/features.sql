@@ -124,6 +124,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Features_List]
+	@appId VARCHAR,
 	@userId INT
 AS
 
@@ -152,6 +153,8 @@ BEGIN TRY
 		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
+		-- AND
+		-- [feature].[appId] IN (SELECT CAST(VALUE AS INT) AS [id] FROM STRING_SPLIT(@appId, ','))
 	RETURN 1
 END TRY
 
