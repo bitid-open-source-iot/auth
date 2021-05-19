@@ -153,8 +153,8 @@ BEGIN TRY
 		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
-		-- AND
-		-- [feature].[appId] IN (SELECT CAST(VALUE AS INT) AS [id] FROM STRING_SPLIT(@appId, ','))
+		AND
+		[feature].[appId] IN (1,2)
 	RETURN 1
 END TRY
 
