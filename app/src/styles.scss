@@ -24,6 +24,7 @@ table {
     -moz-user-select: none;
     -webkit-user-select: none;
 }
+/* --- FOR SAFARI SUPPORT --- */
 input,
 select {
     user-select: all !important;
@@ -31,6 +32,7 @@ select {
     -moz-user-select: all !important;
     -webkit-user-select: all !important;
 }
+/* --- FOR SAFARI SUPPORT --- */
 mat-chip-list mat-chip {
     cursor: pointer !important;
     .chip-icon {
