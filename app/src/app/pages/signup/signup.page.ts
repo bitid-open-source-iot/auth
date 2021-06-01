@@ -24,7 +24,10 @@ export class SignUpPage implements OnInit, OnDestroy {
 		}),
 		email: new FormControl('', [Validators.email, Validators.required]),
 		confirm: new FormControl('', [Validators.required]),
-		password: new FormControl('', [Validators.required])
+		password: new FormControl('', [Validators.required]),
+		privacyPolicy: new FormControl(false, [Validators.required]),
+		newsAndChanges: new FormControl(true, [Validators.required]),
+		termsAndConditions: new FormControl(false, [Validators.required])
 	});
 	public app: any = {};
 	public appId: string;
@@ -35,7 +38,10 @@ export class SignUpPage implements OnInit, OnDestroy {
 		},
 		email: '',
 		confirm: '',
-		password: ''
+		password: '',
+		privacyPolicy: '',
+		newsAndChanges: '',
+		termsAndConditions: ''
 	};
 	public loading: boolean;
 	private subscriptions: any = {};
@@ -74,7 +80,10 @@ export class SignUpPage implements OnInit, OnDestroy {
 			appId: params.appId,
 			email: this.form.value.email,
 			confirm: this.form.value.confirm,
-			password: this.form.value.password
+			password: this.form.value.password,
+			privacyPolicy: this.form.value.privacyPolicy,
+			newsAndChanges: this.form.value.newsAndChanges,
+			termsAndConditions: this.form.value.termsAndConditions
 		});
 
 		if (response.ok) {

@@ -1258,7 +1258,10 @@ var tools = {
                     'language': 'english',
                     'password': config.password,
                     'timezone': 0,
-                    'username': 'username'
+                    'username': 'username',
+                    'privacyPolicy': true,
+                    'newsAndChanges': true,
+                    'termsAndConditions': true
                 })
                     .then(deferred.resolve, deferred.resolve);
 

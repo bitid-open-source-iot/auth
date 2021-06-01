@@ -220,6 +220,24 @@ var module = function () {
 			args.req.body.salt = password.salt;
 			args.req.body.hash = password.hash;
 
+			if (!args.req.body.privacyPolicy) {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = 503;
+				err.error.errors[0].reason = 'Privacy Policy Acceptance Issue';
+				err.error.errors[0].message = 'Please accept our Privacy Policy';
+				__responder.error(req, res, err);
+				return false;
+			};
+
+			if (!args.req.body.termsAndConditions) {
+				var err = new ErrorResponse();
+				err.error.errors[0].code = 503;
+				err.error.errors[0].reason = 'Terms & Conditions Acceptance Issue';
+				err.error.errors[0].message = 'Please accept our Terms & Conditions';
+				__responder.error(req, res, err);
+				return false;
+			};
+
 			var myModule = new dal.module();
 			myModule.auth.register(args)
 				.then(myModule.apps.validate, null)

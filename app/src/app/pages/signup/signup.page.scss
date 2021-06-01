@@ -7,13 +7,17 @@ mat-content {
     }
     form {
         max-width: 400px;
-        p {
-            font-size: 12px;
-            text-align: justify;
-            line-height: 16px;
-            a {
-                color: #2196F3;
-            }
+        a {
+            color: #2196F3;
+        }
+        mat-checkbox {
+            margin-top: 8px;
+        }
+        .checkbox-hint {
+            margin-left: 24px;
+        }
+        [mat-flat-button] {
+            margin-top: 20px;
         }
     }
 }

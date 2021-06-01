@@ -1106,7 +1106,10 @@ var module = function () {
 				'timezone': 0,
 				'username': '',
 				'validated': 0,
-				'serverDate': new Date()
+				'serverDate': new Date(),
+				'privacyPolicy': false,
+				'newsAndChanges': false,
+				'termsAndConditions': false
 			};
 
 			if (typeof (args.req.body.picture) != 'undefined') {
@@ -1208,6 +1211,15 @@ var module = function () {
 				if (typeof (args.req.body.identification.number) != 'undefined') {
 					params.identification.number = args.req.body.identification.number;
 				};
+			};
+			if (typeof (args.req.body.privacyPolicy) != 'undefined') {
+				params.privacyPolicy = args.req.body.privacyPolicy;
+			};
+			if (typeof (args.req.body.newsAndChanges) != 'undefined') {
+				params.newsAndChanges = args.req.body.newsAndChanges;
+			};
+			if (typeof (args.req.body.termsAndConditions) != 'undefined') {
+				params.termsAndConditions = args.req.body.termsAndConditions;
 			};
 
 			db.call({

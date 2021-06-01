@@ -74,15 +74,35 @@
             </mat-error>
         </mat-form-field>
 
-        <button type="submit" mat-flat-button color="primary">
+        <h2>
+            Terms of Service
+        </h2>
+
+        <mat-checkbox color="primary" formControlName="newsAndChanges">
+            I want to be notified of news & changes
+        </mat-checkbox>
+
+        <mat-checkbox color="primary" formControlName="privacyPolicy">
+            I have read and agree to the <a href="https://www.bitid.co.za/privacy-policy" target="_blank">Privacy Policy</a>
+        </mat-checkbox>
+
+        <mat-hint class="checkbox-hint">
+            Required to continue
+        </mat-hint>
+
+        <mat-checkbox color="primary" formControlName="termsAndConditions">
+            I have read and agree to the <a href="https://www.bitid.co.za/terms-and-conditions" target="_blank">Terms & Conditions</a>
+        </mat-checkbox>
+
+        <mat-hint class="checkbox-hint">
+            Required to continue
+        </mat-hint>
+
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || !form.value.privacyPolicy || !form.value.termsAndConditions">
             {{ loading ? '' : 'sign up' }}
 
             <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
         </button>
-
-        <p>
-            By clicking “SIGN UP”, you agree to our <a routerLink="/terms-and-conditions">Terms & Conditions</a> and  <a routerLink="/privacy-policy">Privacy Policy</a>. We’ll occasionally send you account related emails.
-        </p>
 
         <button type="button" mat-stroked-button color="primary" (click)="verifyaccount()">
             verify account

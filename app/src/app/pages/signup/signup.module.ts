@@ -13,6 +13,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -39,6 +40,7 @@ const routes: Routes = [
 		FlexLayoutModule,
 		MatToolbarModule,
 		MatContentModule,
+		MatCheckboxModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,
 		MatSlideToggleModule,
