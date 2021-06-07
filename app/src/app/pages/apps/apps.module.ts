@@ -7,6 +7,7 @@ import { AppsFilterDialog } from './filter/filter.dialog';
 import { NgModule } from '@angular/core';
 import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
+import { MatFileModule } from 'src/app/libs/mat-file/mat-file.module';
 import { MatSortModule } from '@angular/material/sort';
 import { OptionsModule } from 'src/app/libs/options/options.module';
 import { ConfirmModule } from 'src/app/libs/confirm/confirm.module';
@@ -52,6 +53,7 @@ const routes: Routes = [
 		MatTabsModule,
 		MatIconModule,
 		MatListModule,
+		MatFileModule,
 		ConfirmModule,
 		MatChipsModule,
 		MatTableModule,

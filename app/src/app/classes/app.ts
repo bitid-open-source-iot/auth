@@ -1,3 +1,4 @@
+import { Icon } from './icon';
 import { User, USER } from './user';
 
 export class App {
@@ -6,6 +7,7 @@ export class App {
 	public role = 0;
 	public icon: string;
 	public name: string;
+	public icons: Icon[] = [];
 	public users: USER[] = [];
 	public appId: string;
 	public theme: any = {};
@@ -55,6 +57,9 @@ export class App {
 			if (typeof (args.name) != 'undefined' && args.name !== null) {
 				this.name = args.name;
 			}
+			if (typeof (args.icons) != 'undefined' && args.icons !== null) {
+				this.icons = args.icons.map(o => new Icon(o));
+			}
 			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
 				this.appId = args.appId;
 			}
@@ -85,6 +90,7 @@ export interface APP {
 	role?: number;
 	icon?: string;
 	name?: string;
+	icons?: Icon[];
 	users?: USER[];
 	appId?: string;
 	scopes?: string[];

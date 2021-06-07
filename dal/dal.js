@@ -17,9 +17,14 @@ var module = function () {
 						'organizationOnly': args.req.body.organizationOnly || 0
 					}
 				},
+				'google': {
+					'database': null,
+					'credentials': {}
+				},
 				'url': args.req.body.url,
 				'icon': args.req.body.icon,
 				'name': args.req.body.name,
+				'icons': args.req.body.icons || [],
 				'theme': args.req.body.theme || {},
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
@@ -28,18 +33,12 @@ var module = function () {
 				'serverDate': new Date()
 			};
 
-			if (typeof (args.req.body.google) != 'undefined') {
-				params.google = {};
-				if (typeof (args.req.body.google.database) != 'undefined') {
+			if (typeof (args.req.body.google) != 'undefined' && args.req.body.google != null) {
+				if (typeof (args.req.body.google.database) != 'undefined' && args.req.body.google.database != null) {
 					params.google.database = args.req.body.google.database;
 				};
-				if (typeof (args.req.body.google.credentials) == 'object') {
+				if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 					params.google.credentials = args.req.body.google.credentials;
-				};
-			} else {
-				params.google = {
-					'database': '',
-					'credentials': {}
 				};
 			};
 
@@ -294,6 +293,9 @@ var module = function () {
 			};
 			if (typeof (args.req.body.icon) != 'undefined') {
 				update.$set.icon = args.req.body.icon;
+			};
+			if (typeof (args.req.body.icons) != 'undefined') {
+				update.$set.icons = args.req.body.icons;
 			};
 			if (typeof (args.req.body.theme) != 'undefined') {
 				update.$set.theme = args.req.body.theme;

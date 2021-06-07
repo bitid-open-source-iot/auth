@@ -1,8 +1,10 @@
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
-        <div [class.required]="!form.value.icon" upload [upload-src]="form.value.icon" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
-            <mat-icon>publish</mat-icon>
-        </div>
+        <mat-file formControlName="icon">
+            <mat-label>
+                Icon <span>*</span>
+            </mat-label>
+        </mat-file>
 
         <h2>
             Details
@@ -178,6 +180,54 @@
                 {{ errors.organizationOnly }}
             </mat-error>
         </mat-form-field>
+        
+        <mat-file required="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72" formControlName="icons">
+            <mat-label>
+                Icon (72x72) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="96" [max-width]="96" [min-height]="96" [max-height]="96" formControlName="icons">
+            <mat-label>
+                Icon (96x96) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="128" [max-width]="128" [min-height]="128" [max-height]="128" formControlName="icons">
+            <mat-label>
+                Icon (128x128) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="144" [max-width]="144" [min-height]="144" [max-height]="144" formControlName="icons">
+            <mat-label>
+                Icon (144x144) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="152" [max-width]="152" [min-height]="152" [max-height]="152" formControlName="icons">
+            <mat-label>
+                Icon (152x152) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="192" [max-width]="192" [min-height]="192" [max-height]="192" formControlName="icons">
+            <mat-label>
+                Icon (192x192) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="384" [max-width]="384" [min-height]="384" [max-height]="384" formControlName="icons">
+            <mat-label>
+                Icon (384x384) <span>*</span>
+            </mat-label>
+        </mat-file>
+
+        <mat-file required="true" [min-width]="512" [max-width]="512" [min-height]="512" [max-height]="512" formControlName="icons">
+            <mat-label>
+                Icon (512x512) <span>*</span>
+            </mat-label>
+        </mat-file>
     </form>
 </mat-content>
 
