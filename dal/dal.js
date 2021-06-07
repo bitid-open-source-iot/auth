@@ -11,6 +11,16 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
+				'icons': {
+					'icon72x72': null,
+					'icon96x96': null,
+					'icon128x128': null,
+					'icon144x144': null,
+					'icon152x152': null,
+					'icon192x192': null,
+					'icon384x384': null,
+					'icon512x512': null
+				},
 				'bitid': {
 					'auth': {
 						'users': args.req.body.users,
@@ -24,13 +34,39 @@ var module = function () {
 				'url': args.req.body.url,
 				'icon': args.req.body.icon,
 				'name': args.req.body.name,
-				'icons': args.req.body.icons || [],
 				'theme': args.req.body.theme || {},
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
 				'domains': args.req.body.domains || [],
 				'private': args.req.body.private || false,
 				'serverDate': new Date()
+			};
+
+			if (typeof (args.req.body.icons) != 'undefined' && args.req.body.icons != null) {
+				if (typeof (args.req.body.icons.icon72x72) != 'undefined' && args.req.body.icons.icon72x72 != null) {
+					params.icons.icon72x72 = args.req.body.icons.icon72x72;
+				};
+				if (typeof (args.req.body.icons.icon96x96) != 'undefined' && args.req.body.icons.icon96x96 != null) {
+					params.icons.icon96x96 = args.req.body.icons.icon96x96;
+				};
+				if (typeof (args.req.body.icons.icon128x128) != 'undefined' && args.req.body.icons.icon128x128 != null) {
+					params.icons.icon128x128 = args.req.body.icons.icon128x128;
+				};
+				if (typeof (args.req.body.icons.icon144x144) != 'undefined' && args.req.body.icons.icon144x144 != null) {
+					params.icons.icon144x144 = args.req.body.icons.icon144x144;
+				};
+				if (typeof (args.req.body.icons.icon152x152) != 'undefined' && args.req.body.icons.icon152x152 != null) {
+					params.icons.icon152x152 = args.req.body.icons.icon152x152;
+				};
+				if (typeof (args.req.body.icons.icon192x192) != 'undefined' && args.req.body.icons.icon192x192 != null) {
+					params.icons.icon192x192 = args.req.body.icons.icon192x192;
+				};
+				if (typeof (args.req.body.icons.icon384x384) != 'undefined' && args.req.body.icons.icon384x384 != null) {
+					params.icons.icon384x384 = args.req.body.icons.icon384x384;
+				};
+				if (typeof (args.req.body.icons.icon512x512) != 'undefined' && args.req.body.icons.icon512x512 != null) {
+					params.icons.icon512x512 = args.req.body.icons.icon512x512;
+				};
 			};
 
 			if (typeof (args.req.body.google) != 'undefined' && args.req.body.google != null) {
@@ -294,8 +330,31 @@ var module = function () {
 			if (typeof (args.req.body.icon) != 'undefined') {
 				update.$set.icon = args.req.body.icon;
 			};
-			if (typeof (args.req.body.icons) != 'undefined') {
-				update.$set.icons = args.req.body.icons;
+			if (typeof (args.req.body.icons) != 'undefined' && args.req.body.icons != null) {
+				if (typeof (args.req.body.icons.icon72x72) != 'undefined' && args.req.body.icons.icon72x72 != null) {
+					update.$set['icons.icon72x72'] = args.req.body.icons.icon72x72;
+				};
+				if (typeof (args.req.body.icons.icon96x96) != 'undefined' && args.req.body.icons.icon96x96 != null) {
+					update.$set['icons.icon96x96'] = args.req.body.icons.icon96x96;
+				};
+				if (typeof (args.req.body.icons.icon128x128) != 'undefined' && args.req.body.icons.icon128x128 != null) {
+					update.$set['icons.icon128x128'] = args.req.body.icons.icon128x128;
+				};
+				if (typeof (args.req.body.icons.icon144x144) != 'undefined' && args.req.body.icons.icon144x144 != null) {
+					update.$set['icons.icon144x144'] = args.req.body.icons.icon144x144;
+				};
+				if (typeof (args.req.body.icons.icon152x152) != 'undefined' && args.req.body.icons.icon152x152 != null) {
+					update.$set['icons.icon152x152'] = args.req.body.icons.icon152x152;
+				};
+				if (typeof (args.req.body.icons.icon192x192) != 'undefined' && args.req.body.icons.icon192x192 != null) {
+					update.$set['icons.icon192x192'] = args.req.body.icons.icon192x192;
+				};
+				if (typeof (args.req.body.icons.icon384x384) != 'undefined' && args.req.body.icons.icon384x384 != null) {
+					update.$set['icons.icon384x384'] = args.req.body.icons.icon384x384;
+				};
+				if (typeof (args.req.body.icons.icon512x512) != 'undefined' && args.req.body.icons.icon512x512 != null) {
+					update.$set['icons.icon512x512'] = args.req.body.icons.icon512x512;
+				};
 			};
 			if (typeof (args.req.body.theme) != 'undefined') {
 				update.$set.theme = args.req.body.theme;

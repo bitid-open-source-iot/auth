@@ -3,11 +3,20 @@ import { User, USER } from './user';
 
 export class App {
 
+	public icons = {
+		icon72x72: null,
+		icon96x96: null,
+		icon128x128: null,
+		icon144x144: null,
+		icon152x152: null,
+		icon192x192: null,
+		icon384x384: null,
+		icon512x512: null
+	};
 	public url: string;
 	public role = 0;
 	public icon: string;
 	public name: string;
-	public icons: Icon[] = [];
 	public users: USER[] = [];
 	public appId: string;
 	public theme: any = {};
@@ -28,6 +37,32 @@ export class App {
 			}
 			if (Array.isArray(args.domains)) {
 				this.domains = args.domains;
+			}
+			if (typeof (args.icons) != 'undefined' && args.icons !== null) {
+				if (typeof (args.icons.icon72x72) != 'undefined' && args.icons.icon72x72 !== null) {
+					this.icons.icon72x72 = args.icons.icon72x72
+				}
+				if (typeof (args.icons.icon96x96) != 'undefined' && args.icons.icon96x96 !== null) {
+					this.icons.icon96x96 = args.icons.icon96x96
+				}
+				if (typeof (args.icons.icon128x128) != 'undefined' && args.icons.icon128x128 !== null) {
+					this.icons.icon128x128 = args.icons.icon128x128
+				}
+				if (typeof (args.icons.icon144x144) != 'undefined' && args.icons.icon144x144 !== null) {
+					this.icons.icon144x144 = args.icons.icon144x144
+				}
+				if (typeof (args.icons.icon152x152) != 'undefined' && args.icons.icon152x152 !== null) {
+					this.icons.icon152x152 = args.icons.icon152x152
+				}
+				if (typeof (args.icons.icon192x192) != 'undefined' && args.icons.icon192x192 !== null) {
+					this.icons.icon192x192 = args.icons.icon192x192
+				}
+				if (typeof (args.icons.icon384x384) != 'undefined' && args.icons.icon384x384 !== null) {
+					this.icons.icon384x384 = args.icons.icon384x384
+				}
+				if (typeof (args.icons.icon512x512) != 'undefined' && args.icons.icon512x512 !== null) {
+					this.icons.icon512x512 = args.icons.icon512x512
+				}
 			}
 			if (typeof (args.theme) != 'undefined' && args.theme !== null) {
 				if (typeof (args.theme.color) != 'undefined' && args.theme.color !== null) {
@@ -57,9 +92,6 @@ export class App {
 			if (typeof (args.name) != 'undefined' && args.name !== null) {
 				this.name = args.name;
 			}
-			if (typeof (args.icons) != 'undefined' && args.icons !== null) {
-				this.icons = args.icons.map(o => new Icon(o));
-			}
 			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
 				this.appId = args.appId;
 			}
@@ -78,6 +110,16 @@ export class App {
 }
 
 export interface APP {
+	icons?: {
+		icon72x72?: string;
+		icon96x96?: string;
+		icon128x128?: string;
+		icon144x144?: string;
+		icon152x152?: string;
+		icon192x192?: string;
+		icon384x384?: string;
+		icon512x512?: string;
+	};
 	theme?: {
 		color?: string;
 		background?: string;
@@ -90,7 +132,6 @@ export interface APP {
 	role?: number;
 	icon?: string;
 	name?: string;
-	icons?: Icon[];
 	users?: USER[];
 	appId?: string;
 	scopes?: string[];
