@@ -45,6 +45,11 @@ router.put('/is-admin', (req, res) => {
 	myModule.apps.isadmin(req, res);
 });
 
+router.get('/manifest', (req, res) => {
+	var myModule = new bll.module();
+	myModule.apps.manifest(req, res);
+});
+
 router.put('/allowaccess', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.allowaccess(req, res);

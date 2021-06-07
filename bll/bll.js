@@ -130,6 +130,21 @@ var module = function () {
 				});
 		},
 
+		manifest: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.apps.manifest(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
 		allowaccess: (req, res) => {
 			var args = {
 				'req': req,

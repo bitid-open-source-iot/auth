@@ -461,6 +461,99 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		manifest: (args) => {
+			var deferred = Q.defer();
+
+			var match = {
+				url: args.req.headers.origin
+			};
+
+			var params = [
+				{
+					$match: match
+				},
+				{
+					$project: {
+						icons: [
+							{
+								src: '$icons.icon72x72',
+								type: 'image/png',
+								sizes: '72x72',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon96x96',
+								type: 'image/png',
+								sizes: '96x96',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon128x128',
+								type: 'image/png',
+								sizes: '128x128',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon144x144',
+								type: 'image/png',
+								sizes: '144x144',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon152x152',
+								type: 'image/png',
+								sizes: '152x152',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon192x192',
+								type: 'image/png',
+								sizes: '192x192',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon384x384',
+								type: 'image/png',
+								sizes: '384x384',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon512x512',
+								type: 'image/png',
+								sizes: '512x512',
+								purpose: 'maskable any'
+							}
+						],
+						name: '$name',
+						scope: './',
+						display: 'standalone',
+						start_url: './',
+						short_name: '$name',
+						theme_color: '$theme.color',
+						background_color: '$theme.background'
+					}
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
 		validate: (args) => {
 			var deferred = Q.defer();
 
