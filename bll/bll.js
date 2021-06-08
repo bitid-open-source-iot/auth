@@ -243,7 +243,7 @@ var module = function () {
 				.then(myModule.apps.validate, null)
 				.then(emails.verify, null)
 				.then(args => {
-					if (__settings.production) {
+					if (process.env.production) {
 						delete args.result.code;
 					};
 					__responder.success(req, res, args.result);
@@ -352,7 +352,7 @@ var module = function () {
 				.then(myModule.apps.validate, null)
 				.then(emails.resetpassword, null)
 				.then(args => {
-					if (!__settings.production) {
+					if (!process.env.production) {
 						args.result.password = args.user.password;
 					};
 					__responder.success(req, res, args.result);

@@ -218,7 +218,7 @@ exports.call = (args) => {
 exports.connect = () => {
 	var deferred = Q.defer();
 
-	mongo.connect(__settings.mongodb.url, {
+	mongo.connect(process.env.mongodb_auth_url, {
 		'poolSize': 500,
 		'useUnifiedTopology': true
 	}, (error, connection) => {
@@ -228,7 +228,7 @@ exports.connect = () => {
 				'message': 'Error Connecting To Database'
 			});
 		} else {
-			var database = connection.db(__settings.mongodb.database);
+			var database = connection.db(process.env.mongodb_auth_database);
 			deferred.resolve(database);
 		};
 	});

@@ -1749,7 +1749,7 @@ var module = function () {
 						'email': format.email(args.req.body.header.email)
 					}
 				},
-				'_id': ObjectId(__settings.client.appId)
+				'_id': ObjectId(process.env.client_appId)
 			};
 
 			db.call({
