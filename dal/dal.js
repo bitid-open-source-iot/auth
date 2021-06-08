@@ -11,11 +11,25 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
+				'icons': {
+					'icon72x72': null,
+					'icon96x96': null,
+					'icon128x128': null,
+					'icon144x144': null,
+					'icon152x152': null,
+					'icon192x192': null,
+					'icon384x384': null,
+					'icon512x512': null
+				},
 				'bitid': {
 					'auth': {
 						'users': args.req.body.users,
 						'organizationOnly': args.req.body.organizationOnly || 0
 					}
+				},
+				'google': {
+					'database': null,
+					'credentials': {}
 				},
 				'url': args.req.body.url,
 				'icon': args.req.body.icon,
@@ -28,18 +42,39 @@ var module = function () {
 				'serverDate': new Date()
 			};
 
-			if (typeof (args.req.body.google) != 'undefined') {
-				params.google = {};
-				if (typeof (args.req.body.google.database) != 'undefined') {
+			if (typeof (args.req.body.icons) != 'undefined' && args.req.body.icons != null) {
+				if (typeof (args.req.body.icons.icon72x72) != 'undefined' && args.req.body.icons.icon72x72 != null) {
+					params.icons.icon72x72 = args.req.body.icons.icon72x72;
+				};
+				if (typeof (args.req.body.icons.icon96x96) != 'undefined' && args.req.body.icons.icon96x96 != null) {
+					params.icons.icon96x96 = args.req.body.icons.icon96x96;
+				};
+				if (typeof (args.req.body.icons.icon128x128) != 'undefined' && args.req.body.icons.icon128x128 != null) {
+					params.icons.icon128x128 = args.req.body.icons.icon128x128;
+				};
+				if (typeof (args.req.body.icons.icon144x144) != 'undefined' && args.req.body.icons.icon144x144 != null) {
+					params.icons.icon144x144 = args.req.body.icons.icon144x144;
+				};
+				if (typeof (args.req.body.icons.icon152x152) != 'undefined' && args.req.body.icons.icon152x152 != null) {
+					params.icons.icon152x152 = args.req.body.icons.icon152x152;
+				};
+				if (typeof (args.req.body.icons.icon192x192) != 'undefined' && args.req.body.icons.icon192x192 != null) {
+					params.icons.icon192x192 = args.req.body.icons.icon192x192;
+				};
+				if (typeof (args.req.body.icons.icon384x384) != 'undefined' && args.req.body.icons.icon384x384 != null) {
+					params.icons.icon384x384 = args.req.body.icons.icon384x384;
+				};
+				if (typeof (args.req.body.icons.icon512x512) != 'undefined' && args.req.body.icons.icon512x512 != null) {
+					params.icons.icon512x512 = args.req.body.icons.icon512x512;
+				};
+			};
+
+			if (typeof (args.req.body.google) != 'undefined' && args.req.body.google != null) {
+				if (typeof (args.req.body.google.database) != 'undefined' && args.req.body.google.database != null) {
 					params.google.database = args.req.body.google.database;
 				};
-				if (typeof (args.req.body.google.credentials) == 'object') {
+				if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 					params.google.credentials = args.req.body.google.credentials;
-				};
-			} else {
-				params.google = {
-					'database': '',
-					'credentials': {}
 				};
 			};
 
@@ -295,6 +330,32 @@ var module = function () {
 			if (typeof (args.req.body.icon) != 'undefined') {
 				update.$set.icon = args.req.body.icon;
 			};
+			if (typeof (args.req.body.icons) != 'undefined' && args.req.body.icons != null) {
+				if (typeof (args.req.body.icons.icon72x72) != 'undefined' && args.req.body.icons.icon72x72 != null) {
+					update.$set['icons.icon72x72'] = args.req.body.icons.icon72x72;
+				};
+				if (typeof (args.req.body.icons.icon96x96) != 'undefined' && args.req.body.icons.icon96x96 != null) {
+					update.$set['icons.icon96x96'] = args.req.body.icons.icon96x96;
+				};
+				if (typeof (args.req.body.icons.icon128x128) != 'undefined' && args.req.body.icons.icon128x128 != null) {
+					update.$set['icons.icon128x128'] = args.req.body.icons.icon128x128;
+				};
+				if (typeof (args.req.body.icons.icon144x144) != 'undefined' && args.req.body.icons.icon144x144 != null) {
+					update.$set['icons.icon144x144'] = args.req.body.icons.icon144x144;
+				};
+				if (typeof (args.req.body.icons.icon152x152) != 'undefined' && args.req.body.icons.icon152x152 != null) {
+					update.$set['icons.icon152x152'] = args.req.body.icons.icon152x152;
+				};
+				if (typeof (args.req.body.icons.icon192x192) != 'undefined' && args.req.body.icons.icon192x192 != null) {
+					update.$set['icons.icon192x192'] = args.req.body.icons.icon192x192;
+				};
+				if (typeof (args.req.body.icons.icon384x384) != 'undefined' && args.req.body.icons.icon384x384 != null) {
+					update.$set['icons.icon384x384'] = args.req.body.icons.icon384x384;
+				};
+				if (typeof (args.req.body.icons.icon512x512) != 'undefined' && args.req.body.icons.icon512x512 != null) {
+					update.$set['icons.icon512x512'] = args.req.body.icons.icon512x512;
+				};
+			};
 			if (typeof (args.req.body.theme) != 'undefined') {
 				update.$set.theme = args.req.body.theme;
 			};
@@ -388,6 +449,99 @@ var module = function () {
 			})
 				.then(result => {
 					args.result = true;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		manifest: (args) => {
+			var deferred = Q.defer();
+
+			var match = {
+				url: args.req.headers.origin
+			};
+
+			var params = [
+				{
+					$match: match
+				},
+				{
+					$project: {
+						icons: [
+							{
+								src: '$icons.icon72x72',
+								type: 'image/png',
+								sizes: '72x72',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon96x96',
+								type: 'image/png',
+								sizes: '96x96',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon128x128',
+								type: 'image/png',
+								sizes: '128x128',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon144x144',
+								type: 'image/png',
+								sizes: '144x144',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon152x152',
+								type: 'image/png',
+								sizes: '152x152',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon192x192',
+								type: 'image/png',
+								sizes: '192x192',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon384x384',
+								type: 'image/png',
+								sizes: '384x384',
+								purpose: 'maskable any'
+							},
+							{
+								src: '$icons.icon512x512',
+								type: 'image/png',
+								sizes: '512x512',
+								purpose: 'maskable any'
+							}
+						],
+						name: '$name',
+						scope: './',
+						display: 'standalone',
+						start_url: './',
+						short_name: '$name',
+						theme_color: '$theme.color',
+						background_color: '$theme.background'
+					}
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();

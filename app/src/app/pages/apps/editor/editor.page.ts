@@ -21,6 +21,16 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 	constructor(private toast: ToastService, private route: ActivatedRoute, public scopes: ScopesService, private config: ConfigService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
 
 	public form: FormGroup = new FormGroup({
+		icons: new FormGroup({
+			icon72x72: new FormControl(null, [Validators.required]),
+			icon96x96: new FormControl(null, [Validators.required]),
+			icon128x128: new FormControl(null, [Validators.required]),
+			icon144x144: new FormControl(null, [Validators.required]),
+			icon152x152: new FormControl(null, [Validators.required]),
+			icon192x192: new FormControl(null, [Validators.required]),
+			icon384x384: new FormControl(null, [Validators.required]),
+			icon512x512: new FormControl(null, [Validators.required]),
+		}),
 		theme: new FormGroup({
 			color: new FormControl(null, [Validators.required]),
 			background: new FormControl(null, [Validators.required])
@@ -41,6 +51,16 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 	public mode: string;
 	public appId: string;
 	public errors: any = {
+		icons: {
+			icon72x72: '',
+			icon96x96: '',
+			icon128x128: '',
+			icon144x144: '',
+			icon152x152: '',
+			icon192x192: '',
+			icon384x384: '',
+			icon512x512: ''
+		},
 		theme: {
 			color: '',
 			background: ''
@@ -74,6 +94,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				'role',
 				'icon',
 				'name',
+				'icons',
 				'theme',
 				'secret',
 				'google',
@@ -96,6 +117,14 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				this.form.controls.domains.setValue(app.domains);
 				this.form.controls.private.setValue(app.private);
 				this.form.controls.organizationOnly.setValue(app.organizationOnly);
+				(this.form.controls.icons as FormGroup).controls.icon72x72.setValue(app.icons.icon72x72);
+				(this.form.controls.icons as FormGroup).controls.icon96x96.setValue(app.icons.icon96x96);
+				(this.form.controls.icons as FormGroup).controls.icon128x128.setValue(app.icons.icon128x128);
+				(this.form.controls.icons as FormGroup).controls.icon144x144.setValue(app.icons.icon144x144);
+				(this.form.controls.icons as FormGroup).controls.icon152x152.setValue(app.icons.icon152x152);
+				(this.form.controls.icons as FormGroup).controls.icon192x192.setValue(app.icons.icon192x192);
+				(this.form.controls.icons as FormGroup).controls.icon384x384.setValue(app.icons.icon384x384);
+				(this.form.controls.icons as FormGroup).controls.icon512x512.setValue(app.icons.icon512x512);
 				(this.form.controls.theme as FormGroup).controls.color.setValue(app.theme.color);
 				(this.form.controls.theme as FormGroup).controls.background.setValue(app.theme.background);
 				(this.form.controls.google as FormGroup).controls.database.setValue(app.google.database);
@@ -153,6 +182,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			icon: this.form.value.icon,
 			name: this.form.value.name,
 			appId: this.appId,
+			icons: this.form.value.icons,
 			secret: this.form.value.secret,
 			scopes: this.form.value.scopes,
 			private: this.form.value.private,

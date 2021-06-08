@@ -293,6 +293,7 @@ describe('Apps', function () {
                     result.should.have.property('role');
                     result.should.have.property('name');
                     result.should.have.property('icon');
+                    result.should.have.property('icons');
                     result.should.have.property('appId');
                     result.should.have.property('users');
                     result.should.have.property('theme');
@@ -325,6 +326,7 @@ describe('Apps', function () {
                     result[0].should.have.property('role');
                     result[0].should.have.property('name');
                     result[0].should.have.property('icon');
+                    result[0].should.have.property('icons');
                     result[0].should.have.property('appId');
                     result[0].should.have.property('users');
                     result[0].should.have.property('theme');
@@ -1064,6 +1066,7 @@ var tools = {
                     'url': 'https://www.bitid.co.za',
                     'name': 'Mocha App',
                     'icon': 'https://www.bitid.co.za/assets/logo.png',
+                    'icons': [],
                     'scopes': [],
                     'secret': '123',
                     'domains': [],
@@ -1083,6 +1086,7 @@ var tools = {
                         'role',
                         'icon',
                         'name',
+                        'icons',
                         'appId',
                         'users',
                         'theme',
@@ -1108,6 +1112,7 @@ var tools = {
                         'role',
                         'icon',
                         'name',
+                        'icons',
                         'appId',
                         'users',
                         'theme',
@@ -1321,7 +1326,7 @@ var tools = {
                         '/tokens/generate',
                         '/tokens/unsubscribe',
                         '/tokens/updatesubscriber',
-                        
+
                         '/apps/add',
                         '/apps/get',
                         '/apps/list',

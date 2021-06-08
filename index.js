@@ -7,7 +7,6 @@ const chalk = require('chalk');
 // const config = require('./config.json');
 const express = require('express');
 const responder = require('./lib/responder');
-const bodyparser = require('body-parser');
 const ErrorResponse = require('./lib/error-response');
 require('dotenv').config()
 
@@ -39,11 +38,11 @@ try {
             try {
                 var app = express();
                 app.use(cors());
-                app.use(bodyparser.urlencoded({
+                app.use(express.urlencoded({
                     'limit': '50mb',
                     'extended': true
                 }));
-                app.use(bodyparser.json({
+                app.use(express.json({
                     'limit': '50mb'
                 }));
 
@@ -74,11 +73,6 @@ try {
                     };
                 });
 
-                app.use('/', express.static(__dirname + '/app/dist/auth/'));
-                app.get('/*', (req, res) => {
-                    res.sendFile(__dirname + '/app/dist/auth/index.html');
-                });
-
                 app.use('/apps', require('./api/apps'));
                 console.log('loaded ./api/apps');
 
@@ -105,6 +99,11 @@ try {
 
                 app.use('/health-check', require('@bitid/health-check'));
                 console.log('loaded ./api/health-check');
+
+                app.use('/', express.static(__dirname + '/app/dist/auth/'));
+                app.get('/*', (req, res) => {
+                    res.sendFile(__dirname + '/app/dist/auth/index.html');
+                });
 
                 app.use((err, req, res, next) => {
                     var err = new ErrorResponse();
