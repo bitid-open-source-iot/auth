@@ -153,7 +153,7 @@ var module = function () {
 			};
 
 			if (Object.keys(params).length == 0) {
-				params.dns = args.req.headers.origin.replace('http://', '').replace('https://', '');
+				params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '');
 			};
 
 			var filter = {};
