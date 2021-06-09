@@ -144,8 +144,16 @@ var module = function () {
 		load: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': ObjectId(args.req.body.appId)
+			var params = {};
+
+			if (typeof(args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (typeof(args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					params._id = ObjectId(args.req.body.appId);
+				};	
+			};
+
+			if (Object.keys(params).length == 0) {
+				params.dns = args.req.headers.origin.replace('http://', '').replace('https://', '');
 			};
 
 			var filter = {};
