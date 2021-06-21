@@ -5,7 +5,7 @@ exports.connect = async () => {
 	var deferred = Q.defer();
 
 	try {
-		const connection = await sql.connect(['mssql://', __settings.mssql.username, ':', __settings.mssql.password, '@', __settings.mssql.host, ':', __settings.mssql.port, '/', __settings.mssql.database].join(''));	
+		const connection = await sql.connect(__settings.mssql);	
 		deferred.resolve(connection);
 	} catch (error) {
 		deferred.reject(error.message);
