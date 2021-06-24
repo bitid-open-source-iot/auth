@@ -1,7 +1,7 @@
 export const environment = {
-    auth: 'http://127.0.0.1:9000',
+    auth: 'https://auth.bitid.co.za',
     appId: 1,
-    drive: 'http://127.0.0.1:12000',
+    drive: 'https://drive.bitid.co.za',
     appName: 'Auth',
     production: true
 };
