@@ -55,7 +55,7 @@ export class UploadDirective implements OnChanges, AfterViewInit {
 						}
 					};
 
-					const url = [environment.drive, '/drive/files/upload?', 'appId', '=', environment.appId, '&', 'userId', '=', this.localstorage.get('userId')].join('');
+					const url = [environment.drive, '/drive/files/add?', 'appId', '=', environment.appId, '&', 'userId', '=', this.localstorage.get('userId')].join('');
 
 					request.open('POST', url, true);
 					request.setRequestHeader('Authorization', this.localstorage.get('token'));
