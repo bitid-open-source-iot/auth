@@ -1,8 +1,8 @@
 /*
-Set1 - Create stored procedure check last password change
+SET1 - Create stored procedure check last password change
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Check_Last_Password_Change.PRC'
 GO
@@ -59,4 +59,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1

@@ -1,9 +1,9 @@
 /*
-Set1 - Create stored procedure add
-Set2 - Create stored procedure list
+SET1 - Create stored procedure add
+SET2 - Create stored procedure list
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Usage_Add.PRC'
 GO
@@ -60,9 +60,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Usage_List.PRC'
 GO
@@ -109,4 +109,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2

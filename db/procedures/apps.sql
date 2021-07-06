@@ -1,22 +1,22 @@
 /*
-Set1 - Create stored procedure add
-Set2 - Create stored procedure add user
-Set3 - Create stored procedure add scope
-Set4 - Create stored procedure add domain
-Set5 - Create stored procedure get
-Set6 - Create stored procedure list
-Set7 - Create stored procedure load
-Set8 - Create stored procedure validate
-Set9 - Create stored procedure share
-Set10 - Create stored procedure delete
-Set11 - Create stored procedure unsubscribe
-Set12 - Create stored procedure update subscriber
-Set13 - Create stored procedure update
-Set14 - Create stored procedure purge scopes
-Set15 - Create stored procedure purge domains
+SET1 - Create stored procedure add
+SET2 - Create stored procedure add user
+SET3 - Create stored procedure add scope
+SET4 - Create stored procedure add domain
+SET5 - Create stored procedure get
+SET6 - Create stored procedure list
+SET7 - Create stored procedure load
+SET8 - Create stored procedure validate
+SET9 - Create stored procedure share
+SET10 - Create stored procedure delete
+SET11 - Create stored procedure unsubscribe
+SET12 - Create stored procedure update subscriber
+SET13 - Create stored procedure update
+SET14 - Create stored procedure purge scopes
+SET15 - Create stored procedure purge domains
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Apps_Add.PRC'
 GO
@@ -92,9 +92,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Apps_Add_User.PRC'
 GO
@@ -143,9 +143,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2
 
--- Set3
+-- SET3
 
 PRINT 'Executing dbo.v1_Apps_Add_Scope.PRC'
 GO
@@ -194,9 +194,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- SET3
 
--- Set4
+-- SET4
 
 PRINT 'Executing dbo.v1_Apps_Add_Domain.PRC'
 GO
@@ -245,9 +245,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- SET4
 
--- Set5
+-- SET5
 
 PRINT 'Executing dbo.v1_Apps_Get.PRC'
 GO
@@ -319,9 +319,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- SET5
 
--- Set6
+-- SET6
 
 PRINT 'Executing dbo.v1_Apps_List.PRC'
 GO
@@ -392,9 +392,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set6
+-- SET6
 
--- Set7
+-- SET7
 
 PRINT 'Executing dbo.v1_Apps_Load.PRC'
 GO
@@ -460,9 +460,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set7
+-- SET7
 
--- Set8
+-- SET8
 
 PRINT 'Executing dbo.v1_Apps_Validate.PRC'
 GO
@@ -523,9 +523,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set8
+-- SET8
 
--- Set9
+-- SET9
 
 PRINT 'Executing dbo.v1_Apps_Share.PRC'
 GO
@@ -612,9 +612,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set9
+-- SET9
 
--- Set10
+-- SET10
 
 PRINT 'Executing dbo.v1_Apps_Delete.PRC'
 GO
@@ -721,9 +721,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set10
+-- SET10
 
--- Set11
+-- SET11
 
 PRINT 'Executing dbo.v1_Apps_Unsubscribe.PRC'
 GO
@@ -792,9 +792,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set11
+-- SET11
 
--- Set12
+-- SET12
 
 PRINT 'Executing dbo.v1_Apps_Update_Subscriber.PRC'
 GO
@@ -852,9 +852,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set12
+-- SET12
 
--- Set13
+-- SET13
 
 PRINT 'Executing dbo.v1_Apps_Update.PRC'
 GO
@@ -947,9 +947,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set13
+-- SET13
 
--- Set14
+-- SET14
 
 PRINT 'Executing dbo.v1_Apps_Purge_Scopes.PRC'
 GO
@@ -982,9 +982,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set14
+-- SET14
 
--- Set15
+-- SET15
 
 PRINT 'Executing dbo.v1_Apps_Purge_Domains.PRC'
 GO
@@ -1017,4 +1017,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set15
+-- SET15

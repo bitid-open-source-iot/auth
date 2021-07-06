@@ -1,19 +1,26 @@
 /*
-Set1 - Create tblUsers including Unique index
-Set2 - Create AuditExact and Triggers
+SET1 - Create tblUsers including Unique index
+SET2 - Create AuditExact and Triggers
 */
 
--- DROP TABLE [dbo].[tblUsers]
--- DROP TABLE [dbo].[tblUsers_AuditExact]
-
--- Set1
-USE [auth]
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblUsers]
+END
 GO
+
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers_AuditExact' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblUsers_AuditExact]
+END
+GO
+
+-- SET1
 
 CREATE TABLE [dbo].[tblUsers]
 (
 	[id] INT NOT NULL IDENTITY(1, 1),
-	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
+	[serverDate] DATETIME NOT NULL DEFAULT GETDATE(),
 	[nameLast] VARCHAR(255),
 	[nameFirst] VARCHAR(255),
 	[nameMiddle] VARCHAR(255),
@@ -47,18 +54,15 @@ CREATE TABLE [dbo].[tblUsers]
 	[timezone] INT NOT NULL,
 	[username] VARCHAR(255),
 	[validated] INT NOT NULL,
-	PRIMARY KEY (id)
+	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblUsersEmail ON [dbo].[tblUsers] (email)
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.tblUsers_AuditExact.TAB'
-GO
-
-USE [auth]
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblUsers_AuditExact' AND type = 'U')
@@ -69,7 +73,7 @@ BEGIN
 		[userId] INT NOT NULL,
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
-		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblUsers_AuditExact_dateAction DEFAULT getdate(),
+		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblUsers_AuditExact_dateAction DEFAULT GETDATE(),
 		[nameLast] VARCHAR(255),
 		[nameFirst] VARCHAR(255),
 		[nameMiddle] VARCHAR(255),
@@ -111,9 +115,6 @@ GO
 PRINT 'Executing dbo.tr_tblUsers_AuditExact.TRG'
 GO
 
-USE [auth]
-GO
-
 IF EXISTS (SELECT * FROM sys.objects WHERE name = 'tr_tblUsers_AuditExact' AND type = 'TR')
 BEGIN
 	DROP TRIGGER tr_tblUsers_AuditExact
@@ -129,8 +130,8 @@ BEGIN
 	SET NOCOUNT ON
 
 	--Insert
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) = 0)
 	BEGIN
 		INSERT INTO tblUsers_AuditExact
@@ -214,8 +215,8 @@ BEGIN
 
 
 	--Update
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblUsers_AuditExact
@@ -298,8 +299,8 @@ BEGIN
 	END
 
 	--Delete
-	IF ((SELECT Count(ID)
-		FROM Inserted)) = 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) = 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblUsers_AuditExact
@@ -384,4 +385,4 @@ BEGIN
 END
 GO
 
--- Set2
+-- SET2

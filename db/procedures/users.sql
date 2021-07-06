@@ -1,12 +1,12 @@
 /*
-Set1 - Create stored procedure get
-Set2 - Create stored procedure get by email
-Set3 - Create stored procedure list
-Set4 - Create stored procedure delete
-Set5 - Create stored procedure update
+SET1 - Create stored procedure get
+SET2 - Create stored procedure get by email
+SET3 - Create stored procedure list
+SET4 - Create stored procedure delete
+SET5 - Create stored procedure update
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Users_Get.PRC'
 GO
@@ -79,9 +79,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Users_Get_By_Email.PRC'
 GO
@@ -154,9 +154,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2
 
--- Set3
+-- SET3
 
 PRINT 'Executing dbo.v1_Users_List.PRC'
 GO
@@ -232,9 +232,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- SET3
 
--- Set4
+-- SET4
 
 PRINT 'Executing dbo.v1_Users_Delete.PRC'
 GO
@@ -271,9 +271,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- SET4
 
--- Set5
+-- SET5
 
 PRINT 'Executing dbo.v1_Users_Update.PRC'
 GO
@@ -429,4 +429,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- SET5

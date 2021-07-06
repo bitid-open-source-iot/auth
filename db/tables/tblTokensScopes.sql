@@ -1,31 +1,37 @@
 /*
-Set1 - Create tblTokensScopes including Unique index
-Set2 - Create AuditExact and Triggers
+SET1 - Create tblTokensScopes including Unique index
+SET2 - Create AuditExact and Triggers
 */
 
--- Set1
-
-USE [auth]
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblTokensScopes]
+END
 GO
+
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes_AuditExact' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblTokensScopes_AuditExact]
+END
+GO
+
+-- SET1
 
 CREATE TABLE [dbo].[tblTokensScopes]
 (
 	[id] INT NOT NULL IDENTITY(1, 1),
 	[userId] INT NOT NULL,
-	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
+	[serverDate] DATETIME NOT NULL DEFAULT GETDATE(),
 	[scopeId] INT NOT NULL,
 	[tokenId] INT NOT NULL,
-	PRIMARY KEY (id)
+	PRIMARY KEY ([id])
 )
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.tblTokensScopes_AuditExact.TAB'
-GO
-
-USE [auth]
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblTokensScopes_AuditExact' AND type = 'U')
@@ -36,7 +42,7 @@ BEGIN
 		[userId] INT NOT NULL,
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
-		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblTokensScopes_AuditExact_dateAction DEFAULT getdate(),
+		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblTokensScopes_AuditExact_dateAction DEFAULT GETDATE(),
 		[scopeId] INT NOT NULL,
 		[tokenId] INT NOT NULL,
 		CONSTRAINT PK_tblTokensScopes_AuditExact PRIMARY KEY CLUSTERED (ID)
@@ -45,9 +51,6 @@ END
 GO
 
 PRINT 'Executing dbo.tr_tblTokensScopes_AuditExact.TRG'
-GO
-
-USE [auth]
 GO
 
 IF EXISTS (SELECT * FROM sys.objects WHERE name = 'tr_tblTokensScopes_AuditExact' AND type = 'TR')
@@ -65,8 +68,8 @@ BEGIN
 	SET NOCOUNT ON
 
 	--Insert
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) = 0)
 	BEGIN
 		INSERT INTO tblTokensScopes_AuditExact
@@ -88,8 +91,8 @@ BEGIN
 
 
 	--Update
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblTokensScopes_AuditExact
@@ -110,8 +113,8 @@ BEGIN
 	END
 
 	--Delete
-	IF ((SELECT Count(ID)
-		FROM Inserted)) = 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) = 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblTokensScopes_AuditExact
@@ -134,4 +137,4 @@ BEGIN
 END
 GO
 
--- Set2
+-- SET2

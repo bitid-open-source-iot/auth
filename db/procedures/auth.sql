@@ -1,13 +1,13 @@
 /*
-Set1 - Create stored procedure verify
-Set2 - Create stored procedure validate
-Set3 - Create stored procedure register
-Set4 - Create stored procedure reset password
-Set5 - Create stored procedure change email
-Set6 - Create stored procedure change password
+SET1 - Create stored procedure verify
+SET2 - Create stored procedure validate
+SET3 - Create stored procedure register
+SET4 - Create stored procedure reset password
+SET5 - Create stored procedure change email
+SET6 - Create stored procedure change password
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Auth_Verify.PRC'
 GO
@@ -102,9 +102,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Auth_Validate.PRC'
 GO
@@ -207,9 +207,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2
 
--- Set3
+-- SET3
 
 PRINT 'Executing dbo.v1_Auth_Register.PRC'
 GO
@@ -368,9 +368,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- SET3
 
--- Set4
+-- SET4
 
 PRINT 'Executing dbo.v1_Auth_Reset_Password.PRC'
 GO
@@ -455,9 +455,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- SET4
 
--- Set5
+-- SET5
 
 PRINT 'Executing dbo.v1_Auth_Change_Email.PRC'
 GO
@@ -499,9 +499,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- SET5
 
--- Set6
+-- SET6
 
 PRINT 'Executing dbo.v1_Auth_Change_Password.PRC'
 GO
@@ -539,4 +539,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set6
+-- SET6

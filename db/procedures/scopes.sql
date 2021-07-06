@@ -1,13 +1,13 @@
 /*
-Set1 - Create stored procedure add
-Set2 - Create stored procedure get
-Set3 - Create stored procedure list
-Set4 - Create stored procedure load
-Set5 - Create stored procedure update
-Set6 - Create stored procedure delete
+SET1 - Create stored procedure add
+SET2 - Create stored procedure get
+SET3 - Create stored procedure list
+SET4 - Create stored procedure load
+SET5 - Create stored procedure update
+SET6 - Create stored procedure delete
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Scopes_Add.PRC'
 GO
@@ -56,9 +56,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Scopes_Get.PRC'
 GO
@@ -110,9 +110,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2
 
--- Set3
+-- SET3
 
 PRINT 'Executing dbo.v1_Scopes_List.PRC'
 GO
@@ -162,9 +162,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- SET3
 
--- Set4
+-- SET4
 
 PRINT 'Executing dbo.v1_Scopes_Load.PRC'
 GO
@@ -197,9 +197,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- SET4
 
--- Set5
+-- SET5
 
 PRINT 'Executing dbo.v1_Scopes_Update.PRC'
 GO
@@ -262,9 +262,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- SET5
 
--- Set6
+-- SET6
 
 PRINT 'Executing dbo.v1_Scopes_Delete.PRC'
 GO
@@ -323,4 +323,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set6
+-- SET6

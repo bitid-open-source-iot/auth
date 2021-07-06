@@ -1,35 +1,38 @@
 /*
-Set1 - Create tblFeatures including Unique index
-Set2 - Create AuditExact and Triggers
+SET1 - Create tblFeatures including Unique index
+SET2 - Create AuditExact and Triggers
 */
 
--- DROP TABLE [dbo].[tblFeatures]
--- DROP TABLE [dbo].[tblFeatures_AuditExact]
-
--- Set1
-
-USE [auth]
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblFeatures]
+END
 GO
+
+IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures_AuditExact' AND [type] = 'U')
+BEGIN
+	DROP TABLE [dbo].[tblFeatures_AuditExact]
+END
+GO
+
+-- SET1
 
 CREATE TABLE [dbo].[tblFeatures]
 (
 	[id] INT NOT NULL IDENTITY(1, 1),
 	[userId] INT NOT NULL,
-	[serverDate] DATETIME NOT NULL DEFAULT getdate(),
+	[serverDate] DATETIME NOT NULL DEFAULT GETDATE(),
 	[title] VARCHAR(255) NOT NULL,
 	[appId] INT NOT NULL,
 	[description] VARCHAR(255) NOT NULL,
-	PRIMARY KEY (id)
+	PRIMARY KEY ([id])
 )
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.tblFeatures_AuditExact.TAB'
-GO
-
-USE [auth]
 GO
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE name = 'tblFeatures_AuditExact' AND type = 'U')
@@ -40,7 +43,7 @@ BEGIN
 		[userId] INT NOT NULL,
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
-		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblFeatures_AuditExact_dateAction DEFAULT getdate(),
+		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblFeatures_AuditExact_dateAction DEFAULT GETDATE(),
 		[title] VARCHAR(255) NOT NULL,
 		[appId] INT NOT NULL,
 		[description] VARCHAR(255) NOT NULL,
@@ -50,9 +53,6 @@ END
 GO
 
 PRINT 'Executing dbo.tr_tblFeatures_AuditExact.TRG'
-GO
-
-USE [auth]
 GO
 
 IF EXISTS (SELECT * FROM sys.objects WHERE name = 'tr_tblFeatures_AuditExact' AND type = 'TR')
@@ -72,8 +72,8 @@ BEGIN
 	SET NOCOUNT ON
 
 	--Insert
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) = 0)
 	BEGIN
 		INSERT INTO tblFeatures_AuditExact
@@ -97,8 +97,8 @@ BEGIN
 
 
 	--Update
-	IF ((SELECT Count(ID)
-		FROM Inserted)) != 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblFeatures_AuditExact
@@ -121,8 +121,8 @@ BEGIN
 	END
 
 	--Delete
-	IF ((SELECT Count(ID)
-		FROM Inserted)) = 0 AND ((SELECT Count(ID)
+	IF ((SELECT COUNT([id])
+		FROM Inserted)) = 0 AND ((SELECT COUNT([id])
 		FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblFeatures_AuditExact
@@ -147,4 +147,4 @@ BEGIN
 END
 GO
 
--- Set2
+-- SET2

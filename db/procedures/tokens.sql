@@ -1,19 +1,19 @@
 /*
-Set1 - Create stored procedure add
-Set2 - Create stored procedure add user
-Set3 - Create stored procedure add scope
-Set4 - Create stored procedure get
-Set5 - Create stored procedure list
-Set6 - Create stored procedure share
-Set7 - Create stored procedure revoke
-Set8 - Create stored procedure unsubscribe
-Set9 - Create stored procedure update subscriber
-Set10 - Create stored procedure retrieve
-Set11 - Create stored procedure download
-Set12 - Create stored procedure revoke self
+SET1 - Create stored procedure add
+SET2 - Create stored procedure add user
+SET3 - Create stored procedure add scope
+SET4 - Create stored procedure get
+SET5 - Create stored procedure list
+SET6 - Create stored procedure share
+SET7 - Create stored procedure revoke
+SET8 - Create stored procedure unsubscribe
+SET9 - Create stored procedure update subscriber
+SET10 - Create stored procedure retrieve
+SET11 - Create stored procedure download
+SET12 - Create stored procedure revoke self
 */
 
--- Set1
+-- SET1
 
 PRINT 'Executing dbo.v1_Tokens_Add.PRC'
 GO
@@ -68,9 +68,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set1
+-- SET1
 
--- Set2
+-- SET2
 
 PRINT 'Executing dbo.v1_Tokens_Add_User.PRC'
 GO
@@ -119,9 +119,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set2
+-- SET2
 
--- Set3
+-- SET3
 
 PRINT 'Executing dbo.v1_Tokens_Add_Scope.PRC'
 GO
@@ -170,9 +170,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set3
+-- SET3
 
--- Set4
+-- SET4
 
 PRINT 'Executing dbo.v1_Tokens_Get.PRC'
 GO
@@ -233,9 +233,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set4
+-- SET4
 
--- Set5
+-- SET5
 
 PRINT 'Executing dbo.v1_Tokens_List.PRC'
 GO
@@ -296,9 +296,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set5
+-- SET5
 
--- Set6
+-- SET6
 
 PRINT 'Executing dbo.v1_Tokens_Share.PRC'
 GO
@@ -385,9 +385,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set6
+-- SET6
 
--- Set7
+-- SET7
 
 PRINT 'Executing dbo.v1_Tokens_Revoke.PRC'
 GO
@@ -448,9 +448,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set7
+-- SET7
 
--- Set8
+-- SET8
 
 PRINT 'Executing dbo.v1_Tokens_Unsubscribe.PRC'
 GO
@@ -519,9 +519,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set8
+-- SET8
 
--- Set9
+-- SET9
 
 PRINT 'Executing dbo.v1_Tokens_Update_Subscriber.PRC'
 GO
@@ -570,9 +570,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set9
+-- SET9
 
--- Set10
+-- SET10
 
 PRINT 'Executing dbo.v1_Tokens_Retrieve.PRC'
 GO
@@ -622,9 +622,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set10
+-- SET10
 
--- Set11
+-- SET11
 
 PRINT 'Executing dbo.v1_Tokens_Download.PRC'
 GO
@@ -668,9 +668,9 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set11
+-- SET11
 
--- Set12
+-- SET12
 
 PRINT 'Executing dbo.v1_Tokens_Revoke_Self.PRC'
 GO
@@ -748,4 +748,4 @@ BEGIN CATCH
 END CATCH
 GO
 
--- Set12
+-- SET12
