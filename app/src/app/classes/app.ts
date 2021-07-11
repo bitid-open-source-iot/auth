@@ -25,6 +25,7 @@ export class App {
 	public secret: string;
 	public private: boolean;
 	public domains: string[] = [];
+	public favicon: string;
 	public organizationOnly: number;
 
 	constructor(args?: APP) {
@@ -101,6 +102,9 @@ export class App {
 			if (typeof (args.secret) != 'undefined' && args.secret !== null) {
 				this.secret = args.secret;
 			}
+			if (typeof (args.favicon) != 'undefined' && args.favicon !== null) {
+				this.favicon = args.favicon;
+			}
 			if (typeof (args.organizationOnly) != 'undefined' && args.organizationOnly !== null) {
 				this.organizationOnly = args.organizationOnly;
 			}
@@ -138,5 +142,6 @@ export interface APP {
 	secret?: string;
 	private?: boolean;
 	domains?: string[];
+	favicon?: string;
 	organizationOnly?: number;
 }

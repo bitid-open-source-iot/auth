@@ -46,6 +46,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		scopes: new FormControl([], [Validators.required]),
 		domains: new FormControl([], [Validators.required]),
 		private: new FormControl(null, [Validators.required]),
+		favicon: new FormControl(null, [Validators.required]),
 		organizationOnly: new FormControl(null, [Validators.required])
 	});
 	public mode: string;
@@ -76,6 +77,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		scopes: '',
 		domains: '',
 		private: '',
+		favicon: '',
 		organizationOnly: ''
 	};
 	public filter: FormGroup = new FormGroup({
@@ -101,6 +103,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				'scopes',
 				'domains',
 				'private',
+				'favicon',
 				'organizationOnly'
 			],
 			appId: this.appId
@@ -116,6 +119,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 				this.form.controls.scopes.setValue(app.scopes);
 				this.form.controls.domains.setValue(app.domains);
 				this.form.controls.private.setValue(app.private);
+				this.form.controls.favicon.setValue(app.favicon);
 				this.form.controls.organizationOnly.setValue(app.organizationOnly);
 				(this.form.controls.icons as FormGroup).controls.icon72x72.setValue(app.icons.icon72x72);
 				(this.form.controls.icons as FormGroup).controls.icon96x96.setValue(app.icons.icon96x96);
@@ -187,6 +191,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			scopes: this.form.value.scopes,
 			private: this.form.value.private,
 			domains: this.form.value.domains,
+			favicon: this.form.value.favicon,
 			organizationOnly: this.form.value.organizationOnly
 		});
 

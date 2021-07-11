@@ -23,6 +23,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
     constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalstorageService) { }
 
     @Input('src') public src: string;
+    @Input('accept') public accept: string = 'image/*';
     @Input('required') public required: boolean;
     @Input('min-width') public minWidth: number = 0;
     @Input('max-width') public maxWidth: number = 0;
@@ -74,7 +75,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
         this.renderer.listen(this.el.nativeElement, 'click', () => {
             const input = document.createElement('input');
             input.type = 'file';
-            input.accept = 'image/*';
+            input.accept = this.accept;
             input.multiple = false;
 
             input.onchange = (event: any) => {
@@ -84,6 +85,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
                     var _URL = window.URL || window.webkitURL;
                     var objectUrl = _URL.createObjectURL(files[0]);
                     img.onload = (ev: any) => {
+                        debugger
                         if (ev.target.width < this.minWidth && this.minWidth > 0) {
                             this.toast.show('The width of your image must be greater than ' + this.minWidth + 'px');
                             return false;

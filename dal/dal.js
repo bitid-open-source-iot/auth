@@ -38,6 +38,7 @@ var module = function () {
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
 				'domains': args.req.body.domains || [],
+				'favicon': args.req.body.favicon || null,
 				'private': args.req.body.private || false,
 				'serverDate': new Date()
 			};
@@ -378,6 +379,9 @@ var module = function () {
 			};
 			if (typeof (args.req.body.private) != 'undefined') {
 				update.$set.private = args.req.body.private;
+			};
+			if (typeof (args.req.body.favicon) != 'undefined') {
+				update.$set.favicon = args.req.body.favicon;
 			};
 			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly !== null) {
 				update.$set['bitid.auth.organizationOnly'] = args.req.body.organizationOnly;

@@ -302,6 +302,7 @@ describe('Apps', function () {
                     result.should.have.property('google');
                     result.should.have.property('domains');
                     result.should.have.property('private');
+                    result.should.have.property('favicon');
                     result.should.have.property('organizationOnly');
                     done();
                 } catch (e) {
@@ -335,6 +336,7 @@ describe('Apps', function () {
                     result[0].should.have.property('google');
                     result[0].should.have.property('domains');
                     result[0].should.have.property('private');
+                    result[0].should.have.property('favicon');
                     result[0].should.have.property('organizationOnly');
                     done();
                 } catch (e) {
@@ -1044,6 +1046,16 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/apps/add', {
+                    'icons': {
+                        'icon72x72': 'xxx',
+                        'icon96x96': 'xxx',
+                        'icon128x128': 'xxx',
+                        'icon144x144': 'xxx',
+                        'icon152x152': 'xxx',
+                        'icon192x192': 'xxx',
+                        'icon384x384': 'xxx',
+                        'icon512x512': 'xxx'
+                    },
                     'theme': {
                         'color': '',
                         'background': ''
@@ -1066,11 +1078,11 @@ var tools = {
                     'url': 'https://www.bitid.co.za',
                     'name': 'Mocha App',
                     'icon': 'https://www.bitid.co.za/assets/logo.png',
-                    'icons': [],
                     'scopes': [],
                     'secret': '123',
                     'domains': [],
                     'private': false,
+                    'favicon': 'xxx',
                     'organizationOnly': 1
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1095,6 +1107,7 @@ var tools = {
                         'google',
                         'domains',
                         'private',
+                        'favicon',
                         'organizationOnly'
                     ],
                     'appId': appId
@@ -1121,6 +1134,7 @@ var tools = {
                         'google',
                         'domains',
                         'private',
+                        'favicon',
                         'organizationOnly'
                     ],
                     'appId': appId

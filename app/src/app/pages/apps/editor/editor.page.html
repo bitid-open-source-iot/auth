@@ -181,6 +181,12 @@
             </mat-error>
         </mat-form-field>
 
+        <mat-file required="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256" [max-height]="256" formControlName="favicon">
+            <mat-label>
+                Favicon (256x256) <span>*</span>
+            </mat-label>
+        </mat-file>
+
         <div formGroupName="icons">
             <mat-file required="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72" formControlName="icon72x72">
                 <mat-label>
