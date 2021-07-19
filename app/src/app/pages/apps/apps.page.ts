@@ -30,7 +30,7 @@ export class AppsPage implements OnInit, OnDestroy {
 	public filter: any = this.filters.get({
 		private: []
 	})
-	public columns: string[] = ['icon', 'name', 'private', 'options'];
+	public columns: string[] = ['url', 'icon', 'name', 'private', 'options'];
 	public loading: boolean;
 	private subscriptions: any = {};
 
@@ -39,6 +39,7 @@ export class AppsPage implements OnInit, OnDestroy {
 
 		const response = await this.service.list({
 			filter: [
+				'url',
 				'icon',
 				'role',
 				'name',
@@ -64,117 +65,130 @@ export class AppsPage implements OnInit, OnDestroy {
     }
 
 	public async options(app: App) {
+		let options = [
+			{
+				icon: 'edit',
+				title: 'Edit',
+				handler: async () => {
+					this.router.navigate(['/apps', 'editor'], {
+						queryParams: {
+							mode: 'update',
+							appId: app.appId
+						}
+					});
+				},
+				disabled: [0, 1]
+			},
+			{
+				icon: 'content_copy',
+				title: 'Copy',
+				handler: async () => {
+					this.router.navigate(['/apps', 'editor'], {
+						queryParams: {
+							mode: 'copy',
+							appId: app.appId
+						}
+					});
+				},
+				disabled: [0, 1]
+			},
+			{
+				icon: 'people',
+				title: 'Subscribers',
+				handler: async () => {
+					this.router.navigate(['/subscribers'], {
+						queryParams: {
+							id: app.appId,
+							type: 'app'
+						}
+					});
+				},
+				disabled: [0, 1, 2, 3]
+			},
+			{
+				icon: 'remove',
+				title: 'Unubscribe',
+				danger: true,
+				handler: async () => {
+					this.confirm.show({
+						message: 'Are you sure you want to unsubscribe from ' + app.name + '?',
+						handler: async () => {
+							this.loading = true;
+
+							const response = await this.service.unsubscribe({
+								appId: app.appId,
+								userId: this.localstorage.get('userId')
+							});
+
+							if (response.ok) {
+								for (let i = 0; i < this.apps.data.length; i++) {
+									if (this.apps.data[i].appId == app.appId) {
+										this.apps.data.splice(i, 1);
+										this.toast.show('You were unsubscribed!');
+										break;
+									}
+								}
+								this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+							} else {
+								this.toast.show(response.error.message);
+							}
+
+							this.loading = false;
+						}
+					});
+				},
+				disabled: [5]
+			},
+			{
+				icon: 'delete',
+				title: 'Delete',
+				danger: true,
+				handler: async () => {
+					this.confirm.show({
+						message: 'Are you sure you want to delete ' + app.name + '?',
+						handler: async () => {
+							this.loading = true;
+
+							const response = await this.service.delete({
+								appId: app.appId
+							});
+
+							if (response.ok) {
+								for (let i = 0; i < this.apps.data.length; i++) {
+									if (this.apps.data[i].appId == app.appId) {
+										this.apps.data.splice(i, 1);
+										this.toast.show('App was removed!');
+										break;
+									}
+								}
+								this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+							} else {
+								this.toast.show(response.error.message);
+							}
+
+							this.loading = false;
+						}
+					});
+				},
+				disabled: [0, 1, 2, 3, 4]
+			}
+		];
+		
+		if (window.innerWidth <= 600) {
+			options.unshift({
+				icon: 'launch',
+				title: 'Launch Application',
+				handler: async () => {
+					window.open(app.url, '_parent')
+				},
+				disabled: [0]
+			});
+		};
+		
 		this.sheet.show({
 			role: app.role,
 			title: app.name,
-			options: [
-				{
-					icon: 'edit',
-					title: 'Edit',
-					handler: async () => {
-						this.router.navigate(['/apps', 'editor'], {
-							queryParams: {
-								mode: 'update',
-								appId: app.appId
-							}
-						});
-					},
-					disabled: [0, 1]
-				},
-				{
-					icon: 'content_copy',
-					title: 'Copy',
-					handler: async () => {
-						this.router.navigate(['/apps', 'editor'], {
-							queryParams: {
-								mode: 'copy',
-								appId: app.appId
-							}
-						});
-					},
-					disabled: [0, 1]
-				},
-				{
-					icon: 'people',
-					title: 'Subscribers',
-					handler: async () => {
-						this.router.navigate(['/subscribers'], {
-							queryParams: {
-								id: app.appId,
-								type: 'app'
-							}
-						});
-					},
-					disabled: [0, 1, 2, 3]
-				},
-				{
-					icon: 'remove',
-					title: 'Unubscribe',
-					danger: true,
-					handler: async () => {
-						this.confirm.show({
-							message: 'Are you sure you want to unsubscribe from ' + app.name + '?',
-							handler: async () => {
-								this.loading = true;
-
-								const response = await this.service.unsubscribe({
-									appId: app.appId,
-									userId: this.localstorage.get('userId')
-								});
-
-								if (response.ok) {
-									for (let i = 0; i < this.apps.data.length; i++) {
-										if (this.apps.data[i].appId == app.appId) {
-											this.apps.data.splice(i, 1);
-											this.toast.show('You were unsubscribed!');
-											break;
-										}
-									}
-									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
-								} else {
-									this.toast.show(response.error.message);
-								}
-
-								this.loading = false;
-							}
-						});
-					},
-					disabled: [5]
-				},
-				{
-					icon: 'delete',
-					title: 'Delete',
-					danger: true,
-					handler: async () => {
-						this.confirm.show({
-							message: 'Are you sure you want to delete ' + app.name + '?',
-							handler: async () => {
-								this.loading = true;
-
-								const response = await this.service.delete({
-									appId: app.appId
-								});
-
-								if (response.ok) {
-									for (let i = 0; i < this.apps.data.length; i++) {
-										if (this.apps.data[i].appId == app.appId) {
-											this.apps.data.splice(i, 1);
-											this.toast.show('App was removed!');
-											break;
-										}
-									}
-									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
-								} else {
-									this.toast.show(response.error.message);
-								}
-
-								this.loading = false;
-							}
-						});
-					},
-					disabled: [0, 1, 2, 3, 4]
-				}
-			]
+			options
 		});
 	}
 

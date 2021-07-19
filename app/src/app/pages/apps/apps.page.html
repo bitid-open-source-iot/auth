@@ -17,6 +17,17 @@
 </mat-chip-list>
 
 <table mat-table [dataSource]="apps" fxShow fxHide.xs="true" matSort>
+    <ng-container matColumnDef="url">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+            <a mat-icon-button [href]="element.url" target="_parent" matTooltip="Launch Application" matTooltipPosition="after">
+                <mat-icon>
+                    launch
+                </mat-icon>
+            </a>
+        </td>
+    </ng-container>
+
     <ng-container matColumnDef="icon">
         <th mat-header-cell *matHeaderCellDef>
             Icon
@@ -47,7 +58,7 @@
     <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="options(element)">
+            <button mat-icon-button (click)="options(element)" matTooltip="Options" matTooltipPosition="before">
                 <mat-icon>
                     more_vert
                 </mat-icon>

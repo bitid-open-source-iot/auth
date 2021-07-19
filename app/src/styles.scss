@@ -123,6 +123,12 @@ form {
 }
 mat-toolbar {
     max-height: 56px;
+    mat-label {
+        height: 16px !important;
+        margin-top: 4px;
+        font-size: 16px !important;
+        line-height: 16px !important;
+    }
 }
 mat-tab-group {
     background-color: transparent !important;

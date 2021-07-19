@@ -21,6 +21,7 @@ import { MatFooterModule } from 'src/app/libs/mat-footer/mat-footer.module';
 import { MatRippleModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { FilterPipeModule } from 'src/app/pipes/filter/filter.module';
@@ -61,6 +62,7 @@ const routes: Routes = [
 		MatRippleModule,
 		MatButtonModule,
 		MatFooterModule,
+		MatTooltipModule,
 		MatToolbarModule,
 		MatContentModule,
 		FlexLayoutModule,
