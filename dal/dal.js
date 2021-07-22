@@ -2964,7 +2964,7 @@ var module = function () {
 						.input('userId', args.req.body.header.userId)
 						.input('bearer', tools.encryption.generateRandomString(64))
 						.input('device', args.req.headers['user-agent'])
-						.input('expiry', args.req.body.expiry)
+						.input('expiry', new Date(args.req.body.expiry))
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description)
 						.execute('v1_Tokens_Add');
