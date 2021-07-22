@@ -1,10 +1,10 @@
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure get
-SET3 - Create stored procedure list
-SET4 - Create stored procedure load
-SET5 - Create stored procedure update
-SET6 - Create stored procedure delete
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE GET
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE LOAD
+SET5 - CREATE PROCEDURE UPDATE
+SET6 - CREATE PROCEDURE DELETE
 */
 
 -- SET1
@@ -101,6 +101,13 @@ BEGIN TRY
 		[user].[userId] = @userId
 		AND
 		[feature].[id] = @featureId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -124,8 +131,9 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Features_List]
-	@appId VARCHAR,
-	@userId INT
+	@appId VARCHAR(MAX),
+	@userId INT,
+	@featureId VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -154,7 +162,16 @@ BEGIN TRY
 		AND
 		[user].[userId] = @userId
 		AND
-		[feature].[appId] IN (1,2)
+		(@appId IS NULL OR [feature].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+		AND
+		(@featureId IS NULL OR [feature].[id] IN (SELECT value FROM STRING_SPLIT(@featureId, ',')))
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 

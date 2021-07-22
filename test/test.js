@@ -933,7 +933,7 @@ describe('Remove Added Items', function () {
                 };
             });
     });
-    
+
     it('/users/delete', function (done) {
         this.timeout(5000);
 

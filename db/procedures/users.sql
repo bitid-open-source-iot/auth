@@ -1,9 +1,9 @@
 /*
-SET1 - Create stored procedure get
-SET2 - Create stored procedure get by email
-SET3 - Create stored procedure list
-SET4 - Create stored procedure delete
-SET5 - Create stored procedure update
+SET1 - CREATE PROCEDURE GET
+SET2 - CREATE PROCEDURE GET BY EMAIL
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE DELETE
+SET5 - CREATE PROCEDURE UPDATE
 */
 
 -- SET1
@@ -70,6 +70,13 @@ BEGIN TRY
 		[dbo].[tblUsers]
 	WHERE
 		[id] = @userId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -145,6 +152,13 @@ BEGIN TRY
 		[dbo].[tblUsers]
 	WHERE
 		[email] = @email
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -221,6 +235,13 @@ BEGIN TRY
 			[serverDate]
 		FROM
 			[dbo].[tblUsers]
+	
+		IF (@@ROWCOUNT = 0)
+		BEGIN
+			SELECT 'No records found!' AS [message], 69 AS [code]
+			RETURN 0
+		END
+		
 		RETURN 1
 	END
 	

@@ -66,7 +66,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		const params: any = {
 			role: user.role,
-			userId: user.userId
+			email: user.email
 		};
 		let service: any;
 
@@ -84,6 +84,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		const response = await service.share(params);
 
 		if (response.ok) {
+			user.userId = response.result.userId;
 			this.users.data.push(user);
 			this.users.data = JSON.parse(JSON.stringify(this.users.data));
 			this.toast.show('User was shared!');

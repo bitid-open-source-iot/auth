@@ -1,10 +1,10 @@
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure get
-SET3 - Create stored procedure list
-SET4 - Create stored procedure load
-SET5 - Create stored procedure update
-SET6 - Create stored procedure delete
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE GET
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE LOAD
+SET5 - CREATE PROCEDURE UPDATE
+SET6 - CREATE PROCEDURE DELETE
 */
 
 -- SET1
@@ -101,6 +101,13 @@ BEGIN TRY
 		[user].[userId] = @userId
 		AND
 		[scope].[id] = @scopeId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -124,7 +131,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Scopes_List]
-	@appId VARCHAR,
+	@appId VARCHAR(MAX),
 	@userId INT
 AS
 
@@ -132,13 +139,13 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scope].[id] AS [_id],
-		[app].[icon] AS [appIcon],
-		[app].[name] AS [appName],
 		[user].[role],
 		[scope].[url],
 		[scope].[appId],
-		[scope].[description]
+		[scope].[description],
+		[scope].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName]
 	FROM
 		[dbo].[tblScopes] AS [scope]
 	INNER JOIN
@@ -153,6 +160,15 @@ BEGIN TRY
 		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
+		AND
+		(@appId IS NULL OR [scope].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 

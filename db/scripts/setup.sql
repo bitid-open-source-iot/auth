@@ -1,7 +1,7 @@
 
 
 /*
-SET1 - Create stored procedure check last password change
+SET1 - CREATE PROCEDURE CHECK LAST PASSWORD CHANGE
 */
 
 -- SET1
@@ -63,21 +63,21 @@ GO
 
 -- SET1
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure add user
-SET3 - Create stored procedure add scope
-SET4 - Create stored procedure add domain
-SET5 - Create stored procedure get
-SET6 - Create stored procedure list
-SET7 - Create stored procedure load
-SET8 - Create stored procedure validate
-SET9 - Create stored procedure share
-SET10 - Create stored procedure delete
-SET11 - Create stored procedure unsubscribe
-SET12 - Create stored procedure update subscriber
-SET13 - Create stored procedure update
-SET14 - Create stored procedure purge scopes
-SET15 - Create stored procedure purge domains
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE ADD USER
+SET3 - CREATE PROCEDURE ADD SCOPE
+SET4 - CREATE PROCEDURE ADD DOMAIN
+SET5 - CREATE PROCEDURE GET
+SET6 - CREATE PROCEDURE LIST
+SET7 - CREATE PROCEDURE LOAD
+SET8 - CREATE PROCEDURE VALIDATE
+SET9 - CREATE PROCEDURE SHARE
+SET10 - CREATE PROCEDURE DELETE
+SET11 - CREATE PROCEDURE UNSUBSCRIBE
+SET12 - CREATE PROCEDURE UPDATE SUBSCRIBER
+SET13 - CREATE PROCEDURE UPDATE
+SET14 - CREATE PROCEDURE PURGE SCOPES
+SET15 - CREATE PROCEDURE PURGE DOMAINS
 */
 
 -- SET1
@@ -374,6 +374,13 @@ BEGIN TRY
 		[account].[id] = [user].[userId]
 	WHERE
 		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -447,6 +454,13 @@ BEGIN TRY
 		[account].[id] = [user].[userId]
 	WHERE
 		[app].[id] IN (SELECT [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -551,15 +565,15 @@ BEGIN TRY
 	END
 
 	SELECT
+		[user].[role],
+		[app].[expiry],
+		[app].[private],
+		[user].[userId],
+		[scope].[scopeId],
 		[app].[id] AS [_id],
 		[app].[url] AS [appUrl],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName],
-		[app].[expiry],
-		[app].[private],
-		[user].[role],
-		[user].[userId],
-		[scope].[scopeId],
 		[domain].[url] AS [domain]
 	FROM
 		[dbo].[tblApps] AS [app]
@@ -577,6 +591,12 @@ BEGIN TRY
 		[scope].[appId] = [domain].[appId]
 	WHERE
 		[app].[id] = @appId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -666,7 +686,7 @@ BEGIN TRY
 			@userId
 		)
 
-	SELECT @@ROWCOUNT AS [n]
+	SELECT @@ROWCOUNT AS [n], @userId AS [userId]
 	RETURN 1
 END TRY
 
@@ -1083,12 +1103,12 @@ GO
 
 -- SET15
 /*
-SET1 - Create stored procedure verify
-SET2 - Create stored procedure validate
-SET3 - Create stored procedure register
-SET4 - Create stored procedure reset password
-SET5 - Create stored procedure change email
-SET6 - Create stored procedure change password
+SET1 - CREATE PROCEDURE VERIFY
+SET2 - CREATE PROCEDURE VALIDATE
+SET3 - CREATE PROCEDURE REGISTER
+SET4 - CREATE PROCEDURE RESET PASSWORD
+SET5 - CREATE PROCEDURE CHANGE EMAIL
+SET6 - CREATE PROCEDURE CHANGE PASSWORD
 */
 
 -- SET1
@@ -1625,12 +1645,12 @@ GO
 
 -- SET6
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure get
-SET3 - Create stored procedure list
-SET4 - Create stored procedure load
-SET5 - Create stored procedure update
-SET6 - Create stored procedure delete
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE GET
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE LOAD
+SET5 - CREATE PROCEDURE UPDATE
+SET6 - CREATE PROCEDURE DELETE
 */
 
 -- SET1
@@ -1727,6 +1747,13 @@ BEGIN TRY
 		[user].[userId] = @userId
 		AND
 		[feature].[id] = @featureId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -1750,8 +1777,9 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Features_List]
-	@appId VARCHAR,
-	@userId INT
+	@appId VARCHAR(MAX),
+	@userId INT,
+	@featureId VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -1780,7 +1808,16 @@ BEGIN TRY
 		AND
 		[user].[userId] = @userId
 		AND
-		[feature].[appId] IN (1,2)
+		(@appId IS NULL OR [feature].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+		AND
+		(@featureId IS NULL OR [feature].[id] IN (SELECT value FROM STRING_SPLIT(@featureId, ',')))
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -1919,12 +1956,12 @@ GO
 
 -- SET5
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure get
-SET3 - Create stored procedure list
-SET4 - Create stored procedure load
-SET5 - Create stored procedure update
-SET6 - Create stored procedure delete
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE GET
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE LOAD
+SET5 - CREATE PROCEDURE UPDATE
+SET6 - CREATE PROCEDURE DELETE
 */
 
 -- SET1
@@ -2021,6 +2058,13 @@ BEGIN TRY
 		[user].[userId] = @userId
 		AND
 		[scope].[id] = @scopeId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -2044,7 +2088,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Scopes_List]
-	@appId VARCHAR,
+	@appId VARCHAR(MAX),
 	@userId INT
 AS
 
@@ -2052,13 +2096,13 @@ SET NOCOUNT ON
 
 BEGIN TRY
 	SELECT
-		[scope].[id] AS [_id],
-		[app].[icon] AS [appIcon],
-		[app].[name] AS [appName],
 		[user].[role],
 		[scope].[url],
 		[scope].[appId],
-		[scope].[description]
+		[scope].[description],
+		[scope].[id] AS [_id],
+		[app].[icon] AS [appIcon],
+		[app].[name] AS [appName]
 	FROM
 		[dbo].[tblScopes] AS [scope]
 	INNER JOIN
@@ -2073,6 +2117,15 @@ BEGIN TRY
 		[user].[role] >= 1
 		AND
 		[user].[userId] = @userId
+		AND
+		(@appId IS NULL OR [scope].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -2245,18 +2298,18 @@ GO
 
 -- SET6
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure add user
-SET3 - Create stored procedure add scope
-SET4 - Create stored procedure get
-SET5 - Create stored procedure list
-SET6 - Create stored procedure share
-SET7 - Create stored procedure revoke
-SET8 - Create stored procedure unsubscribe
-SET9 - Create stored procedure update subscriber
-SET10 - Create stored procedure retrieve
-SET11 - Create stored procedure download
-SET12 - Create stored procedure revoke self
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE ADD USER
+SET3 - CREATE PROCEDURE ADD SCOPE
+SET4 - CREATE PROCEDURE GET
+SET5 - CREATE PROCEDURE LIST
+SET6 - CREATE PROCEDURE SHARE
+SET7 - CREATE PROCEDURE REVOKE
+SET8 - CREATE PROCEDURE UNSUBSCRIBE
+SET9 - CREATE PROCEDURE UPDATE SUBSCRIBER
+SET10 - CREATE PROCEDURE RETRIEVE
+SET11 - CREATE PROCEDURE DOWNLOAD
+SET12 - CREATE PROCEDURE REVOKE SELF
 */
 
 -- SET1
@@ -2469,6 +2522,12 @@ BEGIN TRY
 		[token].[appId] = [app].[id]
 	WHERE
 		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -2493,7 +2552,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_List]
-	@appId VARCHAR,
+	@appId VARCHAR(MAX),
 	@userId INT
 AS
 
@@ -2531,7 +2590,15 @@ BEGIN TRY
 	ON
 		[token].[appId] = [app].[id]
 	WHERE
+		(@appId IS NULL OR [token].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+		AND
 		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -2621,7 +2688,7 @@ BEGIN TRY
 			@tokenId
 		)
 
-	SELECT @@ROWCOUNT AS [n]
+	SELECT @@ROWCOUNT AS [n], @userId AS [userId]
 	RETURN 1
 END TRY
 
@@ -2996,8 +3063,8 @@ GO
 
 -- SET12
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure list
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE LIST
 */
 
 -- SET1
@@ -3097,6 +3164,13 @@ BEGIN TRY
 		[usage].[scopeId] = [scope].[id]
 	WHERE
 		[usage].[userId] = @userId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -3108,11 +3182,11 @@ GO
 
 -- SET2
 /*
-SET1 - Create stored procedure get
-SET2 - Create stored procedure get by email
-SET3 - Create stored procedure list
-SET4 - Create stored procedure delete
-SET5 - Create stored procedure update
+SET1 - CREATE PROCEDURE GET
+SET2 - CREATE PROCEDURE GET BY EMAIL
+SET3 - CREATE PROCEDURE LIST
+SET4 - CREATE PROCEDURE DELETE
+SET5 - CREATE PROCEDURE UPDATE
 */
 
 -- SET1
@@ -3179,6 +3253,13 @@ BEGIN TRY
 		[dbo].[tblUsers]
 	WHERE
 		[id] = @userId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -3254,6 +3335,13 @@ BEGIN TRY
 		[dbo].[tblUsers]
 	WHERE
 		[email] = @email
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -3330,6 +3418,13 @@ BEGIN TRY
 			[serverDate]
 		FROM
 			[dbo].[tblUsers]
+	
+		IF (@@ROWCOUNT = 0)
+		BEGIN
+			SELECT 'No records found!' AS [message], 69 AS [code]
+			RETURN 0
+		END
+		
 		RETURN 1
 	END
 	

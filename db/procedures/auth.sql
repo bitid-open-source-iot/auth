@@ -1,10 +1,10 @@
 /*
-SET1 - Create stored procedure verify
-SET2 - Create stored procedure validate
-SET3 - Create stored procedure register
-SET4 - Create stored procedure reset password
-SET5 - Create stored procedure change email
-SET6 - Create stored procedure change password
+SET1 - CREATE PROCEDURE VERIFY
+SET2 - CREATE PROCEDURE VALIDATE
+SET3 - CREATE PROCEDURE REGISTER
+SET4 - CREATE PROCEDURE RESET PASSWORD
+SET5 - CREATE PROCEDURE CHANGE EMAIL
+SET6 - CREATE PROCEDURE CHANGE PASSWORD
 */
 
 -- SET1

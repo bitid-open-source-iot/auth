@@ -1,19 +1,19 @@
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure add user
-SET3 - Create stored procedure add scope
-SET4 - Create stored procedure add domain
-SET5 - Create stored procedure get
-SET6 - Create stored procedure list
-SET7 - Create stored procedure load
-SET8 - Create stored procedure validate
-SET9 - Create stored procedure share
-SET10 - Create stored procedure delete
-SET11 - Create stored procedure unsubscribe
-SET12 - Create stored procedure update subscriber
-SET13 - Create stored procedure update
-SET14 - Create stored procedure purge scopes
-SET15 - Create stored procedure purge domains
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE ADD USER
+SET3 - CREATE PROCEDURE ADD SCOPE
+SET4 - CREATE PROCEDURE ADD DOMAIN
+SET5 - CREATE PROCEDURE GET
+SET6 - CREATE PROCEDURE LIST
+SET7 - CREATE PROCEDURE LOAD
+SET8 - CREATE PROCEDURE VALIDATE
+SET9 - CREATE PROCEDURE SHARE
+SET10 - CREATE PROCEDURE DELETE
+SET11 - CREATE PROCEDURE UNSUBSCRIBE
+SET12 - CREATE PROCEDURE UPDATE SUBSCRIBER
+SET13 - CREATE PROCEDURE UPDATE
+SET14 - CREATE PROCEDURE PURGE SCOPES
+SET15 - CREATE PROCEDURE PURGE DOMAINS
 */
 
 -- SET1
@@ -310,6 +310,13 @@ BEGIN TRY
 		[account].[id] = [user].[userId]
 	WHERE
 		[app].[id] IN (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -383,6 +390,13 @@ BEGIN TRY
 		[account].[id] = [user].[userId]
 	WHERE
 		[app].[id] IN (SELECT [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 
@@ -487,15 +501,15 @@ BEGIN TRY
 	END
 
 	SELECT
+		[user].[role],
+		[app].[expiry],
+		[app].[private],
+		[user].[userId],
+		[scope].[scopeId],
 		[app].[id] AS [_id],
 		[app].[url] AS [appUrl],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName],
-		[app].[expiry],
-		[app].[private],
-		[user].[role],
-		[user].[userId],
-		[scope].[scopeId],
 		[domain].[url] AS [domain]
 	FROM
 		[dbo].[tblApps] AS [app]
@@ -513,6 +527,12 @@ BEGIN TRY
 		[scope].[appId] = [domain].[appId]
 	WHERE
 		[app].[id] = @appId
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -602,7 +622,7 @@ BEGIN TRY
 			@userId
 		)
 
-	SELECT @@ROWCOUNT AS [n]
+	SELECT @@ROWCOUNT AS [n], @userId AS [userId]
 	RETURN 1
 END TRY
 

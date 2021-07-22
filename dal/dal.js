@@ -22,7 +22,7 @@ var module = function () {
 				deferred.reject(err);
 			});
 
-			args.req.body.private = Number(args.req.body.private);
+			args.req.body.private = args.req.body.private ? 1 : 0;
 			if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
 			};
@@ -699,7 +699,18 @@ var module = function () {
 							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
 						};
 
-						deferred.resolve(args);
+						if (args.app.private) {
+							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
+								err.error.errors[0].code = 401;
+								err.error.errors[0].reason = 'Application is private!';
+								err.error.errors[0].message = 'Application is private!';
+								deferred.reject(err);
+							} else {
+								deferred.resolve(args);
+							};
+						} else {
+							deferred.resolve(args);
+						};
 					} else {
 						err.error.errors[0].code = 503;
 						err.error.errors[0].reason = result.recordset[0].message;
@@ -1341,7 +1352,18 @@ var module = function () {
 							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
 						};
 
-						deferred.resolve(args);
+						if (args.app.private) {
+							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
+								err.error.errors[0].code = 401;
+								err.error.errors[0].reason = 'Application is private!';
+								err.error.errors[0].message = 'Application is private!';
+								deferred.reject(err);
+							} else {
+								deferred.resolve(args);
+							};
+						} else {
+							deferred.resolve(args);
+						};
 					} else {
 						err.error.errors[0].code = 503;
 						err.error.errors[0].reason = result.recordset[0].message;
@@ -2416,7 +2438,7 @@ var module = function () {
 			};
 
 			const request = new sql.Request(__database);
-			
+
 			request.input('appId', args.req.body.appId);
 			request.input('userId', args.req.body.header.userId);
 
@@ -3205,6 +3227,7 @@ var module = function () {
 
 			request.input('appId', args.req.body.appId);
 			request.input('userId', args.req.body.header.userId);
+			request.input('featureId', args.req.body.featureId);
 
 			request.execute('v1_Features_List')
 				.then(result => {

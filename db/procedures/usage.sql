@@ -1,6 +1,6 @@
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure list
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE LIST
 */
 
 -- SET1
@@ -100,6 +100,13 @@ BEGIN TRY
 		[usage].[scopeId] = [scope].[id]
 	WHERE
 		[usage].[userId] = @userId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
+
 	RETURN 1
 END TRY
 

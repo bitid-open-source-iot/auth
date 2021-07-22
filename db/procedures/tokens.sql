@@ -1,16 +1,16 @@
 /*
-SET1 - Create stored procedure add
-SET2 - Create stored procedure add user
-SET3 - Create stored procedure add scope
-SET4 - Create stored procedure get
-SET5 - Create stored procedure list
-SET6 - Create stored procedure share
-SET7 - Create stored procedure revoke
-SET8 - Create stored procedure unsubscribe
-SET9 - Create stored procedure update subscriber
-SET10 - Create stored procedure retrieve
-SET11 - Create stored procedure download
-SET12 - Create stored procedure revoke self
+SET1 - CREATE PROCEDURE ADD
+SET2 - CREATE PROCEDURE ADD USER
+SET3 - CREATE PROCEDURE ADD SCOPE
+SET4 - CREATE PROCEDURE GET
+SET5 - CREATE PROCEDURE LIST
+SET6 - CREATE PROCEDURE SHARE
+SET7 - CREATE PROCEDURE REVOKE
+SET8 - CREATE PROCEDURE UNSUBSCRIBE
+SET9 - CREATE PROCEDURE UPDATE SUBSCRIBER
+SET10 - CREATE PROCEDURE RETRIEVE
+SET11 - CREATE PROCEDURE DOWNLOAD
+SET12 - CREATE PROCEDURE REVOKE SELF
 */
 
 -- SET1
@@ -223,6 +223,12 @@ BEGIN TRY
 		[token].[appId] = [app].[id]
 	WHERE
 		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId AND [tokenId] = @tokenId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -247,7 +253,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Tokens_List]
-	@appId VARCHAR,
+	@appId VARCHAR(MAX),
 	@userId INT
 AS
 
@@ -285,7 +291,15 @@ BEGIN TRY
 	ON
 		[token].[appId] = [app].[id]
 	WHERE
+		(@appId IS NULL OR [token].[appId] IN (SELECT value FROM STRING_SPLIT(@appId, ',')))
+		AND
 		[token].[id] IN (SELECT [tokenId] FROM [dbo].[tblTokensUsers] WHERE [userId] = @userId)
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 
 	RETURN 1
 END TRY
@@ -375,7 +389,7 @@ BEGIN TRY
 			@tokenId
 		)
 
-	SELECT @@ROWCOUNT AS [n]
+	SELECT @@ROWCOUNT AS [n], @userId AS [userId]
 	RETURN 1
 END TRY
 

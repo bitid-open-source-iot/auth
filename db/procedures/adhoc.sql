@@ -1,5 +1,5 @@
 /*
-SET1 - Create stored procedure check last password change
+SET1 - CREATE PROCEDURE CHECK LAST PASSWORD CHANGE
 */
 
 -- SET1
