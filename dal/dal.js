@@ -690,6 +690,7 @@ var module = function () {
 							app: result[0].app,
 							expiry: result[0].expiry,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							private: result[0].private,
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
 
@@ -1343,6 +1344,7 @@ var module = function () {
 							app: result[0].app,
 							expiry: result[0].expiry,
 							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							private: result[0].private,
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
 
@@ -1577,7 +1579,18 @@ var module = function () {
 
 						args.result.token.expiry = args.req.body.expiry;
 
-						deferred.resolve(args);
+						if (args.app.private) {
+							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
+								err.error.errors[0].code = 401;
+								err.error.errors[0].reason = 'Application is private!';
+								err.error.errors[0].message = 'Application is private!';
+								deferred.reject(err);
+							} else {
+								deferred.resolve(args);
+							};
+						} else {
+							deferred.resolve(args);
+						};
 					} else {
 						err.error.errors[0].code = 503;
 						err.error.errors[0].reason = result.recordset[0].message;
@@ -1587,24 +1600,6 @@ var module = function () {
 
 					return deferred.promise;
 				}, null)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (args.app.private) {
-						if (result.recordset.length == 0) {
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Application is private!';
-							err.error.errors[0].message = 'Application is private!';
-							deferred.reject(err);
-						} else {
-							deferred.resolve(args);
-						};
-					} else {
-						deferred.resolve(args);
-					};
-
-					return deferred.promise;
-				})
 				.then(res => {
 					return new sql.Request(transaction)
 						.input('appId', args.req.body.header.appId)
