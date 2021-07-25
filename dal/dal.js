@@ -2659,6 +2659,16 @@ var module = function () {
 				});
 			};
 
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (Array.isArray(args.req.body.appId)) {
+					if (args.req.body.appId.length > 0) {
+						args.req.body.appId = args.req.body.appId.join(',');
+					} else {
+						args.req.body.appId = null;
+					};
+				};
+			};
+
 			const request = new sql.Request(__database);
 
 			request.input('appId', args.req.body.appId);
