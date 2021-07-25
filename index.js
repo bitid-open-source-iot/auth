@@ -152,13 +152,21 @@ try {
         database: () => {
             var deferred = Q.defer();
 
-            db.connect().then(database => {
-                global.__database = database;
-                deferred.resolve();
-            }, err => {
-                __logger.error('Database Connection Error: ' + err);
-                deferred.reject(err);
-            });
+            db.connect()
+                .then(database => {
+                    global.__database = database;
+                    setInterval(() => {
+                        if (!__database.connected) {
+                            portal.database();
+                        };
+                    }, 5000)
+                    deferred.resolve();
+                })
+                .catch(err => {
+                    __logger.error('Database Connection Error: ' + err);
+                    deferred.reject(err);
+                    setTimeout(() => portal.database(), 5000);
+                });
 
             return deferred.promise;
         },
