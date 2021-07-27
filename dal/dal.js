@@ -166,7 +166,7 @@ var module = function () {
 						args.result = {
 							bitid: {
 								auth: {
-									users: _.uniqBy(result.map(o => ({ role: o.role, email: o.email, userId: o.userId })), 'userId'),
+									users: _.uniqBy(result.map(o => ({ role: o.role, email: o.email, status: o.status, userId: o.userId })), 'userId'),
 									organizationOnly: result[0].organization.only
 								}
 							},
@@ -297,7 +297,7 @@ var module = function () {
 							return {
 								bitid: {
 									auth: {
-										users: _.uniqBy(apps.map(o => ({ role: o.role, email: o.email, userId: o.userId })), 'userId'),
+										users: _.uniqBy(apps.map(o => ({ role: o.role, email: o.email, status: o.status, userId: o.userId })), 'userId'),
 										organizationOnly: apps[0].organization.only
 									}
 								},
@@ -396,17 +396,17 @@ var module = function () {
 			if (typeof (args.req.body.secret) == 'undefined' || args.req.body.secret == null) {
 				args.req.body.secret = null
 			}
-			if (typeof (args.req.body.private) == 'undefined' || args.req.body.private == null) {
-				args.req.body.private = null
-			}
 			if (typeof (args.req.body.google) == 'undefined' || args.req.body.google == null) {
 				args.req.body.google = {}
 				if (typeof (args.req.body.google.database) == 'undefined' || args.req.body.google.database == null) {
-					args.req.body.google.color = null
+					args.req.body.google.database = null
 				}
 				if (typeof (args.req.body.google.credentials) == 'undefined' || args.req.body.google.credentials == null) {
-					args.req.body.google.background = null
+					args.req.body.google.credentials = null
 				}
+			}
+			if (typeof (args.req.body.private) == 'undefined' || args.req.body.private == null) {
+				args.req.body.private = null
 			}
 			if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 				args.req.body.google.credentials = JSON.stringify(args.req.body.google.credentials);
@@ -697,12 +697,12 @@ var module = function () {
 						args.result.token.scopes = args.app.scopes;
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
-							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
 						};
 
 						if (args.app.private) {
 							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
-								err.error.errors[0].code = 401;
+								err.error.errors[0].code = 403;
 								err.error.errors[0].reason = 'Application is private!';
 								err.error.errors[0].message = 'Application is private!';
 								deferred.reject(err);
@@ -836,6 +836,116 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		requestaccess: (args) => {
+			var deferred = Q.defer();
+
+			var err = new ErrorResponse();
+			const transaction = new sql.Transaction(__database);
+
+			transaction.on('commit', result => {
+				deferred.resolve(args);
+			});
+
+			transaction.on('rollback', aborted => {
+				deferred.reject(err);
+			});
+
+			args.result = {};
+
+			transaction.begin()
+				.then(res => new sql.Request(transaction).input('email', args.req.body.header.email).execute('v1_Users_Get_By_Email'), null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.user = unwind(result.recordset[0]);
+						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
+
+						if (password.hash == args.user.hash) {
+							if (args.user.validated == 1) {
+								args.result.userId = args.user._id;
+								deferred.resolve(args);
+							} else {
+								err.error.errors[0].code = 401;
+								err.error.errors[0].reason = 'Account verification is required!';
+								err.error.errors[0].message = 'Account verification is required!';
+								deferred.reject(err);
+							};
+						} else {
+							err.error.errors[0].code = 401;
+							err.error.errors[0].reason = 'Password is incorrect!';
+							err.error.errors[0].message = 'Password is incorrect!';
+							deferred.reject(err);
+						};
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => new sql.Request(transaction).input('appId', args.req.body.appId).execute('v1_Apps_Validate'), null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						result = result.recordset.map(o => unwind(o));
+						args.app = {
+							bitid: {
+								auth: {
+									users: _.uniqBy(result.map(o => ({ role: o.role, userId: o.userId })), 'userId')
+								}
+							},
+							_id: result[0]._id,
+							app: result[0].app,
+							expiry: result[0].expiry,
+							scopes: _.uniqBy(result, 'scopeId').map(o => o.scopeId),
+							private: result[0].private,
+							domains: _.uniqBy(result, 'domain').map(o => o.domain)
+						};
+
+						if (typeof (args.req.body.expiry) == 'undefined') {
+							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
+						};
+
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res =>  new sql.Request(transaction).input('appId', args.req.body.appId).input('userId', args.user._id).execute('v1_Apps_Request_Access'), null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result = result.recordset[0];
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(res => {
+					transaction.commit();
+				})
+				.catch(err => {
+					transaction.rollback();
+				})
+
+			return deferred.promise;
+		},
+
 		updatesubscriber: (args) => {
 			var deferred = Q.defer();
 
@@ -843,6 +953,7 @@ var module = function () {
 
 			request.input('role', args.req.body.role);
 			request.input('appId', args.req.body.appId);
+			request.input('status', args.req.body.status);
 			request.input('userId', args.req.body.userId);
 			request.input('adminId', args.req.body.header.userId);
 
@@ -1271,6 +1382,8 @@ var module = function () {
 
 			if (typeof (args.req.body.expiry) != 'undefined' && args.req.body.expiry != null) {
 				args.req.body.expiry = new Date(args.req.body.expiry);
+			} else {
+				args.req.body.expiry = new Date();
 			};
 
 			var err = new ErrorResponse();
@@ -1351,12 +1464,12 @@ var module = function () {
 						args.result.token.scopes = args.app.scopes;
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
-							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
 						};
 
 						if (args.app.private) {
 							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
-								err.error.errors[0].code = 401;
+								err.error.errors[0].code = 403;
 								err.error.errors[0].reason = 'Application is private!';
 								err.error.errors[0].message = 'Application is private!';
 								deferred.reject(err);
@@ -1574,14 +1687,14 @@ var module = function () {
 						args.result.token.scopes = args.app.scopes;
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
-							args.req.body.expiry = new Date(Date.now() + args.app.expiry);
+							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
 						};
 
 						args.result.token.expiry = args.req.body.expiry;
 
 						if (args.app.private) {
 							if (!args.app.bitid.auth.users.map(o => o.userId).includes(args.user._id)) {
-								err.error.errors[0].code = 401;
+								err.error.errors[0].code = 403;
 								err.error.errors[0].reason = 'Application is private!';
 								err.error.errors[0].message = 'Application is private!';
 								deferred.reject(err);
@@ -2046,6 +2159,14 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
+			if (typeof (args.req.body.email) != 'undefined' && args.req.body.email != null) {
+				if (typeof(args.req.body.email) == 'string') {
+					args.req.body.email = ['%', args.req.body.email, '%'].join('');
+				} else if (Array.isArray(args.req.body.email) && args.req.body.email.length > 0) {
+					args.req.body.email = args.req.body.email.join(',');
+				};
+			};
+
 			var filter = {};
 			if (typeof (args.req.body.filter) != 'undefined') {
 				filter['_id'] = 0;
@@ -2060,6 +2181,7 @@ var module = function () {
 
 			const request = new sql.Request(__database);
 
+			request.input('email', args.req.body.email);
 			request.input('appId', __settings.client.appId);
 			request.input('userId', args.req.body.header.userId);
 

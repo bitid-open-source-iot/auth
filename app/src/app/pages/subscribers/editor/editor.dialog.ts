@@ -1,3 +1,5 @@
+import { User } from 'src/app/classes/user';
+import { UsersService } from 'src/app/services/users/users.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -12,7 +14,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class UserEditorDialog implements OnInit, OnDestroy {
 
-	constructor(private dialog: MatDialogRef<UserEditorDialog>, @Inject(MAT_DIALOG_DATA) private config: any, private formerror: FormErrorService) { }
+	constructor(public users: UsersService, private dialog: MatDialogRef<UserEditorDialog>, @Inject(MAT_DIALOG_DATA) private config: any, private formerror: FormErrorService) { }
 
 	public form: FormGroup = new FormGroup({
 		role: new FormControl(1, [Validators.required]),
@@ -22,6 +24,7 @@ export class UserEditorDialog implements OnInit, OnDestroy {
 		role: '',
 		email: ''
 	};
+	public loading: boolean;
 	private subscribers: any = { };
 
 	public close() {
@@ -46,6 +49,29 @@ export class UserEditorDialog implements OnInit, OnDestroy {
 				this.form.controls.email.disable();
 			}
 		}
+		
+		this.subscribers.email = this.form.controls.email.valueChanges.subscribe(async email => {
+			if (email.length >= 3) {
+				this.loading = true;
+
+				const response = await this.users.list({
+					filter: [
+						'email'
+					],
+					email: email
+				});
+
+				if (response.ok) {
+					this.users.data = response.result.map(o => new User(o));
+				} else {
+					this.users.data = [];
+				}
+				
+				this.loading = false;
+			} else {
+				this.users.data = [];
+			}
+		});
 	}
 
 	ngOnDestroy(): void {

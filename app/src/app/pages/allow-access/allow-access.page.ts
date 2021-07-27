@@ -1,10 +1,10 @@
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
-import { ActivatedRoute } from '@angular/router';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -16,7 +16,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
+	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
 
 	public form: FormGroup = new FormGroup({
 		email: new FormControl('', [Validators.email, Validators.required]),
@@ -76,11 +76,19 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.loading = false;
 
 		if (response.ok) {
-			debugger
-			const url = [this.returl, '?', 'email=', this.form.value.email, '&userId=', response.result.userId, '&tokenId=', response.result.tokenId].join('');
-			window.open(url, '_parent');
+			window.open([this.returl, '?', 'email=', this.form.value.email, '&userId=', response.result.userId, '&tokenId=', response.result.tokenId].join(''), '_parent');
 		} else {
-			this.toast.show(response.error.message);
+			if (response.error.code == 403) {
+				this.toast.show(response.error.message);
+				this.router.navigate(['/request-access'], {
+					queryParams: {
+						appId: this.appId,
+						returl: this.returl
+					}
+				})
+			} else {
+				this.toast.show(response.error.message);
+			}
 		}
 	}
 

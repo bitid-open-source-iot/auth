@@ -1,3 +1,12 @@
+<mat-toolbar>
+    <mat-label>
+        {{ description }}
+        <span>
+            {{ type }}
+        </span>
+    </mat-label>
+</mat-toolbar>
+
 <table mat-table [dataSource]="users" fxShow fxHide.xs="true">
     <ng-container matColumnDef="email">
         <th mat-header-cell *matHeaderCellDef>
@@ -8,12 +17,34 @@
         </td>
     </ng-container>
 
+    <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>
+            Status
+        </th>
+        <td mat-cell *matCellDef="let element">
+            <mat-select [(ngModel)]="element.status" (ngModelChange)="status(element.userId, $event)" [disabled]="role < 4 || element.role >= role || element.role == 5" required>
+                <mat-option value="accepted">
+                    Accepted
+                </mat-option>
+                <mat-option value="rejected">
+                    Rejected
+                </mat-option>
+                <mat-option value="requested">
+                    Requested
+                </mat-option>
+            </mat-select>
+        </td>
+    </ng-container>
+
     <ng-container matColumnDef="role">
         <th mat-header-cell *matHeaderCellDef>
             Role
         </th>
         <td mat-cell *matCellDef="let element">
-            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.userId, $event)" [disabled]="role < 4 || element.role >= role || element.role == 5" required>
+            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.userId, $event)" [disabled]="element.role == 0 || role < 4 || element.role >= role || element.role == 5" required>
+                <mat-option [value]="0" disabled>
+                    None
+                </mat-option>
                 <mat-option [value]="1">
                     Read
                 </mat-option>

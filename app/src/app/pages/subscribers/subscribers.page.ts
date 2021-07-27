@@ -8,6 +8,7 @@ import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { UserEditorDialog } from './editor/editor.dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, OnDestroy } from '@angular/core';
+import { User } from 'src/app/classes/user';
 
 @Component({
 	selector: 'subscribers-page',
@@ -23,9 +24,10 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	public role: number;
 	public type: string;
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['email', 'role', 'options'];
+	public columns: string[] = ['email', 'status', 'role', 'options'];
 	public loading: boolean;
-	private subscriptions: any = { };
+	public description: string;
+	private subscriptions: any = {};
 
 	private async get() {
 		this.loading = true;
@@ -33,7 +35,9 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		const params: any = {
 			filter: [
 				'role',
-				'users'
+				'name',
+				'users',
+				'description'
 			]
 		};
 		let service: any;
@@ -54,6 +58,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		if (response.ok) {
 			this.role = response.result.role;
 			this.users.data = response.result.users;
+			this.description = response.result.name || response.result.description;
 		} else {
 			this.users.data = [];
 		}
@@ -141,6 +146,53 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			}
 			this.users.data = JSON.parse(JSON.stringify(this.users.data));
 			this.toast.show('User was removed!');
+		} else {
+			this.toast.show(response.error.message);
+		}
+
+		this.loading = false;
+	}
+
+	public async status(userId, status) {
+		this.loading = true;
+
+		let role = 0;
+		if (status == 'accepted') {
+			role = 1;
+		}
+
+		const params: any = {
+			role,
+			userId,
+			status
+		};
+		let service: any;
+
+		switch (this.type) {
+			case ('app'):
+				service = this.apps;
+				params.appId = this.id;
+				break;
+			case ('token'):
+				service = this.tokens;
+				params.tokenId = this.id;
+				break;
+		}
+
+		const response = await service.updatesubscriber(params);
+
+		if (response.ok) {
+			if (status == 'accepted') {
+				for (let i = 0; i < this.users.data.length; i++) {
+				};
+				this.users.data.map(o => {
+					if (o.userId == userId) {
+						o.role = 1;
+					};
+				})
+				this.users.data = this.users.data.map(o => new User(o))
+			};
+			this.toast.show('User was updated!');
 		} else {
 			this.toast.show(response.error.message);
 		}

@@ -182,6 +182,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Users_List]
+	@email VARCHAR(MAX),
 	@appId INT,
 	@userId INT
 AS
@@ -235,6 +236,8 @@ BEGIN TRY
 			[serverDate]
 		FROM
 			[dbo].[tblUsers]
+		WHERE
+			(@email IS NULL OR [email] LIKE @email)
 	
 		IF (@@ROWCOUNT = 0)
 		BEGIN

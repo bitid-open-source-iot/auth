@@ -157,7 +157,7 @@ try {
                     global.__database = database;
                     setInterval(() => {
                         if (!__database.connected) {
-                            portal.database();
+                            portal.database().then(portal.triggers, null);
                         };
                     }, 5000)
                     deferred.resolve();

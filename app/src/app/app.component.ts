@@ -66,14 +66,14 @@ export class AppComponent implements OnInit, AfterViewInit {
 	}
 
 	ngAfterViewInit() {
-		if (window.location.pathname == '/signin' || window.location.pathname == '/signup' || window.location.pathname == '/reset-password' || window.location.pathname == '/forgot-password' || window.location.pathname == '/allow-access' || window.location.pathname == '/verify-account') {
+		if (window.location.pathname == '/signin' || window.location.pathname == '/signup' || window.location.pathname == '/reset-password' || window.location.pathname == '/forgot-password' || window.location.pathname == '/allow-access' || window.location.pathname == '/verify-account' || window.location.pathname == '/request-access') {
 			this.drawer.close();
 			this.authenticated = false;
 		};
 		
 		this.router.events.subscribe(event => {
 			if (event instanceof NavigationEnd) {
-				if (window.location.pathname == '/signin' || window.location.pathname == '/signup' || window.location.pathname == '/reset-password' || window.location.pathname == '/forgot-password' || window.location.pathname == '/allow-access' || window.location.pathname == '/verify-account') {
+				if (window.location.pathname == '/signin' || window.location.pathname == '/signup' || window.location.pathname == '/reset-password' || window.location.pathname == '/forgot-password' || window.location.pathname == '/allow-access' || window.location.pathname == '/verify-account' || window.location.pathname == '/request-access') {
 					this.drawer.close();
 					this.authenticated = false;
 				} else {

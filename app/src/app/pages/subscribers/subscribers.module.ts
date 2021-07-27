@@ -19,6 +19,8 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
@@ -46,6 +48,8 @@ const routes: Routes = [
 		FlexLayoutModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,
+		MatAutocompleteModule,
+		MatProgressSpinnerModule,
 		RouterModule.forChild(routes)
 	],
 	declarations: [

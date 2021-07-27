@@ -375,6 +375,27 @@ describe('Apps', function () {
             });
     });
 
+    it('/apps/request-access', function (done) {
+        this.timeout(5000);
+
+        tools.api.apps.requestaccess()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.not.equal(0);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
     it('/apps/update-subscriber', function (done) {
         this.timeout(5000);
 
@@ -1180,6 +1201,13 @@ var tools = {
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
+            },
+            requestaccess: () => {
+                return tools.put('/apps/request-access', {
+                    'appId': config.appId,
+                    'email': config.email,
+                    'password': config.password
+                });
             },
             updatesubscriber: () => {
                 var deferred = Q.defer();

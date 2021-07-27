@@ -14,7 +14,15 @@
             Email
         </mat-label>
         
-        <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+        <input matInput type="email" name="email" placeholder="email" autocomplete="false" formControlName="email" [matAutocomplete]="auto" required>
+
+        <mat-progress-spinner mode="indeterminate" color="primary" diameter="24" *ngIf="loading" matSuffix></mat-progress-spinner>
+        
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+            <mat-option *ngFor="let user of users.data" [value]="user.email">
+                {{ user.email }}
+            </mat-option>
+        </mat-autocomplete>
 
         <mat-error *ngIf="errors.email">
             {{ errors.email }}

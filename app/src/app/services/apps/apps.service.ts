@@ -48,6 +48,10 @@ export class AppsService {
 		return await this.api.post(environment.auth, '/apps/unsubscribe', params);
 	}
 
+	public async requestaccess(params) {
+		return await this.api.put(environment.auth, '/apps/request-access', params);
+	}
+
 	public async updatesubscriber(params) {
 		return await this.api.post(environment.auth, '/apps/update-subscriber', params);
 	}

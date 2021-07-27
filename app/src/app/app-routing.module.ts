@@ -56,6 +56,10 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
 	},
 	{
+		path: 'request-access',
+		loadChildren: () => import('./pages/request-access/request-access.module').then(m => m.RequestAccessModule)
+	},
+	{
 		path: 'forgot-password',
 		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordModule)
 	},

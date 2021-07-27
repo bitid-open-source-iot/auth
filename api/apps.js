@@ -50,6 +50,11 @@ router.post('/unsubscribe', (req, res) => {
 	myModule.apps.unsubscribe(req, res);
 });
 
+router.put('/request-access', (req, res) => {
+	var myModule = new bll.module();
+	myModule.apps.requestaccess(req, res);
+});
+
 router.post('/update-subscriber', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.updatesubscriber(req, res);

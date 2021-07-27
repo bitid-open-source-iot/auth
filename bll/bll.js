@@ -142,6 +142,22 @@ var module = function () {
 				});
 		},
 
+		requestaccess: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.apps.requestaccess(args)
+				.then(emails.requestaccess, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
 		updatesubscriber: (req, res) => {
 			var args = {
 				'req': req,

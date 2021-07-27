@@ -24,9 +24,10 @@ CREATE TABLE [dbo].[tblAppsUsers]
 	[serverDate] DATETIME NOT NULL DEFAULT GETDATE(),
 	[role] INT NOT NULL,
 	[appId] INT NOT NULL,
+	[status] VARCHAR(255) NOT NULL DEFAULT ('accepted'),
 	PRIMARY KEY ([id])
 )
-CREATE UNIQUE INDEX tblAppsUsersAppIdUserId ON [dbo].[tblAppsUsers] (appId, userId)
+CREATE UNIQUE INDEX tblAppsUsersAppIdUserId ON [dbo].[tblAppsUsers] ([appId], [userId])
 
 -- SET1
 
@@ -43,10 +44,11 @@ BEGIN
 		[userId] INT NOT NULL,
 		[idOriginal] INT NOT NULL,
 		[userAction] INT NOT NULL,
-		[dateAction] DATETIME NOT NULL CONSTRAINT DF_tblAppsUsers_AuditExact_dateAction DEFAULT GETDATE(),
+		[dateAction] DATETIME NOT NULL DEFAULT GETDATE(),
 		[role] INT NOT NULL,
 		[appId] INT NOT NULL,
-		CONSTRAINT PK_tblAppsUsers_AuditExact PRIMARY KEY CLUSTERED (ID)
+		[status] VARCHAR(255) NOT NULL DEFAULT ('accepted'),
+		PRIMARY KEY CLUSTERED ([id])
 	)
 END
 GO
@@ -61,17 +63,17 @@ END
 GO
 
 CREATE TRIGGER [dbo].[tr_tblAppsUsers_AuditExact]
-ON [dbo].[tblAppsUsers]
-AFTER INSERT, UPDATE, DELETE
+ON
+	[dbo].[tblAppsUsers]
+AFTER
+	INSERT, UPDATE, DELETE
 AS
 BEGIN
 
 	SET NOCOUNT ON
 
 	--Insert
-	IF ((SELECT COUNT([id])
-		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
-		FROM Deleted) = 0)
+	IF ((SELECT COUNT([id]) FROM Inserted)) != 0 AND ((SELECT COUNT([id]) FROM Deleted) = 0)
 	BEGIN
 		INSERT INTO tblAppsUsers_AuditExact
 			(
@@ -79,22 +81,21 @@ BEGIN
 				[userId],
 				[userAction],
 				[role],
-				[appId]
+				[appId],
+				[status]
 			)
 		SELECT
 			[id],
 			[userId],
 			1,
 			[role],
-			[appId]
+			[appId],
+			[status]
 		FROM Inserted
 	END
 
-
 	--Update
-	IF ((SELECT COUNT([id])
-		FROM Inserted)) != 0 AND ((SELECT COUNT([id])
-		FROM Deleted) != 0)
+	IF ((SELECT COUNT([id]) FROM Inserted)) != 0 AND ((SELECT COUNT([id]) FROM Deleted) != 0)
 	BEGIN
 		INSERT INTO tblAppsUsers_AuditExact
 			(
@@ -102,21 +103,21 @@ BEGIN
 				[userId],
 				[userAction],
 				[role],
-			[appId]
+				[appId],
+				[status]
 			)
 		SELECT
 			[id],
 			[userId],
 			2,
 			[role],
-			[appId]
+			[appId],
+			[status]
 		FROM Inserted
 	END
 
 	--Delete
-	IF ((SELECT COUNT([id])
-		FROM Inserted)) = 0 AND ((SELECT COUNT([id])
-		FROM Deleted) != 0)
+	IF ((SELECT COUNT([id]) FROM Inserted)) = 0 AND ((SELECT COUNT([id]) FROM Deleted) != 0)
 	BEGIN
 		Insert into tblAppsUsers_AuditExact
 			(
@@ -124,14 +125,16 @@ BEGIN
 				[userId],
 				[userAction],
 				[role],
-				[appId]
+				[appId],
+				[status]
 			)
 		SELECT
 			[id],
 			[userId],
 			3,
 			[role],
-			[appId]
+			[appId],
+			[status]
 		FROM Deleted
 	END
 

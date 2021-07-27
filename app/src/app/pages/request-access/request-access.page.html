@@ -1,0 +1,47 @@
+<mat-content>
+    <img [src]="app.icon" alt="icon" width="100" height="100" *ngIf="app.icon">
+
+    <h1 *ngIf="app.name">
+        {{ requested ? 'Access Requested To' : 'Requesting Access To' }} {{ app.name }}
+    </h1>
+
+    <p *ngIf="requested">
+        We will let you know when you have been given access!
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && submit()" *ngIf="!requested">
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Email
+            </mat-label>
+            
+            <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+
+            <mat-error *ngIf="errors.email">
+                {{ errors.email }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Password
+            </mat-label>
+            
+            <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+
+            <mat-error *ngIf="errors.password">
+                {{ errors.password }}
+            </mat-error>
+        </mat-form-field>
+        
+        <a class="forgot-password" routerLink="/forgot-password" queryParamsHandling="preserve">
+            Forgot Password?
+        </a>
+
+        <button type="submit" mat-flat-button color="primary">
+            {{ loading ? '' : 'request access' }}
+
+            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+        </button>
+    </form>
+</mat-content>

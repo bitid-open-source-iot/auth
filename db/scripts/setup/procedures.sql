@@ -77,6 +77,7 @@ SET12 - CREATE PROCEDURE UPDATE SUBSCRIBER
 SET13 - CREATE PROCEDURE UPDATE
 SET14 - CREATE PROCEDURE PURGE SCOPES
 SET15 - CREATE PROCEDURE PURGE DOMAINS
+SET16 - CREATE PROCEDURE REQUEST ACCESS
 */
 
 -- SET1
@@ -95,7 +96,7 @@ CREATE PROCEDURE [dbo].[v1_Apps_Add]
 	@icon VARCHAR(255),
 	@name VARCHAR(255),
 	@secret VARCHAR(255),
-	@expiry INT,
+	@expiry BIGINT,
 	@userId INT,
 	@private INT = 0,
 	@themeColor VARCHAR(255),
@@ -342,6 +343,7 @@ BEGIN TRY
 		[user].[role],
 		[app].[expiry],
 		[app].[secret],
+		[user].[status],
 		[app].[private],
 		[user].[userId],
 		[scope].[scopeId],
@@ -422,6 +424,7 @@ BEGIN TRY
 		[user].[role],
 		[app].[expiry],
 		[app].[secret],
+		[user].[status],
 		[app].[private],
 		[user].[userId],
 		[scope].[scopeId],
@@ -892,12 +895,15 @@ CREATE PROCEDURE [dbo].[v1_Apps_Update_Subscriber]
 	@role INT,
 	@appId INT,
 	@userId INT,
+	@status VARCHAR(255),
 	@adminId INT
 AS
 
 SET NOCOUNT ON
 
 BEGIN TRY
+	DECLARE @updated INT = 0
+
 	IF NOT EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [role] >= 4 AND [appId] = @appId AND [userId] = @adminId)
 	BEGIN
 		SELECT 'You are not an admin user on this application!' AS [message], 503 AS [code]
@@ -916,16 +922,13 @@ BEGIN TRY
 		RETURN 0
 	END
 
-	UPDATE
-		[dbo].[tblAppsUsers]
-	SET
-		[role] = @role
-	WHERE
-		[appId] = @appId
-		AND
-		[userId] = @userId
-	
-	SELECT @@ROWCOUNT AS [n]
+	UPDATE [dbo].[tblAppsUsers] SET [role] = @role WHERE [appId] = @appId AND [userId] = @userId AND @role IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	UPDATE [dbo].[tblAppsUsers] SET [status] = @status WHERE [appId] = @appId AND [userId] = @userId AND @status IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
+	SELECT @updated AS [n]
 	RETURN 1
 END TRY
 
@@ -955,7 +958,7 @@ CREATE PROCEDURE [dbo].[v1_Apps_Update]
 	@appId INT,
 	@secret VARCHAR(255),
 	@userId INT,
-	@expiry INT,
+	@expiry BIGINT,
 	@private INT,
 	@themeColor VARCHAR(255),
 	@googleDatabase VARCHAR(255),
@@ -1101,6 +1104,70 @@ END CATCH
 GO
 
 -- SET15
+
+-- SET16
+
+PRINT 'Executing dbo.v1_Apps_Request_Access.PRC'
+GO
+
+IF EXISTS (SELECT * FROM sys.objects WHERE name = 'v1_Apps_Request_Access' AND type = 'P')
+BEGIN
+	DROP PROCEDURE [dbo].[v1_Apps_Request_Access]
+END
+GO
+
+CREATE PROCEDURE [dbo].[v1_Apps_Request_Access]
+	@appId INT,
+	@userId INT
+AS
+
+SET NOCOUNT ON
+
+BEGIN TRY
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [appId] = @appId AND [userId] = @userId AND [status] = 'accepted')
+	BEGIN
+		SELECT 'You already have access to this app!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [appId] = @appId AND [userId] = @userId AND [status] = 'rejected')
+	BEGIN
+		SELECT 'Your request for access has been rejected!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	IF EXISTS (SELECT TOP 1 [id] FROM [dbo].[tblAppsUsers] WHERE [appId] = @appId AND [userId] = @userId AND [status] = 'requested')
+	BEGIN
+		SELECT 'You have already requested access to app!' AS [message], 70 AS [code]
+		RETURN 0
+	END
+
+	INSERT INTO [dbo].[tblAppsUsers]
+		(
+			[role],
+			[appId],
+			[userId],
+			[status]
+		)
+	VALUES
+		(
+			0,
+			@appId,
+			@userId,
+			'requested'
+		)
+
+	SELECT @@ROWCOUNT AS [n]
+	RETURN 1
+END TRY
+
+BEGIN CATCH
+	SELECT Error_Message() AS [message], 503 AS [code]
+	RETURN 0
+END CATCH
+GO
+
+-- SET16
 /*
 SET1 - CREATE PROCEDURE VERIFY
 SET2 - CREATE PROCEDURE VALIDATE
@@ -3364,6 +3431,7 @@ END
 GO
 
 CREATE PROCEDURE [dbo].[v1_Users_List]
+	@email VARCHAR(MAX),
 	@appId INT,
 	@userId INT
 AS
@@ -3417,6 +3485,8 @@ BEGIN TRY
 			[serverDate]
 		FROM
 			[dbo].[tblUsers]
+		WHERE
+			(@email IS NULL OR [email] LIKE @email)
 	
 		IF (@@ROWCOUNT = 0)
 		BEGIN

@@ -112,3 +112,49 @@ exports.resetpassword = (args) => {
 
     return deferred.promise;
 };
+
+exports.requestaccess = (args) => {
+    var deferred = Q.defer();
+
+    var to = args.app.bitid.auth.users.filter(user => user.role >= 4).map(o => o.email);
+
+    if (to.length == 0) {
+        deferred.resolve(args);
+        __logger.error('Could not find admins to send email to for request access! Will proceed anyway!');
+        return false;
+    }
+
+    const transporter = nodemailer.createTransport(__settings.smtp);
+
+    transporter.use('compile', hbs({
+        'viewEngine': {
+            'extName': '.hbs',
+            'layoutsDir': __dirname + '/templates',
+            'partialsDir': __dirname + '/templates',
+            'defaultLayout': 'request-access.hbs'
+        },
+        'extName': '.hbs',
+        'viewPath': __dirname + '/templates'
+    }));
+
+    transporter.sendMail({
+        'context': {
+            'app': args.app.app.name,
+            'link': [__settings.client.auth, '/subscribers?id=', __settings.client.appId, '&type=app'].join(''),
+            'name': [args.user.name.first, args.user.name.last].join(' ')
+        },
+        'to': __settings.production ? to : __settings.smtp.auth.user,
+        'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
+        'subject': 'Access Requested for ' + args.app.app.name,
+        'template': 'request-access'
+    }, (error, info) => {
+        if (error) {
+            __logger.error(error);
+        } else {
+            __logger.info(info);
+        };
+        deferred.resolve(args);
+    });
+
+    return deferred.promise;
+};

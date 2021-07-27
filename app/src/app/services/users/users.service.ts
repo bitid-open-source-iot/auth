@@ -1,3 +1,4 @@
+import { User } from 'src/app/classes/user';
 import { Injectable } from '@angular/core';
 import { ApiService } from '../api/api.service';
 import { environment } from 'src/environments/environment';
@@ -8,6 +9,8 @@ import { environment } from 'src/environments/environment';
 
 export class UsersService {
 
+	public data: User[] = [];
+	
 	constructor(private api: ApiService) { }
 
 	public async list(params) {

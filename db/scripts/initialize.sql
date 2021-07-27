@@ -81,7 +81,8 @@ VALUES
     ('/users/delete', 1, 1, 'Delete a user account'),
     ('/users/get', 1, 1, 'Get a user account'),
     ('/users/list', 1, 1, 'Get a list of user account'),
-    ('/users/update', 1, 1, 'Update a user account')
+    ('/users/update', 1, 1, 'Update a user account'),
+    ('/apps/request-access', 1,	1,'Request access to an application')
 
 INSERT INTO [dbo].[tblApps]
     (
@@ -178,7 +179,8 @@ VALUES
     (1, 1, 42),
     (1, 1, 43),
     (1, 1, 44),
-    (1, 1, 45)
+    (1, 1, 45),
+    (1, 1, 46)
 
 INSERT INTO [dbo].[tblAppsDomains]
     (
