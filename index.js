@@ -177,9 +177,9 @@ try {
             try {
                 var myModule = new bll.module();
     
-                myModule.auth.changePasswordOnPeriod();
+                // myModule.auth.changePasswordOnPeriod();
 
-                setInterval(() => myModule.auth.changePasswordOnPeriod(), (60 * 60 * 1000));
+                // setInterval(() => myModule.auth.changePasswordOnPeriod(), (60 * 60 * 1000));
 
                 deferred.resolve();
             } catch(err) {
