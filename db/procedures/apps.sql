@@ -267,7 +267,7 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[userId] = @userId)
+	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [app].[id] = @appId AND [user].[role] > 0 AND [user].[userId] = @userId)
 	BEGIN
 		SELECT 'App not found!' AS [message], 69 AS [code]
 		RETURN 0
@@ -348,7 +348,7 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[userId] = @userId)
+	IF NOT EXISTS (SELECT TOP 1 [app].[id] FROM [dbo].[tblApps] AS [app] INNER JOIN [dbo].[tblAppsUsers] AS [user] ON [app].[id] = [user].[appId] WHERE [user].[role] > 0 AND [user].[userId] = @userId)
 	BEGIN
 		SELECT 'App not found!' AS [message], 69 AS [code]
 		RETURN 0
