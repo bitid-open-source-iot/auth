@@ -20,13 +20,8 @@ AS
 SET NOCOUNT ON
 
 BEGIN TRY
-	DECLARE @date DATETIME = DATEADD(d, -@duration, GETDATE())
-	
 	SELECT
-		MAX([user].[id]) AS [userId],
-		MAX([user].[email]) AS [email],
-		MAX([user].[nameLast]) AS [nameLast],
-		MAX([user].[nameFirst]) AS [nameFirst],
+		[usage].[userId] AS [userId],
 		MAX([usage].[serverDate]) AS [serverDate]
 	FROM 
 		[dbo].[tblUsage] AS [usage]
@@ -39,16 +34,19 @@ BEGIN TRY
 	ON
 		[usage].[userId] = [user].[id]
 	WHERE
-		[usage].[serverDate] < @date
-		AND
 		[user].[validated] = 1
 		AND
+		DATEADD(DAY, @duration, [usage].[serverDate]) < GETDATE()
+		AND
 		[scope].[url] IN ('/auth/register', '/auth/reset-password', '/auth/change-password')
-	GROUP BY
+	GROUP BY 
 		[usage].[userId]
-	ORDER BY
-		[serverDate]
-	DESC
+
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		SELECT 'No records found!' AS [message], 69 AS [code]
+		RETURN 0
+	END
 	
 	RETURN 1
 END TRY

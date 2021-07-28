@@ -920,7 +920,7 @@ var module = function () {
 
 					return deferred.promise;
 				}, null)
-				.then(res =>  new sql.Request(transaction).input('appId', args.req.body.appId).input('userId', args.user._id).execute('v1_Apps_Request_Access'), null)
+				.then(res => new sql.Request(transaction).input('appId', args.req.body.appId).input('userId', args.user._id).execute('v1_Apps_Request_Access'), null)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2072,11 +2072,20 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.users = result.recordset.map(o => unwind(o));
-						args.users.map(user => {
+						args.users = args.users.map(user => {
 							var password = tools.password();
 							user.salt = password.salt;
 							user.hash = password.hash;
 							user.password = password.value;
+							return {
+								result: {
+									app: args.app,
+									name: user.name,
+									email: user.email,
+									userId: user.userId,
+									password: user.password
+								}
+							}
 						});
 						deferred.resolve(args);
 					} else {
@@ -2160,7 +2169,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.body.email) != 'undefined' && args.req.body.email != null) {
-				if (typeof(args.req.body.email) == 'string') {
+				if (typeof (args.req.body.email) == 'string') {
 					args.req.body.email = ['%', args.req.body.email, '%'].join('');
 				} else if (Array.isArray(args.req.body.email) && args.req.body.email.length > 0) {
 					args.req.body.email = args.req.body.email.join(',');
