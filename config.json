@@ -76,7 +76,7 @@
     "kubernetes": {
         "client": {
             "auth": "http://auth-service:9000",
-            "drive": "https://drive.bitid.co.za"
+            "drive": "http://drive-service:13000"
         }
     },
     "production": {
