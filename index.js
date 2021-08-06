@@ -4,15 +4,22 @@ const dal = require('./dal/dal');
 const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
-const config = require('./config.json');
 const express = require('express');
 const responder = require('./lib/responder');
 const ErrorResponse = require('./lib/error-response');
 
-require('dotenv').config()
+const path = require('path')
+require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
-global.__base = __dirname + '/';
-global.__settings = config;
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+
+let config = require('./config.json');
+let configDefault = config.default
+let configEnvironment = config[process.env.NODE_ENV]
+global.__settings = {...configDefault, ...configEnvironment}
+
+
 global.__responder = new responder.module();
 
 
@@ -23,7 +30,7 @@ try{
 
     /**TODO SMTP */
 
-    console.log('config', __settings)
+    console.log(JSON.stringify(__settings))
 
 }catch(e){
     console.error('ERROR APPLYING ENV VARIABLES', e)
@@ -47,7 +54,7 @@ try {
                 }));
 
                 app.use((req, res, next) => {
-                    if (config.authentication) {
+                    if (__settings.authentication) {
                         if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
                             var args = {
                                 'req': req,
@@ -115,7 +122,7 @@ try {
                 });
 
                 var server = http.createServer(app);
-                server.listen(config.port);
+                server.listen(__settings.port);
 
                 deferred.resolve();
             } catch (err) {
@@ -126,20 +133,20 @@ try {
         },
 
         init: () => {
-            if (!config.production || !config.authentication) {
+            if (!__settings.production || !__settings.authentication) {
                 var index = 0;
                 console.log('');
                 console.log('=======================');
                 console.log('');
                 console.log(chalk.yellow('Warning: '));
-                if (!config.production) {
+                if (!__settings.production) {
                     index++;
                     console.log('');
                     console.log(chalk.yellow(index + ': You are running in ') + chalk.red('"Development Mode!"') + chalk.yellow(' This can cause issues if this environment is a production environment!'));
                     console.log('');
                     console.log(chalk.yellow('To enable production mode, set the ') + chalk.bold(chalk.green('production')) + chalk.yellow(' variable in the config to ') + chalk.bold(chalk.green('true')) + chalk.yellow('!'));
                 };
-                if (!config.authentication) {
+                if (!__settings.authentication) {
                     index++;
                     console.log('');
                     console.log(chalk.yellow(index + ': Authentication is not enabled ') + chalk.yellow(' This can cause issues if this environment is a production environment!'));
@@ -154,8 +161,8 @@ try {
             portal.api()
                 .then(portal.database, null)
                 .then(args => {
-                    console.log('Webserver Running on port: ', config.port);
-                    console.log('Webserver Running on port: ' + config.port);
+                    console.log('Webserver Running on port: ', __settings.port);
+                    console.log('Webserver Running on port: ' + __settings.port);
                 }, err => {
                     console.log('Error Initializing: ', err);
                 });
