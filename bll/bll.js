@@ -573,6 +573,29 @@ var module = function () {
 		}
 	};
 
+	var bllConfig = {
+		get: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.apps.load(args)
+				.then(args => {
+					var result = JSON.parse(JSON.stringify(__settings.client));
+					result.icon = args.result.icon;
+					result.appId = args.result._id;
+					result.theme = args.result.theme;
+					result.appName = args.result.name;
+					result.favicon = args.result.favicon;
+					__responder.success(req, res, result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		}
+	};
+
 	var bllTokens = {
 		get: (req, res) => {
 			var args = {
@@ -614,6 +637,21 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tokens.share(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		update: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tokens.update(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -815,6 +853,7 @@ var module = function () {
 		'apps': bllApps,
 		'auth': bllAuth,
 		'users': bllUsers,
+		'config': bllConfig,
 		'scopes': bllScopes,
 		'tokens': bllTokens,
 		'features': bllFeatures,

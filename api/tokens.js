@@ -16,6 +16,11 @@ router.post('/share', (req, res) => {
 	myModule.tokens.share(req, res);
 });
 
+router.post('/update', (req, res) => {
+	var myModule = new bll.module();
+	myModule.tokens.update(req, res);
+});
+
 router.post('/revoke', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tokens.revoke(req, res);

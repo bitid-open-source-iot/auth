@@ -454,15 +454,14 @@
     </head>
 
     <body>
-        <span class="preheader">Thanks for trying out biTid. We’ve pulled together some information and resources to help you get started.</span>
         <table class="email-wrapper" width="100%" cellpadding="0" cellspacing="0" role="presentation">
             <tr>
                 <td align="center">
                     <table class="email-content" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                         <tr>
                             <td class="email-masthead">
-                                <a href="https://auth.bitid.co.za" class="f-fallback email-masthead_name">
-                                    biTid
+                                <a href="{{ branding.auth }}" class="f-fallback email-masthead_name">
+                                    {{ branding.company }}
                                 </a>
                             </td>
                         </tr>
@@ -478,7 +477,7 @@
                                                     Welcome, {{name}}!
                                                 </h1>
                                                 <p>
-                                                    Thanks for trying biTid. We’re thrilled to have you on board. To get the most out of biTid, do this primary next step:
+                                                    Thanks for trying {{ branding.company }}. We’re thrilled to have you on board. To get the most out of {{ branding.company }}, do this primary next step:
                                                 </p>
                                                 <table class="body-action" align="center" width="100%" cellpadding="0" cellspacing="0" role="presentation">
                                                     <tr>
@@ -502,12 +501,12 @@
                                                     </tr>
                                                 </table>
                                                 <p>
-                                                    If you have any questions, feel free to <a href="mailto:support@bitid.co.za">email our customer support team</a>. (We're lightning quick at replying.)
+                                                    If you have any questions, feel free to <a href="mailto:{{ branding.support }}">email our customer support team</a>. (We're lightning quick at replying.)
                                                 </p>
                                                 <p>
                                                     Thanks,
                                                     <br>
-                                                    The biTid Team
+                                                    The {{ branding.company }} Team
                                                 </p>
                                                 <table class="body-sub" role="presentation">
                                                     <tr>
@@ -529,25 +528,25 @@
 									<tr>
 										<td class="content-cell" align="center">
 											<p class="f-fallback sub align-center">
-												&copy; 2016 - 2021 biTid. All rights reserved.
+												{{ branding.registration }}
 											</p>
 
-											<img src="https://www.bitid.co.za/assets/icons/icon-72x72.png" alt="biTid Logo" class="bitid-logo">
+											<img src="{{ branding.logo }}" alt="logo">
 											
 											<p class="f-fallback sub align-center">
-												biTid
+												{{ branding.company }}
 												<br>
-												201 BEACON ROCK,
+												{{ branding.address.street }}
 												<br>
-												121 LIGHTHOUSE ROAD,
+												{{ branding.address.suburb }}
 												<br>
-												UMHLANGA,
+												{{ branding.address.cityTown }}
 												<br>
-												4319
+												{{ branding.address.postalCode }}
 												<br>
-												VAT: 4840284436
+												VAT: {{ branding.address.vat }}
 												<br>
-												REG: 2016/525522/07
+												REG: {{ branding.address.reg }}
 											</p>
 										</td>
 									</tr>

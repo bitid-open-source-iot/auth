@@ -53,10 +53,27 @@
         </td>
     </ng-container>
 
+    <ng-container matColumnDef="disabled">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+            <button mat-icon-button (click)="disable(element)" [disabled]="tokenId == element.tokenId || element.role < 2" [matTooltip]="element.disabled ? 'Disabled' : 'Enabled'">
+                <mat-icon>
+                    {{ element.disabled ? 'do_disturb_on' : 'check_circle' }}
+                </mat-icon>
+            </button>
+        </td>
+    </ng-container>
+
     <ng-container matColumnDef="options">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="options(element)">
+            <button mat-icon-button (click)="locked()" *ngIf="tokenId == element.tokenId">
+                <mat-icon>
+                    lock
+                </mat-icon>
+            </button>
+
+            <button mat-icon-button (click)="options(element)" *ngIf="tokenId != element.tokenId">
                 <mat-icon>
                     more_vert
                 </mat-icon>

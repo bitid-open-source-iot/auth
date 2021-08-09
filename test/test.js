@@ -8,20 +8,19 @@ const config = require('./config.json');
 const subset = require('chai-subset');
 chai.use(subset);
 
+var code = null;
 var email = config.email;
 var token = null;
 var appId = null;
 var scopeId = null;
 var tokenId = null;
 var featureId = null;
-var loginToken = null;
-var verifyCode = null;
 var tokenIdToRevoke = null;
 var generatedTokenId = null;
 
 describe('Config', function () {
     it('/config/get', function (done) {
-        this.timeout(500);
+        this.timeout(5000);
 
         tools.api.config.get()
             .then((result) => {
@@ -51,7 +50,7 @@ describe('Auth', function () {
         tools.api.auth.register()
             .then((result) => {
                 try {
-                    verifyCode = result.code;
+                    code = result.code;
                     result.should.have.property('code');
                     result.should.have.property('userId');
                     done();
@@ -1223,7 +1222,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.put('/auth/verify', {
-                    'code': verifyCode
+                    'code': code
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1291,7 +1290,7 @@ var tools = {
 
                 tools.put('/auth/validate', {
                     'scope': '/users/get'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1301,7 +1300,7 @@ var tools = {
                 config.email = current;
                 tools.post('/auth/changeemail', {
                     'email': replacement
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1357,12 +1356,12 @@ var tools = {
                         '/features/update',
                         '/features/delete',
                     ],
-                    'appId': '000000000000000000000001',
+                    'appId': config.appId,
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                     'password': config.password,
                     'tokenAddOn': {},
                     'description': 'test'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1375,7 +1374,7 @@ var tools = {
                     'password': config.password
                 })
                     .then(res => {
-                        loginToken = res[0].token;
+                        token = res[0].token;
                         deferred.resolve(res);
                     }, deferred.resolve);
 
@@ -1395,7 +1394,7 @@ var tools = {
                 tools.put('/auth/changepassword', {
                     'old': config.password,
                     'new': 'QWERTY'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1642,7 +1641,7 @@ var tools = {
                 var expiry = new Date(Date.now() + 600000000);
 
                 tools.post('/tokens/generate', {
-                    'appId': '000000000000000000000001',
+                    'appId': config.appId,
                     'expiry': expiry,
                     'description': 'My New Generated Token'
                 })

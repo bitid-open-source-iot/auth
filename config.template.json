@@ -87,5 +87,20 @@
     "mongodb": {
         "url": "xxx",
         "database": "xxx"
+    },
+    "branding": {
+        "address": {
+            "vat": "xxx",
+            "reg": "xxx",
+            "street": "xxx",
+            "suburb": "xxx",
+            "cityTown": "xxx",
+            "postalCode": "xxx"
+        },
+        "auth": "xxx",
+        "logo": "xxx",
+        "company": "xxx",
+        "support": "xxx",
+        "registration": "xxx"
     }
 }

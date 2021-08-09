@@ -85,7 +85,6 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
                     var _URL = window.URL || window.webkitURL;
                     var objectUrl = _URL.createObjectURL(files[0]);
                     img.onload = (ev: any) => {
-                        debugger
                         if (ev.target.width < this.minWidth && this.minWidth > 0) {
                             this.toast.show('The width of your image must be greater than ' + this.minWidth + 'px');
                             return false;

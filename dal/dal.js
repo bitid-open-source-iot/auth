@@ -147,14 +147,16 @@ var module = function () {
 
 			var params = {};
 
-			if (typeof(args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
-				if (typeof(args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
 					params._id = ObjectId(args.req.body.appId);
-				};	
+				};
 			};
 
 			if (Object.keys(params).length == 0) {
-				params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '');
+				if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
+					params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '');
+				};
 			};
 
 			var filter = {};
@@ -476,8 +478,12 @@ var module = function () {
 		manifest: (args) => {
 			var deferred = Q.defer();
 
+			if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
+				args.req.headers.origin = args.req.headers.origin.replace('http://', '').replace('https://', '');
+			};
+
 			var match = {
-				url: args.req.headers.origin
+				domains: args.req.headers.origin
 			};
 
 			var params = [
@@ -685,6 +691,7 @@ var module = function () {
 						},
 						'appId': ObjectId(args.req.body.appId),
 						'device': args.req.headers['user-agent'],
+						'disabled': false,
 						'description': args.req.body.description
 					};
 
@@ -699,6 +706,10 @@ var module = function () {
 				.then(db.call, null)
 				.then(result => {
 					args.result = result[0];
+					args.result.user = {
+						privacyPolicy: args.user.privacyPolicy,
+						termsAndConditions: args.user.termsAndConditions
+					};
 					deferred.resolve(args);
 				}, error => {
 					if (error instanceof ErrorResponse) {
@@ -833,6 +844,7 @@ var module = function () {
 			var params = {
 				'token': token,
 				'appId': ObjectId(args.req.body.header.appId),
+				'disabled': false,
 				'bitid.auth.users.email': format.email(args.req.body.header.email)
 			};
 
@@ -1097,6 +1109,7 @@ var module = function () {
 			var params = {
 				'token': args.req.headers.authorization,
 				'appId': ObjectId(args.req.body.header.appId),
+				'disabled': false,
 				'bitid.auth.users.email': format.email(args.req.body.header.email)
 			};
 
@@ -1641,8 +1654,9 @@ var module = function () {
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
 						},
-						'device': args.req.headers['user-agent'],
 						'appId': ObjectId(args.req.body.header.appId),
+						'device': args.req.headers['user-agent'],
+						'disabled': false,
 						'description': args.req.body.description || args.app.name
 					};
 
@@ -1804,6 +1818,7 @@ var module = function () {
 						},
 						'appId': ObjectId(args.req.body.header.appId),
 						'device': args.req.headers['user-agent'],
+						'disabled': false,
 						'description': args.req.body.description || args.app.name
 					};
 
@@ -2755,6 +2770,50 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		update: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.tokenId)
+			};
+
+			var update = {
+				$set: {
+					'serverDate': new Date()
+				}
+			};
+			if (typeof (args.req.body.disabled) != 'undefined') {
+				update.$set.disabled = args.req.body.disabled;
+			};
+
+			db.call({
+				'params': params,
+				'update': update,
+				'operation': 'update',
+				'collection': 'tblTokens'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
 		revoke: (args) => {
 			var deferred = Q.defer();
 
@@ -2898,6 +2957,7 @@ var module = function () {
 						},
 						'appId': ObjectId(args.req.body.appId),
 						'device': args.req.headers['user-agent'],
+						'disabled': false,
 						'description': args.req.body.description
 					};
 

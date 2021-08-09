@@ -25,17 +25,22 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class TokensPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {static: true}) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort;
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private clipboard: Clipboard, private localstorage: LocalstorageService) { }
-	
+
 	public filter: any = this.filters.get({
 		appId: []
 	});
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
-	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'options'];
+	public tokenId: string;
+	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'disabled', 'options'];
 	public loading: boolean;
-	private subscriptions: any = { };
+	private subscriptions: any = {};
+
+	public locked() {
+		this.toast.show('This token has been locked as it is your current login token!');
+	}
 
 	private async list() {
 		this.loading = true;
@@ -48,6 +53,7 @@ export class TokensPage implements OnInit, OnDestroy {
 				'scopes',
 				'expiry',
 				'tokenId',
+				'disabled',
 				'description'
 			],
 			appId: this.filter.appId
@@ -81,11 +87,28 @@ export class TokensPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-    public unfilter(key, value) {
-        this.filter[key] = this.filter[key].filter(o => o != value);
-        this.filters.update(this.filter);
-        this.list();
-    }
+	public unfilter(key, value) {
+		this.filter[key] = this.filter[key].filter(o => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
+	
+	public async disable(token: Token) {
+		this.loading = true;
+
+		const response = await this.service.update({
+			tokenId: token.tokenId,
+			disabled: !token.disabled
+		});
+
+		if (response.ok) {
+			token.disabled = !token.disabled;
+		} else {
+			this.toast.show(response.error.message);
+		};
+
+		this.loading = false;
+	}
 
 	public async options(token: Token) {
 		this.sheet.show({
@@ -209,15 +232,15 @@ export class TokensPage implements OnInit, OnDestroy {
 		});
 	}
 
-    public describe(array: any[], key: string, id: string) {
-        let result = '-';
-        array.map(o => {
-            if (o[key] == id) {
-                result = o.name;
-            }
-        });
-        return result;
-    }
+	public describe(array: any[], key: string, id: string) {
+		let result = '-';
+		array.map(o => {
+			if (o[key] == id) {
+				result = o.name;
+			}
+		});
+		return result;
+	}
 
 	ngOnInit(): void {
 		this.buttons.show('add');
@@ -241,29 +264,30 @@ export class TokensPage implements OnInit, OnDestroy {
 			if (loaded) {
 				await this.list();
 				await this.load();
+				this.tokenId = this.localstorage.get('tokenId', null);
 			}
 		});
 
-        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
-            this.tokens.filter = value;
-        });
+		this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+			this.tokens.filter = value;
+		});
 
-        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
-            const dialog = await this.dialog.open(TokensFilterDialog, {
-                data: this.filter,
-                panelClass: 'filter-dialog'
-            });
+		this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+			const dialog = await this.dialog.open(TokensFilterDialog, {
+				data: this.filter,
+				panelClass: 'filter-dialog'
+			});
 
-            await dialog.afterClosed().subscribe(async result => {
-                if (result) {
-                    Object.keys(result).map(key => {
-                        this.filter[key] = result[key];
-                    });
-                    this.filters.update(this.filter);
-                    this.list();
-                };
-            });
-        });
+			await dialog.afterClosed().subscribe(async result => {
+				if (result) {
+					Object.keys(result).map(key => {
+						this.filter[key] = result[key];
+					});
+					this.filters.update(this.filter);
+					this.list();
+				};
+			});
+		});
 	}
 
 	ngOnDestroy(): void {
