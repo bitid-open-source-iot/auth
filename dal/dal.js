@@ -155,7 +155,7 @@ var module = function () {
 
 			if (Object.keys(params).length == 0) {
 				if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
-					params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '');
+					params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
 				};
 			};
 
@@ -479,7 +479,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
-				args.req.headers.origin = args.req.headers.origin.replace('http://', '').replace('https://', '');
+				args.req.headers.origin = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
 			};
 
 			var match = {
