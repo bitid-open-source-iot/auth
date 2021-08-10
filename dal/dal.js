@@ -482,8 +482,12 @@ var module = function () {
 				args.req.headers.origin = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
 			};
 
+			if (typeof (args.req.headers.referer) != 'undefined' && args.req.headers.referer != null) {
+				args.req.headers.referer = args.req.headers.referer.replace('http://', '').replace('https://', '').split('/')[0];
+			};
+
 			var match = {
-				domains: args.req.headers.origin
+				domains: args.req.headers.origin || args.req.headers.referer
 			};
 
 			var params = [
