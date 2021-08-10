@@ -79,12 +79,12 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.loading = false;
 
 		if (response.ok) {
-			if (!response.result.user.privacyPolicy || !response.result.user.termsAndConditions) {
-				this.accept();
-			} else {
-				this.url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('');
-				window.open(this.url, '_parent');
-			};
+			// if (!response.result.user.privacyPolicy || !response.result.user.termsAndConditions) {
+			// 	this.accept();
+			// } else {
+			this.url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('');
+			window.open(this.url, '_parent');
+			// };
 		} else {
 			this.toast.show(response.error.message);
 		}
