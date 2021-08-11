@@ -3706,6 +3706,62 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		load: (args) => {
+			var deferred = Q.defer();
+
+			var params = {};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					params.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					params.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId !== null) {
+				if (Array.isArray(args.req.body.itemId) && args.req.body.itemId.length > 0) {
+					params._id = {
+						$in: args.req.body.itemId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId.length == 24) {
+					params._id = ObjectId(args.req.body.itemId);
+				};
+			};
+
+			var filter = {};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
+				args.req.body.filter.map(key => {
+					if (key == 'itemId') {
+						filter['_id'] = 1;
+					} else {
+						filter[key] = 1;
+					};
+				})
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblTipsAndUpdates'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
 		list: (args) => {
 			var deferred = Q.defer();
 

@@ -934,6 +934,31 @@ describe('Tips & Updates', function () {
             });
     });
 
+    it('/tips-and-updates/load', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.load()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('data');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('title');
+                    result[0].should.have.property('itemId');
+                    result[0].should.have.property('subtitle');
+                    result[0].should.have.property('serverDate');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
     it('/tips-and-updates/list', function (done) {
         this.timeout(5000);
 
@@ -1476,6 +1501,7 @@ var tools = {
                         '/tips-and-updates/add',
                         '/tips-and-updates/get',
                         '/tips-and-updates/list',
+                        '/tips-and-updates/load',
                         '/tips-and-updates/update',
                         '/tips-and-updates/delete'
                     ],
@@ -1907,6 +1933,20 @@ var tools = {
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
+            },
+            load: () => {
+                return tools.post('/tips-and-updates/load', {
+                    'filter': [
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle',
+                        'serverDate'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                });
             },
             list: () => {
                 var deferred = Q.defer();
