@@ -33,6 +33,7 @@ import { SettingsService } from './services/settings/settings.service';
 import { FeaturesService } from './services/features/features.service';
 import { FormErrorService } from './services/form-error/form-error.service';
 import { LocalstorageService } from './services/localstorage/localstorage.service';
+import { TipsAndUpdatesService } from './services/tips-and-updates/tips-and-updates.service';
 
 /* --- COMPONENTS --- */
 import { AppComponent } from './app.component';
@@ -76,7 +77,8 @@ import { environment } from '../environments/environment';
 		FeaturesService,
 		SettingsService,
 		FormErrorService,
-		LocalstorageService
+		LocalstorageService,
+		TipsAndUpdatesService
 	],
 	bootstrap: [
 		AppComponent

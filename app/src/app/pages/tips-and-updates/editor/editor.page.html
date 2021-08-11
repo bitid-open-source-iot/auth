@@ -1,0 +1,58 @@
+<mat-content>
+    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <mat-form-field appearance="outline">
+            <mat-label>
+                App
+            </mat-label>
+            
+            <mat-select name="appId" placeholder="appId" formControlName="appId" required>
+                <mat-option [formGroup]="filter">
+                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found" formControlName="apps"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let app of apps.data | filterBy : {'name': filter.value.apps}" [value]="app.appId">
+                    {{ app.name }}
+                </mat-option>
+            </mat-select>
+    
+            <mat-error *ngIf="errors.appId">
+                {{ errors.appId }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Title
+            </mat-label>
+            
+            <input matInput type="text" name="title" placeholder="title" formControlName="title" required>
+    
+            <mat-error *ngIf="errors.title">
+                {{ errors.title }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Subtitle
+            </mat-label>
+            
+            <input matInput type="text" name="subtitle" placeholder="subtitle" formControlName="subtitle" required>
+    
+            <mat-error *ngIf="errors.subtitle">
+                {{ errors.subtitle }}
+            </mat-error>
+        </mat-form-field>
+
+        
+    </form>
+    
+    <section [formGroup]="form">
+        <quill-editor name="data" formControlName="data" required></quill-editor>
+    </section>
+</mat-content>
+
+<mat-footer>
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+        {{ mode }}
+    </button>
+</mat-footer>

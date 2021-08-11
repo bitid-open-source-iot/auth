@@ -886,6 +886,102 @@ describe('Features', function () {
     });
 });
 
+describe('Tips & Updates', function () {
+    it('/tips-and-updates/add', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.add()
+            .then((result) => {
+                try {
+                    itemId = result.itemId;
+                    result.should.have.property('itemId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/get', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.get()
+            .then((result) => {
+                try {
+                    result.should.have.property('app');
+                    result.should.have.property('role');
+                    result.should.have.property('data');
+                    result.should.have.property('appId');
+                    result.should.have.property('title');
+                    result.should.have.property('itemId');
+                    result.should.have.property('subtitle');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/list', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.list()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('app');
+                    result[0].should.have.property('role');
+                    result[0].should.have.property('data');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('title');
+                    result[0].should.have.property('itemId');
+                    result[0].should.have.property('subtitle');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/update', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
 describe('Health Check', function () {
     it('/', function (done) {
         this.timeout(5000);
@@ -936,6 +1032,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.features.delete()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1355,6 +1472,12 @@ var tools = {
                         '/features/list',
                         '/features/update',
                         '/features/delete',
+
+                        '/tips-and-updates/add',
+                        '/tips-and-updates/get',
+                        '/tips-and-updates/list',
+                        '/tips-and-updates/update',
+                        '/tips-and-updates/delete'
                     ],
                     'appId': config.appId,
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
@@ -1755,6 +1878,79 @@ var tools = {
                 .then(deferred.resolve, deferred.resolve);
 
             return deferred.promise;
+        },
+        tipsAndUpdates: {
+            add: () => {
+                return tools.post('/tips-and-updates/add', {
+                    'data': 'xxx',
+                    'title': 'xxx',
+                    'appId': appId,
+                    'subtitle': 'xxx'
+                });
+            },
+            get: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/get', {
+                    'filter': [
+                        'app',
+                        'role',
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            list: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/list', {
+                    'filter': [
+                        'app',
+                        'role',
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            update: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/update', {
+                    'title': 'New Mocha Test Updated',
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            delete: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/delete', {
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            }
         }
     },
     put: async (url, payload) => {
@@ -1806,6 +2002,10 @@ var tools = {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            console.log(token, result)
+        };
 
         deferred.resolve(result);
 

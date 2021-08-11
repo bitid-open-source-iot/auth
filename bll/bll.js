@@ -849,6 +849,87 @@ var module = function () {
 		}
 	};
 
+	var bllTipsAndUpdates = {
+		add: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tipsAndUpdates.add(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		get: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tipsAndUpdates.get(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		list: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tipsAndUpdates.list(args)
+				.then(tools.setRoleList, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		update: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tipsAndUpdates.update(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		delete: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.tipsAndUpdates.delete(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		}
+	};
+
 	return {
 		'apps': bllApps,
 		'auth': bllAuth,
@@ -857,7 +938,8 @@ var module = function () {
 		'scopes': bllScopes,
 		'tokens': bllTokens,
 		'features': bllFeatures,
-		'statistics': bllStatistics
+		'statistics': bllStatistics,
+		'tipsAndUpdates': bllTipsAndUpdates
 	};
 };
 

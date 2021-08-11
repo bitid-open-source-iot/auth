@@ -3552,6 +3552,415 @@ var module = function () {
 		}
 	};
 
+	var dalTipsAndUpdates = {
+		add: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'data': args.req.body.data,
+						'appId': ObjectId(args.req.body.appId),
+						'title': args.req.body.title,
+						'subtitle': args.req.body.subtitle,
+						'serverDate': new Date()
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'insert',
+						'collection': 'tblTipsAndUpdates'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		get: (args) => {
+			var deferred = Q.defer();
+
+			var match = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.itemId)
+			};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
+			var filter = {
+				'_id': 1,
+				'app': 1,
+				'data': 1,
+				'bitid': 1,
+				'appId': 1,
+				'title': 1,
+				'subtitle': 1
+			};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
+				filter = {};
+				args.req.body.filter.map(key => {
+					if (key == 'role') {
+						filter['bitid'] = 1;
+					} else if (key == 'itemId') {
+						filter['_id'] = 1;
+					} else {
+						filter[key] = 1;
+					};
+				})
+			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'data': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'subtitle': 1,
+						'serverDate': 1
+					}
+				},
+				{
+					$match: match
+				},
+				{
+					$project: filter
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblTipsAndUpdates'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		list: (args) => {
+			var deferred = Q.defer();
+
+			var match = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				}
+			};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					match.appId = {
+						$in: args.req.body.appId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					match.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId !== null) {
+				if (Array.isArray(args.req.body.itemId) && args.req.body.itemId.length > 0) {
+					match._id = {
+						$in: args.req.body.itemId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId.length == 24) {
+					match._id = ObjectId(args.req.body.itemId);
+				};
+			};
+
+			var filter = {
+				'_id': 1,
+				'data': 1,
+				'app': 1,
+				'bitid': 1,
+				'appId': 1,
+				'title': 1,
+				'subtitle': 1
+			};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter.length) {
+				filter = {};
+				args.req.body.filter.map(key => {
+					if (key == 'role') {
+						filter['bitid'] = 1;
+					} else if (key == 'itemId') {
+						filter['_id'] = 1;
+					} else {
+						filter[key] = 1;
+					};
+				})
+			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'data': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'subtitle': 1,
+						'serverDate': 1
+					}
+				},
+				{
+					$match: match
+				},
+				{
+					$project: filter
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblTipsAndUpdates'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		update: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.appId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.itemId)
+					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					if (typeof (args.req.body.data) != 'undefined' && args.req.body.data !== null) {
+						update.$set.data = args.req.body.data;
+					};
+					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title !== null) {
+						update.$set.title = args.req.body.title;
+					};
+					if (typeof (args.req.body.subtitle) != 'undefined' && args.req.body.subtitle !== null) {
+						update.$set.subtitle = args.req.body.subtitle;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblTipsAndUpdates'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		delete: (args) => {
+			var deferred = Q.defer();
+
+			var match = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.itemId)
+			};
+
+			var params = [
+				{
+					$lookup: {
+						'as': 'app',
+						'from': 'tblApps',
+						'localField': 'appId',
+						'foreignField': '_id'
+					}
+				},
+				{
+					$unwind: '$app'
+				},
+				{
+					$project: {
+						'_id': 1,
+						'appId': 1,
+						'title': 1,
+						'bitid': '$app.bitid',
+						'app.icon': 1,
+						'app.name': 1,
+						'serverDate': 1,
+						'description': 1
+					}
+				},
+				{
+					$match: match
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblTipsAndUpdates'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.itemId)
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'remove',
+						'collection': 'tblTipsAndUpdates'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		}
+	};
+
 	return {
 		'apps': dalApps,
 		'auth': dalAuth,
@@ -3559,7 +3968,8 @@ var module = function () {
 		'scopes': dalScopes,
 		'tokens': dalTokens,
 		'features': dalFeatures,
-		'statistics': dalStatistics
+		'statistics': dalStatistics,
+		'tipsAndUpdates': dalTipsAndUpdates
 	};
 };
 

@@ -83,6 +83,9 @@ try {
                 app.use('/statistics', require('./api/statistics'));
                 __logger.info('loaded ./api/statistics');
 
+                app.use('/tips-and-updates', require('./api/tips-and-updates'));
+                __logger.info('loaded ./api/tips-and-updates');
+
                 app.use('/health-check', require('@bitid/health-check'));
                 __logger.info('loaded ./api/health-check');
 
