@@ -28,6 +28,9 @@ try{
     __settings.mongodb = __settings.mongodb.replace(/xxx/g, 'auth')
     __settings.mongodb = JSON.parse(__settings.mongodb)
 
+    __settings.client.auth = process.env.clientAuth
+    __settings.client.drive = process.env.clientDrive
+
     /**TODO SMTP */
 
     console.log(JSON.stringify(__settings))
