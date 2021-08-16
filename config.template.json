@@ -19,51 +19,10 @@
         "database": "xxx"
     },
     "client": {
-        "auth": "https://auth.bitid.co.za",
-        "appId": "000000000000000000000001",
-        "drive": "https://drive.bitid.co.za",
-        "appName": "Auth",
-        "scopes": [
-            "/drive/files/upload",
-            
-            "/auth/changepassword",
-            
-            "/users/get",
-            "/users/list",
-            "/users/update",
-            "/users/delete",
-            
-            "/scopes/add",
-            "/scopes/get",
-            "/scopes/list",
-            "/scopes/update",
-            "/scopes/delete",
-            
-            "/apps/add",
-            "/apps/get",
-            "/apps/list",
-            "/apps/share",
-            "/apps/update",
-            "/apps/delete",
-            "/apps/unsubscribe",
-            "/apps/updatesubscriber",
-            
-            "/tokens/get",
-            "/tokens/list",
-            "/tokens/share",
-            "/tokens/update",
-            "/tokens/revoke",
-            "/tokens/retrieve",
-            "/tokens/generate",
-            "/tokens/unsubscribe",
-            "/tokens/updatesubscriber",
-
-            "/features/add",
-            "/features/get",
-            "/features/list",
-            "/features/update",
-            "/features/delete"
-        ]
+        "auth": "http://127.0.0.1:9000",
+        "appId": "xxx",
+        "drive": "http://127.0.0.1:12000",
+        "appName": "xxx"
     },
     "logger": {
         "appenders": {
