@@ -107,6 +107,9 @@ try {
                 app.use('/statistics', require('./api/statistics'));
                 console.log('loaded ./api/statistics');
 
+                app.use('/tips-and-updates', require('./api/tips-and-updates'));
+                console.log('loaded ./api/tips-and-updates');
+
                 app.use('/health-check', require('@bitid/health-check'));
                 console.log('loaded ./api/health-check');
 

@@ -243,3 +243,21 @@ if (features.count() == 0) {
         'unique': false
     });
 };
+
+const tipsAndUpdates = db.collection('tblTipsAndUpdates');
+if (tipsAndUpdates.count() == 0) {
+    db.tblTipsAndUpdates.insertOne({
+        '_id': ObjectId('000000000000000000000001'),
+        'data': 'xxx',
+        'appId': ObjectId('000000000000000000000001'),
+        'title': 'xxx',
+        'subtitle': 'xxx',
+        'serverDate': new Date(),
+    });
+
+    db.tblTipsAndUpdates.createIndex({
+        'appId': 1
+    }, {
+        'unique': false
+    });
+};

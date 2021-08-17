@@ -73,7 +73,7 @@ export class ApiService {
 		if (error.error) {
 			if (error.error.errors) {
 				error.error = error.error.errors[0];
-				if (error.code == 401) {
+				if (error.error.code == 401) {
 					this.localstorage.clear();
 					this.router.navigate(['/signin']);
 				}

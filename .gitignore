@@ -1,6 +1,6 @@
 logs/*/
 logs/*.*
-# config.json
+config.json
 node_modules/
 package-lock.json
 .env

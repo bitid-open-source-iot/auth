@@ -1,0 +1,39 @@
+<mat-toolbar>
+    <mat-label>
+        Accept Changes
+    </mat-label>
+</mat-toolbar>
+
+<mat-content>
+    <form class="container" [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
+        <p>
+            There have been some changes to our Privacy Policy & Terms & Conditions
+        </p>
+
+        <mat-checkbox color="primary" formControlName="privacyPolicy">
+            I have read and agree to the <a href="https://www.bitid.co.za/privacy-policy" target="_blank">Privacy Policy</a>
+        </mat-checkbox>
+
+        <mat-hint class="checkbox-hint">
+            Required to continue
+        </mat-hint>
+
+        <mat-checkbox color="primary" formControlName="termsAndConditions">
+            I have read and agree to the <a href="https://www.bitid.co.za/terms-and-conditions" target="_blank">Terms & Conditions</a>
+        </mat-checkbox>
+
+        <mat-hint class="checkbox-hint">
+            Required to continue
+        </mat-hint>
+
+        <button type="submit" #button style="display: none;"></button>
+    </form>
+</mat-content>
+
+<mat-footer>
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid || !form.value.privacyPolicy || !form.value.termsAndConditions" (click)="button.click()">
+        {{ loading ? '' : 'confirm' }}
+
+        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+    </button>
+</mat-footer>

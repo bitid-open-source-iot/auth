@@ -27,6 +27,10 @@ export class ConfigService {
 			Object.keys(response.result).map(key => {
 				environment[key] = response.result[key];
 			});
+			let favicon = <HTMLLinkElement>document.getElementById('favicon');
+				favicon.href = response.result.favicon;
+			let manifest = <HTMLLinkElement>document.getElementById('manifest');
+				manifest.href = [environment.auth, '/apps/manifest'].join('')
 			this.loaded.next(true);
 			return true;
 		} else {

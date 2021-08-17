@@ -270,7 +270,9 @@ reset-password-page,
 generate-token-page,
 features-editor-page,
 change-password-page,
-terms-and-conditions-page {
+tips-and-updates-page,
+terms-and-conditions-page,
+tips-and-updates-editor-page {
     height: calc(100vh - 56px);
     display: flex !important;
     flex-direction: column !important;
@@ -287,3 +289,6 @@ terms-and-conditions-page {
         }
     }
 }
+@import '~quill/dist/quill.core.css';
+@import '~quill/dist/quill.bubble.css';
+@import '~quill/dist/quill.snow.css';

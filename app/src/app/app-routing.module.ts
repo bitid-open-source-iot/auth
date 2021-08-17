@@ -72,6 +72,11 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
 	},
 	{
+		path: 'tips-and-updates',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/tips-and-updates/tips-and-updates.module').then(m => m.TipsAndUpdatesModule)
+	},
+	{
 		path: 'terms-and-conditions',
 		loadChildren: () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsModule)
 	},

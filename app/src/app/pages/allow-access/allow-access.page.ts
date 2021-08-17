@@ -1,3 +1,4 @@
+import { MatDialog } from '@angular/material/dialog';
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
@@ -7,6 +8,7 @@ import { FormErrorService } from 'src/app/services/form-error/form-error.service
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AcceptDialog } from './accept/accept.dialog';
 
 @Component({
 	selector: 'allow-access-page',
@@ -16,7 +18,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
+	constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private config: ConfigService, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
 
 	public form: FormGroup = new FormGroup({
 		email: new FormControl('', [Validators.email, Validators.required]),
@@ -27,6 +29,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		password: ''
 	};
 	public app: any = {};
+	public url: string;
 	public appId: string;
 	public returl: string;
 	public loading: boolean;
@@ -76,12 +79,30 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.loading = false;
 
 		if (response.ok) {
-			const url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('');
-			window.open(url, '_parent');
+			// if (!response.result.user.privacyPolicy || !response.result.user.termsAndConditions) {
+			// 	this.accept();
+			// } else {
+			this.url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('');
+			window.open(this.url, '_parent');
+			// };
 		} else {
 			this.toast.show(response.error.message);
 		}
 	}
+
+	private async accept() {
+		const dialog = await this.dialog.open(AcceptDialog, {
+			panelClass: 'accept-dialog',
+			disableClose: true
+		});
+
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				debugger
+				window.open(this.url, '_parent');
+			};
+		});
+	};
 
 	ngOnInit(): void {
 		this.buttons.hide('add');

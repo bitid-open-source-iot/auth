@@ -8,20 +8,19 @@ const config = require('./config.json');
 const subset = require('chai-subset');
 chai.use(subset);
 
+var code = null;
 var email = config.email;
 var token = null;
 var appId = null;
 var scopeId = null;
 var tokenId = null;
 var featureId = null;
-var loginToken = null;
-var verifyCode = null;
 var tokenIdToRevoke = null;
 var generatedTokenId = null;
 
 describe('Config', function () {
     it('/config/get', function (done) {
-        this.timeout(500);
+        this.timeout(5000);
 
         tools.api.config.get()
             .then((result) => {
@@ -51,7 +50,7 @@ describe('Auth', function () {
         tools.api.auth.register()
             .then((result) => {
                 try {
-                    verifyCode = result.code;
+                    code = result.code;
                     result.should.have.property('code');
                     result.should.have.property('userId');
                     done();
@@ -887,6 +886,127 @@ describe('Features', function () {
     });
 });
 
+describe('Tips & Updates', function () {
+    it('/tips-and-updates/add', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.add()
+            .then((result) => {
+                try {
+                    itemId = result.itemId;
+                    result.should.have.property('itemId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/get', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.get()
+            .then((result) => {
+                try {
+                    result.should.have.property('app');
+                    result.should.have.property('role');
+                    result.should.have.property('data');
+                    result.should.have.property('appId');
+                    result.should.have.property('title');
+                    result.should.have.property('itemId');
+                    result.should.have.property('subtitle');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/load', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.load()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('data');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('title');
+                    result[0].should.have.property('itemId');
+                    result[0].should.have.property('subtitle');
+                    result[0].should.have.property('serverDate');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/list', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.list()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('app');
+                    result[0].should.have.property('role');
+                    result[0].should.have.property('data');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('title');
+                    result[0].should.have.property('itemId');
+                    result[0].should.have.property('subtitle');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/update', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
 describe('Health Check', function () {
     it('/', function (done) {
         this.timeout(5000);
@@ -937,6 +1057,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.features.delete()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tips-and-updates/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.tipsAndUpdates.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1223,7 +1364,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.put('/auth/verify', {
-                    'code': verifyCode
+                    'code': code
                 })
                     .then(deferred.resolve, deferred.resolve);
 
@@ -1291,7 +1432,7 @@ var tools = {
 
                 tools.put('/auth/validate', {
                     'scope': '/users/get'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1301,7 +1442,7 @@ var tools = {
                 config.email = current;
                 tools.post('/auth/changeemail', {
                     'email': replacement
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1356,13 +1497,20 @@ var tools = {
                         '/features/list',
                         '/features/update',
                         '/features/delete',
+
+                        '/tips-and-updates/add',
+                        '/tips-and-updates/get',
+                        '/tips-and-updates/list',
+                        '/tips-and-updates/load',
+                        '/tips-and-updates/update',
+                        '/tips-and-updates/delete'
                     ],
-                    'appId': '000000000000000000000001',
+                    'appId': config.appId,
                     'expiry': new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
                     'password': config.password,
                     'tokenAddOn': {},
                     'description': 'test'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1375,7 +1523,7 @@ var tools = {
                     'password': config.password
                 })
                     .then(res => {
-                        loginToken = res[0].token;
+                        token = res[0].token;
                         deferred.resolve(res);
                     }, deferred.resolve);
 
@@ -1395,7 +1543,7 @@ var tools = {
                 tools.put('/auth/changepassword', {
                     'old': config.password,
                     'new': 'QWERTY'
-                }, loginToken)
+                })
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
@@ -1642,7 +1790,7 @@ var tools = {
                 var expiry = new Date(Date.now() + 600000000);
 
                 tools.post('/tokens/generate', {
-                    'appId': '000000000000000000000001',
+                    'appId': config.appId,
                     'expiry': expiry,
                     'description': 'My New Generated Token'
                 })
@@ -1756,6 +1904,93 @@ var tools = {
                 .then(deferred.resolve, deferred.resolve);
 
             return deferred.promise;
+        },
+        tipsAndUpdates: {
+            add: () => {
+                return tools.post('/tips-and-updates/add', {
+                    'data': 'xxx',
+                    'title': 'xxx',
+                    'appId': appId,
+                    'subtitle': 'xxx'
+                });
+            },
+            get: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/get', {
+                    'filter': [
+                        'app',
+                        'role',
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            load: () => {
+                return tools.post('/tips-and-updates/load', {
+                    'filter': [
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle',
+                        'serverDate'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                });
+            },
+            list: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/list', {
+                    'filter': [
+                        'app',
+                        'role',
+                        'data',
+                        'title',
+                        'appId',
+                        'itemId',
+                        'subtitle'
+                    ],
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            update: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/update', {
+                    'title': 'New Mocha Test Updated',
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            delete: () => {
+                var deferred = Q.defer();
+
+                tools.post('/tips-and-updates/delete', {
+                    'appId': appId,
+                    'itemId': itemId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            }
         }
     },
     put: async (url, payload) => {
@@ -1807,6 +2042,10 @@ var tools = {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            console.log(token, result)
+        };
 
         deferred.resolve(result);
 

@@ -27,6 +27,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { FilterPipeModule } from 'src/app/pipes/filter/filter.module';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -68,6 +69,7 @@ const routes: Routes = [
 		MatSelectModule,
 		MatRippleModule,
 		MatButtonModule,
+		MatTooltipModule,
 		MatToolbarModule,
 		FlexLayoutModule,
 		FilterPipeModule,

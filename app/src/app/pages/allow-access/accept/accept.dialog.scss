@@ -1,0 +1,30 @@
+.accept-dialog .mat-dialog-container {
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 5000;
+    padding: 0px !important;
+    position: fixed;
+    border-radius: 0px;
+    accept-dialog {
+        height: 100vh;
+        display: flex;
+        position: relative;
+        flex-direction: column;
+    }
+    mat-toolbar {
+        display: flex;
+        font-size: 14px;
+        margin-bottom: 5px;
+        justify-content: center;
+    }
+    button {
+        width: 100%;
+        margin: auto;
+        max-width: 400px;
+    }
+    form {
+        max-width: 400px;
+    }
+}

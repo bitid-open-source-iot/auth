@@ -87,6 +87,7 @@ export class AccountService {
 		const response = await this.api.put(environment.auth, '/auth/authenticate', params);
 
 		if (response.ok) {
+			this.localstorage.set('tokenId', response.result[0].tokenId);
 			this.localstorage.setObject('token', response.result[0].token);
 			this.init();
 		} else {
@@ -114,6 +115,7 @@ export class AccountService {
 
 	public async retrieve(params) {
 		this.localstorage.set('email', params.email);
+		this.localstorage.set('tokenId', params.tokenId);
 		return await this.api.put(environment.auth, '/tokens/retrieve', params);
 	}
 

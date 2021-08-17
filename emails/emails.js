@@ -22,7 +22,8 @@ exports.verify = (args) => {
         'context': {
             'name': [args.user.name.first, args.user.name.last].join(' '),
             'code': args.user.code,
-            'verify': [__settings.client.auth, '/verify-account?email=', args.user.email, '&code=', args.user.code, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join('')
+            'verify': [__settings.client.auth, '/verify-account?email=', args.user.email, '&code=', args.user.code, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join(''),
+            'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
@@ -58,7 +59,8 @@ exports.welcome = (args) => {
 
     transporter.sendMail({
         'context': {
-            'name': [args.user.name.first, args.user.name.last].join(' ')
+            'name': [args.user.name.first, args.user.name.last].join(' '),
+            'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
@@ -95,7 +97,8 @@ exports.resetpassword = (args) => {
     transporter.sendMail({
         'context': {
             'link': [__settings.client.auth, '/reset-password?email=', args.user.email, '&password=', args.user.password, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join(''),
-            'name': [args.user.name.first, args.user.name.last].join(' ')
+            'name': [args.user.name.first, args.user.name.last].join(' '),
+            'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
         'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,

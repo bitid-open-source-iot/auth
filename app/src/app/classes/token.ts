@@ -10,6 +10,7 @@ export class Token {
 	public expiry: string;
 	public scopes: string[] = [];
 	public tokenId: string;
+	public disabled: boolean;
 	public selected: boolean;
 	public description: string;
 
@@ -44,6 +45,9 @@ export class Token {
 			if (typeof (args.tokenId) != 'undefined' && args.tokenId !== null) {
 				this.tokenId = args.tokenId;
 			}
+			if (typeof (args.disabled) != 'undefined' && args.disabled !== null) {
+				this.disabled = args.disabled;
+			}
 			if (typeof (args.selected) != 'undefined' && args.selected !== null) {
 				this.selected = args.selected;
 			}
@@ -67,6 +71,7 @@ export interface TOKEN {
 	scopes?: string[];
 	expiry?: string;
 	tokenId?: string;
+	disabled?: boolean;
 	selected?: boolean;
 	description?: string;
 }
