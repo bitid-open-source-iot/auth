@@ -17,13 +17,13 @@ console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 let config = require('./config.json');
 let configDefault = config.default
 let configEnvironment = config[process.env.NODE_ENV]
-global.__settings = {...configDefault, ...configEnvironment}
+global.__settings = { ...configDefault, ...configEnvironment }
 
 
 global.__responder = new responder.module();
 
 
-try{
+try {
     __settings.mongodb = process.env.mongodb
     __settings.mongodb = __settings.mongodb.replace(/xxx/g, 'auth')
     __settings.mongodb = JSON.parse(__settings.mongodb)
@@ -35,7 +35,7 @@ try{
 
     console.log(JSON.stringify(__settings))
 
-}catch(e){
+} catch (e) {
     console.error('ERROR APPLYING ENV VARIABLES', e)
 }
 
@@ -58,7 +58,16 @@ try {
 
                 app.use((req, res, next) => {
                     if (__settings.authentication) {
+                        let testIfToken
+                        try {
+                            testIfToken = JSON.parse(req.headers.authorization)
+                            req.headers.authorization = req.headers.authorization
+                        } catch (e) {
+                            req.headers.authorization = JSON.stringify({ "Bearer": req.headers.authorization, "scopes": [{ "url": "*", "role": "4" }], "expiry": 32503680000000, "pushToken": "", "tokenAddOn": {} })
+                        }
+
                         if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
+
                             var args = {
                                 'req': req,
                                 'res': res

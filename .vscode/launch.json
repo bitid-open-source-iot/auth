@@ -15,6 +15,15 @@
         },
         {
             "type": "node",
+            "request": "attach",
+            "name": "Attach to Kubernetes",
+            "address": "localhost",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/"
+        },        
+        {
+            "type": "node",
             "request": "launch",
             "name": "Initialize Database",
             "skipFiles": [
