@@ -16,12 +16,10 @@ export class ConfigService {
 	public async init() {
 		let url: string;
 		if (environment.production) {
-			url = window.location.origin;
-		} else {
-			url = environment.auth;
+			environment.auth = window.location.origin
 		}
 
-		const response = await this.api.put(url, '/config/get', {});
+		const response = await this.api.put(environment.auth, '/config/get', {});
 
 		if (response.ok) {
 			Object.keys(response.result).map(key => {
