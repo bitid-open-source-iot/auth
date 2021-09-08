@@ -31,9 +31,9 @@ exports.verify = (args) => {
         'template': 'verify'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
@@ -68,9 +68,9 @@ exports.welcome = (args) => {
         'template': 'welcome'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
@@ -106,9 +106,9 @@ exports.resetpassword = (args) => {
         'template': 'reset-password'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });

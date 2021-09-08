@@ -15,12 +15,28 @@
         },
         {
             "type": "node",
+            "request": "attach",
+            "name": "Attach to Kubernetes",
+            "address": "localhost",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/"
+        },        
+        {
+            "type": "node",
             "request": "launch",
             "name": "Initialize Database",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/db/scripts/setup.js"
+        },
+        {
+            "name": "Docker Node.js Launch",
+            "type": "docker",
+            "request": "launch",
+            "preLaunchTask": "docker-run: debug",
+            "platform": "node"
         }
     ]
 }
