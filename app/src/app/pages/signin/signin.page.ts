@@ -1,5 +1,7 @@
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
@@ -13,8 +15,9 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class SignInPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
+	constructor(private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
+	public app: any = {};
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.required]),
 		password: new FormControl(null, [Validators.required])
@@ -58,10 +61,17 @@ export class SignInPage implements OnInit, OnDestroy {
 		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
+
+		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+			if (loaded) {
+				this.app.icon = environment.icon;
+			};
+		});
 	}
 
 	ngOnDestroy(): void {
 		this.subscriptions.form.unsubscribe();
+		this.subscriptions.loaded.unsubscribe();
 	}
 
 }

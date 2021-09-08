@@ -2043,10 +2043,6 @@ var tools = {
 
         const result = await response.json();
 
-        if (!response.ok) {
-            console.log(token, result)
-        };
-
         deferred.resolve(result);
 
         return deferred.promise;
