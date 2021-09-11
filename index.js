@@ -1,6 +1,7 @@
 const Q = require('q');
 const db = require('./db/mongo');
 const dal = require('./dal/dal');
+const path = require('path');
 const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
@@ -8,7 +9,6 @@ const express = require('express');
 const responder = require('./lib/responder');
 const ErrorResponse = require('./lib/error-response');
 
-const path = require('path')
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';

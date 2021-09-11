@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
@@ -120,6 +121,8 @@ export class SignUpPage implements OnInit, OnDestroy {
 				if (typeof(params.appId) != 'undefined' && params.appId !== null) {
 					this.appId = params.appId;
 					this.load();
+				} else {
+					this.app.icon = environment.icon;
 				}
 			}
 		});
