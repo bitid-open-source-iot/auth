@@ -35,10 +35,6 @@ export class SignInPage implements OnInit, OnDestroy {
 		});
 	}
 
-	public forgot(event) {
-		
-	}
-
 	public async submit() {
 		this.loading = true;
 
