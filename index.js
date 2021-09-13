@@ -31,7 +31,8 @@ try {
     __settings.client.auth = process.env.clientAuth
     __settings.client.drive = process.env.clientDrive
 
-    /**TODO SMTP */
+    __settings.smtp = JSON.parse(process.env.smtp)
+
 
     console.log(JSON.stringify(__settings))
 

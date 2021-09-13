@@ -2,6 +2,28 @@ const Q = require('q');
 const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
 
+exports.test = () => {
+    var deferred = Q.defer();
+
+    try{
+        const transporter = nodemailer.createTransport(__settings.smtp);
+
+
+        transporter.sendMail({
+            from: 'notifications@dijital.cloud',
+            to: 'shane@bitid.co.za',
+            subject: 'Test',
+            text: 'hello world1',
+            html: '<h1>TEST1</h1>'
+          })
+          deferred.resolve()
+    }catch(e){
+        deferred.reject(e)
+    }
+
+    return deferred.promise
+}
+
 exports.verify = (args) => {
     var deferred = Q.defer();
 
