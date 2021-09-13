@@ -22,12 +22,16 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+        <mat-form-field class="with-hint" appearance="outline">
             <mat-label>
                 Password
             </mat-label>
 
             <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+
+            <mat-hint>
+                Greater then 8 characters with at least one lowercase, uppercase & special character
+            </mat-hint>
 
             <mat-error *ngIf="errors.password">
                 {{ errors.password }}
