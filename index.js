@@ -31,7 +31,7 @@ try {
     __settings.client.auth = process.env.clientAuth
     __settings.client.drive = process.env.clientDrive
 
-    __settings.smtp = JSON.parse(process.env.smtp)
+    __settings.smtp = process.env.smtp
 
 
     console.log(JSON.stringify(__settings))
