@@ -33,6 +33,8 @@ try {
 
     __settings.smtp = JSON.parse(process.env.smtp)
 
+    __settings.branding = JSON.parse(process.env.branding)
+
 
     console.log(JSON.stringify(__settings))
 
