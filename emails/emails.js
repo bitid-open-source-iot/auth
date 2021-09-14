@@ -48,7 +48,7 @@ exports.verify = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
+        'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
         'subject': 'Verify Account',
         'template': 'verify'
     }, (error, info) => {
@@ -85,7 +85,7 @@ exports.welcome = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
+        'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
         'subject': 'Welcome',
         'template': 'welcome'
     }, (error, info) => {
@@ -123,7 +123,7 @@ exports.resetpassword = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
+        'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
         'subject': 'Reset Password',
         'template': 'reset-password'
     }, (error, info) => {
