@@ -35,6 +35,7 @@ try {
 
 
     console.log(JSON.stringify(__settings))
+    console.log(process.env)
 
 } catch (e) {
     console.error('ERROR APPLYING ENV VARIABLES', e)
