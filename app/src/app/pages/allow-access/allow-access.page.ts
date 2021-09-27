@@ -1,6 +1,7 @@
 import { MatDialog } from '@angular/material/dialog';
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { AcceptDialog } from './accept/accept.dialog';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
@@ -8,7 +9,6 @@ import { FormErrorService } from 'src/app/services/form-error/form-error.service
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { AcceptDialog } from './accept/accept.dialog';
 
 @Component({
 	selector: 'allow-access-page',
@@ -102,7 +102,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 				window.open(this.url, '_parent');
 			};
 		});
-	};
+	}
 
 	ngOnInit(): void {
 		this.buttons.hide('add');
@@ -133,3 +133,10 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 }
+/*
+	1 - Check if authentcated
+	2 - Authenticate if not
+	3 - Check if all stuff accepted
+	4 - Push accept if not
+	5 - Allow Access
+*/

@@ -107,6 +107,9 @@ try {
                 app.use('/scopes', require('./api/scopes'));
                 console.log('loaded ./api/scopes');
 
+                app.use('/groups', require('./api/groups'));
+                console.log('loaded ./api/groups');
+
                 app.use('/config', require('./api/config'));
                 console.log('loaded ./api/config');
 

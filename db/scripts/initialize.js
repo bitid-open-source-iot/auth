@@ -210,6 +210,33 @@ if (tokens.count() == 0) {
     });
 };
 
+const groups = db.collection('tblGroups');
+if (groups.count() == 0) {
+    db.tblGroups.insertOne({
+        'bitid': {
+            'auth': {
+                'users': [
+                    {
+                        'role': 5,
+                        'email': 'xxx@xxx.co.za'
+                    }
+                ]
+            }
+        },
+        '_id': ObjectId('000000000000000000000001'),
+        'appId': [ObjectId('000000000000000000000001')],
+        'serverDate': new Date(),
+        'description': 'server'
+    });
+
+    db.tblGroups.createIndex({
+        '_id': 1,
+        'bitid.auth.users.email': 1
+    }, {
+        'unique': true
+    });
+};
+
 const scopes = db.collection('tblScopes');
 if (scopes.count() == 0) {
     db.tblScopes.insertOne({
