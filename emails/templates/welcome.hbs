@@ -518,10 +518,14 @@
 												{{ branding.address.cityTown }}
 												<br>
 												{{ branding.address.postalCode }}
-												<br>
-												VAT: {{ branding.address.vat }}
-												<br>
-												REG: {{ branding.address.reg }}
+                                                {{#if branding.address.vat}}
+                                                    <br>
+                                                    VAT: {{ branding.address.vat }}
+                                                {{/if}}
+                                                {{#if branding.address.reg}}
+                                                    <br>
+                                                    REG: {{ branding.address.reg }}
+                                                {{/if}}
 											</p>
 										</td>
 									</tr>
