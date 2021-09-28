@@ -1,5 +1,6 @@
 {
     "port": 9000,
+    "mssql": "",
     "production": true,
     "authentication": true,
     "passwordResetDuration": 31,
@@ -11,13 +12,6 @@
         "port": 80,
         "secure": false,
         "connectionTimeout": 10000
-    },
-    "mssql": {
-        "host": "localhost",
-        "port": 1433,
-        "username": "auth",
-        "password": "auth",
-        "database": "auth"
     },
     "client": {
         "auth": "https://auth.bitid.co.za",
