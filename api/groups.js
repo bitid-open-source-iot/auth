@@ -40,9 +40,14 @@ router.post('/unsubscribe', (req, res) => {
 	myModule.groups.unsubscribe(req, res);
 });
 
-router.post('/updatesubscriber', (req, res) => {
+router.post('/change-owner', (req, res) => {
 	var myModule = new bll.module();
-	myModule.groups.updateSubscriber(req, res);
+	myModule.groups.changeowner(req, res);
+});
+
+router.post('/update-subscriber', (req, res) => {
+	var myModule = new bll.module();
+	myModule.groups.updatesubscriber(req, res);
 });
 
 module.exports = router;

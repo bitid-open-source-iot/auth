@@ -385,7 +385,7 @@ var module = function () {
 			if (typeof (args.req.body.favicon) != 'undefined') {
 				update.$set.favicon = args.req.body.favicon;
 			};
-			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly !== null) {
+			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly != null) {
 				update.$set['bitid.auth.organizationOnly'] = args.req.body.organizationOnly;
 			};
 
@@ -867,9 +867,9 @@ var module = function () {
 
 					var scopes = [];
 					token.scopes.map(scope => {
-						if (typeof (scope) == 'object' && typeof (scope) !== null) {
+						if (typeof (scope) == 'object' && typeof (scope) != null) {
 							scopes.push(scope.url);
-						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
+						} else if (typeof (scope) == 'string' && typeof (scope) != null) {
 							scopes.push(scope);
 						};
 					});
@@ -900,9 +900,9 @@ var module = function () {
 
 					var scopes = [];
 					token.scopes.map(scope => {
-						if (typeof (scope) == 'object' && typeof (scope) !== null) {
+						if (typeof (scope) == 'object' && typeof (scope) != null) {
 							scopes.push(scope.url);
-						} else if (typeof (scope) == 'string' && typeof (scope) !== null) {
+						} else if (typeof (scope) == 'string' && typeof (scope) != null) {
 							scopes.push(scope);
 						};
 					});
@@ -1947,7 +1947,7 @@ var module = function () {
 
 					var params = {};
 
-					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email !== null) {
+					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email != null) {
 						if (Array.isArray(args.req.body.email) != 'undefined' && args.req.body.email.length > 0) {
 							params.email = {
 								$in: format.email(args.req.body.email)
@@ -2525,6 +2525,381 @@ var module = function () {
 						'params': params,
 						'operation': 'remove',
 						'collection': 'tblScopes'
+					});
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		}
+	};
+
+	var dalGroups = {
+		add: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid': {
+					'auth': {
+						'users': args.req.body.users,
+						'organizationOnly': args.req.body.organizationOnly || 0
+					}
+				},
+				'appId': args.req.body.appId || [],
+				'serverDate': new Date(),
+				'description': args.req.body.description
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'insert',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		get: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.groupId),
+				'bitid.auth.users.email': format.email(args.req.body.header.email)
+			};
+
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'groupId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		list: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users.email': format.email(args.req.body.header.email)
+			};
+
+			if (typeof (args.req.body.groupId) != 'undefined') {
+				if (Array.isArray(args.req.body.groupId) && args.req.body.groupId.length > 0) {
+					params._id = {
+						$in: args.req.body.groupId.map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.groupId) == 'string' && args.req.body.groupId.length == 24) {
+					params._id = ObjectId(args.req.body.groupId);
+				};
+			};
+
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'groupId') {
+						filter['_id'] = 1;
+					} else if (f == 'role' || f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		share: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 4
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'bitid.auth.users.email': {
+					$ne: format.email(args.req.body.email)
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			var update = {
+				$set: {
+					'serverDate': new Date()
+				},
+				$push: {
+					'bitid.auth.users': {
+						'role': args.req.body.role,
+						'email': format.email(args.req.body.email)
+					}
+				}
+			};
+
+			db.call({
+				'params': params,
+				'update': update,
+				'operation': 'update',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		update: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 2
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			var update = {
+				$set: {
+					'serverDate': new Date()
+				}
+			};
+			if (Array.isArray(args.req.body.appId)) {
+				update.$set.appId = args.req.body.appId;
+			};
+			if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
+				update.$set.description = args.req.body.description;
+			};
+			if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly != null) {
+				update.$set['bitid.auth.organizationOnly'] = args.req.body.organizationOnly;
+			};
+
+			db.call({
+				'params': params,
+				'update': update,
+				'operation': 'update',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		delete: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 4
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'remove',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		unsubscribe: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 4
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			var update = {
+				$set: {
+					'serverDate': new Date()
+				},
+				$pull: {
+					'bitid.auth.users': {
+						'email': format.email(args.req.body.email)
+					}
+				}
+			};
+
+			db.call({
+				'params': params,
+				'update': update,
+				'operation': 'update',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		updatesubscriber: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 4
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'find',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'bitid.auth.users': {
+							$elemMatch: {
+								'email': format.email(args.req.body.email)
+							}
+						},
+						'_id': ObjectId(args.req.body.groupId)
+					};
+
+					var update = {
+						$set: {
+							'bitid.auth.users.$.role': args.req.body.role
+						}
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblGroups'
 					});
 
 					return deferred.promise;
@@ -3166,7 +3541,7 @@ var module = function () {
 				'_id': ObjectId(args.req.body.featureId)
 			};
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
@@ -3262,7 +3637,7 @@ var module = function () {
 				}
 			};
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
@@ -3272,7 +3647,7 @@ var module = function () {
 				};
 			};
 
-			if (typeof (args.req.body.featureId) != 'undefined' && args.req.body.featureId !== null) {
+			if (typeof (args.req.body.featureId) != 'undefined' && args.req.body.featureId != null) {
 				if (Array.isArray(args.req.body.featureId) && args.req.body.featureId.length > 0) {
 					match._id = {
 						$in: args.req.body.featureId.map(id => ObjectId(id))
@@ -3387,10 +3762,10 @@ var module = function () {
 						}
 					};
 
-					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title !== null) {
+					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title != null) {
 						update.$set.title = args.req.body.title;
 					};
-					if (typeof (args.req.body.description) != 'undefined' && args.req.body.description !== null) {
+					if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
 						update.$set.description = args.req.body.description;
 					};
 
@@ -3622,7 +3997,7 @@ var module = function () {
 				'_id': ObjectId(args.req.body.itemId)
 			};
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
@@ -3711,7 +4086,7 @@ var module = function () {
 
 			var params = {};
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					params.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
@@ -3721,7 +4096,7 @@ var module = function () {
 				};
 			};
 
-			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId !== null) {
+			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId != null) {
 				if (Array.isArray(args.req.body.itemId) && args.req.body.itemId.length > 0) {
 					params._id = {
 						$in: args.req.body.itemId.map(id => ObjectId(id))
@@ -3776,7 +4151,7 @@ var module = function () {
 				}
 			};
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId !== null) {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
@@ -3786,7 +4161,7 @@ var module = function () {
 				};
 			};
 
-			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId !== null) {
+			if (typeof (args.req.body.itemId) != 'undefined' && args.req.body.itemId != null) {
 				if (Array.isArray(args.req.body.itemId) && args.req.body.itemId.length > 0) {
 					match._id = {
 						$in: args.req.body.itemId.map(id => ObjectId(id))
@@ -3903,13 +4278,13 @@ var module = function () {
 						}
 					};
 
-					if (typeof (args.req.body.data) != 'undefined' && args.req.body.data !== null) {
+					if (typeof (args.req.body.data) != 'undefined' && args.req.body.data != null) {
 						update.$set.data = args.req.body.data;
 					};
-					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title !== null) {
+					if (typeof (args.req.body.title) != 'undefined' && args.req.body.title != null) {
 						update.$set.title = args.req.body.title;
 					};
-					if (typeof (args.req.body.subtitle) != 'undefined' && args.req.body.subtitle !== null) {
+					if (typeof (args.req.body.subtitle) != 'undefined' && args.req.body.subtitle != null) {
 						update.$set.subtitle = args.req.body.subtitle;
 					};
 
@@ -4022,6 +4397,7 @@ var module = function () {
 		'auth': dalAuth,
 		'users': dalUsers,
 		'scopes': dalScopes,
+		'groups': dalGroups,
 		'tokens': dalTokens,
 		'features': dalFeatures,
 		'statistics': dalStatistics,

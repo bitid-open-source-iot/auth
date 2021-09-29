@@ -573,6 +573,145 @@ var module = function () {
 		}
 	};
 
+	var bllGroups = {
+		add: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.add(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		get: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.get(args)
+				.then(tools.setRoleObject, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		list: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.list(args)
+				.then(tools.setRoleList, null)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		share: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.share(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		update: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.update(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		delete: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.delete(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		unsubscribe: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.unsubscribe(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		changeowner: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.changeowner(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
+		updatesubscriber: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.updatesubscriber(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		}
+	};
+
 	var bllConfig = {
 		get: (req, res) => {
 			var args = {
@@ -951,6 +1090,7 @@ var module = function () {
 		'users': bllUsers,
 		'config': bllConfig,
 		'scopes': bllScopes,
+		'groups': bllGroups,
 		'tokens': bllTokens,
 		'features': bllFeatures,
 		'statistics': bllStatistics,

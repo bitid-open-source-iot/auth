@@ -13,6 +13,7 @@ var email = config.email;
 var token = null;
 var appId = null;
 var scopeId = null;
+var groupId = null;
 var tokenId = null;
 var featureId = null;
 var tokenIdToRevoke = null;
@@ -45,7 +46,7 @@ describe('Config', function () {
 
 describe('Auth', function () {
     it('/auth/register', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.register()
             .then((result) => {
@@ -67,7 +68,7 @@ describe('Auth', function () {
     });
 
     it('/auth/verify', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.verify()
             .then((result) => {
@@ -88,7 +89,7 @@ describe('Auth', function () {
     });
 
     it('/auth/authenticate', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.authenticate()
             .then((result) => {
@@ -217,7 +218,7 @@ describe('Auth', function () {
     });
 
     it('/auth/changepassword', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.changepassword()
             .then((result) => {
@@ -238,7 +239,7 @@ describe('Auth', function () {
     });
 
     it('/auth/resetpassword', function (done) {
-        this.timeout(10000);
+        this.timeout(5000);
 
         tools.api.auth.resetpassword()
             .then((result) => {
@@ -586,6 +587,98 @@ describe('Scopes', function () {
         this.timeout(5000);
 
         tools.api.scopes.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
+describe('Groups', function () {
+    it('/groups/add', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.add()
+            .then((result) => {
+                try {
+                    groupId = result.groupId;
+                    result.should.have.property('groupId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/groups/get', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.get()
+            .then((result) => {
+                try {
+                    result.should.have.property('role');
+                    result.should.have.property('users');
+                    result.should.have.property('appId');
+                    result.should.have.property('groupId');
+                    result.should.have.property('description');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/groups/list', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.list()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('role');
+                    result[0].should.have.property('users');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('groupId');
+                    result[0].should.have.property('description');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/groups/update', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.update()
             .then((result) => {
                 try {
                     result.should.have.property('updated');
@@ -1099,6 +1192,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.scopes.delete()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/groups/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1699,6 +1813,48 @@ var tools = {
                     .then(deferred.resolve, deferred.resolve);
 
                 return deferred.promise;
+            }
+        },
+        groups: {
+            add: () => {
+                return tools.post('/groups/add', {
+                    'appId': [appId],
+                    'description': 'Test groups'
+                });
+            },
+            get: () => {
+                return tools.post('/groups/get', {
+                    'filter': [
+                        'role',
+                        'users',
+                        'appId',
+                        'groupId',
+                        'description'
+                    ],
+                    'groupId': groupId
+                });
+            },
+            list: () => {
+                return tools.post('/groups/list', {
+                    'filter': [
+                        'role',
+                        'users',
+                        'appId',
+                        'groupId',
+                        'description'
+                    ]
+                });
+            },
+            update: () => {
+                return tools.post('/groups/update', {
+                    'groupId': groupId,
+                    'description': 'Test groups Updated'
+                });
+            },
+            delete: () => {
+                return tools.post('/groups/delete', {
+                    'groupId': groupId
+                });
             }
         },
         tokens: {
