@@ -675,10 +675,121 @@ describe('Groups', function () {
             });
     });
 
+    it('/groups/share', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.share()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
     it('/groups/update', function (done) {
         this.timeout(5000);
 
         tools.api.groups.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    if (!config.authenticate) {
+        it('/groups/change-owner', function (done) {
+            this.timeout(5000);
+
+            tools.api.groups.changeowner(config.share)
+                .then(result => {
+                    try {
+                        result.should.containSubset({
+                            'updated': 1
+                        });
+                        done();
+                    } catch (e) {
+                        done(e);
+                    };
+                }, err => {
+                    try {
+                        done(err);
+                    } catch (e) {
+                        done(e);
+                    };
+                });
+        });
+
+        it('/groups/change-owner', function (done) {
+            this.timeout(5000);
+
+            config.email = config.share;
+            tools.api.groups.changeowner(email)
+                .then(result => {
+                    try {
+                        config.email = email;
+                        result.should.containSubset({
+                            'updated': 1
+                        });
+                        done();
+                    } catch (e) {
+                        done(e);
+                    };
+                }, err => {
+                    try {
+                        done(err);
+                    } catch (e) {
+                        done(e);
+                    };
+                });
+        });
+    };
+
+    it('/groups/updatesubscriber', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.updatesubscriber()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/groups/unsubscribe', function (done) {
+        this.timeout(5000);
+
+        tools.api.groups.unsubscribe()
             .then((result) => {
                 try {
                     result.should.have.property('updated');
@@ -1403,7 +1514,7 @@ var tools = {
 
                 tools.post('/apps/share', {
                     'role': 4,
-                    'email': 'shared@email.com',
+                    'email': config.share,
                     'appId': appId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1443,7 +1554,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/apps/unsubscribe', {
-                    'email': 'shared@email.com',
+                    'email': config.share,
                     'appId': appId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1455,7 +1566,7 @@ var tools = {
 
                 tools.post('/apps/updatesubscriber', {
                     'role': 3,
-                    'email': 'shared@email.com',
+                    'email': config.share,
                     'appId': appId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1595,6 +1706,15 @@ var tools = {
                         '/tokens/generate',
                         '/tokens/unsubscribe',
                         '/tokens/updatesubscriber',
+
+                        '/groups/add',
+                        '/groups/get',
+                        '/groups/list',
+                        '/groups/share',
+                        '/groups/update',
+                        '/groups/delete',
+                        '/groups/unsubscribe',
+                        '/groups/updatesubscriber',
 
                         '/apps/add',
                         '/apps/get',
@@ -1845,6 +1965,13 @@ var tools = {
                     ]
                 });
             },
+            share: () => {
+                return tools.post('/groups/share', {
+                    'role': 4,
+                    'email': config.share,
+                    'groupId': groupId
+                });
+            },
             update: () => {
                 return tools.post('/groups/update', {
                     'groupId': groupId,
@@ -1855,6 +1982,29 @@ var tools = {
                 return tools.post('/groups/delete', {
                     'groupId': groupId
                 });
+            },
+            unsubscribe: () => {
+                var deferred = Q.defer();
+
+                tools.post('/groups/unsubscribe', {
+                    'email': config.share,
+                    'groupId': groupId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
+            },
+            updatesubscriber: () => {
+                var deferred = Q.defer();
+
+                tools.post('/groups/updatesubscriber', {
+                    'role': 3,
+                    'email': config.share,
+                    'groupId': groupId
+                })
+                    .then(deferred.resolve, deferred.resolve);
+
+                return deferred.promise;
             }
         },
         tokens: {
@@ -1903,7 +2053,7 @@ var tools = {
 
                 tools.post('/tokens/share', {
                     'role': 2,
-                    'email': 'shared@test.co.za',
+                    'email': config.share,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1958,7 +2108,7 @@ var tools = {
                 var deferred = Q.defer();
 
                 tools.post('/tokens/unsubscribe', {
-                    'email': 'shared@test.co.za',
+                    'email': config.share,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -1970,7 +2120,7 @@ var tools = {
 
                 tools.post('/tokens/updatesubscriber', {
                     'role': 3,
-                    'email': 'shared@test.co.za',
+                    'email': config.share,
                     'tokenId': tokenId
                 })
                     .then(deferred.resolve, deferred.resolve);
@@ -2149,7 +2299,7 @@ var tools = {
             }
         }
     },
-    put: async (url, payload) => {
+    put: async (endpoint, payload) => {
         var deferred = Q.defer();
 
         payload.header = {
@@ -2159,7 +2309,7 @@ var tools = {
 
         payload = JSON.stringify(payload);
 
-        const response = await fetch(config.auth + url, {
+        const response = await fetch(config.auth + endpoint, {
             'headers': {
                 'accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
@@ -2172,11 +2322,15 @@ var tools = {
 
         const result = await response.json();
 
+        if (!response.ok) {
+            console.log(endpoint, result);
+        };
+
         deferred.resolve(result);
 
         return deferred.promise;
     },
-    post: async (url, payload) => {
+    post: async (endpoint, payload) => {
         var deferred = Q.defer();
 
         payload.header = {
@@ -2186,7 +2340,7 @@ var tools = {
 
         payload = JSON.stringify(payload);
 
-        const response = await fetch(config.auth + url, {
+        const response = await fetch(config.auth + endpoint, {
             'headers': {
                 'accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
@@ -2198,6 +2352,10 @@ var tools = {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            console.log(endpoint, result);
+        };
 
         deferred.resolve(result);
 

@@ -2556,9 +2556,13 @@ var module = function () {
 						'organizationOnly': args.req.body.organizationOnly || 0
 					}
 				},
-				'appId': args.req.body.appId || [],
+				'appId': [],
 				'serverDate': new Date(),
 				'description': args.req.body.description
+			};
+
+			if (Array.isArray(args.req.body.appId)) {
+				params.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
 			};
 
 			db.call({
@@ -2851,6 +2855,84 @@ var module = function () {
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		changeowner: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'bitid.auth.users': {
+					$elemMatch: {
+						'role': {
+							$gte: 5
+						},
+						'email': format.email(args.req.body.header.email)
+					}
+				},
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+			var update = {
+				$set: {
+					'bitid.auth.users.$.role': 4
+				}
+			};
+
+			db.call({
+				'params': params,
+				'update': update,
+				'operation': 'update',
+				'collection': 'tblGroups'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.nModified == 1) {
+						var params = {
+							'bitid.auth.users': {
+								$elemMatch: {
+									'email': format.email(args.req.body.email)
+								}
+							},
+							'_id': ObjectId(args.req.body.groupId)
+						};
+
+						var update = {
+							$set: {
+								'bitid.auth.users.$.role': 5
+							}
+						};
+
+						deferred.resolve({
+							'params': params,
+							'update': update,
+							'operation': 'update',
+							'collection': 'tblGroups'
+						});
+					} else {
+						var err = new ErrorResponse();
+						err.error.code = 401;
+						err.error.errors[0].code = 401;
+						err.error.errors[0].reason = 'Owner change fail!';
+						err.error.errors[0].message = 'Owner change fail!';
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+				.then(db.call, null)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.description;
+					err.error.errors[0].message = error.description;
 					deferred.reject(err);
 				});
 

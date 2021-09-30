@@ -45,7 +45,7 @@ router.post('/change-owner', (req, res) => {
 	myModule.groups.changeowner(req, res);
 });
 
-router.post('/update-subscriber', (req, res) => {
+router.post('/updatesubscriber', (req, res) => {
 	var myModule = new bll.module();
 	myModule.groups.updatesubscriber(req, res);
 });

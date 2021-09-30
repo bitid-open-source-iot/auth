@@ -581,7 +581,8 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.groups.add(args)
+			tools.insertOwnerIfNoneExists(args)
+				.then(myModule.groups.add, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

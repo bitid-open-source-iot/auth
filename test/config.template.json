@@ -4,5 +4,6 @@
 	"appId": "xxx",
 	"secret": "xxx",
 	"appName": "xxx",
-	"password": "xxx"
+	"password": "xxx",
+	"authenticate": true
 }
