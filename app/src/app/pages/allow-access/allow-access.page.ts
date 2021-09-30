@@ -119,7 +119,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 				const params = this.route.snapshot.queryParams;
 				this.appId = params.appId;
 				this.returl = params.returl;
-				if (typeof (params.email) != 'undefined' && params.email !== null) {
+				if (typeof (params.email) != 'undefined' && params.email != null) {
 					this.form.controls.email.setValue(params.email);
 				}
 				this.load();

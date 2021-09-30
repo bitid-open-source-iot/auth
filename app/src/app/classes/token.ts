@@ -15,43 +15,43 @@ export class Token {
 	public description: string;
 
 	constructor(args?: TOKEN) {
-		if (typeof (args) != 'undefined' && args !== null) {
+		if (typeof (args) != 'undefined' && args != null) {
 			if (Array.isArray(args.users)) {
 				this.users = args.users.map(user => new User(user));
 			}
 			if (Array.isArray(args.scopes)) {
 				this.scopes = args.scopes;
 			}
-			if (typeof (args.app) != 'undefined' && args.app !== null) {
-				if (typeof (args.app.icon) != 'undefined' && args.app.icon !== null) {
+			if (typeof (args.app) != 'undefined' && args.app != null) {
+				if (typeof (args.app.icon) != 'undefined' && args.app.icon != null) {
 					this.app.icon = args.app.icon;
 				}
-				if (typeof (args.app.name) != 'undefined' && args.app.name !== null) {
+				if (typeof (args.app.name) != 'undefined' && args.app.name != null) {
 					this.app.name = args.app.name;
 				}
 			}
-			if (typeof (args.role) != 'undefined' && args.role !== null) {
+			if (typeof (args.role) != 'undefined' && args.role != null) {
 				this.role = args.role;
 			}
-			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
+			if (typeof (args.appId) != 'undefined' && args.appId != null) {
 				this.appId = args.appId;
 			}
-			if (typeof (args.device) != 'undefined' && args.device !== null) {
+			if (typeof (args.device) != 'undefined' && args.device != null) {
 				this.device = args.device;
 			}
-			if (typeof (args.expiry) != 'undefined' && args.expiry !== null) {
+			if (typeof (args.expiry) != 'undefined' && args.expiry != null) {
 				this.expiry = args.expiry;
 			}
-			if (typeof (args.tokenId) != 'undefined' && args.tokenId !== null) {
+			if (typeof (args.tokenId) != 'undefined' && args.tokenId != null) {
 				this.tokenId = args.tokenId;
 			}
-			if (typeof (args.disabled) != 'undefined' && args.disabled !== null) {
+			if (typeof (args.disabled) != 'undefined' && args.disabled != null) {
 				this.disabled = args.disabled;
 			}
-			if (typeof (args.selected) != 'undefined' && args.selected !== null) {
+			if (typeof (args.selected) != 'undefined' && args.selected != null) {
 				this.selected = args.selected;
 			}
-			if (typeof (args.description) != 'undefined' && args.description !== null) {
+			if (typeof (args.description) != 'undefined' && args.description != null) {
 				this.description = args.description;
 			}
 		}

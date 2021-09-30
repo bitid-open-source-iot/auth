@@ -13,7 +13,7 @@ export class SettingsService {
 
 	constructor(private localstorage: LocalstorageService) {
 		this.theme.subscribe(value => {
-			if (typeof (value) != 'undefined' && value !== null) {
+			if (typeof (value) != 'undefined' && value != null) {
 				const settings = this.localstorage.getObject('settings', {
 					theme: 'light',
 					notifications: false
@@ -28,7 +28,7 @@ export class SettingsService {
 			}
 		});
 		this.notifications.subscribe(value => {
-			if (typeof (value) != 'undefined' && value !== null) {
+			if (typeof (value) != 'undefined' && value != null) {
 				const settings = this.localstorage.getObject('settings', {
 					theme: 'light',
 					notifications: false

@@ -14,7 +14,7 @@ export class LocalstorageService {
 
 	public get(key, value?) {
 		const result = window.localStorage.getItem(key);
-		if (typeof(result) != 'undefined' && result !== null) {
+		if (typeof(result) != 'undefined' && result != null) {
 			return result;
 		} else {
 			return value;

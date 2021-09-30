@@ -23,6 +23,7 @@ import { ApiService } from './services/api/api.service';
 import { AppsService } from './services/apps/apps.service';
 import { ToastService } from './services/toast/toast.service';
 import { UsersService } from './services/users/users.service';
+import { GroupsService } from './services/groups/groups.service';
 import { ConfigService } from './services/config/config.service';
 import { ScopesService } from './services/scopes/scopes.service';
 import { TokensService } from './services/tokens/tokens.service';
@@ -71,6 +72,7 @@ import { environment } from '../environments/environment';
 		ConfigService,
 		ScopesService,
 		TokensService,
+		GroupsService,
 		AccountService,
 		ButtonsService,
 		FiltersService,

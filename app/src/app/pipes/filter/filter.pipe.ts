@@ -8,7 +8,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class FilterPipe implements PipeTransform {
 
 	transform(array: any[], params: any, revert?: any[]): any[] {
-		const filters = Object.keys(params).filter(key => (params[key] !== null && params[key] !== '' && params[key].length != 0));
+		const filters = Object.keys(params).filter(key => (params[key] != null && params[key] !== '' && params[key].length != 0));
 		if (filters.length > 0) {
 			return array.filter(item => {
 				let found = false;

@@ -121,7 +121,7 @@ export class GenerateTokenPage implements OnInit, OnDestroy {
 		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				this.tokenId = this.route.snapshot.queryParams.tokenId;
-				if (typeof(this.tokenId) != 'undefined' && this.tokenId !== null) {
+				if (typeof(this.tokenId) != 'undefined' && this.tokenId != null) {
 					await this.get();
 					await this.load();
 				} else {

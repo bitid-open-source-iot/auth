@@ -22,6 +22,11 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignUpModule)
 	},
 	{
+		path: 'groups',
+		canActivate: [AuthManager],
+		loadChildren: () => import('./pages/groups/groups.module').then(m => m.GroupsModule)
+	},
+	{
 		path: 'scopes',
 		canActivate: [AuthManager],
 		loadChildren: () => import('./pages/scopes/scopes.module').then(m => m.ScopesModule)

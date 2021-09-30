@@ -3,6 +3,7 @@ import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfigService } from 'src/app/services/config/config.service';
+import { GroupsService } from 'src/app/services/groups/groups.service';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { UserEditorDialog } from './editor/editor.dialog';
@@ -17,7 +18,7 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class SubscribersPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private config: ConfigService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private buttons: ButtonsService, private tokens: TokensService) { }
+	constructor(private apps: AppsService, private config: ConfigService, private groups: GroupsService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private buttons: ButtonsService, private tokens: TokensService) { }
 
 	public id: string;
 	public role: number;
@@ -46,6 +47,10 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			case ('token'):
 				service = this.tokens;
 				params.tokenId = this.id;
+				break;
+			case ('group'):
+				service = this.groups;
+				params.groupId = this.id;
 				break;
 		}
 
@@ -78,6 +83,10 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			case ('token'):
 				service = this.tokens;
 				params.tokenId = this.id;
+				break;
+			case ('group'):
+				service = this.groups;
+				params.groupId = this.id;
 				break;
 		}
 
@@ -128,6 +137,10 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				service = this.tokens;
 				params.tokenId = this.id;
 				break;
+			case ('group'):
+				service = this.groups;
+				params.groupId = this.id;
+				break;
 		}
 
 		const response = await service.unsubscribe(params);
@@ -164,6 +177,10 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			case ('token'):
 				service = this.tokens;
 				params.tokenId = this.id;
+				break;
+			case ('group'):
+				service = this.groups;
+				params.groupId = this.id;
 				break;
 		}
 

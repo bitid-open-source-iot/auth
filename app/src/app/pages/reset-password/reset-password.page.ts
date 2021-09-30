@@ -105,7 +105,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 				if (typeof (params.password) != 'undefined') {
 					this.form.controls.old.setValue(params.password);
 				}
-				if (typeof(params.appId) != 'undefined' && params.appId !== null) {
+				if (typeof(params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				}

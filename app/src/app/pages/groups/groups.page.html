@@ -1,0 +1,63 @@
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
+    <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
+        <mat-icon>
+            apps
+        </mat-icon>
+        
+        <mat-label>
+            {{ describe(apps.data, 'appId', id) }}
+        </mat-label>
+        
+        <mat-icon matChipRemove>
+            cancel
+        </mat-icon>
+    </mat-chip>
+</mat-chip-list>
+
+<table mat-table [dataSource]="groups" fxShow fxHide.xs="true" matSort>
+    <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            Description
+        </th>
+        <td mat-cell *matCellDef="let element">
+            {{ element.description }}
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="appId">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            App(s)
+        </th>
+        <td mat-cell *matCellDef="let element">
+            <span class="app-item" *ngFor="let id of element.appId">
+                {{ describe(apps.data, 'appId', id) }}
+            </span>
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="options">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+            <button mat-icon-button (click)="options(element)">
+                <mat-icon>
+                    more_vert
+                </mat-icon>
+            </button>
+        </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
+</table>
+
+<mat-list fxHide fxShow.xs="true">
+    <mat-list-item lines="full" *ngFor="let element of groups.data" (click)="options(element)" matRipple>
+        <mat-label>
+            <h3>
+                {{ element.description }}
+            </h3>
+        </mat-label>
+    </mat-list-item>
+</mat-list>

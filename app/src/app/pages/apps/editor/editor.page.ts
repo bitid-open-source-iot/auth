@@ -214,7 +214,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 
 	public async add(event: MatChipInputEvent) {
 		const domains = this.form.value.domains;
-		if (typeof (event.value) != 'undefined' && event.value !== null && event.value != '' && !domains.includes(event.value.trim())) {
+		if (typeof (event.value) != 'undefined' && event.value != null && event.value != '' && !domains.includes(event.value.trim())) {
 			event.input.value = '';
 			domains.push(event.value.trim());
 			this.form.controls.domains.setValue(domains);

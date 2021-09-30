@@ -2635,10 +2635,20 @@ var module = function () {
 				'bitid.auth.users.email': format.email(args.req.body.header.email)
 			};
 
+			if (typeof (args.req.body.appId) != 'undefined') {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					params.appId = {
+						$in: args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+					params.appId = ObjectId(args.req.body.appId);
+				};
+			};
+
 			if (typeof (args.req.body.groupId) != 'undefined') {
 				if (Array.isArray(args.req.body.groupId) && args.req.body.groupId.length > 0) {
 					params._id = {
-						$in: args.req.body.groupId.map(id => ObjectId(id))
+						$in: args.req.body.groupId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
 					};
 				} else if (typeof (args.req.body.groupId) == 'string' && args.req.body.groupId.length == 24) {
 					params._id = ObjectId(args.req.body.groupId);
@@ -2752,7 +2762,7 @@ var module = function () {
 				}
 			};
 			if (Array.isArray(args.req.body.appId)) {
-				update.$set.appId = args.req.body.appId;
+				update.$set.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id));
 			};
 			if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
 				update.$set.description = args.req.body.description;

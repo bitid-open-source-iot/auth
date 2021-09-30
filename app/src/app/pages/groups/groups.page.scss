@@ -1,0 +1,24 @@
+.mat-column-icon {
+    width: 60px;
+    img {
+        margin-top: 4px;
+    }
+}
+.mat-column-private {
+    width: 250px;
+}
+.mat-column-options {
+    width: 40px;
+    padding-right: 16px !important;
+}
+mat-list mat-list-item {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+}
+.app-item::after {
+    content: ",";
+}
+.app-item:last-child:after {
+    content: "";
+}

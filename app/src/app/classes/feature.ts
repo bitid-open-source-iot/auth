@@ -8,28 +8,28 @@ export class Feature {
 	public description: string;
 
 	constructor(args?: FEATURE) {
-		if (typeof (args) != 'undefined' && args !== null) {
-			if (typeof (args.app) != 'undefined' && args.app !== null) {
-				if (typeof (args.app.name) != 'undefined' && args.app.name !== null) {
+		if (typeof (args) != 'undefined' && args != null) {
+			if (typeof (args.app) != 'undefined' && args.app != null) {
+				if (typeof (args.app.name) != 'undefined' && args.app.name != null) {
 					this.app.name = args.app.name;
 				}
-				if (typeof (args.app.icon) != 'undefined' && args.app.icon !== null) {
+				if (typeof (args.app.icon) != 'undefined' && args.app.icon != null) {
 					this.app.icon = args.app.icon;
 				}
 			}
-			if (typeof (args.role) != 'undefined' && args.role !== null) {
+			if (typeof (args.role) != 'undefined' && args.role != null) {
 				this.role = args.role;
 			}
-			if (typeof (args.appId) != 'undefined' && args.appId !== null) {
+			if (typeof (args.appId) != 'undefined' && args.appId != null) {
 				this.appId = args.appId;
 			}
-			if (typeof (args.title) != 'undefined' && args.title !== null) {
+			if (typeof (args.title) != 'undefined' && args.title != null) {
 				this.title = args.title;
 			}
-			if (typeof (args.featureId) != 'undefined' && args.featureId !== null) {
+			if (typeof (args.featureId) != 'undefined' && args.featureId != null) {
 				this.featureId = args.featureId;
 			}
-			if (typeof (args.description) != 'undefined' && args.description !== null) {
+			if (typeof (args.description) != 'undefined' && args.description != null) {
 				this.description = args.description;
 			}
 		}

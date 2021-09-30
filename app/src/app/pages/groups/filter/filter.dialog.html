@@ -1,0 +1,41 @@
+<mat-toolbar>
+    <mat-label class="spacer">
+        Filter Scopes
+    </mat-label>
+
+    <button mat-icon-button (click)="close()">
+        <mat-icon>
+            close
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
+<mat-content>
+    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+    
+    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <mat-form-field appearance="outline">
+            <mat-label>
+                App(s)
+            </mat-label>
+
+            <mat-select name="appId" formControlName="appId" multiple>
+                <mat-option [formGroup]="filter">
+                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found" formControlName="app"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value.app }" [value]="app.appId">
+                    {{ app.name }}
+                </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="errors.appId">
+                {{ errors.appId }}
+            </mat-error>
+        </mat-form-field>
+
+        <button type="submit" color="primary" mat-flat-button>
+            submit
+        </button>
+    </form>
+</mat-content>
