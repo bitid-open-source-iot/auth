@@ -148,7 +148,7 @@ var module = function () {
 			var params = {};
 
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
-				if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					params._id = ObjectId(args.req.body.appId);
 				};
 			};
@@ -203,7 +203,7 @@ var module = function () {
 					params._id = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					params._id = ObjectId(args.req.body.appId);
 				};
 			};
@@ -2310,7 +2310,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -2562,7 +2562,7 @@ var module = function () {
 			};
 
 			if (Array.isArray(args.req.body.appId)) {
-				params.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id.length == 24).map(id => ObjectId(id))
+				params.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
 			};
 
 			db.call({
@@ -2638,9 +2638,9 @@ var module = function () {
 			if (typeof (args.req.body.appId) != 'undefined') {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					params.appId = {
-						$in: args.req.body.appId.filter(id => typeof (id) == 'string' && id.length == 24).map(id => ObjectId(id))
+						$in: args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					params.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -2648,9 +2648,9 @@ var module = function () {
 			if (typeof (args.req.body.groupId) != 'undefined') {
 				if (Array.isArray(args.req.body.groupId) && args.req.body.groupId.length > 0) {
 					params._id = {
-						$in: args.req.body.groupId.filter(id => typeof (id) == 'string' && id.length == 24).map(id => ObjectId(id))
+						$in: args.req.body.groupId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.groupId) == 'string' && args.req.body.groupId.length == 24) {
+				} else if (typeof (args.req.body.groupId) == 'string' && args.req.body.groupId?.length == 24) {
 					params._id = ObjectId(args.req.body.groupId);
 				};
 			};
@@ -2762,7 +2762,7 @@ var module = function () {
 				}
 			};
 			if (Array.isArray(args.req.body.appId)) {
-				update.$set.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id.length == 24).map(id => ObjectId(id));
+				update.$set.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id));
 			};
 			if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
 				update.$set.description = args.req.body.description;
@@ -3109,7 +3109,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -3638,7 +3638,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -3734,7 +3734,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -3744,7 +3744,7 @@ var module = function () {
 					match._id = {
 						$in: args.req.body.featureId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.featureId) == 'string' && args.req.body.featureId.length == 24) {
+				} else if (typeof (args.req.body.featureId) == 'string' && args.req.body.featureId?.length == 24) {
 					match._id = ObjectId(args.req.body.featureId);
 				};
 			};
@@ -4094,7 +4094,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -4183,7 +4183,7 @@ var module = function () {
 					params.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					params.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -4193,7 +4193,7 @@ var module = function () {
 					params._id = {
 						$in: args.req.body.itemId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId.length == 24) {
+				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId?.length == 24) {
 					params._id = ObjectId(args.req.body.itemId);
 				};
 			};
@@ -4248,7 +4248,7 @@ var module = function () {
 					match.appId = {
 						$in: args.req.body.appId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId.length == 24) {
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
 					match.appId = ObjectId(args.req.body.appId);
 				};
 			};
@@ -4258,7 +4258,7 @@ var module = function () {
 					match._id = {
 						$in: args.req.body.itemId.map(id => ObjectId(id))
 					};
-				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId.length == 24) {
+				} else if (typeof (args.req.body.itemId) == 'string' && args.req.body.itemId?.length == 24) {
 					match._id = ObjectId(args.req.body.itemId);
 				};
 			};
