@@ -2311,7 +2311,7 @@ var tools = {
 
         const response = await fetch(config.auth + endpoint, {
             'headers': {
-                'accept': '*/*',
+                'Accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Authorization': JSON.stringify(token),
                 'Content-Length': payload.length
@@ -2342,7 +2342,7 @@ var tools = {
 
         const response = await fetch(config.auth + endpoint, {
             'headers': {
-                'accept': '*/*',
+                'Accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
                 'Authorization': JSON.stringify(token),
                 'Content-Length': payload.length
