@@ -37,6 +37,15 @@
             "request": "launch",
             "preLaunchTask": "docker-run: debug",
             "platform": "node"
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Remote",
+            "address": "localhost",
+            "port": 9221,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/var/www/node/auth"
         }
     ]
 }
