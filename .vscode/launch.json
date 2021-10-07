@@ -15,12 +15,12 @@
         },
         {
             "type": "node",
-            "request": "launch",
-            "name": "Initialize Database",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/db/scripts/setup.js"
+            "request": "attach",
+            "name": "Attach to Remote",
+            "address": "localhost",
+            "port": 9221,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/var/www/node/auth"
         }
     ]
 }
