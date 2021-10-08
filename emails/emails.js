@@ -5,19 +5,20 @@ const nodemailer = require('nodemailer');
 exports.test = () => {
     var deferred = Q.defer();
 
-    try{
-        const transporter = nodemailer.createTransport(__settings.smtp);
-
+    try {
+        var config = JSON.parse(JSON.stringify(__settings.smtp));
+        delete config.from;
+        const transporter = nodemailer.createTransport(config);
 
         transporter.sendMail({
-            from: 'notifications@dijital.cloud',
+            from: __settings.smtp.from,
             to: 'shane@bitid.co.za',
             subject: 'Test',
             text: 'hello world1',
             html: '<h1>TEST1</h1>'
-          })
-          deferred.resolve()
-    }catch(e){
+        })
+        deferred.resolve()
+    } catch (e) {
         deferred.reject(e)
     }
 
@@ -27,7 +28,10 @@ exports.test = () => {
 exports.verify = (args) => {
     var deferred = Q.defer();
 
-    const transporter = nodemailer.createTransport(__settings.smtp);
+    var config = JSON.parse(JSON.stringify(__settings.smtp));
+    delete config.from;
+
+    const transporter = nodemailer.createTransport(config);
 
     transporter.use('compile', hbs({
         'viewEngine': {
@@ -48,8 +52,7 @@ exports.verify = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': 'support@bitid.co.za',
-        // 'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
+        'from': __settings.smtp.from,
         'subject': 'Verify Account',
         'template': 'verify'
     }, (error, info) => {
@@ -67,7 +70,10 @@ exports.verify = (args) => {
 exports.welcome = (args) => {
     var deferred = Q.defer();
 
-    const transporter = nodemailer.createTransport(__settings.smtp);
+    var config = JSON.parse(JSON.stringify(__settings.smtp));
+    delete config.from;
+
+    const transporter = nodemailer.createTransport(config);
 
     transporter.use('compile', hbs({
         'viewEngine': {
@@ -86,8 +92,7 @@ exports.welcome = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': 'support@bitid.co.za',
-        // 'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
+        'from': __settings.smtp.from,
         'subject': 'Welcome',
         'template': 'welcome'
     }, (error, info) => {
@@ -105,7 +110,10 @@ exports.welcome = (args) => {
 exports.resetpassword = (args) => {
     var deferred = Q.defer();
 
-    const transporter = nodemailer.createTransport(__settings.smtp);
+    var config = JSON.parse(JSON.stringify(__settings.smtp));
+    delete config.from;
+
+    const transporter = nodemailer.createTransport(config);
 
     transporter.use('compile', hbs({
         'viewEngine': {
@@ -125,8 +133,7 @@ exports.resetpassword = (args) => {
             'branding': __settings.branding
         },
         'to': __settings.production ? args.user.email : __settings.smtp.auth.user,
-        'from': 'support@bitid.co.za',
-        // 'from': __settings.production ? __settings.smtp.auth.user : 'support@bitid.co.za',
+        'from': __settings.smtp.from,
         'subject': 'Reset Password',
         'template': 'reset-password'
     }, (error, info) => {
