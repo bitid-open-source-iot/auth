@@ -100,22 +100,18 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 	private async process() {
-		this.loading = true;
-		
-		setTimeout(() => {
-			this.loading = false;
-			if (this.account.authenticated.value) {
-				this.load();
-			} else {
-				this.router.navigate(['/signin'], {
-					queryParams: {
-						appId: this.appId,
-						returl: this.returl,
-						allowaccess: true
-					}
-				});
-			};
-		}, 2000);
+		const valid = await this.account.validate();
+		if (valid) {
+			this.load();
+		} else {
+			this.router.navigate(['/signin'], {
+				queryParams: {
+					appId: this.appId,
+					returl: this.returl,
+					allowaccess: true
+				}
+			});
+		};
 	}
 
 	ngOnInit(): void {
