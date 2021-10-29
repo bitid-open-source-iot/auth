@@ -2,19 +2,20 @@ mat-content {
     display: flex;
     align-items: center;
     flex-direction: column;
-    img {
-        margin: 20px 0px;
-    }
-    form {
+    p {
+        width: 100%;
         max-width: 400px;
-    }
-    button {
+        text-align: center;
         margin-bottom: 20px;
     }
-}
-.forgot-password {
-    color: #2196F3;
-    cursor: pointer;
-    margin-left: auto;
-    margin-bottom: 20px;
+    .image-container {
+        width: 100px;
+        height: 100px;
+        margin: 20px 0px;
+    }
+    button {
+        width: 100%;
+        max-width: 400px;
+        margin-bottom: 20px;
+    }
 }

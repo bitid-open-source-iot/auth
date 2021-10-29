@@ -1,14 +1,21 @@
 import { MatDialog } from '@angular/material/dialog';
+import { Router, ActivatedRoute } from '@angular/router';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+
+/* --- DIALOGS --- */
+import { AcceptDialog } from './accept/accept.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
-import { AcceptDialog } from './accept/accept.dialog';
 import { ConfigService } from 'src/app/services/config/config.service';
-import { ActivatedRoute } from '@angular/router';
+import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
-import { FormErrorService } from 'src/app/services/form-error/form-error.service';
+import { AccountService } from 'src/app/services/account/account.service';
 import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
-import { OnInit, Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
 	selector: 'allow-access-page',
@@ -18,16 +25,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private route: ActivatedRoute, private toast: ToastService, private dialog: MatDialog, private config: ConfigService, private formerror: FormErrorService, private buttons: ButtonsService, private service: AppsService, private localstorage: LocalstorageService) { }
+	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private buttons: ButtonsService, private localstorage: LocalstorageService) { }
 
-	public form: FormGroup = new FormGroup({
-		email: new FormControl('', [Validators.email, Validators.required]),
-		password: new FormControl('', [Validators.required])
-	});
-	public errors: any = {
-		email: '',
-		password: ''
-	};
 	public app: any = {};
 	public url: string;
 	public appId: string;
@@ -38,7 +37,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	private async load() {
 		this.loading = true;
 
-		const response = await this.service.load({
+		const apps = await this.apps.load({
 			filter: [
 				'icon',
 				'name',
@@ -49,8 +48,8 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 
 		this.loading = false;
 
-		if (response.ok) {
-			this.app = response.result;
+		if (apps.ok) {
+			this.app = new App(apps.result);
 		} else {
 			this.toast.show('Issue loading app!');
 		}
@@ -58,36 +57,21 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 
 	public async submit() {
 		this.loading = true;
-
-		this.form.disable();
-
-		this.localstorage.set('email', this.form.value.email);
-
-		const expiry = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-
-		const response = await this.service.allowaccess({
+	
+		const response = await this.tokens.generate({
 			appId: this.appId,
-			email: this.form.value.email,
-			expiry,
-			scopes: this.app.scopes,
-			password: this.form.value.password,
+			expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
 			description: this.app.name + ' (LOGIN)'
 		});
 
-		this.form.enable();
-
-		this.loading = false;
-
 		if (response.ok) {
-			// if (!response.result.user.privacyPolicy || !response.result.user.termsAndConditions) {
-			// 	this.accept();
-			// } else {
-			this.url = [this.returl, '?', 'email=', this.form.value.email, '&', 'tokenId=', response.result.tokenId].join('');
+			this.url = [this.returl, '?', 'email=', this.localstorage.get('email'), '&', 'tokenId=', response.result.tokenId].join('');
 			window.open(this.url, '_parent');
-			// };
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
+
+		this.loading = false;
 	}
 
 	private async accept() {
@@ -104,39 +88,54 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		});
 	}
 
+	public async switch() {
+		this.localstorage.clear();
+		this.router.navigate(['/signin'], {
+			queryParams: {
+				appId: this.appId,
+				returl: this.returl,
+				allowaccess: true
+			}
+		});
+	}
+
+	private async process() {
+		this.loading = true;
+		
+		setTimeout(() => {
+			this.loading = false;
+			if (this.account.authenticated.value) {
+				this.load();
+			} else {
+				this.router.navigate(['/signin'], {
+					queryParams: {
+						appId: this.appId,
+						returl: this.returl,
+						allowaccess: true
+					}
+				});
+			};
+		}, 1000);
+	}
+
 	ngOnInit(): void {
 		this.buttons.hide('add');
 		this.buttons.hide('close');
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
-			this.errors = this.formerror.validateForm(this.form, this.errors, true);
-		});
-
 		this.subscriptions.config = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				const params = this.route.snapshot.queryParams;
 				this.appId = params.appId;
 				this.returl = params.returl;
-				if (typeof (params.email) != 'undefined' && params.email != null) {
-					this.form.controls.email.setValue(params.email);
-				}
-				this.load();
-			}
+				this.process();
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.config.unsubscribe();
+		this.subscriptions.config?.unsubscribe();
 	}
 
 }
-/*
-	1 - Check if authentcated
-	2 - Authenticate if not
-	3 - Check if all stuff accepted
-	4 - Push accept if not
-	5 - Allow Access
-*/

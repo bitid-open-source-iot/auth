@@ -1983,6 +1983,12 @@ var tools = {
                     'groupId': groupId
                 });
             },
+            changeowner: () => {
+                return tools.post('/groups/change-owner', {
+                    'email': config.share,
+                    'groupId': groupId
+                });
+            },
             unsubscribe: () => {
                 var deferred = Q.defer();
 

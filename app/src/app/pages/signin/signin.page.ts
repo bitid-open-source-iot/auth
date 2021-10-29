@@ -1,9 +1,10 @@
-import { Router } from '@angular/router';
+import { AppsService } from 'src/app/services/apps/apps.service';
 import { environment } from 'src/environments/environment';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
+import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -15,9 +16,12 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class SignInPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
+	constructor(private apps: AppsService, private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-	public app: any = {};
+	public app: any = {
+		icon: environment.icon,
+		name: environment.appName
+	};
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.required]),
 		password: new FormControl(null, [Validators.required])
@@ -27,6 +31,8 @@ export class SignInPage implements OnInit, OnDestroy {
 		password: ''
 	};
 	public loading: boolean;
+	private appId: string;
+	private allowaccess: boolean = false;
 	private subscriptions: any = {};
 
 	public signup() {
@@ -44,13 +50,43 @@ export class SignInPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.toast.show('Sign in successfull!');
-			this.router.navigate(['/apps']);
+			if (this.allowaccess) {
+				this.toast.show('Sign in successfull, Taking you to app access!');
+				setTimeout(() => {
+					this.router.navigate(['/allow-access'], {
+						queryParamsHandling: 'preserve'
+					});
+				}, 1000);
+			} else {
+				this.toast.show('Sign in successfull!');
+				this.router.navigate(['/apps']);
+			};
 		} else {
 			this.toast.show(response.error.message);
 		}
 
 		this.loading = false;
+	}
+
+	private async load() {
+		this.loading = true;
+
+		const response = await this.apps.load({
+			filter: [
+				'icon',
+				'name',
+				'scopes'
+			],
+			appId: this.appId
+		});
+
+		this.loading = false;
+
+		if (response.ok) {
+			this.app = response.result;
+		} else {
+			this.toast.show('Issue loading app!');
+		}
 	}
 
 	ngOnInit(): void {
@@ -60,7 +96,16 @@ export class SignInPage implements OnInit, OnDestroy {
 
 		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				this.app.icon = environment.icon;
+				const params = this.route.snapshot.queryParams;
+
+				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+					this.appId = params.appId;
+				};
+				if (typeof(params.allowaccess) != 'undefined' && params.allowaccess != null) {
+					this.allowaccess = JSON.parse(params.allowaccess);
+				};
+				
+				this.load();
 			};
 		});
 	}

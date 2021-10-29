@@ -1,47 +1,27 @@
 <mat-content>
-    <img [src]="app.icon" alt="icon" width="100" height="100" *ngIf="app.icon">
+    <div class="image-container">
+        <img [src]="app.icon" alt="icon" width="100" height="100" *ngIf="app.icon">
+    </div>
 
     <h1 *ngIf="app.name">
         {{ app.name }}
     </h1>
 
-    <form [formGroup]="form" (ngSubmit)="!form.invalid && !loading && submit()">
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Email
-            </mat-label>
-            
-            <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+    <p>
+        This application is requesting access to your account for authentication!
+    </p>
 
-            <mat-error *ngIf="errors.email">
-                {{ errors.email }}
-            </mat-error>
-        </mat-form-field>
+    <button type="button" mat-flat-button color="primary" (click)="submit()">
+        {{ loading ? '' : 'Grant Access' }}
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Password
-            </mat-label>
-            
-            <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+        <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+    </button>
 
-            <mat-error *ngIf="errors.password">
-                {{ errors.password }}
-            </mat-error>
-        </mat-form-field>
-        
-        <a class="forgot-password" routerLink="/forgot-password" queryParamsHandling="preserve">
-            Forgot Password?
-        </a>
+    <button type="button" mat-stroked-button color="primary" (click)="switch()">
+        Switch Account
+    </button>
 
-        <button type="submit" mat-flat-button color="primary">
-            {{ loading ? '' : 'sign in' }}
-
-            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
-        </button>
-
-        <button type="button" mat-stroked-button color="primary" back-button>
-            back
-        </button>
-    </form>
+    <button type="button" mat-stroked-button color="primary" back-button>
+        back
+    </button>
 </mat-content>
