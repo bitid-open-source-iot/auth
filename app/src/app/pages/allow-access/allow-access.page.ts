@@ -115,7 +115,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 					}
 				});
 			};
-		}, 1000);
+		}, 2000);
 	}
 
 	ngOnInit(): void {
