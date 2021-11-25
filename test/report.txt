@@ -1,0 +1,90 @@
+
+
+  Software & Testing Details
+    ✔ DATE: 25/11/2021 07:16:05
+    ✔ AUTHOR: claytoncc
+    ✔ VERSION: 2.0.7
+
+  Config
+    ✔ /config/get
+
+  Auth
+    ✔ /auth/register (3582ms)
+    ✔ /auth/verify (3031ms)
+    ✔ /auth/authenticate
+    ✔ /auth/allowaccess
+    ✔ /auth/validate
+    ✔ /auth/auth
+    ✔ /auth/changeemail
+    ✔ /auth/changeemail (41ms)
+    ✔ /auth/changepassword
+    ✔ /auth/resetpassword (3344ms)
+
+  Apps
+    ✔ /apps/add
+    ✔ /apps/get
+    ✔ /apps/list
+    ✔ /apps/share
+    ✔ /apps/update
+    ✔ /apps/is-admin
+    ✔ /apps/updatesubscriber
+    ✔ /apps/unsubscribe
+
+  Users
+    ✔ /users/get
+    ✔ /users/update
+
+  Scopes
+    ✔ /scopes/add
+    ✔ /scopes/get
+    ✔ /scopes/list (94ms)
+    ✔ /scopes/update (40ms)
+
+  Groups
+    ✔ /groups/add
+    ✔ /groups/get
+    ✔ /groups/list
+    ✔ /groups/share (39ms)
+    ✔ /groups/update
+    ✔ /groups/updatesubscriber
+    ✔ /groups/unsubscribe
+
+  Tokens
+    ✔ /tokens/get
+    ✔ /tokens/list
+    ✔ /tokens/share
+    ✔ /tokens/generate
+    ✔ /tokens/updatesubscriber
+    ✔ /tokens/unsubscribe
+    ✔ /tokens/retrieve
+    ✔ /tokens/download
+
+  Features
+    ✔ /features/add
+    ✔ /features/get
+    ✔ /features/list
+    ✔ /features/update
+
+  Tips & Updates
+    ✔ /tips-and-updates/add
+    ✔ /tips-and-updates/get
+    ✔ /tips-and-updates/load
+    ✔ /tips-and-updates/list
+    ✔ /tips-and-updates/update
+
+  Health Check
+    ✔ /
+
+  Remove Added Items
+    ✔ /users/delete
+    ✔ /features/delete
+    ✔ /tips-and-updates/delete
+    ✔ /scopes/delete
+    ✔ /groups/delete
+    ✔ /apps/delete
+    ✔ /tokens/revoke
+    ✔ /tokens/revoke
+
+
+  61 passing (11s)
+

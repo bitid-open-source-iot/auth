@@ -73,7 +73,11 @@ export class ApiService {
 		if (error.error) {
 			if (error.error.errors) {
 				error.error = error.error.errors[0];
+				const routes = ['/signin', '/signup', '/verify-account', '/reset-password', '/forgot-password'];
 				if (error.error.code == 401) {
+					if (routes.includes(window.location.pathname)) {
+						return error;
+					};
 					this.localstorage.clear();
 					this.router.navigate(['/signin']);
 				}

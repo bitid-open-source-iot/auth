@@ -1,6 +1,7 @@
 const Q = require('q');
 const chai = require('chai');
 const fetch = require('node-fetch');
+const moment = require('moment');
 const assert = require('chai').assert;
 const expect = require('chai').expect;
 const should = require('chai').should();
@@ -18,6 +19,23 @@ var tokenId = null;
 var featureId = null;
 var tokenIdToRevoke = null;
 var generatedTokenId = null;
+
+describe('Software & Testing Details', function () {
+    it('DATE: ' + moment().format('DD/MM/YYYY HH:mm:ss'), function (done) {
+        this.timeout(5000);
+        done();
+    });
+
+    it('AUTHOR: ' + require('os').userInfo().username, function (done) {
+        this.timeout(5000);
+        done();
+    });
+
+    it('VERSION: ' + require('../package.json').version, function (done) {
+        this.timeout(5000);
+        done();
+    });
+});
 
 describe('Config', function () {
     it('/config/get', function (done) {
