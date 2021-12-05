@@ -1,6 +1,7 @@
 const Q = require('q');
 const db = require('../db/mongo');
 const tools = require('../lib/tools');
+const unlink = (args) => JSON.parse(JSON.stringify(args));
 const format = require('../lib/format');
 const ObjectId = require('mongodb').ObjectId;
 const ErrorResponse = require('../lib/error-response');
@@ -11,6 +12,15 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
+				'bitid': {
+					'auth': {
+						'apps': args.req.body.apps || [],
+						'users': args.req.body.users || [],
+						'groups': args.req.body.groups || [],
+						'private': args.req.body.private || true,
+						'organizationOnly': args.req.body.organizationOnly || 0
+					}
+				},
 				'icons': {
 					'icon72x72': null,
 					'icon96x96': null,
@@ -20,12 +30,6 @@ var module = function () {
 					'icon192x192': null,
 					'icon384x384': null,
 					'icon512x512': null
-				},
-				'bitid': {
-					'auth': {
-						'users': args.req.body.users,
-						'organizationOnly': args.req.body.organizationOnly || 0
-					}
 				},
 				'google': {
 					'database': null,
@@ -38,8 +42,7 @@ var module = function () {
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
 				'domains': args.req.body.domains || [],
-				'favicon': args.req.body.favicon || null,
-				'private': args.req.body.private || false,
+				'favicon': args.req.body.favicon,
 				'serverDate': new Date()
 			};
 
@@ -101,10 +104,175 @@ var module = function () {
 		get: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': ObjectId(args.req.body.appId),
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
-			};
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				}
+			];
 
 			var filter = {};
 			if (typeof (args.req.body.filter) != 'undefined') {
@@ -112,8 +280,14 @@ var module = function () {
 				args.req.body.filter.map(f => {
 					if (f == 'appId') {
 						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'apps') {
+						filter['bitid.auth.apps'] = 1;
+					} else if (f == 'users') {
 						filter['bitid.auth.users'] = 1;
+					} else if (f == 'groups') {
+						filter['bitid.auth.groups'] = 1;
+					} else if (f == 'private') {
+						filter['bitid.auth.private'] = 1;
 					} else if (f == 'organizationOnly') {
 						filter['bitid.auth.organizationOnly'] = 1;
 					} else {
@@ -121,15 +295,19 @@ var module = function () {
 					};
 				});
 			};
+			if (Object.keys(filter).length > 0) {
+				params.push({
+					$project: filter
+				});
+			};
 
 			db.call({
 				'params': params,
-				'filter': filter,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
 				.then(result => {
-					args.result = result[0];
+					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();
@@ -194,21 +372,188 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
-			};
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				}
+			];
 
-			if (typeof (args.req.body.appId) != 'undefined') {
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
-					params._id = {
-						$in: args.req.body.appId.map(id => ObjectId(id))
-					};
+					params[2].$match.$or.map(param => {
+						param._id = {
+							$in: args.req.body.appId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
+						};
+					});
 				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
-					params._id = ObjectId(args.req.body.appId);
+					params[2].$match.$or.map(param => {
+						param._id = ObjectId(args.req.body.appId);
+					});
 				};
 			};
 
-			if (typeof (args.req.body.private) != 'undefined') {
+			if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
 				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
 					params.private = {
 						$in: args.req.body.private
@@ -233,15 +578,19 @@ var module = function () {
 					};
 				});
 			};
+			if (Object.keys(filter).length > 0) {
+				params.push({
+					$project: filter
+				});
+			};
 
 			db.call({
 				'params': params,
-				'filter': filter,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
 				.then(result => {
-					args.result = result;
+					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();
@@ -2552,7 +2901,8 @@ var module = function () {
 			var params = {
 				'bitid': {
 					'auth': {
-						'users': args.req.body.users,
+						'users': args.req.body.users || [],
+						'private': args.req.body.private || true,
 						'organizationOnly': args.req.body.organizationOnly || 0
 					}
 				},
@@ -3411,10 +3761,15 @@ var module = function () {
 					var params = {
 						'bitid': {
 							'auth': {
-								'users': [{
-									'role': 5,
-									'email': format.email(args.req.body.header.email)
-								}]
+								'apps': [],
+								'users': [
+									{
+										'role': 5,
+										'email': format.email(args.req.body.header.email)
+									}
+								],
+								'groups': [],
+								'private': true
 							}
 						},
 						'token': {

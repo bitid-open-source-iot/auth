@@ -1,6 +1,30 @@
 const apps = db.collection('tblApps');
 if (apps.count() == 0) {
     db.tblApps.insertOne({
+        'bitid': {
+            'auth': {
+                'apps': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 4
+                    }
+                ],
+                'users': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 5
+                    }
+                ],
+                'groups': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 3
+                    }
+                ],
+                'private': true,
+                'organizationOnly': 1
+            }
+        },
         'icons': [
             {
                 'src': 'assets/icons/icon-72x72.png',
@@ -51,17 +75,6 @@ if (apps.count() == 0) {
                 'purpose': 'maskable any'
             }
         ],
-        'bitid': {
-            'auth': {
-                'users': [
-                    {
-                        'role': 5,
-                        'email': 'xxx@xxx.co.za'
-                    }
-                ],
-                'organizationOnly': 1
-            }
-        },
         'theme': {
             'color': '',
             'background': ''
@@ -100,6 +113,27 @@ if (apps.count() == 0) {
 
     db.tblApps.createIndex({
         'name': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblApps.createIndex({
+        '_id': 1,
+        'bitid.auth.apps.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblApps.createIndex({
+        '_id': 1,
+        'bitid.auth.users.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblApps.createIndex({
+        '_id': 1,
+        'bitid.auth.groups.id': 1
     }, {
         'unique': true
     });
@@ -173,12 +207,26 @@ if (tokens.count() == 0) {
     db.tblTokens.insertOne({
         'bitid': {
             'auth': {
+                'apps': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 4
+                    }
+                ],
                 'users': [
                     {
-                        'role': 5,
-                        'email': 'xxx@xxx.co.za'
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 5
                     }
-                ]
+                ],
+                'groups': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 3
+                    }
+                ],
+                'private': true,
+                'organizationOnly': 1
             }
         },
         'token': {
@@ -204,7 +252,27 @@ if (tokens.count() == 0) {
         'device': 1,
         'description': 1,
         'token.expiry': 1,
-        'bitid.auth.users.email': 1
+        'bitid.auth.apps.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblTokens.createIndex({
+        'appId': 1,
+        'device': 1,
+        'description': 1,
+        'token.expiry': 1,
+        'bitid.auth.users.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblTokens.createIndex({
+        'appId': 1,
+        'device': 1,
+        'description': 1,
+        'token.expiry': 1,
+        'bitid.auth.groups.id': 1
     }, {
         'unique': true
     });
@@ -215,12 +283,26 @@ if (groups.count() == 0) {
     db.tblGroups.insertOne({
         'bitid': {
             'auth': {
+                'apps': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 4
+                    }
+                ],
                 'users': [
                     {
-                        'role': 5,
-                        'email': 'xxx@xxx.co.za'
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 5
                     }
-                ]
+                ],
+                'groups': [
+                    {
+                        'id': ObjectId('000000000000000000000001'),
+                        'role': 3
+                    }
+                ],
+                'private': true,
+                'organizationOnly': 1
             }
         },
         '_id': ObjectId('000000000000000000000001'),
@@ -231,7 +313,21 @@ if (groups.count() == 0) {
 
     db.tblGroups.createIndex({
         '_id': 1,
-        'bitid.auth.users.email': 1
+        'bitid.auth.apps.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblGroups.createIndex({
+        '_id': 1,
+        'bitid.auth.users.id': 1
+    }, {
+        'unique': true
+    });
+
+    db.tblGroups.createIndex({
+        '_id': 1,
+        'bitid.auth.groups.id': 1
     }, {
         'unique': true
     });

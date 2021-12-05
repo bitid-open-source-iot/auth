@@ -70,6 +70,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     code = result.code;
+                    config.userId = result.userId;
                     result.should.have.property('code');
                     result.should.have.property('userId');
                     done();
@@ -311,10 +312,12 @@ describe('Apps', function () {
                     result.should.have.property('role');
                     result.should.have.property('name');
                     result.should.have.property('icon');
+                    result.should.have.property('apps');
                     result.should.have.property('icons');
                     result.should.have.property('appId');
                     result.should.have.property('users');
                     result.should.have.property('theme');
+                    result.should.have.property('groups');
                     result.should.have.property('scopes');
                     result.should.have.property('secret');
                     result.should.have.property('google');
@@ -345,10 +348,12 @@ describe('Apps', function () {
                     result[0].should.have.property('role');
                     result[0].should.have.property('name');
                     result[0].should.have.property('icon');
+                    result[0].should.have.property('apps');
                     result[0].should.have.property('icons');
                     result[0].should.have.property('appId');
                     result[0].should.have.property('users');
                     result[0].should.have.property('theme');
+                    result[0].should.have.property('groups');
                     result[0].should.have.property('scopes');
                     result[0].should.have.property('secret');
                     result[0].should.have.property('google');
@@ -1474,18 +1479,18 @@ var tools = {
                 return deferred.promise;
             },
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/get', {
+                return tools.post('/apps/get', {
                     'filter': [
                         'url',
                         'role',
-                        'icon',
                         'name',
+                        'icon',
+                        'apps',
                         'icons',
                         'appId',
                         'users',
                         'theme',
+                        'groups',
                         'scopes',
                         'secret',
                         'google',
@@ -1495,24 +1500,21 @@ var tools = {
                         'organizationOnly'
                     ],
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/list', {
+                return tools.post('/apps/list', {
                     'filter': [
                         'url',
                         'role',
-                        'icon',
                         'name',
+                        'icon',
+                        'apps',
                         'icons',
                         'appId',
                         'users',
                         'theme',
+                        'groups',
                         'scopes',
                         'secret',
                         'google',
@@ -1522,10 +1524,7 @@ var tools = {
                         'organizationOnly'
                     ],
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             share: () => {
                 var deferred = Q.defer();
@@ -2327,13 +2326,13 @@ var tools = {
         var deferred = Q.defer();
 
         payload.header = {
-            'email': config.email,
-            'appId': config.appId
+            'appId': config.appId,
+            'userId': config.userId
         };
 
         payload = JSON.stringify(payload);
 
-        const response = await fetch(config.auth + endpoint, {
+        const response = await fetch([config.auth, endpoint].join(''), {
             'headers': {
                 'Accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
@@ -2358,13 +2357,13 @@ var tools = {
         var deferred = Q.defer();
 
         payload.header = {
-            'email': config.email,
-            'appId': config.appId
+            'appId': config.appId,
+            'userId': config.userId
         };
 
         payload = JSON.stringify(payload);
 
-        const response = await fetch(config.auth + endpoint, {
+        const response = await fetch([config.auth, endpoint].join(''), {
             'headers': {
                 'Accept': '*/*',
                 'Content-Type': 'application/json; charset=utf-8',
@@ -2384,5 +2383,13 @@ var tools = {
         deferred.resolve(result);
 
         return deferred.promise;
+    },
+    email: () => {
+        var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+        var string = '';
+        for (var index = 0; index < 15; index++) {
+            string += chars[Math.floor(Math.random() * chars.length)];
+        };
+        return [string, '@gmail.com'].join('');
     }
 };
