@@ -13,7 +13,7 @@ db.tblApps.aggregate([
                                     $in: ['$_id', '$$appId']
                                 },
                                 {
-                                    $in: [ObjectId('61ab90103b8728cb8ddf32f5'), '$bitid.auth.users.id']
+                                    $in: [ObjectId('000000000000000000000001'), '$bitid.auth.users.id']
                                 }
                             ]
                         }
@@ -44,7 +44,7 @@ db.tblApps.aggregate([
                                     $in: ['$_id', '$$groupId']
                                 },
                                 {
-                                    $in: [ObjectId('61ab90103b8728cb8ddf32f5'), '$bitid.auth.users.id']
+                                    $in: [ObjectId('000000000000000000000001'), '$bitid.auth.users.id']
                                 }
                             ]
                         }
@@ -65,16 +65,16 @@ db.tblApps.aggregate([
         $match: {
             $or: [
                 {
-                    '_id': ObjectId('000000000000000000000002'),
-                    'bitid.auth.users.id': ObjectId('61ab90103b8728cb8ddf32f5')
+                    '_id': ObjectId('000000000000000000000001'),
+                    'bitid.auth.users.id': ObjectId('000000000000000000000001')
                 },
                 {
-                    '_id': ObjectId('000000000000000000000002'),
-                    '_apps.bitid.auth.users.id': ObjectId('61ab90103b8728cb8ddf32f5')
+                    '_id': ObjectId('000000000000000000000001'),
+                    '_apps.bitid.auth.users.id': ObjectId('000000000000000000000001')
                 },
                 {
-                    '_id': ObjectId('000000000000000000000002'),
-                    '_groups.bitid.auth.users.id': ObjectId('61ab90103b8728cb8ddf32f5')
+                    '_id': ObjectId('000000000000000000000001'),
+                    '_groups.bitid.auth.users.id': ObjectId('000000000000000000000001')
                 }
             ]
         }
@@ -126,7 +126,7 @@ db.tblApps.aggregate([
                                                 match: {
                                                     $cond: {
                                                         if: {
-                                                            $eq: ['$$user.id', ObjectId('61ab90103b8728cb8ddf32f5')]
+                                                            $eq: ['$$user.id', ObjectId('000000000000000000000001')]
                                                         },
                                                         then: true,
                                                         else: false

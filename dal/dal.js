@@ -584,8 +584,14 @@ var module = function () {
 				args.req.body.filter.map(f => {
 					if (f == 'appId') {
 						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'apps') {
+						filter['bitid.auth.apps'] = 1;
+					} else if (f == 'users') {
 						filter['bitid.auth.users'] = 1;
+					} else if (f == 'groups') {
+						filter['bitid.auth.groups'] = 1;
+					} else if (f == 'private') {
+						filter['bitid.auth.private'] = 1;
 					} else if (f == 'organizationOnly') {
 						filter['bitid.auth.organizationOnly'] = 1;
 					} else {
@@ -836,7 +842,7 @@ var module = function () {
 							break;
 						case ('user'):
 							params['bitid.auth.users.id'] = {
-								$ne: ObjectId(args.req.body.userId)
+								$ne: ObjectId(args.req.body.id)
 							};
 							update.$push = {
 								'bitid.auth.users': {
@@ -847,7 +853,7 @@ var module = function () {
 							break;
 						case ('group'):
 							params['bitid.auth.groups.id'] = {
-								$ne: ObjectId(args.req.body.groupId)
+								$ne: ObjectId(args.req.body.id)
 							};
 							update.$push = {
 								'bitid.auth.groups': {
@@ -859,7 +865,7 @@ var module = function () {
 						default:
 							deferred.reject({
 								code: 503,
-								message: 'Could not locaate \'type\' in request payload!'
+								message: 'Could not locate \'type\' in request payload!'
 							});
 							return;
 					};
@@ -1353,9 +1359,7 @@ var module = function () {
 				},
 				{
 					$match: {
-						'role': {
-							$gte: 2
-						}
+						'role': 5
 					}
 				},
 				{
@@ -1864,35 +1868,247 @@ var module = function () {
 		unsubscribe: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.appId)
-			};
-
-			var update = {
-				$set: {
-					'serverDate': new Date()
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
 				},
-				$pull: {
-					'bitid.auth.users': {
-						'email': format.email(args.req.body.email)
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$project: {
+						'_id': 1,
+						'role': 1
 					}
 				}
-			};
+			];
 
 			db.call({
 				'params': params,
-				'update': update,
-				'operation': 'update',
+				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (args.req.body.id == args.req.body.header.userId && result[0].role == 5) {
+						deferred.reject({
+							code: 503,
+							message: 'An owner may not be unsubscribed!'
+						});
+					} else {
+						var params = {
+							'_id': ObjectId(args.req.body.appId)
+						};
+
+						var update = {
+							$set: {
+								'serverDate': new Date()
+							}
+						};
+
+						switch (args.req.body.type) {
+							case ('app'):
+								update.$pull = {
+									'bitid.auth.apps': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							case ('user'):
+								update.$pull = {
+									'bitid.auth.users': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							case ('group'):
+								update.$pull = {
+									'bitid.auth.groups': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							default:
+								deferred.reject({
+									code: 503,
+									message: 'Could not locate \'type\' in request payload!'
+								});
+								return;
+						};
+
+						deferred.resolve({
+							'params': params,
+							'update': update,
+							'operation': 'update',
+							'collection': 'tblApps'
+						});
+					};
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -1953,8 +2169,275 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		updatesubscriber: (args) => {
+			var deferred = Q.defer();
+
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': {
+							$gte: 4
+						}
+					}
+				},
+				{
+					$project: {
+						'_id': 1,
+						'role': 1
+					}
+				}
+			];
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.appId)
+					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					switch (args.req.body.type) {
+						case ('app'):
+							params['bitid.auth.apps'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.apps.$.role': args.req.body.role
+							};
+							break;
+						case ('user'):
+							params['bitid.auth.users'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.users.$.role': args.req.body.role
+							};
+							break;
+						case ('group'):
+							params['bitid.auth.groups'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.groups.$.role': args.req.body.role
+							};
+							break;
+						default:
+							deferred.reject({
+								code: 503,
+								message: 'Could not locate \'type\' in request payload!'
+							});
+							return;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblApps'
+					});
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -2024,8 +2507,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2068,7 +2551,7 @@ var module = function () {
 					} else {
 						deferred.resolve(args);
 					};
-				}, null)
+				})
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2087,7 +2570,7 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
+				})
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2107,8 +2590,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					deferred.resolve([{
 						'email': format.email(args.req.body.header.email),
@@ -2173,8 +2656,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2204,8 +2687,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -2301,8 +2784,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2327,8 +2810,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2356,8 +2839,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(result => dalStatistics.write(args), null)
+				})
+				.then(result => dalStatistics.write(args))
 				.then(result => {
 					deferred.resolve(result);
 				}, err => {
@@ -2601,8 +3084,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2633,7 +3116,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2662,7 +3145,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					deferred.resolve(args);
 				}, err => {
@@ -2717,7 +3200,7 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
+				})
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2734,7 +3217,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2764,7 +3247,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2802,8 +3285,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -2868,7 +3351,7 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
+				})
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2885,7 +3368,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2930,7 +3413,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(db.call, null)
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -2964,8 +3447,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -3118,8 +3601,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -3299,8 +3782,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -3348,8 +3831,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -3551,8 +4034,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -3589,8 +4072,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -3643,8 +4126,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -3659,8 +4142,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -3730,7 +4213,7 @@ var module = function () {
 				args.req.body.filter.map(f => {
 					if (f == 'groupId') {
 						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'users') {
 						filter['bitid.auth.users'] = 1;
 					} else if (f == 'organizationOnly') {
 						filter['bitid.auth.organizationOnly'] = 1;
@@ -3793,7 +4276,7 @@ var module = function () {
 				args.req.body.filter.map(f => {
 					if (f == 'groupId') {
 						filter['_id'] = 1;
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'users') {
 						filter['bitid.auth.users'] = 1;
 					} else if (f == 'organizationOnly') {
 						filter['bitid.auth.organizationOnly'] = 1;
@@ -4065,8 +4548,8 @@ var module = function () {
 					};
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -4127,8 +4610,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -4182,7 +4665,7 @@ var module = function () {
 							'name': '$app.name',
 							'appId': '$app._id'
 						};
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'users') {
 						params[3].$project.bitid = 1;
 					} else if (f == 'scopes') {
 						params[3].$project.scopes = '$token.scopes';
@@ -4277,7 +4760,7 @@ var module = function () {
 							'name': '$app.name',
 							'appId': '$app._id'
 						};
-					} else if (f == 'role' || f == 'users') {
+					} else if (f == 'users') {
 						params[3].$project.bitid = 1;
 					} else if (f == 'scopes') {
 						params[3].$project.scopes = '$token.scopes';
@@ -4533,8 +5016,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -4576,8 +5059,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -4684,8 +5167,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -4739,8 +5222,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -5006,8 +5489,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -5085,8 +5568,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -5195,8 +5678,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result[0];
 					deferred.resolve(args);
@@ -5525,8 +6008,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -5604,8 +6087,8 @@ var module = function () {
 					});
 
 					return deferred.promise;
-				}, null)
-				.then(db.call, null)
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);

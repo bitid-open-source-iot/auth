@@ -1,4 +1,4 @@
-const apps = db.collection('tblApps');
+const apps = db.getCollection('tblApps');
 if (apps.count() == 0) {
     db.tblApps.insertOne({
         'bitid': {
@@ -139,7 +139,7 @@ if (apps.count() == 0) {
     });
 };
 
-const users = db.collection('tblUsers');
+const users = db.getCollection('tblUsers');
 if (users.count() == 0) {
     db.tblUsers.insertOne({
         'name': {
@@ -202,7 +202,7 @@ if (users.count() == 0) {
     });
 };
 
-const tokens = db.collection('tblTokens');
+const tokens = db.getCollection('tblTokens');
 if (tokens.count() == 0) {
     db.tblTokens.insertOne({
         'bitid': {
@@ -278,7 +278,7 @@ if (tokens.count() == 0) {
     });
 };
 
-const groups = db.collection('tblGroups');
+const groups = db.getCollection('tblGroups');
 if (groups.count() == 0) {
     db.tblGroups.insertOne({
         'bitid': {
@@ -333,7 +333,7 @@ if (groups.count() == 0) {
     });
 };
 
-const scopes = db.collection('tblScopes');
+const scopes = db.getCollection('tblScopes');
 if (scopes.count() == 0) {
     db.tblScopes.insertOne({
         '_id': ObjectId('000000000000000000000001'),
@@ -351,7 +351,7 @@ if (scopes.count() == 0) {
     });
 };
 
-const features = db.collection('tblFeatures');
+const features = db.getCollection('tblFeatures');
 if (features.count() == 0) {
     db.tblFeatures.insertOne({
         '_id': ObjectId('000000000000000000000001'),
@@ -367,7 +367,7 @@ if (features.count() == 0) {
     });
 };
 
-const tipsAndUpdates = db.collection('tblTipsAndUpdates');
+const tipsAndUpdates = db.getCollection('tblTipsAndUpdates');
 if (tipsAndUpdates.count() == 0) {
     db.tblTipsAndUpdates.insertOne({
         '_id': ObjectId('000000000000000000000001'),

@@ -129,7 +129,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/allowaccess', function (done) {
+    it('/auth/allow-access', function (done) {
         this.timeout(5000);
 
         tools.api.auth.allowaccess()
@@ -172,28 +172,28 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/auth', function (done) {
-        this.timeout(5000);
+    // it('/auth/auth', function (done) {
+    //     this.timeout(5000);
 
-        tools.api.auth.auth()
-            .then((result) => {
-                try {
-                    result[0].should.have.property('email');
-                    result[0].should.have.property('appId');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
+    //     tools.api.auth.auth()
+    //         .then((result) => {
+    //             try {
+    //                 result[0].should.have.property('email');
+    //                 result[0].should.have.property('appId');
+    //                 done();
+    //             } catch (e) {
+    //                 done(e);
+    //             };
+    //         }, (err) => {
+    //             try {
+    //                 done(err);
+    //             } catch (e) {
+    //                 done(e);
+    //             };
+    //         });
+    // });
 
-    it('/auth/changeemail', function (done) {
+    it('/auth/change-email', function (done) {
         this.timeout(5000);
 
         tools.api.auth.changeemail(config.email, 'aaa@xxx.co.za')
@@ -214,7 +214,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/changeemail', function (done) {
+    it('/auth/change-email', function (done) {
         this.timeout(5000);
 
         tools.api.auth.changeemail('aaa@xxx.co.za', email)
@@ -236,7 +236,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/changepassword', function (done) {
+    it('/auth/change-password', function (done) {
         this.timeout(5000);
 
         tools.api.auth.changepassword()
@@ -257,7 +257,7 @@ describe('Auth', function () {
             });
     });
 
-    it('/auth/resetpassword', function (done) {
+    it('/auth/reset-password', function (done) {
         this.timeout(5000);
 
         tools.api.auth.resetpassword()
@@ -436,7 +436,7 @@ describe('Apps', function () {
             });
     });
 
-    it('/apps/updatesubscriber', function (done) {
+    it('/apps/update-subscriber', function (done) {
         this.timeout(5000);
 
         tools.api.apps.updatesubscriber()
@@ -744,7 +744,7 @@ describe('Groups', function () {
         it('/groups/change-owner', function (done) {
             this.timeout(5000);
 
-            tools.api.groups.changeowner(config.share)
+            tools.api.groups.changeowner(config.shareId)
                 .then(result => {
                     try {
                         result.should.containSubset({
@@ -766,7 +766,7 @@ describe('Groups', function () {
         it('/groups/change-owner', function (done) {
             this.timeout(5000);
 
-            config.email = config.share;
+            config.email = config.shareId;
             tools.api.groups.changeowner(email)
                 .then(result => {
                     try {
@@ -788,7 +788,7 @@ describe('Groups', function () {
         });
     };
 
-    it('/groups/updatesubscriber', function (done) {
+    it('/groups/update-subscriber', function (done) {
         this.timeout(5000);
 
         tools.api.groups.updatesubscriber()
@@ -929,7 +929,7 @@ describe('Tokens', function () {
             });
     });
 
-    it('/tokens/updatesubscriber', function (done) {
+    it('/tokens/update-subscriber', function (done) {
         this.timeout(5000);
 
         tools.api.tokens.updatesubscriber()
@@ -1432,9 +1432,7 @@ var tools = {
     api: {
         apps: {
             add: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/add', {
+                return tools.post('/apps/add', {
                     'icons': {
                         'icon72x72': 'xxx',
                         'icon96x96': 'xxx',
@@ -1473,30 +1471,27 @@ var tools = {
                     'private': false,
                     'favicon': 'xxx',
                     'organizationOnly': 1
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             get: () => {
                 return tools.post('/apps/get', {
                     'filter': [
                         'url',
                         'role',
-                        'name',
                         'icon',
+                        'name',
                         'apps',
-                        'icons',
-                        'appId',
                         'users',
+                        'appId',
+                        'icons',
                         'theme',
                         'groups',
+                        'google',
                         'scopes',
                         'secret',
-                        'google',
                         'domains',
-                        'private',
                         'favicon',
+                        'private',
                         'organizationOnly'
                     ],
                     'appId': appId
@@ -1507,115 +1502,78 @@ var tools = {
                     'filter': [
                         'url',
                         'role',
-                        'name',
                         'icon',
+                        'name',
                         'apps',
-                        'icons',
-                        'appId',
                         'users',
+                        'appId',
+                        'icons',
                         'theme',
                         'groups',
+                        'google',
                         'scopes',
                         'secret',
-                        'google',
                         'domains',
-                        'private',
                         'favicon',
+                        'private',
                         'organizationOnly'
                     ],
                     'appId': appId
                 });
             },
             share: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/share', {
+                return tools.post('/apps/share', {
+                    'id': config.shareId,
+                    'type': 'user',
                     'role': 4,
-                    'email': config.share,
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             update: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/update', {
+                return tools.post('/apps/update', {
                     'name': 'New Mocha Test Updated',
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             delete: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/delete', {
+                return tools.post('/apps/delete', {
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             isadmin: () => {
-                var deferred = Q.defer();
-
-                tools.put('/apps/is-admin', {})
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                return tools.put('/apps/is-admin', {
+                    'appId': appId
+                });
             },
             unsubscribe: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/unsubscribe', {
-                    'email': config.share,
+                return tools.post('/apps/unsubscribe', {
+                    'id': config.shareId,
+                    'type': 'user',
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             updatesubscriber: () => {
-                var deferred = Q.defer();
-
-                tools.post('/apps/updatesubscriber', {
+                return tools.post('/apps/update-subscriber', {
+                    'id': config.shareId,
                     'role': 3,
-                    'email': config.share,
+                    'type': 'user',
                     'appId': appId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         auth: {
             auth: () => {
-                var deferred = Q.defer();
-
-                tools.post('/auth/auth', {
+                return tools.post('/auth/auth', {
                     'reqURI': '/users/get'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             verify: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/verify', {
+                return tools.put('/auth/verify', {
                     'code': code
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             register: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/register', {
+                return tools.put('/auth/register', {
                     'name': {
                         'last': 'xxx',
                         'first': 'xxx',
@@ -1664,44 +1622,31 @@ var tools = {
                     'privacyPolicy': true,
                     'newsAndChanges': true,
                     'termsAndConditions': true
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             validate: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/validate', {
+                return tools.put('/auth/validate', {
                     'scope': '/users/get'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             changeemail: (current, replacement) => {
-                var deferred = Q.defer();
                 config.email = current;
-                tools.post('/auth/changeemail', {
-                    'email': replacement
-                })
-                    .then(deferred.resolve, deferred.resolve);
 
-                return deferred.promise;
+                return tools.post('/auth/change-email', {
+                    'email': replacement
+                });
             },
             allowaccess: () => {
-                var deferred = Q.defer();
-
-                tools.post('/auth/allowaccess', {
+                return tools.post('/auth/allow-access', {
                     'scopes': [
                         '/auth/verify',
                         '/auth/register',
                         '/auth/validate',
-                        '/auth/allowaccess',
-                        '/auth/changeemail',
+                        '/auth/allow-access',
+                        '/auth/change-email',
                         '/auth/authenticate',
-                        '/auth/resetpassword',
-                        '/auth/changepassword',
+                        '/auth/reset-password',
+                        '/auth/change-password',
 
                         '/users/get',
                         '/users/update',
@@ -1722,7 +1667,7 @@ var tools = {
                         '/tokens/retrieve',
                         '/tokens/generate',
                         '/tokens/unsubscribe',
-                        '/tokens/updatesubscriber',
+                        '/tokens/update-subscriber',
 
                         '/groups/add',
                         '/groups/get',
@@ -1731,7 +1676,7 @@ var tools = {
                         '/groups/update',
                         '/groups/delete',
                         '/groups/unsubscribe',
-                        '/groups/updatesubscriber',
+                        '/groups/update-subscriber',
 
                         '/apps/add',
                         '/apps/get',
@@ -1741,7 +1686,7 @@ var tools = {
                         '/apps/delete',
                         '/apps/listapp',
                         '/apps/unsubscribe',
-                        '/apps/updatesubscriber',
+                        '/apps/update-subscriber',
 
                         '/features/add',
                         '/features/get',
@@ -1761,50 +1706,27 @@ var tools = {
                     'password': config.password,
                     'tokenAddOn': {},
                     'description': 'test'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             authenticate: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/authenticate', {
+                return tools.put('/auth/authenticate', {
                     'appId': config.appId,
                     'password': config.password
-                })
-                    .then(res => {
-                        token = res[0].token;
-                        deferred.resolve(res);
-                    }, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             resetpassword: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/resetpassword', {})
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                return tools.put('/auth/reset-password', {});
             },
             changepassword: () => {
-                var deferred = Q.defer();
-
-                tools.put('/auth/changepassword', {
+                return tools.put('/auth/change-password', {
                     'old': config.password,
                     'new': 'QWERTY'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         users: {
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/users/get', {
+                return tools.post('/users/get', {
                     'filter': [
                         'name',
                         'email',
@@ -1818,15 +1740,10 @@ var tools = {
                         'serverDate',
                         'identification'
                     ]
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/users/list', {
+                return tools.post('/users/list', {
                     'filter': [
                         'name',
                         'email',
@@ -1840,61 +1757,36 @@ var tools = {
                         'serverDate',
                         'identification'
                     ]
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             update: () => {
-                var deferred = Q.defer();
-
-                tools.post('/users/update', {
+                return tools.post('/users/update', {
                     'username': 'joe101',
                     'pricture': 'https://drive.bitid.co.za/drive/files/get?mediaId=xxx&token=xxx',
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             delete: () => {
-                var deferred = Q.defer();
-
-                tools.post('/users/delete', {
+                return tools.post('/users/delete', {
                     'password': config.password
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         config: {
             get: () => {
-                var deferred = Q.defer();
-
-                tools.put('/config/get', {})
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                return tools.put('/config/get', {});
             }
         },
         scopes: {
             add: () => {
-                var deferred = Q.defer();
-
-                tools.post('/scopes/add', {
+                return tools.post('/scopes/add', {
                     'url': '/mocha/test/scopes',
                     'appId': appId,
                     'roles': [1, 2, 3, 4, 5],
                     'description': 'Test Scopes'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/scopes/get', {
+                return tools.post('/scopes/get', {
                     'filter': [
                         'url',
                         'app',
@@ -1905,15 +1797,10 @@ var tools = {
                         'description'
                     ],
                     'scopeId': scopeId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/scopes/list', {
+                return tools.post('/scopes/list', {
                     'filter': [
                         'url',
                         'app',
@@ -1923,33 +1810,20 @@ var tools = {
                         'scopeId',
                         'description'
                     ]
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             update: () => {
-                var deferred = Q.defer();
-
-                tools.post('/scopes/update', {
+                return tools.post('/scopes/update', {
                     'url': '/mocha/test/scopes/update',
                     'roles': [1, 2, 3],
                     'scopeId': scopeId,
                     'description': 'Test Scopes Updated'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             delete: () => {
-                var deferred = Q.defer();
-
-                tools.post('/scopes/delete', {
+                return tools.post('/scopes/delete', {
                     'scopeId': scopeId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         groups: {
@@ -1984,8 +1858,9 @@ var tools = {
             },
             share: () => {
                 return tools.post('/groups/share', {
+                    'id': config.shareId,
                     'role': 4,
-                    'email': config.share,
+                    'type': 'user',
                     'groupId': groupId
                 });
             },
@@ -2002,39 +1877,30 @@ var tools = {
             },
             changeowner: () => {
                 return tools.post('/groups/change-owner', {
-                    'email': config.share,
+                    'id': config.shareId,
+                    'type': 'user',
                     'groupId': groupId
                 });
             },
             unsubscribe: () => {
-                var deferred = Q.defer();
-
-                tools.post('/groups/unsubscribe', {
-                    'email': config.share,
+                return tools.post('/groups/unsubscribe', {
+                    'id': config.shareId,
+                    'type': 'user',
                     'groupId': groupId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             updatesubscriber: () => {
-                var deferred = Q.defer();
-
-                tools.post('/groups/updatesubscriber', {
+                return tools.post('/groups/update-subscriber', {
+                    'id': config.shareId,
+                    'type': 'user',
                     'role': 3,
-                    'email': config.share,
                     'groupId': groupId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         tokens: {
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/get', {
+                return tools.post('/tokens/get', {
                     'filter': [
                         'app',
                         'role',
@@ -2046,15 +1912,10 @@ var tools = {
                         'description'
                     ],
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/list', {
+                return tools.post('/tokens/list', {
                     'filter': [
                         'app',
                         'role',
@@ -2066,108 +1927,64 @@ var tools = {
                         'description'
                     ],
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             share: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/share', {
+                return tools.post('/tokens/share', {
+                    'id': config.shareId,
                     'role': 2,
-                    'email': config.share,
+                    'type': 'user',
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             revoke: (tokenIdToRevoke) => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/revoke', {
+                return tools.post('/tokens/revoke', {
                     'tokenId': tokenIdToRevoke
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             download: (tokenId) => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/download', {
+                return tools.post('/tokens/download', {
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             retrieve: (tokenId) => {
-                var deferred = Q.defer();
-
-                tools.put('/tokens/retrieve', {
+                return tools.put('/tokens/retrieve', {
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             generate: () => {
-                var deferred = Q.defer();
-
-                var expiry = new Date(Date.now() + 600000000);
-
-                tools.post('/tokens/generate', {
+                return tools.post('/tokens/generate', {
                     'appId': config.appId,
-                    'expiry': expiry,
+                    'expiry': new Date(Date.now() + 600000000),
                     'description': 'My New Generated Token'
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             unsubscribe: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/unsubscribe', {
-                    'email': config.share,
+                return tools.post('/tokens/unsubscribe', {
+                    'id': config.shareId,
+                    'type': 'user',
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             updatesubscriber: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tokens/updatesubscriber', {
+                return tools.post('/tokens/update-subscriber', {
+                    'id': config.shareId,
                     'role': 3,
-                    'email': config.share,
+                    'type': 'user',
                     'tokenId': tokenId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         features: {
             add: () => {
-                var deferred = Q.defer();
-
-                tools.post('/features/add', {
+                return tools.post('/features/add', {
                     'title': 'xxx',
                     'appId': appId,
                     'description': 'xxx',
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/features/get', {
+                return tools.post('/features/get', {
                     'filter': [
                         'app',
                         'role',
@@ -2178,15 +1995,10 @@ var tools = {
                     ],
                     'appId': appId,
                     'featureId': featureId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/features/list', {
+                return tools.post('/features/list', {
                     'filter': [
                         'app',
                         'role',
@@ -2197,42 +2009,24 @@ var tools = {
                     ],
                     'appId': appId,
                     'featureId': featureId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             update: () => {
-                var deferred = Q.defer();
-
-                tools.post('/features/update', {
+                return tools.post('/features/update', {
                     'title': 'New Mocha Test Updated',
                     'appId': appId,
                     'featureId': featureId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             delete: () => {
-                var deferred = Q.defer();
-
-                tools.post('/features/delete', {
+                return tools.post('/features/delete', {
                     'appId': appId,
                     'featureId': featureId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         },
         healthcheck: () => {
-            var deferred = Q.defer();
-
-            tools.put('/health-check', {})
-                .then(deferred.resolve, deferred.resolve);
-
-            return deferred.promise;
+            return tools.put('/health-check', {});
         },
         tipsAndUpdates: {
             add: () => {
@@ -2244,9 +2038,7 @@ var tools = {
                 });
             },
             get: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tips-and-updates/get', {
+                return tools.post('/tips-and-updates/get', {
                     'filter': [
                         'app',
                         'role',
@@ -2258,10 +2050,7 @@ var tools = {
                     ],
                     'appId': appId,
                     'itemId': itemId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             load: () => {
                 return tools.post('/tips-and-updates/load', {
@@ -2278,9 +2067,7 @@ var tools = {
                 });
             },
             list: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tips-and-updates/list', {
+                return tools.post('/tips-and-updates/list', {
                     'filter': [
                         'app',
                         'role',
@@ -2292,33 +2079,20 @@ var tools = {
                     ],
                     'appId': appId,
                     'itemId': itemId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             update: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tips-and-updates/update', {
+                return tools.post('/tips-and-updates/update', {
                     'title': 'New Mocha Test Updated',
                     'appId': appId,
                     'itemId': itemId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             },
             delete: () => {
-                var deferred = Q.defer();
-
-                tools.post('/tips-and-updates/delete', {
+                return tools.post('/tips-and-updates/delete', {
                     'appId': appId,
                     'itemId': itemId
-                })
-                    .then(deferred.resolve, deferred.resolve);
-
-                return deferred.promise;
+                });
             }
         }
     },
@@ -2327,6 +2101,7 @@ var tools = {
 
         payload.header = {
             'appId': config.appId,
+            'email': config.email,
             'userId': config.userId
         };
 
@@ -2345,9 +2120,9 @@ var tools = {
 
         const result = await response.json();
 
-        if (!response.ok) {
-            console.log(endpoint, result);
-        };
+        // if (!response.ok) {
+        //     console.log(endpoint, result);
+        // };
 
         deferred.resolve(result);
 
@@ -2358,6 +2133,7 @@ var tools = {
 
         payload.header = {
             'appId': config.appId,
+            'email': config.email,
             'userId': config.userId
         };
 
@@ -2376,9 +2152,9 @@ var tools = {
 
         const result = await response.json();
 
-        if (!response.ok) {
-            console.log(endpoint, result);
-        };
+        // if (!response.ok) {
+        //     console.log(endpoint, result);
+        // };
 
         deferred.resolve(result);
 

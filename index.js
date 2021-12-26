@@ -17,18 +17,18 @@ console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 let config = require('./config.json');
 let configDefault = config.default
 let configEnvironment = config[process.env.NODE_ENV]
-global.__settings = { ...configDefault, ...configEnvironment }
+global.__settings = { ...configDefault, ...configEnvironment };
 global.__responder = new responder.module();
 
 try {
-    __settings.mongodb = process.env.mongodb
-    __settings.mongodb = __settings.mongodb.replace(/xxx/g, 'auth')
-    __settings.mongodb = JSON.parse(__settings.mongodb)
-    __settings.client.auth = process.env.clientAuth
-    __settings.client.drive = process.env.clientDrive
-    __settings.smtp = JSON.parse(process.env.smtp)
-    __settings.branding = JSON.parse(process.env.branding)
-    console.log(JSON.stringify(__settings))
+    __settings.mongodb = process.env.mongodb;
+    __settings.mongodb = __settings.mongodb.replace(/xxx/g, 'auth');
+    __settings.mongodb = JSON.parse(__settings.mongodb);
+    __settings.client.auth = process.env.clientAuth;
+    __settings.client.drive = process.env.clientDrive;
+    __settings.smtp = JSON.parse(process.env.smtp);
+    __settings.branding = JSON.parse(process.env.branding);
+    console.log(JSON.stringify(__settings));
 } catch (e) {
     console.error('ERROR APPLYING ENV VARIABLES', e)
 }
