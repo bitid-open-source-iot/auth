@@ -988,11 +988,15 @@ describe('Tokens', function () {
     });
 
     it('/tokens/retrieve', function (done) {
-        this.timeout(5000);
+        this.timeout(5000000);
+
+        var save = config.appId;
+        config.appId = appId;
 
         tools.api.tokens.retrieve()
             .then((result) => {
                 try {
+                    config.appId = save;
                     result.should.have.property('token');
                     result.should.have.property('tokenId');
                     done();

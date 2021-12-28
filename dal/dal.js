@@ -7701,7 +7701,7 @@ var module = function () {
 						'params': params,
 						'update': update,
 						'operation': 'update',
-						'collection': 'tblApps'
+						'collection': 'tblTokens'
 					});
 
 					return deferred.promise;
@@ -7724,33 +7724,241 @@ var module = function () {
 		update: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 2
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
-			};
-
-			var update = {
-				$set: {
-					'serverDate': new Date()
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': {
+							$gte: 2
+						}
+					}
 				}
-			};
-			if (typeof (args.req.body.disabled) != 'undefined') {
-				update.$set.disabled = args.req.body.disabled;
-			};
+			];
 
 			db.call({
 				'params': params,
-				'update': update,
-				'operation': 'update',
+				'operation': 'aggregate',
 				'collection': 'tblTokens'
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.tokenId)
+					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					if (typeof (args.req.body.disabled) != 'undefined' && args.req.body.disabled != null) {
+						update.$set.disabled = args.req.body.disabled;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblTokens'
+					});
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -7828,19 +8036,164 @@ var module = function () {
 		retrieve: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'_id': ObjectId(args.req.body.tokenId),
-				'appId': ObjectId(args.req.body.header.appId),
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
-			};
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$appId'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: ['$_id', '$$appId']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'icon': 1,
+									'name': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_base',
+						from: 'tblApps'
+					}
+				},
+				{
+					$unwind: '$_base'
+				},
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'appId': ObjectId(args.req.body.header.appId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'appId': ObjectId(args.req.body.header.appId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'appId': ObjectId(args.req.body.header.appId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$project: {
+						'_id': 1,
+						'token': 1
+					}
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblTokens'
 			})
 				.then(result => {
-					args.result = result[0];
+					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();
@@ -7849,6 +8202,7 @@ var module = function () {
 					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
+
 			return deferred.promise;
 		},
 
@@ -8116,35 +8470,267 @@ var module = function () {
 		unsubscribe: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
-			};
-
-			var update = {
-				$set: {
-					'serverDate': new Date()
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
 				},
-				$pull: {
-					'bitid.auth.users': {
-						'email': format.email(args.req.body.email)
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
 					}
 				}
-			};
+			];
 
 			db.call({
 				'params': params,
-				'update': update,
-				'operation': 'update',
+				'operation': 'aggregate',
 				'collection': 'tblTokens'
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (args.req.body.id == args.req.body.header.userId && result[0].role == 5) {
+						deferred.reject({
+							code: 503,
+							message: 'An owner may not be unsubscribed!'
+						});
+					} else {
+						var params = {
+							'_id': ObjectId(args.req.body.tokenId)
+						};
+
+						var update = {
+							$set: {
+								'serverDate': new Date()
+							}
+						};
+
+						switch (args.req.body.type) {
+							case ('app'):
+								update.$pull = {
+									'bitid.auth.apps': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							case ('user'):
+								update.$pull = {
+									'bitid.auth.users': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							case ('group'):
+								update.$pull = {
+									'bitid.auth.groups': {
+										'id': ObjectId(args.req.body.id)
+									}
+								};
+								break;
+							default:
+								deferred.reject({
+									code: 503,
+									message: 'Could not locate \'type\' in request payload!'
+								});
+								return;
+						};
+
+						deferred.resolve({
+							'params': params,
+							'update': update,
+							'operation': 'update',
+							'collection': 'tblTokens'
+						});
+					};
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -8162,39 +8748,264 @@ var module = function () {
 		updatesubscriber: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId)
-			};
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': {
+							$gte: 4
+						}
+					}
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblTokens'
 			})
 				.then(result => {
 					var deferred = Q.defer();
 
 					var params = {
-						'bitid.auth.users': {
-							$elemMatch: {
-								'email': format.email(args.req.body.email)
-							}
-						},
 						'_id': ObjectId(args.req.body.tokenId)
 					};
 
 					var update = {
 						$set: {
-							'bitid.auth.users.$.role': args.req.body.role
+							'serverDate': new Date()
 						}
+					};
+
+					switch (args.req.body.type) {
+						case ('app'):
+							params['bitid.auth.apps'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.apps.$.role': args.req.body.role
+							};
+							break;
+						case ('user'):
+							params['bitid.auth.users'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.users.$.role': args.req.body.role
+							};
+							break;
+						case ('group'):
+							params['bitid.auth.groups'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.groups.$.role': args.req.body.role
+							};
+							break;
+						default:
+							deferred.reject({
+								code: 503,
+								message: 'Could not locate \'type\' in request payload!'
+							});
+							return;
 					};
 
 					deferred.resolve({
