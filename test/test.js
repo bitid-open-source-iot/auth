@@ -17,8 +17,6 @@ var scopeId = null;
 var groupId = null;
 var tokenId = null;
 var featureId = null;
-var tokenIdToRevoke = null;
-var generatedTokenId = null;
 
 describe('Software & Testing Details', function () {
     it('DATE: ' + moment().format('DD/MM/YYYY HH:mm:ss'), function (done) {
@@ -564,7 +562,6 @@ describe('Scopes', function () {
                     result.should.have.property('app');
                     result.should.have.property('role');
                     result.should.have.property('appId');
-                    result.should.have.property('roles');
                     result.should.have.property('scopeId');
                     result.should.have.property('description');
                     done();
@@ -590,7 +587,6 @@ describe('Scopes', function () {
                     result[0].should.have.property('app');
                     result[0].should.have.property('role');
                     result[0].should.have.property('appId');
-                    result[0].should.have.property('roles');
                     result[0].should.have.property('scopeId');
                     result[0].should.have.property('description');
                     done();
@@ -657,10 +653,14 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result.should.have.property('role');
-                    result.should.have.property('users');
+                    result.should.have.property('apps');
                     result.should.have.property('appId');
+                    result.should.have.property('users');
+                    result.should.have.property('groups');
                     result.should.have.property('groupId');
+                    result.should.have.property('private');
                     result.should.have.property('description');
+                    result.should.have.property('organizationOnly');
                     done();
                 } catch (e) {
                     done(e);
@@ -681,10 +681,14 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result[0].should.have.property('role');
-                    result[0].should.have.property('users');
+                    result[0].should.have.property('apps');
                     result[0].should.have.property('appId');
+                    result[0].should.have.property('users');
+                    result[0].should.have.property('groups');
                     result[0].should.have.property('groupId');
+                    result[0].should.have.property('private');
                     result[0].should.have.property('description');
+                    result[0].should.have.property('organizationOnly');
                     done();
                 } catch (e) {
                     done(e);
@@ -832,20 +836,48 @@ describe('Groups', function () {
 });
 
 describe('Tokens', function () {
-    it('/tokens/get', function (done) {
+    it('/tokens/generate', function (done) {
         this.timeout(5000);
+
+        tools.api.tokens.generate()
+            .then((result) => {
+                try {
+                    tokenId = result.tokenId;
+                    result.should.have.property('token');
+                    result.should.have.property('tokenId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tokens/get', function (done) {
+        this.timeout(5000000);
 
         tools.api.tokens.get()
             .then((result) => {
                 try {
                     result.should.have.property('app');
                     result.should.have.property('role');
+                    result.should.have.property('apps');
                     result.should.have.property('users');
+                    result.should.have.property('appId');
+                    result.should.have.property('groups');
                     result.should.have.property('device');
                     result.should.have.property('scopes');
                     result.should.have.property('expiry');
+                    result.should.have.property('private');
                     result.should.have.property('tokenId');
+                    result.should.have.property('disabled');
                     result.should.have.property('description');
+                    result.should.have.property('organizationOnly');
                     done();
                 } catch (e) {
                     done(e);
@@ -867,12 +899,18 @@ describe('Tokens', function () {
                 try {
                     result[0].should.have.property('app');
                     result[0].should.have.property('role');
+                    result[0].should.have.property('apps');
                     result[0].should.have.property('users');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('groups');
                     result[0].should.have.property('device');
                     result[0].should.have.property('scopes');
                     result[0].should.have.property('expiry');
+                    result[0].should.have.property('private');
                     result[0].should.have.property('tokenId');
+                    result[0].should.have.property('disabled');
                     result[0].should.have.property('description');
+                    result[0].should.have.property('organizationOnly');
                     done();
                 } catch (e) {
                     done(e);
@@ -894,28 +932,6 @@ describe('Tokens', function () {
                 try {
                     result.should.have.property('updated');
                     expect(result.updated).to.equal(1);
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/tokens/generate', function (done) {
-        this.timeout(5000);
-
-        tools.api.tokens.generate()
-            .then((result) => {
-                try {
-                    generatedTokenId = result.tokenId;
-                    result.should.have.property('token');
-                    result.should.have.property('tokenId');
                     done();
                 } catch (e) {
                     done(e);
@@ -974,10 +990,9 @@ describe('Tokens', function () {
     it('/tokens/retrieve', function (done) {
         this.timeout(5000);
 
-        tools.api.tokens.retrieve(tokenId)
+        tools.api.tokens.retrieve()
             .then((result) => {
                 try {
-                    tokenIdToRevoke = result.tokenId;
                     result.should.have.property('token');
                     result.should.have.property('tokenId');
                     done();
@@ -996,7 +1011,7 @@ describe('Tokens', function () {
     it('/tokens/download', function (done) {
         this.timeout(5000);
 
-        tools.api.tokens.download(tokenId)
+        tools.api.tokens.download()
             .then((result) => {
                 try {
                     result.should.have.property('bearer');
@@ -1148,31 +1163,6 @@ describe('Tips & Updates', function () {
                     result.should.have.property('title');
                     result.should.have.property('itemId');
                     result.should.have.property('subtitle');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/tips-and-updates/load', function (done) {
-        this.timeout(5000);
-
-        tools.api.tipsAndUpdates.load()
-            .then((result) => {
-                try {
-                    result[0].should.have.property('data');
-                    result[0].should.have.property('appId');
-                    result[0].should.have.property('title');
-                    result[0].should.have.property('itemId');
-                    result[0].should.have.property('subtitle');
-                    result[0].should.have.property('serverDate');
                     done();
                 } catch (e) {
                     done(e);
@@ -1388,28 +1378,7 @@ describe('Remove Added Items', function () {
     it('/tokens/revoke', function (done) {
         this.timeout(5000);
 
-        tools.api.tokens.revoke(generatedTokenId)
-            .then((result) => {
-                try {
-                    result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/tokens/revoke', function (done) {
-        this.timeout(5000);
-
-        tools.api.tokens.revoke(tokenIdToRevoke)
+        tools.api.tokens.revoke()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1697,7 +1666,6 @@ var tools = {
                         '/tips-and-updates/add',
                         '/tips-and-updates/get',
                         '/tips-and-updates/list',
-                        '/tips-and-updates/load',
                         '/tips-and-updates/update',
                         '/tips-and-updates/delete'
                     ],
@@ -1781,7 +1749,6 @@ var tools = {
                 return tools.post('/scopes/add', {
                     'url': '/mocha/test/scopes',
                     'appId': appId,
-                    'roles': [1, 2, 3, 4, 5],
                     'description': 'Test Scopes'
                 });
             },
@@ -1792,7 +1759,6 @@ var tools = {
                         'app',
                         'role',
                         'appId',
-                        'roles',
                         'scopeId',
                         'description'
                     ],
@@ -1806,7 +1772,6 @@ var tools = {
                         'app',
                         'role',
                         'appId',
-                        'roles',
                         'scopeId',
                         'description'
                     ]
@@ -1815,7 +1780,6 @@ var tools = {
             update: () => {
                 return tools.post('/scopes/update', {
                     'url': '/mocha/test/scopes/update',
-                    'roles': [1, 2, 3],
                     'scopeId': scopeId,
                     'description': 'Test Scopes Updated'
                 });
@@ -1830,17 +1794,23 @@ var tools = {
             add: () => {
                 return tools.post('/groups/add', {
                     'appId': [appId],
-                    'description': 'Test groups'
+                    'private': true,
+                    'description': 'My First Group',
+                    'organizationOnly': 0
                 });
             },
             get: () => {
                 return tools.post('/groups/get', {
                     'filter': [
                         'role',
-                        'users',
+                        'apps',
                         'appId',
+                        'users',
+                        'groups',
                         'groupId',
-                        'description'
+                        'private',
+                        'description',
+                        'organizationOnly'
                     ],
                     'groupId': groupId
                 });
@@ -1849,10 +1819,14 @@ var tools = {
                 return tools.post('/groups/list', {
                     'filter': [
                         'role',
-                        'users',
+                        'apps',
                         'appId',
+                        'users',
+                        'groups',
                         'groupId',
-                        'description'
+                        'private',
+                        'description',
+                        'organizationOnly'
                     ]
                 });
             },
@@ -1904,12 +1878,18 @@ var tools = {
                     'filter': [
                         'app',
                         'role',
+                        'apps',
                         'users',
+                        'appId',
+                        'groups',
                         'device',
                         'scopes',
                         'expiry',
+                        'private',
                         'tokenId',
-                        'description'
+                        'disabled',
+                        'description',
+                        'organizationOnly'
                     ],
                     'tokenId': tokenId
                 });
@@ -1919,12 +1899,18 @@ var tools = {
                     'filter': [
                         'app',
                         'role',
+                        'apps',
                         'users',
+                        'appId',
+                        'groups',
                         'device',
                         'scopes',
                         'expiry',
+                        'private',
                         'tokenId',
-                        'description'
+                        'disabled',
+                        'description',
+                        'organizationOnly'
                     ],
                     'tokenId': tokenId
                 });
@@ -1937,24 +1923,24 @@ var tools = {
                     'tokenId': tokenId
                 });
             },
-            revoke: (tokenIdToRevoke) => {
+            revoke: () => {
                 return tools.post('/tokens/revoke', {
-                    'tokenId': tokenIdToRevoke
+                    'tokenId': tokenId
                 });
             },
-            download: (tokenId) => {
+            download: () => {
                 return tools.post('/tokens/download', {
                     'tokenId': tokenId
                 });
             },
-            retrieve: (tokenId) => {
+            retrieve: () => {
                 return tools.put('/tokens/retrieve', {
                     'tokenId': tokenId
                 });
             },
             generate: () => {
                 return tools.post('/tokens/generate', {
-                    'appId': config.appId,
+                    'appId': appId,
                     'expiry': new Date(Date.now() + 600000000),
                     'description': 'My New Generated Token'
                 });
@@ -2047,20 +2033,6 @@ var tools = {
                         'appId',
                         'itemId',
                         'subtitle'
-                    ],
-                    'appId': appId,
-                    'itemId': itemId
-                });
-            },
-            load: () => {
-                return tools.post('/tips-and-updates/load', {
-                    'filter': [
-                        'data',
-                        'title',
-                        'appId',
-                        'itemId',
-                        'subtitle',
-                        'serverDate'
                     ],
                     'appId': appId,
                     'itemId': itemId

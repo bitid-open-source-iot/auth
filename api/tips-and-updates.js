@@ -15,11 +15,6 @@ router.post('/get', (req, res) => {
 	myModule.tipsAndUpdates.get(req, res);
 });
 
-router.post('/load', (req, res) => {
-	var myModule = new bll.module();
-	myModule.tipsAndUpdates.load(req, res);
-});
-
 router.post('/list', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tipsAndUpdates.list(req, res);

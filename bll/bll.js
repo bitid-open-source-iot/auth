@@ -14,7 +14,7 @@ var module = function () {
 
 			var myModule = new dal.module();
 			tools.insertOwnerIfNoneExists(args)
-				.then(myModule.apps.add, null)
+				.then(myModule.apps.add)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -30,21 +30,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.apps.get(args)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
-		load: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.apps.load(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -120,7 +105,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.apps.isadmin(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -213,9 +197,9 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.users.get(args)
-				.then(myModule.apps.validate, null)
-				.then(myModule.auth.verify, null)
-				.then(emails.welcome, null)
+				.then(myModule.apps.validate)
+				.then(myModule.auth.verify)
+				.then(emails.welcome)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -253,8 +237,8 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.auth.register(args)
-				.then(myModule.apps.validate, null)
-				.then(emails.verify, null)
+				.then(myModule.apps.validate)
+				.then(emails.verify)
 				.then(args => {
 					if (__settings.production) {
 						delete args.result.code;
@@ -360,10 +344,10 @@ var module = function () {
 					deferred.resolve(args);
 
 					return deferred.promise;
-				}, null)
-				.then(myModule.auth.changepassword, null)
-				.then(myModule.apps.validate, null)
-				.then(emails.resetpassword, null)
+				})
+				.then(myModule.auth.changepassword)
+				.then(myModule.apps.validate)
+				.then(emails.resetpassword)
 				.then(args => {
 					if (!__settings.production) {
 						args.result.password = args.user.password;
@@ -405,8 +389,8 @@ var module = function () {
 
 					return deferred.promise;
 
-				}, null)
-				.then(myModule.auth.changepassword, null)
+				})
+				.then(myModule.auth.changepassword)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -501,22 +485,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.scopes.get(args)
-				.then(tools.setRoleObject, null)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
-		load: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.scopes.list(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -532,7 +500,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.scopes.list(args)
-				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -580,7 +547,7 @@ var module = function () {
 
 			var myModule = new dal.module();
 			tools.insertOwnerIfNoneExists(args)
-				.then(myModule.groups.add, null)
+				.then(myModule.groups.add)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -596,7 +563,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.groups.get(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -612,7 +578,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.groups.list(args)
-				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -743,7 +708,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tokens.get(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -759,7 +723,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tokens.list(args)
-				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -897,7 +860,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.add(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -913,7 +875,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.get(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -929,7 +890,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.list(args)
-				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -945,7 +905,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.update(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -961,7 +920,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.features.delete(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -1011,22 +969,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tipsAndUpdates.get(args)
-				.then(tools.setRoleObject, null)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
-		load: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.tipsAndUpdates.load(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -1042,7 +984,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tipsAndUpdates.list(args)
-				.then(tools.setRoleList, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -1058,7 +999,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tipsAndUpdates.update(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
@@ -1074,7 +1014,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tipsAndUpdates.delete(args)
-				.then(tools.setRoleObject, null)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

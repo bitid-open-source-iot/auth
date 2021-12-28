@@ -11,11 +11,6 @@ router.post('/get', (req, res) => {
 	myModule.scopes.get(req, res);
 });
 
-router.put('/load', (req, res) => {
-	var myModule = new bll.module();
-	myModule.scopes.load(req, res);
-});
-
 router.post('/list', (req, res) => {
 	var myModule = new bll.module();
 	myModule.scopes.list(req, res);

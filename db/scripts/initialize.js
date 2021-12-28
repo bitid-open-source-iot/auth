@@ -1,5 +1,5 @@
-const apps = db.getCollection('tblApps');
-if (apps.count() == 0) {
+const tblApps = db.getCollection('tblApps');
+if (tblApps.count() == 0) {
     db.tblApps.insertOne({
         'bitid': {
             'auth': {
@@ -139,8 +139,8 @@ if (apps.count() == 0) {
     });
 };
 
-const users = db.getCollection('tblUsers');
-if (users.count() == 0) {
+const tblUsers = db.getCollection('tblUsers');
+if (tblUsers.count() == 0) {
     db.tblUsers.insertOne({
         'name': {
             'last': '',
@@ -202,8 +202,8 @@ if (users.count() == 0) {
     });
 };
 
-const tokens = db.getCollection('tblTokens');
-if (tokens.count() == 0) {
+const tblTokens = db.getCollection('tblTokens');
+if (tblTokens.count() == 0) {
     db.tblTokens.insertOne({
         'bitid': {
             'auth': {
@@ -278,8 +278,8 @@ if (tokens.count() == 0) {
     });
 };
 
-const groups = db.getCollection('tblGroups');
-if (groups.count() == 0) {
+const tblGroups = db.getCollection('tblGroups');
+if (tblGroups.count() == 0) {
     db.tblGroups.insertOne({
         'bitid': {
             'auth': {
@@ -333,8 +333,8 @@ if (groups.count() == 0) {
     });
 };
 
-const scopes = db.getCollection('tblScopes');
-if (scopes.count() == 0) {
+const tblScopes = db.getCollection('tblScopes');
+if (tblScopes.count() == 0) {
     db.tblScopes.insertOne({
         '_id': ObjectId('000000000000000000000001'),
         'url': '/xxx/xxx',
@@ -351,8 +351,8 @@ if (scopes.count() == 0) {
     });
 };
 
-const features = db.getCollection('tblFeatures');
-if (features.count() == 0) {
+const tblFeatures = db.getCollection('tblFeatures');
+if (tblFeatures.count() == 0) {
     db.tblFeatures.insertOne({
         '_id': ObjectId('000000000000000000000001'),
         'appId': ObjectId('000000000000000000000001'),
@@ -367,8 +367,8 @@ if (features.count() == 0) {
     });
 };
 
-const tipsAndUpdates = db.getCollection('tblTipsAndUpdates');
-if (tipsAndUpdates.count() == 0) {
+const tblTipsAndUpdates = db.getCollection('tblTipsAndUpdates');
+if (tblTipsAndUpdates.count() == 0) {
     db.tblTipsAndUpdates.insertOne({
         '_id': ObjectId('000000000000000000000001'),
         'data': 'xxx',
