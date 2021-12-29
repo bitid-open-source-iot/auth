@@ -31,7 +31,7 @@ export class SignInPage implements OnInit, OnDestroy {
 		password: ''
 	};
 	public loading: boolean = false;
-	private appId: string;
+	private appId: string | undefined;
 	private allowaccess: boolean = false;
 	private observers: any = {};
 
