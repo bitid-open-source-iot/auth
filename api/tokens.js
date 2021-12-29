@@ -31,11 +31,6 @@ router.put('/retrieve', (req, res) => {
 	myModule.tokens.retrieve(req, res);
 });
 
-router.post('/download', (req, res) => {
-	var myModule = new bll.module();
-	myModule.tokens.download(req, res);
-});
-
 router.post('/generate', (req, res) => {
 	var myModule = new bll.module();
 	myModule.tokens.generate(req, res);

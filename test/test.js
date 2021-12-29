@@ -91,7 +91,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -198,7 +198,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -220,7 +220,7 @@ describe('Auth', function () {
                 try {
                     config.email = email;
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -241,7 +241,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -262,7 +262,7 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     config.password = result.password;
                     done();
                 } catch (e) {
@@ -379,7 +379,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -400,7 +400,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -441,7 +441,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -462,7 +462,7 @@ describe('Apps', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -508,6 +508,40 @@ describe('Users', function () {
             });
     });
 
+    // it('/users/list', function (done) {
+    //     this.timeout(5000);
+
+    //     tools.api.users.list()
+    //         .then((result) => {
+    //             try {
+    //                 result[0].should.have.property('name');
+    //                 result[0].should.have.property('email');
+    //                 result[0].should.have.property('userId');
+    //                 result[0].should.have.property('number');
+    //                 result[0].should.have.property('address');
+    //                 result[0].should.have.property('picture');
+    //                 result[0].should.have.property('language');
+    //                 result[0].should.have.property('timezone');
+    //                 result[0].should.have.property('username');
+    //                 result[0].should.have.property('validated');
+    //                 result[0].should.have.property('serverDate');
+    //                 result[0].should.have.property('privacyPolicy');
+    //                 result[0].should.have.property('identification');
+    //                 result[0].should.have.property('newsAndChanges');
+    //                 result[0].should.have.property('termsAndConditions');
+    //                 done();
+    //             } catch (e) {
+    //                 done(e);
+    //             };
+    //         }, (err) => {
+    //             try {
+    //                 done(err);
+    //             } catch (e) {
+    //                 done(e);
+    //             };
+    //         });
+    // });
+
     it('/users/update', function (done) {
         this.timeout(5000);
 
@@ -515,7 +549,7 @@ describe('Users', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -609,7 +643,7 @@ describe('Scopes', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -709,7 +743,7 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -730,7 +764,7 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -751,9 +785,7 @@ describe('Groups', function () {
             tools.api.groups.changeowner(config.shareId)
                 .then(result => {
                     try {
-                        result.should.containSubset({
-                            'updated': 1
-                        });
+                        expect(result.updated).is.above(0);
                         done();
                     } catch (e) {
                         done(e);
@@ -770,14 +802,13 @@ describe('Groups', function () {
         it('/groups/change-owner', function (done) {
             this.timeout(5000);
 
-            config.email = config.shareId;
-            tools.api.groups.changeowner(email)
+            var shareId = config.userId;
+            config.userId = config.shareId;
+            tools.api.groups.changeowner(shareId)
                 .then(result => {
                     try {
-                        config.email = email;
-                        result.should.containSubset({
-                            'updated': 1
-                        });
+                        config.userId = shareId;
+                        expect(result.updated).is.above(0);
                         done();
                     } catch (e) {
                         done(e);
@@ -799,7 +830,7 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -820,7 +851,7 @@ describe('Groups', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -859,7 +890,7 @@ describe('Tokens', function () {
     });
 
     it('/tokens/get', function (done) {
-        this.timeout(5000000);
+        this.timeout(5000);
 
         tools.api.tokens.get()
             .then((result) => {
@@ -869,10 +900,9 @@ describe('Tokens', function () {
                     result.should.have.property('apps');
                     result.should.have.property('users');
                     result.should.have.property('appId');
+                    result.should.have.property('token');
                     result.should.have.property('groups');
                     result.should.have.property('device');
-                    result.should.have.property('scopes');
-                    result.should.have.property('expiry');
                     result.should.have.property('private');
                     result.should.have.property('tokenId');
                     result.should.have.property('disabled');
@@ -902,15 +932,35 @@ describe('Tokens', function () {
                     result[0].should.have.property('apps');
                     result[0].should.have.property('users');
                     result[0].should.have.property('appId');
+                    result[0].should.have.property('token');
                     result[0].should.have.property('groups');
                     result[0].should.have.property('device');
-                    result[0].should.have.property('scopes');
-                    result[0].should.have.property('expiry');
                     result[0].should.have.property('private');
                     result[0].should.have.property('tokenId');
                     result[0].should.have.property('disabled');
                     result[0].should.have.property('description');
                     result[0].should.have.property('organizationOnly');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/tokens/update', function (done) {
+        this.timeout(5000);
+
+        tools.api.tokens.update()
+            .then((result) => {
+                try {
+                    result.should.have.property('updated');
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -931,7 +981,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -952,7 +1002,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -973,7 +1023,7 @@ describe('Tokens', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -988,7 +1038,7 @@ describe('Tokens', function () {
     });
 
     it('/tokens/retrieve', function (done) {
-        this.timeout(5000000);
+        this.timeout(5000);
 
         var save = config.appId;
         config.appId = appId;
@@ -999,31 +1049,6 @@ describe('Tokens', function () {
                     config.appId = save;
                     result.should.have.property('token');
                     result.should.have.property('tokenId');
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
-    it('/tokens/download', function (done) {
-        this.timeout(5000);
-
-        tools.api.tokens.download()
-            .then((result) => {
-                try {
-                    result.should.have.property('bearer');
-                    result.should.have.property('scopes');
-                    result.should.have.property('expiry');
-                    result.should.have.property('timeZone');
-                    result.should.have.property('tokenAddOn');
-                    result.should.have.property('description');
                     done();
                 } catch (e) {
                     done(e);
@@ -1117,7 +1142,32 @@ describe('Features', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+});
+
+describe('Statistics', function () {
+    it('/statistics/usage', function (done) {
+        this.timeout(5000);
+
+        tools.api.statistics.usage()
+            .then((result) => {
+                try {
+                    result[0].should.have.property('scope');
+                    result[0].should.have.property('appId');
+                    result[0].should.have.property('userId');
+                    result[0].should.have.property('serverDate');
                     done();
                 } catch (e) {
                     done(e);
@@ -1213,7 +1263,7 @@ describe('Tips & Updates', function () {
             .then((result) => {
                 try {
                     result.should.have.property('updated');
-                    expect(result.updated).to.equal(1);
+                    expect(result.updated).is.above(0);
                     done();
                 } catch (e) {
                     done(e);
@@ -1253,27 +1303,6 @@ describe('Health Check', function () {
 });
 
 describe('Remove Added Items', function () {
-    it('/users/delete', function (done) {
-        this.timeout(5000);
-
-        tools.api.users.delete()
-            .then((result) => {
-                try {
-                    result.should.have.property('deleted');
-                    expect(result.deleted).to.equal(1);
-                    done();
-                } catch (e) {
-                    done(e);
-                };
-            }, (err) => {
-                try {
-                    done(err);
-                } catch (e) {
-                    done(e);
-                };
-            });
-    });
-
     it('/features/delete', function (done) {
         this.timeout(5000);
 
@@ -1383,6 +1412,27 @@ describe('Remove Added Items', function () {
         this.timeout(5000);
 
         tools.api.tokens.revoke()
+            .then((result) => {
+                try {
+                    result.should.have.property('deleted');
+                    expect(result.deleted).to.equal(1);
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
+
+    it('/users/delete', function (done) {
+        this.timeout(5000);
+
+        tools.api.users.delete()
             .then((result) => {
                 try {
                     result.should.have.property('deleted');
@@ -1636,7 +1686,6 @@ var tools = {
                         '/tokens/list',
                         '/tokens/share',
                         '/tokens/revoke',
-                        '/tokens/download',
                         '/tokens/retrieve',
                         '/tokens/generate',
                         '/tokens/unsubscribe',
@@ -1726,8 +1775,12 @@ var tools = {
                         'language',
                         'timezone',
                         'username',
+                        'validated',
                         'serverDate',
-                        'identification'
+                        'privacyPolicy',
+                        'identification',
+                        'newsAndChanges',
+                        'termsAndConditions'
                     ]
                 });
             },
@@ -1853,9 +1906,9 @@ var tools = {
                     'groupId': groupId
                 });
             },
-            changeowner: () => {
+            changeowner: (id) => {
                 return tools.post('/groups/change-owner', {
-                    'id': config.shareId,
+                    'id': id,
                     'type': 'user',
                     'groupId': groupId
                 });
@@ -1885,10 +1938,9 @@ var tools = {
                         'apps',
                         'users',
                         'appId',
+                        'token',
                         'groups',
                         'device',
-                        'scopes',
-                        'expiry',
                         'private',
                         'tokenId',
                         'disabled',
@@ -1906,10 +1958,9 @@ var tools = {
                         'apps',
                         'users',
                         'appId',
+                        'token',
                         'groups',
                         'device',
-                        'scopes',
-                        'expiry',
                         'private',
                         'tokenId',
                         'disabled',
@@ -1927,13 +1978,14 @@ var tools = {
                     'tokenId': tokenId
                 });
             },
-            revoke: () => {
-                return tools.post('/tokens/revoke', {
-                    'tokenId': tokenId
+            update: () => {
+                return tools.post('/tokens/update', {
+                    'tokenId': tokenId,
+                    'disabled': true
                 });
             },
-            download: () => {
-                return tools.post('/tokens/download', {
+            revoke: () => {
+                return tools.post('/tokens/revoke', {
                     'tokenId': tokenId
                 });
             },
@@ -2012,6 +2064,18 @@ var tools = {
                 return tools.post('/features/delete', {
                     'appId': appId,
                     'featureId': featureId
+                });
+            }
+        },
+        statistics: {
+            usage: () => {
+                return tools.post('/statistics/usage', {
+                    'filter': [
+                        'scope',
+                        'appId',
+                        'userId',
+                        'serverDate'
+                    ]
                 });
             }
         },
@@ -2096,10 +2160,6 @@ var tools = {
 
         const result = await response.json();
 
-        // if (!response.ok) {
-        //     console.log(endpoint, result);
-        // };
-
         deferred.resolve(result);
 
         return deferred.promise;
@@ -2127,10 +2187,6 @@ var tools = {
         });
 
         const result = await response.json();
-
-        // if (!response.ok) {
-        //     console.log(endpoint, result);
-        // };
 
         deferred.resolve(result);
 

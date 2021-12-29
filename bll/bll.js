@@ -388,7 +388,6 @@ var module = function () {
 					};
 
 					return deferred.promise;
-
 				})
 				.then(myModule.auth.changepassword)
 				.then(args => {
@@ -684,7 +683,7 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.apps.load(args)
+			myModule.config.get(args)
 				.then(args => {
 					var result = JSON.parse(JSON.stringify(__settings.client));
 					result.icon = args.result.icon;
@@ -768,21 +767,6 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.tokens.revoke(args)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
-
-		download: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
-
-			var myModule = new dal.module();
-			myModule.tokens.download(args)
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {

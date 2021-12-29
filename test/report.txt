@@ -1,24 +1,23 @@
 
 
   Software & Testing Details
-    ✔ DATE: 25/11/2021 07:16:05
+    ✔ DATE: 29/12/2021 12:09:06
     ✔ AUTHOR: claytoncc
-    ✔ VERSION: 2.0.7
+    ✔ VERSION: 2.0.9
 
   Config
     ✔ /config/get
 
   Auth
-    ✔ /auth/register (3582ms)
-    ✔ /auth/verify (3031ms)
+    ✔ /auth/register (3614ms)
+    ✔ /auth/verify (3687ms)
     ✔ /auth/authenticate
-    ✔ /auth/allowaccess
+    ✔ /auth/allow-access
     ✔ /auth/validate
-    ✔ /auth/auth
-    ✔ /auth/changeemail
-    ✔ /auth/changeemail (41ms)
-    ✔ /auth/changepassword
-    ✔ /auth/resetpassword (3344ms)
+    ✔ /auth/change-email
+    ✔ /auth/change-email
+    ✔ /auth/change-password
+    ✔ /auth/reset-password (3579ms)
 
   Apps
     ✔ /apps/add
@@ -27,7 +26,7 @@
     ✔ /apps/share
     ✔ /apps/update
     ✔ /apps/is-admin
-    ✔ /apps/updatesubscriber
+    ✔ /apps/update-subscriber
     ✔ /apps/unsubscribe
 
   Users
@@ -36,28 +35,28 @@
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get
-    ✔ /scopes/list (94ms)
-    ✔ /scopes/update (40ms)
+    ✔ /scopes/get (45ms)
+    ✔ /scopes/list
+    ✔ /scopes/update (47ms)
 
   Groups
     ✔ /groups/add
     ✔ /groups/get
     ✔ /groups/list
-    ✔ /groups/share (39ms)
+    ✔ /groups/share
     ✔ /groups/update
-    ✔ /groups/updatesubscriber
+    ✔ /groups/update-subscriber
     ✔ /groups/unsubscribe
 
   Tokens
+    ✔ /tokens/generate
     ✔ /tokens/get
     ✔ /tokens/list
+    ✔ /tokens/update
     ✔ /tokens/share
-    ✔ /tokens/generate
-    ✔ /tokens/updatesubscriber
+    ✔ /tokens/update-subscriber (44ms)
     ✔ /tokens/unsubscribe
     ✔ /tokens/retrieve
-    ✔ /tokens/download
 
   Features
     ✔ /features/add
@@ -65,10 +64,12 @@
     ✔ /features/list
     ✔ /features/update
 
+  Statistics
+    ✔ /statistics/usage
+
   Tips & Updates
     ✔ /tips-and-updates/add
-    ✔ /tips-and-updates/get
-    ✔ /tips-and-updates/load
+    ✔ /tips-and-updates/get (41ms)
     ✔ /tips-and-updates/list
     ✔ /tips-and-updates/update
 
@@ -76,15 +77,14 @@
     ✔ /
 
   Remove Added Items
-    ✔ /users/delete
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete
+    ✔ /scopes/delete (49ms)
     ✔ /groups/delete
     ✔ /apps/delete
     ✔ /tokens/revoke
-    ✔ /tokens/revoke
+    ✔ /users/delete
 
 
-  61 passing (11s)
+  59 passing (12s)
 

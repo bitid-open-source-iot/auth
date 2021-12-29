@@ -202,6 +202,31 @@ if (tblUsers.count() == 0) {
     });
 };
 
+const tblUsage = db.getCollection('tblUsage');
+if (tblUsage.count() == 0) {
+    db.tblUsage.insertOne({
+        "_id" : ObjectId("000000000000000000000001"),
+        "scope" : "/users/get",
+        "appId" : ObjectId("000000000000000000000001"),
+        "userId" : ObjectId("000000000000000000000001"),
+        "serverDate" : ISODate()
+    });
+
+    db.tblUsage.createIndex({
+        'userId': 1,
+        'serverDate': 1
+    }, {
+        'unique': false
+    });
+
+    db.tblUsage.createIndex({
+        'appId': 1,
+        'serverDate': 1
+    }, {
+        'unique': false
+    });
+};
+
 const tblTokens = db.getCollection('tblTokens');
 if (tblTokens.count() == 0) {
     db.tblTokens.insertOne({

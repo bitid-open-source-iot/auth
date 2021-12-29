@@ -1,10 +1,6 @@
 const bll = require('../bll/bll');
 const router = require('express').Router();
 
-router.use((req, res, next) => {
-	next();
-});
-
 router.post('/add', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.add(req, res);
@@ -13,11 +9,6 @@ router.post('/add', (req, res) => {
 router.post('/get', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.get(req, res);
-});
-
-router.put('/load', (req, res) => {
-	var myModule = new bll.module();
-	myModule.apps.load(req, res);
 });
 
 router.post('/list', (req, res) => {

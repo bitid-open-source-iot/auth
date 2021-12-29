@@ -335,55 +335,6 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		load: (args) => {
-			var deferred = Q.defer();
-
-			var params = {};
-
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
-				if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
-					params._id = ObjectId(args.req.body.appId);
-				};
-			};
-
-			if (Object.keys(params).length == 0) {
-				if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
-					params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
-				};
-			};
-
-			var filter = {};
-			if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
-				filter['_id'] = 0;
-				args.req.body.filter.map(f => {
-					if (f == 'appId') {
-						filter['_id'] = 1;
-					} else {
-						filter[f] = 1;
-					};
-				});
-			};
-
-			db.call({
-				'params': params,
-				'filter': filter,
-				'operation': 'find',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
 		list: (args) => {
 			var deferred = Q.defer();
 
@@ -1753,7 +1704,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email),
+				'_id': ObjectId(args.req.body.header.userId),
 				'validated': 1
 			};
 
@@ -1781,25 +1732,22 @@ var module = function () {
 									'collection': 'tblApps'
 								});
 							} else {
-								var err = new ErrorResponse();
-								err.error.errors[0].code = 401;
-								err.error.errors[0].reason = 'Account verification is required!';
-								err.error.errors[0].message = 'Account verification is required!';
-								deferred.reject(err);
+								deferred.reject({
+									code: 401,
+									message: 'Account verification is required!'
+								});
 							};
 						} else {
-							var err = new ErrorResponse();
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Password is incorrect!';
-							err.error.errors[0].message = 'Password is incorrect!';
-							deferred.reject(err);
+							deferred.reject({
+								code: 401,
+								message: 'Email/User ID or Password is incorrect!'
+							});
 						};
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
-						deferred.reject(err);
+						deferred.reject({
+							code: 69,
+							message: 'Account not yet registered!'
+						});
 					};
 
 					return deferred.promise;
@@ -1813,10 +1761,16 @@ var module = function () {
 					var params = {
 						'bitid': {
 							'auth': {
-								'users': [{
-									'role': 5,
-									'email': format.email(args.req.body.header.email)
-								}]
+								'apps': [],
+								'users': [
+									{
+										'id': ObjectId(args.req.body.header.userId),
+										'role': 5
+									}
+								],
+								'groups': [],
+								'private': true,
+								'organizationOnly': 0
 							}
 						},
 						'token': {
@@ -1851,15 +1805,11 @@ var module = function () {
 					};
 					deferred.resolve(args);
 				}, error => {
-					if (error instanceof ErrorResponse) {
-						deferred.reject(error);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					};
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
 				});
 
 			return deferred.promise;
@@ -2401,7 +2351,7 @@ var module = function () {
 				'token': token,
 				'appId': ObjectId(args.req.body.header.appId),
 				'disabled': false,
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
+				'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 			};
 
 			var filter = {
@@ -2533,7 +2483,8 @@ var module = function () {
 				.then(result => {
 					deferred.resolve([{
 						'email': format.email(args.req.body.header.email),
-						'appId': args.req.body.header.appId
+						'appId': args.req.body.header.appId,
+						'userId': args.req.body.header.userId
 					}]);
 				}, err => {
 					deferred.reject(err);
@@ -2662,21 +2613,129 @@ var module = function () {
 				};
 			};
 
-			var params = {
-				'token': args.req.headers.authorization,
-				'appId': ObjectId(args.req.body.header.appId),
-				'disabled': false,
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
-			};
-
-			var filter = {
-				'_id': 1
-			};
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'token': args.req.headers.authorization,
+								'appId': ObjectId(args.req.body.header.appId),
+								'disabled': false,
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'token': args.req.headers.authorization,
+								'appId': ObjectId(args.req.body.header.appId),
+								'disabled': false,
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'token': args.req.headers.authorization,
+								'appId': ObjectId(args.req.body.header.appId),
+								'disabled': false,
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$project: {
+						'_id': 1
+					}
+				}
+			];
 
 			db.call({
 				'params': params,
-				'filter': filter,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblTokens',
 				'allowNoRecordsFound': true
 			})
@@ -2705,20 +2764,16 @@ var module = function () {
 								'allowNoRecordsFound': true
 							});
 						} else {
-							var err = new ErrorResponse();
-							err.error.code = 401;
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Scope not present in token!';
-							err.error.errors[0].message = 'Scope not present in token!';
-							deferred.reject(err);
+							deferred.reject({
+								code: 401,
+								message: 'Scope not present in token!'
+							});
 						};
 					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Token was not found!';
-						err.error.errors[0].message = 'Token was not found!';
-						deferred.reject(err);
+						deferred.reject({
+							code: 401,
+							message: 'Token was not found!'
+						});
 					};
 
 					return deferred.promise;
@@ -2739,12 +2794,10 @@ var module = function () {
 							'allowNoRecordsFound': true
 						});
 					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope was not found!';
-						err.error.errors[0].message = 'Scope was not found!';
-						deferred.reject(err);
+						deferred.reject({
+							code: 401,
+							message: 'Scope was not found!'
+						});
 					};
 
 					return deferred.promise;
@@ -2758,22 +2811,18 @@ var module = function () {
 						var current = new Date();
 
 						if (expiry < current) {
-							var err = new ErrorResponse();
-							err.error.code = 401;
-							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'This token has expired!';
-							err.error.errors[0].message = 'This token has expired!';
-							deferred.reject(err);
+							deferred.reject({
+								code: 401,
+								message: 'This token has expired!'
+							});
 						} else {
 							deferred.resolve(true);
 						};
 					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'App not found!';
-						err.error.errors[0].message = 'App not found!';
-						deferred.reject(err);
+						deferred.reject({
+							code: 401,
+							message: 'App not found!'
+						});
 					};
 
 					return deferred.promise;
@@ -2986,109 +3035,82 @@ var module = function () {
 				err.error.errors[0].reason = 'A replacement email is required!';
 				err.error.errors[0].message = 'A replacement email is required!';
 				deferred.reject(err);
-				return false;
-			};
+			} else {
+				var params = {
+					'_id': ObjectId(args.req.body.header.userId)
+				};
 
-			var params = {
-				'email': format.email(args.req.body.header.email)
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblUsers',
-				'allowNoRecordsFound': true
-			})
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var params = {
-							'email': format.email(args.req.body.email)
-						};
-
-						deferred.resolve({
-							'params': params,
-							'operation': 'find',
-							'collection': 'tblUsers',
-							'allowNoRecordsFound': true
-						});
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
+				db.call({
+					'params': params,
+					'operation': 'find',
+					'collection': 'tblUsers',
+					'allowNoRecordsFound': true
 				})
-				.then(db.call)
-				.then(result => {
-					var deferred = Q.defer();
+					.then(result => {
+						var deferred = Q.defer();
 
-					if (result.length == 0) {
-						var params = {
-							'email': format.email(args.req.body.header.email)
-						};
-
-						var update = {
-							$set: {
+						if (result.length > 0) {
+							var params = {
 								'email': format.email(args.req.body.email)
-							}
+							};
+
+							deferred.resolve({
+								'params': params,
+								'operation': 'find',
+								'collection': 'tblUsers',
+								'allowNoRecordsFound': true
+							});
+						} else {
+							deferred.reject({
+								code: 69,
+								message: 'Account not yet registered!'
+							});
 						};
 
-						deferred.resolve({
-							'params': params,
-							'update': update,
-							'operation': 'update',
-							'collection': 'tblUsers'
-						});
-					} else {
+						return deferred.promise;
+					})
+					.then(db.call)
+					.then(result => {
+						var deferred = Q.defer();
+
+						if (result.length == 0) {
+							var params = {
+								'_id': ObjectId(args.req.body.header.userId)
+							};
+
+							var update = {
+								$set: {
+									'email': format.email(args.req.body.email)
+								}
+							};
+
+							deferred.resolve({
+								'params': params,
+								'update': update,
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+						} else {
+							deferred.reject({
+								code: 71,
+								message: 'An account with email address of ' + args.req.body.email + ' already exists!'
+							});
+						};
+
+						return deferred.promise;
+					})
+					.then(db.call)
+					.then(result => {
+						args.result = result;
+						deferred.resolve(args);
+					}, error => {
 						var err = new ErrorResponse();
-						err.error.errors[0].code = 71;
-						err.error.errors[0].reason = 'An account with email address of ' + args.req.body.email + ' already exists!';
-						err.error.errors[0].message = 'An account with email address of ' + args.req.body.email + ' already exists!';
+						err.error.errors[0].code = error.code;
+						err.error.errors[0].reason = error.message;
+						err.error.errors[0].message = error.message;
 						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				})
-				.then(db.call)
-				.then(result => {
-					var deferred = Q.defer();
-
-					args.result = result;
-
-					var params = {
-						'bitid.auth.users': {
-							$elemMatch: {
-								'email': format.email(args.req.body.header.email)
-							}
-						}
-					};
-
-					var update = {
-						$set: {
-							'bitid.auth.users.$.email': format.email(args.req.body.email)
-						}
-					};
-
-					deferred.resolve({
-						'params': params,
-						'update': update,
-						'operation': 'updateMany',
-						'collection': 'tblTokens'
 					});
-
-					return deferred.promise;
-				})
-				.then(db.call)
-				.then(result => {
-					deferred.resolve(args);
-				}, err => {
-					deferred.reject(err);
-				});
+			};
 
 			return deferred.promise;
 		},
@@ -3097,7 +3119,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email)
+				'_id': ObjectId(args.req.body.header.userId)
 			};
 
 			if (typeof (args.req.body.expiry) == 'undefined') {
@@ -3166,7 +3188,7 @@ var module = function () {
 							'device': args.req.headers['user-agent'],
 							'appId': ObjectId(args.req.body.header.appId),
 							'description': args.req.body.description || args.app.name,
-							'bitid.auth.users.email': format.email(args.req.body.header.email)
+							'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 						};
 
 						deferred.resolve({
@@ -3196,10 +3218,16 @@ var module = function () {
 					var params = {
 						'bitid': {
 							'auth': {
-								'users': [{
-									'role': 5,
-									'email': format.email(args.req.body.header.email)
-								}]
+								'apps': [],
+								'users': [
+									{
+										'id': ObjectId(args.req.body.header.userId),
+										'role': 5
+									}
+								],
+								'groups': [],
+								'private': true,
+								'organizationOnly': 0
 							}
 						},
 						'token': {
@@ -3325,7 +3353,7 @@ var module = function () {
 								'appId': ObjectId(args.req.body.header.appId),
 								'device': args.req.headers['user-agent'],
 								'description': args.req.body.description || args.app.name,
-								'bitid.auth.users.email': format.email(args.req.body.header.email)
+								'bitid.auth.users.id': args.user._id
 							};
 
 							deferred.resolve({
@@ -3358,15 +3386,23 @@ var module = function () {
 					var params = {
 						'bitid': {
 							'auth': {
-								'users': [{
-									'role': 5,
-									'email': format.email(args.req.body.header.email)
-								}]
+								'apps': [],
+								'users': [
+									{
+										'id': args.user._id,
+										'role': 5
+									}
+								],
+								'groups': [],
+								'private': true,
+								'organizationOnly': 0
 							}
 						},
 						'token': {
 							'bearer': tools.encryption.generateRandomString(64),
-							'scopes': [{ 'url': '*', 'role': 4 }],
+							'scopes': [
+								'*'
+							],
 							'expiry': args.req.body.expiry,
 							'timeZone': args.user.timeZone || 0,
 							'tokenAddOn': args.req.body.tokenAddOn,
@@ -3401,7 +3437,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email),
+				'_id': ObjectId(args.req.body.header.userId),
 				'validated': 1
 			};
 
@@ -3434,11 +3470,43 @@ var module = function () {
 	};
 
 	var dalUsers = {
-		get: (args) => {
+		id: (args) => {
 			var deferred = Q.defer();
 
 			var params = {
 				'email': format.email(args.req.body.header.email)
+			};
+
+			var filter = {
+				'_id': 1
+			};
+
+			db.call({
+				'limit': 1,
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblUsers'
+			})
+				.then(result => {
+					args.result = unlink(result[0]._id);
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		get: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.header.userId)
 			};
 
 			var filter = {};
@@ -3477,21 +3545,191 @@ var module = function () {
 		list: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 4
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(__settings.client.appId)
-			};
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(__settings.client.appId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(__settings.client.appId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(__settings.client.appId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': {
+							$gte: 4
+						}
+					}
+				},
+				{
+					$project: {
+						'_id': 1
+					}
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'find',
+				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
 				.then(result => {
@@ -3500,11 +3738,11 @@ var module = function () {
 					var params = {};
 
 					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email != null) {
-						if (Array.isArray(args.req.body.email) != 'undefined' && args.req.body.email.length > 0) {
+						if (Array.isArray(args.req.body.email) && args.req.body.email?.length > 0) {
 							params.email = {
 								$in: format.email(args.req.body.email)
 							};
-						} else if (typeof (args.req.body.email) != 'string') {
+						} else if (typeof (args.req.body.email) == 'string') {
 							params.email = args.req.body.email;
 						};
 					};
@@ -3559,7 +3797,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email)
+				'_id': ObjectId(args.req.body.header.userId)
 			};
 
 			var update = {
@@ -3692,7 +3930,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email)
+				'_id': ObjectId(args.req.body.header.userId)
 			};
 
 			db.call({
@@ -3724,6 +3962,61 @@ var module = function () {
 				.then(db.call)
 				.then(result => {
 					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		}
+	};
+
+	var dalConfig = {
+		get: (args) => {
+			var deferred = Q.defer();
+
+			var params = [
+				{
+					$match: {}
+				},
+				{
+					$project: {
+						'_id': 1,
+						'icon': 1,
+						'name': 1,
+						'theme': 1,
+						'favicon': 1
+					}
+				}
+			];
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId?.length > 0) {
+					params[0].$match._id = {
+						$in: args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id))
+					};
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
+					params[0].$match._id = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (Object.keys(params).length == 0) {
+				if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
+					params[0].$match.domains = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
+				};
+			};
+
+			db.call({
+				'params': params,
+				'operation': 'aggregate',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();
@@ -6494,63 +6787,314 @@ var module = function () {
 		changeowner: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 5
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.groupId)
-			};
-
-			var update = {
-				$set: {
-					'bitid.auth.users.$.role': 4
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.groupId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.groupId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.groupId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': {
+							$gte: 5
+						}
+					}
+				},
+				{
+					$project: {
+						'_id': 1,
+						'role': 1
+					}
 				}
-			};
+			];
 
 			db.call({
 				'params': params,
-				'update': update,
-				'operation': 'update',
+				'operation': 'aggregate',
 				'collection': 'tblGroups'
 			})
 				.then(result => {
 					var deferred = Q.defer();
 
-					if (result.nModified == 1) {
-						var params = {
-							'bitid.auth.users': {
-								$elemMatch: {
-									'email': format.email(args.req.body.email)
-								}
-							},
-							'_id': ObjectId(args.req.body.groupId)
-						};
-
-						var update = {
-							$set: {
-								'bitid.auth.users.$.role': 5
-							}
-						};
-
-						deferred.resolve({
-							'params': params,
-							'update': update,
-							'operation': 'update',
-							'collection': 'tblGroups'
-						});
-					} else {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Owner change fail!';
-						err.error.errors[0].message = 'Owner change fail!';
-						deferred.reject(err);
+					var params = {
+						'_id': ObjectId(args.req.body.groupId)
 					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					switch (args.req.body.type) {
+						case ('app'):
+							params['bitid.auth.apps'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.apps.$.role': 5
+							};
+							break;
+						case ('user'):
+							params['bitid.auth.users'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.users.$.role': 5
+							};
+							break;
+						case ('group'):
+							params['bitid.auth.groups'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.id)
+								}
+							};
+							update.$set = {
+								'bitid.auth.groups.$.role': 5
+							};
+							break;
+						default:
+							deferred.reject({
+								code: 503,
+								message: 'Could not locate \'type\' in request payload!'
+							});
+							return;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblGroups'
+					});
+
+					return deferred.promise;
+				})
+				.then(db.call)
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.groupId)
+					};
+
+					var update = {
+						$set: {
+							'serverDate': new Date()
+						}
+					};
+
+					switch (args.req.body.type) {
+						case ('app'):
+							params['bitid.auth.apps'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.header.userId)
+								}
+							};
+							update.$set = {
+								'bitid.auth.apps.$.role': 4
+							};
+							break;
+						case ('user'):
+							params['bitid.auth.users'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.header.userId)
+								}
+							};
+							update.$set = {
+								'bitid.auth.users.$.role': 4
+							};
+							break;
+						case ('group'):
+							params['bitid.auth.groups'] = {
+								$elemMatch: {
+									'id': ObjectId(args.req.body.header.userId)
+								}
+							};
+							update.$set = {
+								'bitid.auth.groups.$.role': 4
+							};
+							break;
+						default:
+							deferred.reject({
+								code: 503,
+								message: 'Could not locate \'type\' in request payload!'
+							});
+							return;
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblGroups'
+					});
 
 					return deferred.promise;
 				})
@@ -6561,8 +7105,8 @@ var module = function () {
 				}, error => {
 					var err = new ErrorResponse();
 					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.description;
-					err.error.errors[0].message = error.description;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
 
@@ -7069,9 +7613,7 @@ var module = function () {
 								},
 								initialValue: 0
 							}
-						},
-						'scopes': '$token.scopes',
-						'expiry': '$token.expiry'
+						}
 					}
 				}
 			];
@@ -7350,9 +7892,7 @@ var module = function () {
 								},
 								initialValue: 0
 							}
-						},
-						'scopes': '$token.scopes',
-						'expiry': '$token.expiry'
+						}
 					}
 				}
 			];
@@ -7976,23 +8516,228 @@ var module = function () {
 		revoke: (args) => {
 			var deferred = Q.defer();
 
-			var params = {
-				'bitid.auth.users': {
-					$elemMatch: {
-						'role': {
-							$gte: 5
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.apps.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.apps.id'
+								}
+							}
 						},
-						'email': format.email(args.req.body.header.email)
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
 					}
 				},
-				'_id': ObjectId(args.req.body.tokenId),
-			};
+				{
+					$lookup: {
+						let: {
+							'groupId': {
+								$cond: {
+									'if': {
+										'$ne': [
+											{
+												'$type': '$bitid.auth.groups.id'
+											},
+											'array'
+										]
+									},
+									'then': [],
+									'else': '$bitid.auth.groups.id'
+								}
+							}
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.tokenId),
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				},
+				{
+					$match: {
+						'role': 5
+					}
+				}
+			];
 
 			db.call({
 				'params': params,
-				'operation': 'remove',
+				'operation': 'aggregate',
 				'collection': 'tblTokens'
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.tokenId)
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'remove',
+						'collection': 'tblTokens'
+					});
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -8004,32 +8749,6 @@ var module = function () {
 					deferred.reject(err);
 				});
 
-			return deferred.promise;
-		},
-
-		download: (args) => {
-			var deferred = Q.defer();
-
-			var params = {
-				'_id': ObjectId(args.req.body.tokenId),
-				'bitid.auth.users.email': format.email(args.req.body.header.email)
-			};
-
-			db.call({
-				'params': params,
-				'operation': 'find',
-				'collection': 'tblTokens'
-			})
-				.then(result => {
-					args.result = result[0];
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
 			return deferred.promise;
 		},
 
@@ -10302,9 +11021,9 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email),
 				'scope': args.req.body.scope,
 				'appId': ObjectId(args.req.body.header.appId),
+				'userId': ObjectId(args.req.body.header.userId),
 				'serverDate': new Date()
 			};
 
@@ -11623,6 +12342,7 @@ var module = function () {
 		'apps': dalApps,
 		'auth': dalAuth,
 		'users': dalUsers,
+		'config': dalConfig,
 		'scopes': dalScopes,
 		'groups': dalGroups,
 		'tokens': dalTokens,

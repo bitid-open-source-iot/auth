@@ -31,7 +31,7 @@ try {
     console.log(JSON.stringify(__settings));
 } catch (e) {
     console.error('ERROR APPLYING ENV VARIABLES', e)
-}
+};
 
 try {
     var portal = {
@@ -50,14 +50,38 @@ try {
                 }));
 
                 app.use((req, res, next) => {
+                    var args = {
+                        'req': req,
+                        'res': res
+                    };
+
+                    if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
+                        if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
+                            var myModule = new dal.module();
+                            myModule.users.id(args)
+                                .then(args => {
+                                    req.body.header.userId = args.result;
+                                    next();
+                                }, error => {
+                                    next();
+                                });
+                        } else {
+                            next();
+                        };
+                    } else {
+                        next();
+                    };
+                });
+
+                app.use((req, res, next) => {
                     if (__settings.authentication) {
                         let testIfToken
                         try {
                             testIfToken = JSON.parse(req.headers.authorization)
-                            req.headers.authorization = req.headers.authorization
+                            req.headers.authorization = req.headers.authorization;
                         } catch (e) {
                             req.headers.authorization = JSON.stringify({ "Bearer": req.headers.authorization, "scopes": [{ "url": "*", "role": "4" }], "expiry": 32503680000000, "pushToken": "", "tokenAddOn": {} })
-                        }
+                        };
 
                         if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
 
