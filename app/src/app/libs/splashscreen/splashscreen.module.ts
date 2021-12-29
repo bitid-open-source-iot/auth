@@ -14,4 +14,4 @@ import { SplashScreen } from './splashscreen';
 	]
 })
 
-export class SplashscreenModule {}
+export class SplashscreenModule { }

@@ -11,7 +11,8 @@
         </p>
 
         <mat-checkbox color="primary" formControlName="privacyPolicy">
-            I have read and agree to the <a href="https://www.bitid.co.za/privacy-policy" target="_blank">Privacy Policy</a>
+            I have read and agree to the <a href="https://www.bitid.co.za/privacy-policy" target="_blank">Privacy
+                Policy</a>
         </mat-checkbox>
 
         <mat-hint class="checkbox-hint">
@@ -19,7 +20,8 @@
         </mat-hint>
 
         <mat-checkbox color="primary" formControlName="termsAndConditions">
-            I have read and agree to the <a href="https://www.bitid.co.za/terms-and-conditions" target="_blank">Terms & Conditions</a>
+            I have read and agree to the <a href="https://www.bitid.co.za/terms-and-conditions" target="_blank">Terms &
+                Conditions</a>
         </mat-checkbox>
 
         <mat-hint class="checkbox-hint">
@@ -31,7 +33,9 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid || !form.value.privacyPolicy || !form.value.termsAndConditions" (click)="button.click()">
+    <button type="button" mat-flat-button color="primary"
+        [disabled]="form.invalid || !form.value.privacyPolicy || !form.value.termsAndConditions"
+        (click)="button.click()">
         {{ loading ? '' : 'confirm' }}
 
         <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>

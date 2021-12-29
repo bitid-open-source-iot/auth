@@ -7,19 +7,19 @@ describe('UserEditorDialog', () => {
   let fixture: ComponentFixture<UserEditorDialog>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ UserEditorDialog ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [UserEditorDialog]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(UserEditorDialog);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(UserEditorDialog);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

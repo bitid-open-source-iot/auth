@@ -1,11 +1,13 @@
 <mat-content fxLayout="row">
-    <mat-list fxFlex="50" fxFlexOffset="25" fxFlex.lg="70" fxFlexOffset.lg="15" fxFlex.md="80" fxFlexOffset.md="10" fxFlex.sm="90" fxFlexOffset.sm="5" fxFlex.xs="100" fxFlexOffset.xs="0">
+    <mat-list fxFlex="50" fxFlexOffset="25" fxFlex.lg="70" fxFlexOffset.lg="15" fxFlex.md="80" fxFlexOffset.md="10"
+        fxFlex.sm="90" fxFlexOffset.sm="5" fxFlex.xs="100" fxFlexOffset.xs="0">
         <div mat-subheader>
             App
         </div>
 
         <mat-list-item lines="full">
-            <img slot="start" [src]="token.app.icon" [alt]="token.app.name" width="48" height="48" draggable="false" *ngIf="token.app.icon">
+            <img slot="start" [src]="token.app.icon" [alt]="token.app.name" width="48" height="48" draggable="false"
+                *ngIf="token.app.icon">
 
             <mat-label class="spacer">
                 <h3>

@@ -98,13 +98,13 @@ export class SignInPage implements OnInit, OnDestroy {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
 
-				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 				};
-				if (typeof(params.allowaccess) != 'undefined' && params.allowaccess != null) {
+				if (typeof (params.allowaccess) != 'undefined' && params.allowaccess != null) {
 					this.allowaccess = JSON.parse(params.allowaccess);
 				};
-				
+
 				this.load();
 			};
 		});

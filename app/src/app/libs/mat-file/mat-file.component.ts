@@ -30,9 +30,9 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
     @Input('min-height') public minHeight: number = 0;
     @Input('max-height') public maxHeight: number = 0;
 
-    onChange = (src) => {};
+    onChange = (src) => { };
 
-    onTouched = () => {};
+    onTouched = () => { };
 
     touched = false;
 

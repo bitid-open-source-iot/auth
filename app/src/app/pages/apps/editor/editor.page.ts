@@ -18,7 +18,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export class AppsEditorpage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private route: ActivatedRoute, public scopes: ScopesService, private config: ConfigService, private router: Router, private buttons: ButtonsService, private service: AppsService) { }
+	constructor(private toast: ToastService, private route: ActivatedRoute, public scopes: ScopesService, private config: ConfigService, private router: Router, private service: AppsService) { }
 
 	public form: FormGroup = new FormGroup({
 		icons: new FormGroup({

@@ -1,29 +1,30 @@
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-        <div [class.required]="!form.value.picture" upload [upload-src]="form.value.picture" upload-accept="image/*" (upload-change)="upload($event)" matRipple>
+        <div [class.required]="!form.value.picture" upload [upload-src]="form.value.picture" upload-accept="image/*"
+            (upload-change)="upload($event)" matRipple>
             <mat-icon>publish</mat-icon>
         </div>
-        
+
         <section formGroupName="name">
             <mat-form-field appearance="outline">
                 <mat-label>
                     First Name
                 </mat-label>
-                
+
                 <input matInput type="text" name="first name" placeholder="first name" formControlName="first" required>
-        
+
                 <mat-error *ngIf="errors.name.first">
                     {{ errors.name.first }}
                 </mat-error>
             </mat-form-field>
-    
+
             <mat-form-field appearance="outline">
                 <mat-label>
                     Last Name
                 </mat-label>
-                
+
                 <input matInput type="text" name="last name" placeholder="last name" formControlName="last" required>
-        
+
                 <mat-error *ngIf="errors.name.last">
                     {{ errors.name.last }}
                 </mat-error>
@@ -34,24 +35,24 @@
             <mat-label>
                 Username
             </mat-label>
-            
+
             <input matInput type="text" name="username" placeholder="username" formControlName="username" required>
-    
+
             <mat-error *ngIf="errors.username">
                 {{ errors.username }}
             </mat-error>
         </mat-form-field>
-    
+
         <button type="submit" mat-flat-button color="primary">
             {{ loading ? '' : 'update' }}
 
             <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
         </button>
-    
+
         <button type="button" mat-stroked-button color="primary" margin-top routerLink="change-password">
             change password
         </button>
-    
+
         <button type="button" mat-flat-button color="warn" margin-top routerLink="remove-account">
             remove account
         </button>

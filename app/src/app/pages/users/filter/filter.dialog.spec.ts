@@ -8,9 +8,9 @@ describe('TokensFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TokensFilterDialog ]
+      declarations: [TokensFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

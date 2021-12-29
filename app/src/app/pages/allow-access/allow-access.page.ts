@@ -25,7 +25,7 @@ import { LocalStorageService } from 'src/app/services/local-storage/local-storag
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private buttons: ButtonsService, private localstorage: LocalStorageService) { }
+	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
 
 	public app: any = {};
 	public url: string;
@@ -57,7 +57,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 
 	public async submit() {
 		this.loading = true;
-	
+
 		const response = await this.tokens.generate({
 			appId: this.appId,
 			expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),

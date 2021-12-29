@@ -7,19 +7,19 @@ describe('RemoveAccountPage', () => {
   let fixture: ComponentFixture<RemoveAccountPage>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ RemoveAccountPage ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [RemoveAccountPage]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(RemoveAccountPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(RemoveAccountPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

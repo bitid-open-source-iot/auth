@@ -22,7 +22,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {static: true}) private sort: MatSort = new MatSort();
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TipsAndUpdatesService) { }
 
@@ -76,11 +76,11 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-    public unfilter(key: string, value: any) {
-        this.filter[key] = this.filter[key].filter((o: any) => o != value);
-        this.filters.update(this.filter);
-        this.list();
-    }
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
 
 	public async options(item: TipUpdate) {
 		this.sheet.show({
@@ -150,15 +150,15 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 		});
 	}
 
-    public describe(array: any[], key: string, id: string) {
-        let result = '-';
-        array.map(o => {
-            if (o[key] == id) {
-                result = o.name;
-            }
-        });
-        return result;
-    }
+	public describe(array: any[], key: string, id: string) {
+		let result = '-';
+		array.map(o => {
+			if (o[key] == id) {
+				result = o.name;
+			}
+		});
+		return result;
+	}
 
 	public async OpenFilter() {
 		const dialog = await this.dialog.open(TipsAndUpdatesFilterDialog, {

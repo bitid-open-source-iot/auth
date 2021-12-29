@@ -1,9 +1,18 @@
-import { App } from 'src/app/classes/app';
-import { Token } from 'src/app/classes/token';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { Token } from 'src/app/classes/token';
+
+/* --- DIALOGS --- */
+import { TokensFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
@@ -11,10 +20,7 @@ import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
-import { MatTableDataSource } from '@angular/material/table';
-import { TokensFilterDialog } from './filter/filter.dialog';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'tokens-page',
@@ -24,15 +30,15 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class TokensPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
-	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private clipboard: Clipboard, private localstorage: LocalStorageService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private clipboard: Clipboard, private localstorage: LocalStorageService) { }
 
 	public filter: any = this.filters.get({
 		appId: []
 	});
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
-	public tokenId: string;
+	public tokenId: string = '';
 	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'disabled', 'options'];
 	public loading: boolean = false;
 	private observers: any = {};
@@ -59,10 +65,10 @@ export class TokensPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.tokens.data = response.result.map(token => new Token(token));
+			this.tokens.data = response.result.map((o: Token) => new Token(o));
 		} else {
 			this.tokens.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
@@ -81,17 +87,17 @@ export class TokensPage implements OnInit, OnDestroy {
 			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public unfilter(key, value) {
-		this.filter[key] = this.filter[key].filter(o => o != value);
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
 		this.filters.update(this.filter);
 		this.list();
 	}
-	
+
 	public async disable(token: Token) {
 		this.loading = true;
 
@@ -132,16 +138,19 @@ export class TokensPage implements OnInit, OnDestroy {
 					handler: async () => {
 						this.loading = true;
 
-						const response = await this.service.download({
+						const response = await this.service.get({
+							filter: [
+								'token'
+							],
 							tokenId: token.tokenId
 						});
 
 						if (response.ok) {
-							this.clipboard.copy(JSON.stringify(response.result))
+							this.clipboard.copy(JSON.stringify(response.result.token))
 							this.toast.show('Token was copied to clipboard!');
 						} else {
 							this.toast.show(response.error.message);
-						}
+						};
 
 						this.loading = false;
 					},
@@ -171,7 +180,8 @@ export class TokensPage implements OnInit, OnDestroy {
 								this.loading = true;
 
 								const response = await this.service.unsubscribe({
-									email: this.localstorage.get('email'),
+									id: this.localstorage.get('userId'),
+									type: 'usere',
 									tokenId: token.tokenId
 								});
 
@@ -186,7 +196,7 @@ export class TokensPage implements OnInit, OnDestroy {
 									this.tokens.data = JSON.parse(JSON.stringify(this.tokens.data));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -219,7 +229,7 @@ export class TokensPage implements OnInit, OnDestroy {
 									this.tokens.data = JSON.parse(JSON.stringify(this.tokens.data));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -241,60 +251,39 @@ export class TokensPage implements OnInit, OnDestroy {
 		return result;
 	}
 
-	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(TokensFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
 
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
+
+	ngOnInit(): void {
 		this.tokens.sort = this.sort;
 		this.tokens.sort.active = 'expiry';
 		this.tokens.sort.direction = 'desc';
 
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.router.navigate(['/tokens', 'generate'], {
-				queryParams: {
-					mode: 'add'
-				}
-			});
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				await this.list();
 				await this.load();
 				this.tokenId = this.localstorage.get('tokenId', null);
-			}
-		});
-
-		this.observers.search = this.buttons.search.value.subscribe(value => {
-			this.tokens.filter = value;
-		});
-
-		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-			const dialog = await this.dialog.open(TokensFilterDialog, {
-				data: this.filter,
-				panelClass: 'filter-dialog'
-			});
-
-			await dialog.afterClosed().subscribe(async result => {
-				if (result) {
-					Object.keys(result).map(key => {
-						this.filter[key] = result[key];
-					});
-					this.filters.update(this.filter);
-					this.list();
-				};
-			});
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.add.unsubscribe();
-		this.observers.loaded.unsubscribe();
-		this.observers.search.unsubscribe();
-		this.observers.filter.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

@@ -18,7 +18,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-	public app: any = { };
+	public app: any = {};
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.email, Validators.required])
 	});
@@ -100,7 +100,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 				if (typeof (params.email) != 'undefined' && params.email != null) {
 					this.form.controls.email.setValue(params.email);
 				}
-				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				} else {

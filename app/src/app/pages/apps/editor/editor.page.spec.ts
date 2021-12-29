@@ -7,19 +7,19 @@ describe('AppsEditorpage', () => {
   let fixture: ComponentFixture<AppsEditorpage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ AppsEditorpage ]
-	})
-	.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [AppsEditorpage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(AppsEditorpage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(AppsEditorpage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

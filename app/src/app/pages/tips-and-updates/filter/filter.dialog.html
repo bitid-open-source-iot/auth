@@ -12,7 +12,7 @@
 
 <mat-content>
     <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-    
+
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
@@ -21,10 +21,12 @@
 
             <mat-select name="appId" formControlName="appId" multiple>
                 <mat-option>
-                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..."
+                        noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
 
-                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value }" [value]="app.appId">
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value }"
+                    [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>

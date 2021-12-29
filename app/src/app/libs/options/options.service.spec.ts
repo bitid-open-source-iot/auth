@@ -6,11 +6,11 @@ describe('OptionsService', () => {
   let service: OptionsService;
 
   beforeEach(() => {
-	TestBed.configureTestingModule({});
-	service = TestBed.inject(OptionsService);
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(OptionsService);
   });
 
   it('should be created', () => {
-	expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
   });
 });

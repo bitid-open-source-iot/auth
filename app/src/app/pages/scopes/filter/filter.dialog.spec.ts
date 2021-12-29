@@ -8,9 +8,9 @@ describe('ScopesFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ScopesFilterDialog ]
+      declarations: [ScopesFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

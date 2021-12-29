@@ -35,4 +35,4 @@ import { ConfirmDialog } from './confirm.dialog';
 	]
 })
 
-export class ConfirmModule {}
+export class ConfirmModule { }

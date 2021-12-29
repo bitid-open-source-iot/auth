@@ -4,9 +4,10 @@
             <mat-label>
                 Description
             </mat-label>
-            
-            <input matInput type="text" name="description" placeholder="description" formControlName="description" required>
-    
+
+            <input matInput type="text" name="description" placeholder="description" formControlName="description"
+                required>
+
             <mat-error *ngIf="errors.description">
                 {{ errors.description }}
             </mat-error>
@@ -19,13 +20,14 @@
 
             <mat-select name="appId" placeholder="appId" formControlName="appId" required multiple>
                 <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no app found" formControlName="app"></ngx-mat-select-search>
+                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no app found"
+                        formControlName="app"></ngx-mat-select-search>
                 </mat-option>
                 <mat-option *ngFor="let app of apps.data | filterBy : {'name': filter.value.app}" [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.appId">
                 {{ errors.appId }}
             </mat-error>
@@ -36,7 +38,8 @@
                 Sharing Rules
             </mat-label>
 
-            <mat-select name="organizationOnly" placeholder="organizationOnly" formControlName="organizationOnly" required>
+            <mat-select name="organizationOnly" placeholder="organizationOnly" formControlName="organizationOnly"
+                required>
                 <mat-option [value]="0">
                     Anyone can be shared
                 </mat-option>
@@ -44,7 +47,7 @@
                     In Organization Only
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.organizationOnly">
                 {{ errors.organizationOnly }}
             </mat-error>
@@ -53,7 +56,8 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
+        (click)="!loading && !form.invalid && submit()">
         {{ mode }}
     </button>
 </mat-footer>

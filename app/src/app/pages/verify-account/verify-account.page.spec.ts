@@ -7,19 +7,19 @@ describe('VerifyAccountPage', () => {
   let fixture: ComponentFixture<VerifyAccountPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [VerifyAccountPage]
-	})
-		.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [VerifyAccountPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(VerifyAccountPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(VerifyAccountPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

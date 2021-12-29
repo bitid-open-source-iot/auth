@@ -8,9 +8,9 @@ describe('TipsAndUpdatesFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ TipsAndUpdatesFilterDialog ]
+      declarations: [TipsAndUpdatesFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

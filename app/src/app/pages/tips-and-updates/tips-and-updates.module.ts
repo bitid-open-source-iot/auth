@@ -71,7 +71,7 @@ const routes: Routes = [
 		MatFormFieldModule,
 		ReactiveFormsModule,
 		MatProgressBarModule,
-        QuillModule.forRoot(),
+		QuillModule.forRoot(),
 		NgxMatSelectSearchModule,
 		RouterModule.forChild(routes)
 	],

@@ -12,7 +12,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class UsersFilterDialog implements OnInit, OnDestroy {
 
-    constructor(private dialog: MatDialogRef<UsersFilterDialog>, @Inject(MAT_DIALOG_DATA) public config, private formerror: FormErrorService) { }
+    constructor(private dialog: MatDialogRef<UsersFilterDialog>, @Inject(MAT_DIALOG_DATA) public config: any, private formerror: FormErrorService) { }
 
     public form: FormGroup = new FormGroup({
         validated: new FormControl([])
@@ -26,17 +26,17 @@ export class UsersFilterDialog implements OnInit, OnDestroy {
     private async load() {
         this.loading = true;
 
-        if (typeof(this.config.validated) != 'undefined' && this.config.validated != null) {
-            this.form.controls.validated.setValue(this.config.validated);
+        if (typeof (this.config.validated) != 'undefined' && this.config.validated != null) {
+            this.form.controls['validated'].setValue(this.config.validated);
         };
-        
+
         this.loading = false;
     };
 
     public async close() {
         this.dialog.close(false);
     };
-    
+
     public async submit() {
         this.dialog.close(this.form.value);
     };

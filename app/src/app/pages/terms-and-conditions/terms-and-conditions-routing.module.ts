@@ -7,8 +7,8 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
 	{
-		path:         '',
-		component:    TermsAndConditionsPage
+		path: '',
+		component: TermsAndConditionsPage
 	}
 ];
 
@@ -17,4 +17,4 @@ const routes: Routes = [
 	exports: [RouterModule]
 })
 
-export class TermsAndConditionsRoutingModule {}
+export class TermsAndConditionsRoutingModule { }

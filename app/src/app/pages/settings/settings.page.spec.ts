@@ -7,19 +7,19 @@ describe('SettingsPage', () => {
   let fixture: ComponentFixture<SettingsPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [SettingsPage]
-	})
-		.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [SettingsPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(SettingsPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(SettingsPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

@@ -7,19 +7,19 @@ describe('ConfirmDialog', () => {
   let fixture: ComponentFixture<ConfirmDialog>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ ConfirmDialog ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [ConfirmDialog]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(ConfirmDialog);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(ConfirmDialog);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

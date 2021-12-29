@@ -9,38 +9,38 @@
         <h2>
             Details
         </h2>
-        
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Name
             </mat-label>
-            
+
             <input matInput type="text" name="name" placeholder="name" formControlName="name" required>
-    
+
             <mat-error *ngIf="errors.name">
                 {{ errors.name }}
             </mat-error>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Secret
             </mat-label>
-            
+
             <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
-    
+
             <mat-error *ngIf="errors.secret">
                 {{ errors.secret }}
             </mat-error>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Main Url
             </mat-label>
-            
+
             <input matInput type="text" name="url" placeholder="main url" formControlName="url" required>
-    
+
             <mat-error *ngIf="errors.url">
                 {{ errors.url }}
             </mat-error>
@@ -53,13 +53,15 @@
 
             <mat-select name="scopes" placeholder="scopes" formControlName="scopes" required multiple>
                 <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter scopes" noEntriesFoundLabel="no scopes found" formControlName="scopes"></ngx-mat-select-search>
+                    <ngx-mat-select-search placeholderLabel="filter scopes" noEntriesFoundLabel="no scopes found"
+                        formControlName="scopes"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let scope of scopes.data | filterBy : {'url': filter.value.scopes}" [value]="scope.url">
+                <mat-option *ngFor="let scope of scopes.data | filterBy : {'url': filter.value.scopes}"
+                    [value]="scope.url">
                     {{ scope.url }}
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.scopes">
                 {{ errors.scopes }}
             </mat-error>
@@ -71,41 +73,44 @@
             </mat-label>
 
             <mat-chip-list #domainlist aria-label="domain selection">
-              <mat-chip *ngFor="let domain of form.value.domains" (removed)="remove(domain)">
+                <mat-chip *ngFor="let domain of form.value.domains" (removed)="remove(domain)">
                     {{ domain }}
-                    
+
                     <mat-icon matChipRemove>
                         cancel
                     </mat-icon>
-              </mat-chip>
+                </mat-chip>
 
-              <input placeholder="New domain..." [matChipInputFor]="domainlist" [matChipInputSeparatorKeyCodes]="keycodes" [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="add($event)">
+                <input placeholder="New domain..." [matChipInputFor]="domainlist"
+                    [matChipInputSeparatorKeyCodes]="keycodes" [matChipInputAddOnBlur]="true"
+                    (matChipInputTokenEnd)="add($event)">
             </mat-chip-list>
         </mat-form-field>
 
         <h2>
             Theme
         </h2>
-        
+
         <mat-form-field appearance="outline" formGroupName="theme">
             <mat-label>
                 Font Color
             </mat-label>
-            
+
             <input matInput type="color" name="color" placeholder="font color" formControlName="color" required>
-    
+
             <mat-error *ngIf="errors.theme.color">
                 {{ errors.theme.color }}
             </mat-error>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline" formGroupName="theme">
             <mat-label>
                 Background Color
             </mat-label>
-            
-            <input matInput type="color" name="background" placeholder="background color" formControlName="background" required>
-    
+
+            <input matInput type="color" name="background" placeholder="background color" formControlName="background"
+                required>
+
             <mat-error *ngIf="errors.theme.background">
                 {{ errors.theme.background }}
             </mat-error>
@@ -114,26 +119,27 @@
         <h2>
             Google
         </h2>
-        
+
         <mat-form-field appearance="outline" formGroupName="google">
             <mat-label>
                 Database
             </mat-label>
-            
+
             <input matInput type="text" name="database" placeholder="database" formControlName="database" required>
-    
+
             <mat-error *ngIf="errors.google.database">
                 {{ errors.google.database }}
             </mat-error>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline" formGroupName="google">
             <mat-label>
                 Credentials
             </mat-label>
-            
-            <textarea matInput cdkTextareaAutosize name="credentials" placeholder="credentials" formControlName="credentials" required></textarea>
-    
+
+            <textarea matInput cdkTextareaAutosize name="credentials" placeholder="credentials"
+                formControlName="credentials" required></textarea>
+
             <mat-error *ngIf="errors.google.credentials">
                 {{ errors.google.credentials }}
             </mat-error>
@@ -142,12 +148,12 @@
         <h2>
             Access Control
         </h2>
-        
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Access Mode
             </mat-label>
-            
+
             <mat-select name="private" formControlName="private" required>
                 <mat-option [value]="false">
                     Public
@@ -156,17 +162,17 @@
                     Private
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.private">
                 {{ errors.private }}
             </mat-error>
         </mat-form-field>
-        
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Sharing Rules
             </mat-label>
-            
+
             <mat-select name="organizationOnly" formControlName="organizationOnly" required>
                 <mat-option [value]="0">
                     Share To Anyone
@@ -175,62 +181,71 @@
                     In Organization Only
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.organizationOnly">
                 {{ errors.organizationOnly }}
             </mat-error>
         </mat-form-field>
 
-        <mat-file required="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256" [max-height]="256" formControlName="favicon">
+        <mat-file required="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256"
+            [max-height]="256" formControlName="favicon">
             <mat-label>
                 Favicon (256x256) <span>*</span>
             </mat-label>
         </mat-file>
 
         <div formGroupName="icons">
-            <mat-file required="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72" formControlName="icon72x72">
+            <mat-file required="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72"
+                formControlName="icon72x72">
                 <mat-label>
                     Icon (72x72) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="96" [max-width]="96" [min-height]="96" [max-height]="96" formControlName="icon96x96">
+            <mat-file required="true" [min-width]="96" [max-width]="96" [min-height]="96" [max-height]="96"
+                formControlName="icon96x96">
                 <mat-label>
                     Icon (96x96) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="128" [max-width]="128" [min-height]="128" [max-height]="128" formControlName="icon128x128">
+            <mat-file required="true" [min-width]="128" [max-width]="128" [min-height]="128" [max-height]="128"
+                formControlName="icon128x128">
                 <mat-label>
                     Icon (128x128) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="144" [max-width]="144" [min-height]="144" [max-height]="144" formControlName="icon144x144">
+            <mat-file required="true" [min-width]="144" [max-width]="144" [min-height]="144" [max-height]="144"
+                formControlName="icon144x144">
                 <mat-label>
                     Icon (144x144) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="152" [max-width]="152" [min-height]="152" [max-height]="152" formControlName="icon152x152">
+            <mat-file required="true" [min-width]="152" [max-width]="152" [min-height]="152" [max-height]="152"
+                formControlName="icon152x152">
                 <mat-label>
                     Icon (152x152) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="192" [max-width]="192" [min-height]="192" [max-height]="192" formControlName="icon192x192">
+            <mat-file required="true" [min-width]="192" [max-width]="192" [min-height]="192" [max-height]="192"
+                formControlName="icon192x192">
                 <mat-label>
                     Icon (192x192) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="384" [max-width]="384" [min-height]="384" [max-height]="384" formControlName="icon384x384">
+            <mat-file required="true" [min-width]="384" [max-width]="384" [min-height]="384" [max-height]="384"
+                formControlName="icon384x384">
                 <mat-label>
                     Icon (384x384) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="512" [max-width]="512" [min-height]="512" [max-height]="512" formControlName="icon512x512">
+            <mat-file required="true" [min-width]="512" [max-width]="512" [min-height]="512" [max-height]="512"
+                formControlName="icon512x512">
                 <mat-label>
                     Icon (512x512) <span>*</span>
                 </mat-label>
@@ -240,7 +255,8 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
+        (click)="!loading && !form.invalid && submit()">
         {{ mode }}
     </button>
 </mat-footer>

@@ -1,10 +1,13 @@
+import { Router, ActivatedRoute } from '@angular/router';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
 import { Token } from 'src/app/classes/token';
+
+/* --- SERVICES --- */
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfigService } from 'src/app/services/config/config.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'view-token-page',
@@ -14,11 +17,11 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class ViewTokenPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private buttons: ButtonsService, public service: TokensService) { }
+	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, public service: TokensService) { }
 
 	public token: Token = new Token();
 	public loading: boolean = false;
-	public tokenId: string;
+	public tokenId: string = '';
 	private observers: any = {};
 
 	private async get() {
@@ -42,32 +45,23 @@ export class ViewTokenPage implements OnInit, OnDestroy {
 		} else {
 			this.toast.show(response.error.message);
 			this.router.navigate(['/tokens']);
-		}
+		};
 
 		this.loading = false;
 	}
 
 	ngOnInit(): void {
-		this.buttons.hide('add');
-		this.buttons.show('close');
-		this.buttons.hide('filter');
-		this.buttons.hide('search');
-
-		this.observers.close = this.buttons.close.click.subscribe(event => {
-			this.router.navigate(['/tokens']);
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				this.tokenId = this.route.snapshot.queryParams.tokenId;
+				const params: any = this.route.snapshot.queryParams;
+				this.tokenId = params.tokenId;
 				this.get();
-			}
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.close.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

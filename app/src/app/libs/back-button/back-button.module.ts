@@ -14,4 +14,4 @@ import { BackButtonDirective } from './back-button.directive';
 	]
 })
 
-export class BackButtonModule {}
+export class BackButtonModule { }

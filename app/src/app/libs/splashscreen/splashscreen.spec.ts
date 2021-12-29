@@ -7,19 +7,19 @@ describe('SplashScreen', () => {
   let fixture: ComponentFixture<SplashScreen>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ SplashScreen ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [SplashScreen]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(SplashScreen);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(SplashScreen);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

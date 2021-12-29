@@ -5,11 +5,11 @@
         <mat-icon>
             apps
         </mat-icon>
-        
+
         <mat-label>
             {{ describe(apps.data, 'appId', id) }}
         </mat-label>
-        
+
         <mat-icon matChipRemove>
             cancel
         </mat-icon>
@@ -34,7 +34,7 @@
             {{ element.url }}
         </td>
     </ng-container>
-    
+
     <ng-container matColumnDef="description">
         <th mat-header-cell *matHeaderCellDef mat-sort-header>
             Description

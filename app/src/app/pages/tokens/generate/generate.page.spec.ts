@@ -7,19 +7,19 @@ describe('GenerateTokenPage', () => {
   let fixture: ComponentFixture<GenerateTokenPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ GenerateTokenPage ]
-	})
-	.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [GenerateTokenPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(GenerateTokenPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(GenerateTokenPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

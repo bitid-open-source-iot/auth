@@ -18,7 +18,7 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 
 export class SubscribersPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private config: ConfigService, private groups: GroupsService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private buttons: ButtonsService, private tokens: TokensService) { }
+	constructor(private apps: AppsService, private config: ConfigService, private groups: GroupsService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService) { }
 
 	public id: string;
 	public role: number;
@@ -26,7 +26,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['email', 'role', 'options'];
 	public loading: boolean = false;
-	private observers: any = { };
+	private observers: any = {};
 
 	private async get() {
 		this.loading = true;

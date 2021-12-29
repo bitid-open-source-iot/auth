@@ -24,4 +24,4 @@ import { UpdateDialog } from './update.dialog';
 	]
 })
 
-export class UpdateModule {}
+export class UpdateModule { }

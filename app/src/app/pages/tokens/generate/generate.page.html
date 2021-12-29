@@ -4,16 +4,17 @@
             <mat-label>
                 App
             </mat-label>
-            
+
             <mat-select name="appId" placeholder="appId" formControlName="appId" required>
                 <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found" formControlName="apps"></ngx-mat-select-search>
+                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found"
+                        formControlName="apps"></ngx-mat-select-search>
                 </mat-option>
                 <mat-option *ngFor="let app of apps.data | filterBy : {'name': filter.value.apps}" [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.appId">
                 {{ errors.appId }}
             </mat-error>
@@ -23,9 +24,10 @@
             <mat-label>
                 Expiry
             </mat-label>
-            
-            <input matInput type="datetime-local" name="expiry" format="YYYY-MM-DD HH:mm" placeholder="expiry" formControlName="expiry" required>
-    
+
+            <input matInput type="datetime-local" name="expiry" format="YYYY-MM-DD HH:mm" placeholder="expiry"
+                formControlName="expiry" required>
+
             <mat-error *ngIf="errors.expiry">
                 {{ errors.expiry }}
             </mat-error>
@@ -35,9 +37,10 @@
             <mat-label>
                 Description
             </mat-label>
-            
-            <input matInput type="text" name="description" placeholder="description" formControlName="description" required>
-    
+
+            <input matInput type="text" name="description" placeholder="description" formControlName="description"
+                required>
+
             <mat-error *ngIf="errors.description">
                 {{ errors.description }}
             </mat-error>
@@ -46,7 +49,8 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
+        (click)="!loading && !form.invalid && submit()">
         generate
     </button>
 </mat-footer>

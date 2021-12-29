@@ -5,15 +5,18 @@
 
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <p class="notice">
-            The removal of your account will mean you can no longer sign in to the platform. This does not remove the assets you have created in the time you have had an account with us and if you wish to signup again your assets will be available to you once again!
+            The removal of your account will mean you can no longer sign in to the platform. This does not remove the
+            assets you have created in the time you have had an account with us and if you wish to signup again your
+            assets will be available to you once again!
         </p>
 
         <mat-form-field appearance="outline">
             <mat-label>
                 Confirm Password
             </mat-label>
-            
-            <input matInput type="password" name="confirm password" placeholder="confirm password" formControlName="password" required>
+
+            <input matInput type="password" name="confirm password" placeholder="confirm password"
+                formControlName="password" required>
 
             <mat-error *ngIf="errors.password">
                 {{ errors.password }}

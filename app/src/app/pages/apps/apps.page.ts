@@ -22,9 +22,9 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {static: true}) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort;
 
-	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalStorageService) { }
+	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalStorageService) { }
 
 	public apps: MatTableDataSource<App> = new MatTableDataSource<App>();
 	public filter: any = this.filters.get({
@@ -57,11 +57,11 @@ export class AppsPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-    public unfilter(key, value) {
-        this.filter[key] = this.filter[key].filter(o => o != value);
-        this.filters.update(this.filter);
-        this.list();
-    }
+	public unfilter(key, value) {
+		this.filter[key] = this.filter[key].filter(o => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
 
 	public async options(app: App) {
 		this.sheet.show({
@@ -178,15 +178,15 @@ export class AppsPage implements OnInit, OnDestroy {
 		});
 	}
 
-    public describe(array: any[], key: string, id: string) {
-        let result = '-';
-        array.map(o => {
-            if (o[key] == id) {
-                result = o.description;
-            }
-        });
-        return result;
-    }
+	public describe(array: any[], key: string, id: string) {
+		let result = '-';
+		array.map(o => {
+			if (o[key] == id) {
+				result = o.description;
+			}
+		});
+		return result;
+	}
 
 	ngOnInit(): void {
 		this.buttons.show('add');
@@ -212,26 +212,26 @@ export class AppsPage implements OnInit, OnDestroy {
 			}
 		});
 
-        this.observers.search = this.buttons.search.value.subscribe(value => {
-            this.apps.filter = value;
-        });
+		this.observers.search = this.buttons.search.value.subscribe(value => {
+			this.apps.filter = value;
+		});
 
-        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-            const dialog = await this.dialog.open(AppsFilterDialog, {
-                data: this.filter,
-                panelClass: 'filter-dialog'
-            });
+		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
+			const dialog = await this.dialog.open(AppsFilterDialog, {
+				data: this.filter,
+				panelClass: 'filter-dialog'
+			});
 
-            await dialog.afterClosed().subscribe(async result => {
-                if (result) {
-                    Object.keys(result).map(key => {
-                        this.filter[key] = result[key];
-                    });
-                    this.filters.update(this.filter);
-                    this.list();
-                };
-            });
-        });
+			await dialog.afterClosed().subscribe(async result => {
+				if (result) {
+					Object.keys(result).map(key => {
+						this.filter[key] = result[key];
+					});
+					this.filters.update(this.filter);
+					this.list();
+				};
+			});
+		});
 	}
 
 	ngOnDestroy(): void {

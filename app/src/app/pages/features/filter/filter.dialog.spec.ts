@@ -8,9 +8,9 @@ describe('FeaturesFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FeaturesFilterDialog ]
+      declarations: [FeaturesFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

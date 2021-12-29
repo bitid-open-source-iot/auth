@@ -1,0 +1,19 @@
+mat-drawer-container {
+    height: 100vh;
+    background-color: transparent;
+    mat-drawer {
+        width: 300px;
+        mat-list {
+            mat-list-item.active {
+                color: #2196f3;
+                mat-icon {
+                    color: #2196f3;
+                }
+            }
+        }
+        mat-version {
+            bottom: 0px;
+            position: absolute;
+        }
+    }
+}

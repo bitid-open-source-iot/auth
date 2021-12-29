@@ -30,4 +30,4 @@ import { OptionsSheet } from './options.component';
 	]
 })
 
-export class OptionsModule {}
+export class OptionsModule { }

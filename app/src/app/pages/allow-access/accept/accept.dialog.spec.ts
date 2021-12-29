@@ -7,19 +7,19 @@ describe('AcceptDialog', () => {
   let fixture: ComponentFixture<AcceptDialog>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ AcceptDialog ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [AcceptDialog]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(AcceptDialog);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(AcceptDialog);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

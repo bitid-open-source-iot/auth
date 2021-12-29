@@ -7,19 +7,19 @@ describe('UpdateDialog', () => {
   let fixture: ComponentFixture<UpdateDialog>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ UpdateDialog ]
-	})
-	.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [UpdateDialog]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(UpdateDialog);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(UpdateDialog);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

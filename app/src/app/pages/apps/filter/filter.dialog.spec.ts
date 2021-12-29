@@ -8,9 +8,9 @@ describe('AppsFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ AppsFilterDialog ]
+      declarations: [AppsFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

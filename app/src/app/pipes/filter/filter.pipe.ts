@@ -12,7 +12,7 @@ export class FilterPipe implements PipeTransform {
 		return array.filter(item => {
 			let found = true;
 			Object.keys(params).filter(key => (params[key] !== null && params[key] !== '')).map(key => {
-				if (typeof(path.get(item, key)) == 'string') {
+				if (typeof (path.get(item, key)) == 'string') {
 					if (!path.get(item, key)?.toLowerCase().includes(params[key]?.toLowerCase())) {
 						found = false;
 					};

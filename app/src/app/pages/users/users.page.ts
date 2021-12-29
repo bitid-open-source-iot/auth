@@ -1,13 +1,18 @@
-import { Account } from 'src/app/classes/account';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
-import { UsersService } from 'src/app/services/users/users.service';
-import { ConfigService } from 'src/app/services/config/config.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
-import { FiltersService } from 'src/app/services/filters/filters.service';
-import { UsersFilterDialog } from './filter/filter.dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { Account } from 'src/app/classes/account';
+
+/* --- DIALOGS --- */
+import { UsersFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
+import { UsersService } from 'src/app/services/users/users.service';
+import { ConfigService } from 'src/app/services/config/config.service';
+import { FiltersService } from 'src/app/services/filters/filters.service';
 
 @Component({
 	selector: 'users-page',
@@ -17,15 +22,15 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class UsersPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
-	constructor(private config: ConfigService, private dialog: MatDialog, private buttons: ButtonsService, private filters: FiltersService, private service: UsersService) { }
+	constructor(private config: ConfigService, private dialog: MatDialog, private filters: FiltersService, private service: UsersService) { }
 
 	public filter: any = this.filters.get({
 		validated: []
 	});
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['namefirst', 'namemiddle', 'namelast', 'email', 'numbertel', 'numbercell', 'validated'];
+	public columns: string[] = ['name.first', 'name.middle', 'name.last', 'email', 'number.tel', 'number.mobile', 'validated'];
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -44,63 +49,51 @@ export class UsersPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.users.data = response.result.map(account => new Account(account));
+			this.users.data = response.result.map((o: Account) => new Account(o));
 		} else {
 			this.users.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-    public unfilter(key, value) {
-        this.filter[key] = this.filter[key].filter(o => o != value);
-        this.filters.update(this.filter);
-        this.list();
-    }
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
+
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(UsersFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
+
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
 
 	ngOnInit(): void {
-		this.buttons.hide('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
-
 		this.sort.active = 'name-first';
 		this.sort.direction = 'asc';
 		this.users.sort = this.sort;
 
-		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				await this.list();
-			}
+			};
 		});
-
-        this.observers.search = this.buttons.search.value.subscribe(value => {
-            this.users.filter = value;
-        });
-
-        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-            const dialog = await this.dialog.open(UsersFilterDialog, {
-                data: this.filter,
-                panelClass: 'filter-dialog'
-            });
-
-            await dialog.afterClosed().subscribe(async result => {
-                if (result) {
-                    Object.keys(result).map(key => {
-                        this.filter[key] = result[key];
-                    });
-                    this.filters.update(this.filter);
-                    this.list();
-                };
-            });
-        });
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.loaded.unsubscribe();
-		this.observers.search.unsubscribe();
-		this.observers.filter.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

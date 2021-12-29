@@ -7,19 +7,19 @@ describe('ViewTokenPage', () => {
   let fixture: ComponentFixture<ViewTokenPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ ViewTokenPage ]
-	})
-	.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [ViewTokenPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(ViewTokenPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(ViewTokenPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

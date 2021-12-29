@@ -26,17 +26,17 @@ export class AppsFilterDialog implements OnInit, OnDestroy {
     private async load() {
         this.loading = true;
 
-        if (typeof(this.config.private) != 'undefined' && this.config.private != null) {
+        if (typeof (this.config.private) != 'undefined' && this.config.private != null) {
             this.form.controls.private.setValue(this.config.private);
         };
-        
+
         this.loading = false;
     };
 
     public async close() {
         this.dialog.close(false);
     };
-    
+
     public async submit() {
         this.dialog.close(this.form.value);
     };

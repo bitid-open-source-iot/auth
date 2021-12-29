@@ -18,7 +18,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 export class GenerateTokenPage implements OnInit, OnDestroy {
 
-	constructor(public apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private buttons: ButtonsService, public service: TokensService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, public service: TokensService) { }
 
 	public form: FormGroup = new FormGroup({
 		appId: new FormControl(null, [Validators.required]),
@@ -121,7 +121,7 @@ export class GenerateTokenPage implements OnInit, OnDestroy {
 		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				this.tokenId = this.route.snapshot.queryParams.tokenId;
-				if (typeof(this.tokenId) != 'undefined' && this.tokenId != null) {
+				if (typeof (this.tokenId) != 'undefined' && this.tokenId != null) {
 					await this.get();
 					await this.load();
 				} else {

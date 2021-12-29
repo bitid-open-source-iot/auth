@@ -8,9 +8,9 @@ describe('GroupsFilterDialog', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ GroupsFilterDialog ]
+      declarations: [GroupsFilterDialog]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

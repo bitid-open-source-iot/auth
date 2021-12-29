@@ -10,7 +10,7 @@ export class ScopesService {
 
 	public data: any[] = [];
 
-	constructor(private api: ApiService) {}
+	constructor(private api: ApiService) { }
 
 	public async add(params: ADD_PARAMS) {
 		return await this.api.post(environment.auth, '/scopes/add', params);

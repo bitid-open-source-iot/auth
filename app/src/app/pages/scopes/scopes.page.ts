@@ -23,9 +23,9 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class ScopesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, {static: true}) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort;
 
-	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private filters: FiltersService, private buttons: ButtonsService, private service: ScopesService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private filters: FiltersService, private service: ScopesService) { }
 
 	public filter: any = this.filters.get({
 		appId: []
@@ -79,11 +79,11 @@ export class ScopesPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-    public unfilter(key, value) {
-        this.filter[key] = this.filter[key].filter(o => o != value);
-        this.filters.update(this.filter);
-        this.list();
-    }
+	public unfilter(key, value) {
+		this.filter[key] = this.filter[key].filter(o => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
 
 	public async options(scope: Scope) {
 		this.sheet.show({
@@ -153,15 +153,15 @@ export class ScopesPage implements OnInit, OnDestroy {
 		});
 	}
 
-    public describe(array: any[], key: string, id: string) {
-        let result = '-';
-        array.map(o => {
-            if (o[key] == id) {
-                result = o.name;
-            }
-        });
-        return result;
-    }
+	public describe(array: any[], key: string, id: string) {
+		let result = '-';
+		array.map(o => {
+			if (o[key] == id) {
+				result = o.name;
+			}
+		});
+		return result;
+	}
 
 	ngOnInit(): void {
 		this.buttons.show('add');
@@ -188,26 +188,26 @@ export class ScopesPage implements OnInit, OnDestroy {
 			}
 		});
 
-        this.observers.search = this.buttons.search.value.subscribe(value => {
-            this.scopes.filter = value;
-        });
+		this.observers.search = this.buttons.search.value.subscribe(value => {
+			this.scopes.filter = value;
+		});
 
-        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-            const dialog = await this.dialog.open(ScopesFilterDialog, {
-                data: this.filter,
-                panelClass: 'filter-dialog'
-            });
+		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
+			const dialog = await this.dialog.open(ScopesFilterDialog, {
+				data: this.filter,
+				panelClass: 'filter-dialog'
+			});
 
-            await dialog.afterClosed().subscribe(async result => {
-                if (result) {
-                    Object.keys(result).map(key => {
-                        this.filter[key] = result[key];
-                    });
-                    this.filters.update(this.filter);
-                    this.list();
-                };
-            });
-        });
+			await dialog.afterClosed().subscribe(async result => {
+				if (result) {
+					Object.keys(result).map(key => {
+						this.filter[key] = result[key];
+					});
+					this.filters.update(this.filter);
+					this.list();
+				};
+			});
+		});
 	}
 
 	ngOnDestroy(): void {

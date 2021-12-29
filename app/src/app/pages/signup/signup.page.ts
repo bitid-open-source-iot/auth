@@ -118,7 +118,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
-				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				} else {

@@ -2,7 +2,7 @@
     <mat-label class="spacer">
         Manage User
     </mat-label>
-    
+
     <button type="button" mat-icon-button (click)="close()">
         <mat-icon>close</mat-icon>
     </button>
@@ -13,7 +13,7 @@
         <mat-label>
             Email
         </mat-label>
-        
+
         <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
 
         <mat-error *ngIf="errors.email">
@@ -25,7 +25,7 @@
         <mat-label>
             Role
         </mat-label>
-        
+
         <mat-select name="role" placeholder="role" formControlName="role" required>
             <mat-option [value]="1">
                 Read

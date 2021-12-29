@@ -12,7 +12,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class AccountPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private buttons: ButtonsService, private service: AccountService) { }
+	constructor(private toast: ToastService, private service: AccountService) { }
 
 	public form: FormGroup = new FormGroup({
 		name: new FormGroup({
@@ -65,10 +65,10 @@ export class AccountPage implements OnInit, OnDestroy {
 		this.buttons.hide('search');
 
 		this.observers.user = this.service.user.subscribe(user => {
-			if (typeof(user) != 'undefined' && user != null) {
+			if (typeof (user) != 'undefined' && user != null) {
 				this.form.controls.picture.setValue(user.picture);
 				this.form.controls.username.setValue(user.username);
-				if (typeof(user.name) != 'undefined' && user.name != null) {
+				if (typeof (user.name) != 'undefined' && user.name != null) {
 					(this.form.controls.name as FormGroup).controls.last.setValue(user.name.last);
 					(this.form.controls.name as FormGroup).controls.first.setValue(user.name.first);
 				}

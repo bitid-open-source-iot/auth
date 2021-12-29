@@ -14,4 +14,4 @@ import { UploadDirective } from './upload.directive';
 	]
 })
 
-export class UploadModule {}
+export class UploadModule { }

@@ -7,19 +7,19 @@ describe('GroupsPage', () => {
   let fixture: ComponentFixture<GroupsPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [GroupsPage]
-	})
-		.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [GroupsPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(GroupsPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(GroupsPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

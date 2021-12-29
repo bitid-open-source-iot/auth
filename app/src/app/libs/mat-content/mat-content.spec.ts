@@ -7,19 +7,19 @@ describe('MatContent', () => {
   let fixture: ComponentFixture<MatContent>;
 
   beforeEach(async(() => {
-	TestBed.configureTestingModule({
-		declarations: [ MatContent ]
-	})
-	.compileComponents();
+    TestBed.configureTestingModule({
+      declarations: [MatContent]
+    })
+      .compileComponents();
   }));
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(MatContent);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(MatContent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

@@ -10,16 +10,18 @@
             <mat-label>
                 App
             </mat-label>
-            
+
             <mat-select name="appId" placeholder="appId" formControlName="appId" required>
                 <mat-option>
-                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..."
+                        noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { 'name': filter.value }" [value]="app.appId">
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { 'name': filter.value }"
+                    [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>
-    
+
             <mat-error *ngIf="errors.appId">
                 {{ errors.appId }}
             </mat-error>
@@ -29,9 +31,9 @@
             <mat-label>
                 Title
             </mat-label>
-            
+
             <input matInput type="text" name="title" placeholder="title" formControlName="title" required>
-    
+
             <mat-error *ngIf="errors.title">
                 {{ errors.title }}
             </mat-error>
@@ -41,9 +43,9 @@
             <mat-label>
                 Subtitle
             </mat-label>
-            
+
             <input matInput type="text" name="subtitle" placeholder="subtitle" formControlName="subtitle" required>
-    
+
             <mat-error *ngIf="errors.subtitle">
                 {{ errors.subtitle }}
             </mat-error>
@@ -51,7 +53,7 @@
 
         <button #button type="submit" style="display: none;"></button>
     </form>
-    
+
     <section [formGroup]="form">
         <quill-editor name="data" formControlName="data" required></quill-editor>
     </section>

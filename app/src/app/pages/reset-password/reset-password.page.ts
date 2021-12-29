@@ -23,7 +23,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		email: new FormControl('', [Validators.required]),
 		confirm: new FormControl('', [Validators.required])
 	});
-	public app: any = { };
+	public app: any = {};
 	public appId: string;
 	public errors: any = {
 		old: '',
@@ -105,7 +105,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 				if (typeof (params.password) != 'undefined') {
 					this.form.controls.old.setValue(params.password);
 				}
-				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				}

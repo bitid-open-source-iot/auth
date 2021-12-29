@@ -10,7 +10,8 @@
     </h2>
 
     <p>
-        You will recieve and email with your veification code. You must enter the code below or click the link in the email to verify your account!
+        You will recieve and email with your veification code. You must enter the code below or click the link in the
+        email to verify your account!
     </p>
 
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
@@ -30,9 +31,10 @@
             <mat-label>
                 Verification Code
             </mat-label>
-            
-            <input matInput min="100000" max="999999" minlength="6" maxlength="6" type="number" name="code" placeholder="code" formControlName="code" required>
-    
+
+            <input matInput min="100000" max="999999" minlength="6" maxlength="6" type="number" name="code"
+                placeholder="code" formControlName="code" required>
+
             <mat-error *ngIf="errors.code">
                 {{ errors.code }}
             </mat-error>

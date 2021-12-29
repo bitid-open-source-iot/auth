@@ -44,17 +44,17 @@ export class FeaturesFilterDialog implements OnInit, OnDestroy {
             this.apps.data = [];
         }
 
-        if (typeof(this.config.appId) != 'undefined' && this.config.appId != null) {
+        if (typeof (this.config.appId) != 'undefined' && this.config.appId != null) {
             this.form.controls.appId.setValue(this.config.appId);
         };
-        
+
         this.loading = false;
     };
 
     public async close() {
         this.dialog.close(false);
     };
-    
+
     public async submit() {
         this.dialog.close(this.form.value);
     };

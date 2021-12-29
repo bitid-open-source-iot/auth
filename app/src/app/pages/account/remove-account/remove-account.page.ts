@@ -14,7 +14,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class RemoveAccountPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private buttons: ButtonsService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
+	constructor(private toast: ToastService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
 	public form: FormGroup = new FormGroup({
 		password: new FormControl('', [Validators.required]),
@@ -48,8 +48,8 @@ export class RemoveAccountPage implements OnInit, OnDestroy {
 
 	ngOnInit(): void {
 		this.buttons.hide('add');
-  this.buttons.show('close');
-  this.buttons.hide('filter');
+		this.buttons.show('close');
+		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
 		this.observers.form = this.form.valueChanges.subscribe(data => {

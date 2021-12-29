@@ -6,11 +6,11 @@ describe('GroupsService', () => {
   let service: GroupsService;
 
   beforeEach(() => {
-	TestBed.configureTestingModule({});
-	service = TestBed.inject(GroupsService);
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(GroupsService);
   });
 
   it('should be created', () => {
-	expect(service).toBeTruthy();
+    expect(service).toBeTruthy();
   });
 });

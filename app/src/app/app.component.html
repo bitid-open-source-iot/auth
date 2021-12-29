@@ -1,1 +1,53 @@
-<router-outlet></router-outlet>
+<mat-drawer-container>
+    <mat-drawer mode="over">
+        <mat-toolbar>
+            <img [src]="icon" [alt]="appName" width="42" height="42" draggable="false">
+
+            <label>
+                {{ appName }}
+            </label>
+
+            <button type="button" [autofocus]="false" mat-icon-button (click)="menu.close()">
+                <mat-icon>
+                    close
+                </mat-icon>
+            </button>
+        </mat-toolbar>
+
+        <mat-list>
+            <mat-list-item lines="full" routerLink="/account" routerLinkActive="active" matRipple
+                (click)="menu.close()">
+                <mat-icon>
+                    account
+                </mat-icon>
+
+                Account
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/settings" routerLinkActive="active" matRipple
+                (click)="menu.close()">
+                <mat-icon>
+                    settings
+                </mat-icon>
+
+                Settings
+            </mat-list-item>
+
+            <mat-list-item lines="full" matRipple (click)="menu.close() && account.signout()">
+                <mat-icon>
+                    exit_to_app
+                </mat-icon>
+
+                Sign Out
+            </mat-list-item>
+        </mat-list>
+
+        <mat-version></mat-version>
+    </mat-drawer>
+
+    <mat-drawer-content>
+        <router-outlet></router-outlet>
+    </mat-drawer-content>
+</mat-drawer-container>
+
+<splashscreen></splashscreen>

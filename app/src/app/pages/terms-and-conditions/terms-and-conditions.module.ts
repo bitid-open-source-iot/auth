@@ -22,4 +22,4 @@ import { TermsAndConditionsRoutingModule } from './terms-and-conditions-routing.
 	]
 })
 
-export class TermsAndConditionsModule {}
+export class TermsAndConditionsModule { }

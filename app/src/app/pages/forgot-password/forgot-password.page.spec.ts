@@ -7,19 +7,19 @@ describe('ForgotPasswordPage', () => {
   let fixture: ComponentFixture<ForgotPasswordPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ForgotPasswordPage]
-	})
-		.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [ForgotPasswordPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(ForgotPasswordPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(ForgotPasswordPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

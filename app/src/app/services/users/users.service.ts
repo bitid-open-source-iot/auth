@@ -28,4 +28,5 @@ export class UsersService {
 interface LIST_PARAMS {
 	filter?: string[];
 	userId?: string | string[];
+	validated?: number[];
 }

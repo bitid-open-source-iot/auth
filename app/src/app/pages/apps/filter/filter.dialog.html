@@ -12,7 +12,7 @@
 
 <mat-content>
     <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
-    
+
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>

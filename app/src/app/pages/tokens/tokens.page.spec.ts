@@ -7,19 +7,19 @@ describe('TokensPage', () => {
   let fixture: ComponentFixture<TokensPage>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [TokensPage]
-	})
-		.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [TokensPage]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(TokensPage);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(TokensPage);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

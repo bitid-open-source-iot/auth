@@ -2,7 +2,7 @@ import { User, USER } from './user';
 
 export class Token {
 
-	public app: any = { };
+	public app: any = {};
 	public role = 0;
 	public appId: string;
 	public users: USER[] = [];

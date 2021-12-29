@@ -7,19 +7,19 @@ describe('OptionsSheet', () => {
   let fixture: ComponentFixture<OptionsSheet>;
 
   beforeEach(async () => {
-	await TestBed.configureTestingModule({
-		declarations: [ OptionsSheet ]
-	})
-	.compileComponents();
+    await TestBed.configureTestingModule({
+      declarations: [OptionsSheet]
+    })
+      .compileComponents();
   });
 
   beforeEach(() => {
-	fixture = TestBed.createComponent(OptionsSheet);
-	component = fixture.componentInstance;
-	fixture.detectChanges();
+    fixture = TestBed.createComponent(OptionsSheet);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {
-	expect(component).toBeTruthy();
+    expect(component).toBeTruthy();
   });
 });

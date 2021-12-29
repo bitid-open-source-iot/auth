@@ -23,7 +23,7 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 		code: new FormControl(null, [Validators.required, Validators.min(100000), Validators.max(999999), Validators.minLength(6), Validators.maxLength(6)]),
 		email: new FormControl(null, [Validators.email, Validators.required])
 	});
-	public appId: string | undefined;
+	public appId: string = '';
 	public errors: any = {
 		code: '',
 		email: ''

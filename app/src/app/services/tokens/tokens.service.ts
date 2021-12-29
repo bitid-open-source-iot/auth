@@ -63,12 +63,15 @@ export class TokensService {
 
 interface GET_PARAMS {
 	filter?: string[];
+	tokenId: string;
 }
 
 interface LIST_PARAMS {
 	appId?: string | string[];
 	filter?: string[];
+	tokenId?: string | string[];
 	private?: boolean | boolean[];
+
 }
 
 interface SHARE_PARAMS {

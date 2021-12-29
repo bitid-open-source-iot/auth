@@ -22,4 +22,4 @@ import { PrivacyPolicyRoutingModule } from './privacy-policy-routing.module';
 	]
 })
 
-export class PrivacyPolicyModule {}
+export class PrivacyPolicyModule { }
