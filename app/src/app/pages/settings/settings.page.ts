@@ -21,7 +21,7 @@ export class SettingsPage implements OnInit, OnDestroy {
 		theme: '',
 		notifications: ''
 	};
-	private subscriptions: any = {};
+	private observers: any = {};
 
 	ngOnInit(): void {
 		this.buttons.hide('add');
@@ -29,7 +29,7 @@ export class SettingsPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.theme = this.form.controls.theme.valueChanges.subscribe(theme => {
+		this.observers.theme = this.form.controls.theme.valueChanges.subscribe(theme => {
 			if (theme) {
 				this.service.theme.next('dark');
 			} else {
@@ -37,7 +37,7 @@ export class SettingsPage implements OnInit, OnDestroy {
 			}
 		});
 
-		this.subscriptions.notifications = this.form.controls.notifications.valueChanges.subscribe(notifications => {
+		this.observers.notifications = this.form.controls.notifications.valueChanges.subscribe(notifications => {
 			if (notifications) {
 				this.service.notifications.next(true);
 			} else {
@@ -47,8 +47,8 @@ export class SettingsPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.theme.unsubscribe();
-		this.subscriptions.notifications.unsubscribe();
+		this.observers.theme.unsubscribe();
+		this.observers.notifications.unsubscribe();
 	}
 
 }

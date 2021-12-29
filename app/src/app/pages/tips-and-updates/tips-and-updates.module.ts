@@ -1,6 +1,8 @@
 /* --- PAGES --- */
 import { TipsAndUpdatesPage } from './tips-and-updates.page';
 import { TipsAndUpdatesEditorPage } from './editor/editor.page';
+
+/* --- DIALOGS --- */
 import { TipsAndUpdatesFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */

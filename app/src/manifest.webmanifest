@@ -1,6 +1,6 @@
 {
-  "name": "Auth",
-  "short_name": "Auth",
+  "name": "auth",
+  "short_name": "auth",
   "theme_color": "#1976d2",
   "background_color": "#fafafa",
   "display": "standalone",

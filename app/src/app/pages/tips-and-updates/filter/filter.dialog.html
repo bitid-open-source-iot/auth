@@ -1,7 +1,7 @@
 <mat-toolbar>
-    <mat-label class="spacer">
+    <label for="Filter Features">
         Filter Features
-    </mat-label>
+    </label>
 
     <button mat-icon-button (click)="close()">
         <mat-icon>
@@ -20,11 +20,11 @@
             </mat-label>
 
             <mat-select name="appId" formControlName="appId" multiple>
-                <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found" formControlName="app"></ngx-mat-select-search>
+                <mat-option>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
 
-                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value.app }" [value]="app.appId">
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value }" [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>
@@ -34,8 +34,12 @@
             </mat-error>
         </mat-form-field>
 
-        <button type="submit" color="primary" mat-flat-button>
-            submit
-        </button>
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
+
+<mat-footer>
+    <button type="button" color="primary" mat-flat-button (click)="button.click()">
+        submit
+    </button>
+</mat-footer>

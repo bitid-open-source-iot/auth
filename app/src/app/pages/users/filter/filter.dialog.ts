@@ -20,8 +20,8 @@ export class UsersFilterDialog implements OnInit, OnDestroy {
     public errors: any = {
         validated: ''
     };
-    public loading: boolean;
-    private subscriptions: any = {}
+    public loading: boolean = false;
+    private observers: any = {}
 
     private async load() {
         this.loading = true;
@@ -42,7 +42,7 @@ export class UsersFilterDialog implements OnInit, OnDestroy {
     };
 
     ngOnInit(): void {
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+        this.observers.form = this.form.valueChanges.subscribe(data => {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
         })
 
@@ -50,7 +50,7 @@ export class UsersFilterDialog implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
+        this.observers.form.unsubscribe();
     }
 
 }

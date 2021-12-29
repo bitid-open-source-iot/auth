@@ -1,9 +1,16 @@
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { ApiService } from '../api/api.service';
-import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
-import { LocalstorageService } from '../localstorage/localstorage.service';
+
+/* --- CLASSES --- */
+import { User } from 'src/app/classes/user';
+
+/* --- SERVICES --- */
+import { ApiService } from '../api/api.service';
+import { LocalStorageService } from '../local-storage/local-storage.service';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Injectable({
 	providedIn: 'root'
@@ -11,10 +18,10 @@ import { LocalstorageService } from '../localstorage/localstorage.service';
 
 export class AccountService {
 
-	public user: BehaviorSubject<User> = new BehaviorSubject<User>(null);
-	public authenticated: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+	public user: BehaviorSubject<null | User> = new BehaviorSubject<null | User>(null);
+	public authenticated: BehaviorSubject<null | boolean> = new BehaviorSubject<null | boolean>(false);
 
-	constructor(private api: ApiService, private router: Router, private localstorage: LocalstorageService) { }
+	constructor(private api: ApiService, private router: Router, private localstorage: LocalStorageService) { }
 
 	public async init() {
 		const params = {
@@ -24,7 +31,7 @@ export class AccountService {
 				'picture',
 				'username'
 			],
-			email: this.localstorage.get('email')
+			userId: this.localstorage.get('userId')
 		};
 
 		const response = await this.api.post(environment.auth, '/users/get', params);
@@ -33,7 +40,7 @@ export class AccountService {
 			this.user.next(response.result);
 		} else {
 			this.user.next(null);
-		}
+		};
 
 		return response;
 	}
@@ -55,17 +62,17 @@ export class AccountService {
 		} else {
 			if (typeof (email) == 'undefined') {
 				valid = false;
-			}
+			};
 
 			if (typeof (token.expiry) != 'undefined') {
 				const expiry = new Date(token.expiry);
 				if (expiry < now) {
 					valid = false;
-				}
+				};
 			} else {
 				valid = false;
-			}
-		}
+			};
+		};
 
 		if (valid) {
 			this.authenticated.next(true);
@@ -73,79 +80,120 @@ export class AccountService {
 		} else {
 			this.authenticated.next(false);
 			return false;
-		}
+		};
 	}
 
-	public async signin(params) {
-		this.localstorage.set('email', params.email);
+	public async verify(params: VERIFY_PARAMS) {
+		return await this.api.put(environment.auth, '/auth/verify', params);
+	}
 
-		params.appId = environment.appId;
-		params.scopes = environment.scopes;
-		params.expiry = new Date(new Date().valueOf() + (31 * 24 * 60 * 60 * 1000));
-		params.description = environment.appName;
+	public async update(params: UPDATE_PARAMS) {
+		return await this.api.post(environment.auth, '/users/update', params);
+	}
 
+	public async delete(params: DELETE_PARAMS) {
+		return await this.api.post(environment.auth, '/users/delete', params);
+	}
+
+	public async signin(params: SIGN_IN_PARAMS) {
 		const response = await this.api.put(environment.auth, '/auth/authenticate', params);
 
 		if (response.ok) {
+			this.localstorage.set('userId', response.result[0].userId);
 			this.localstorage.set('tokenId', response.result[0].tokenId);
 			this.localstorage.setObject('token', response.result[0].token);
 			this.init();
 		} else {
 			this.authenticated.next(false);
-		}
+		};
 
 		return response;
 	}
 
-	public async verify(params) {
-		this.localstorage.set('email', params.email);
-
-		return await this.api.put(environment.auth, '/auth/verify', params);
-	}
-
-	public async update(params) {
-		return await this.api.post(environment.auth, '/users/update', params);
-	}
-
-	public async register(params) {
-		this.localstorage.set('email', params.email);
-
+	public async register(params: REGISTER_PARAMS) {
 		return await this.api.put(environment.auth, '/auth/register', params);
 	}
 
-	public async retrieve(params) {
-		this.localstorage.set('email', params.email);
-		this.localstorage.set('tokenId', params.tokenId);
+	public async retrieve(params: RETRIEVE_PARAMS) {
 		return await this.api.put(environment.auth, '/tokens/retrieve', params);
 	}
 
-	public async removeaccount(params) {
-		return await this.api.post(environment.auth, '/users/delete', params);
+	public async resetpassword(params: RESET_PASSWORD_PARAMS) {
+		return await this.api.put(environment.auth, '/auth/reset-password', params);
 	}
 
-	public async resetpassword(params) {
-		params.appId = environment.appId;
-		params.description = environment.appName;
-
-		this.localstorage.set('email', params.email);
-
-		return await this.api.put(environment.auth, '/auth/resetpassword', params);
-	}
-
-	public async changepassword(params) {
-		this.localstorage.set('email', params.email);
-		return await this.api.put(environment.auth, '/auth/changepassword', params);
+	public async changepassword(params: CHANGE_PASSWORD_PARAMS) {
+		return await this.api.put(environment.auth, '/auth/change-password', params);
 	}
 
 }
 
-interface User {
-	'name'?: {
-		'last'?: string;
-		'first'?: string;
-		'middle'?: string;
+interface VERIFY_PARAMS { }
+
+interface UPDATE_PARAMS { }
+
+interface DELETE_PARAMS { }
+
+interface SIGN_IN_PARAMS {
+	email: string;
+	password: string;
+}
+
+interface REGISTER_PARAMS {
+	name?: {
+		last?: string;
+		first?: string;
+		middle?: string;
 	};
-	'email'?: string;
-	'picture'?: string;
-	'username'?: string;
+	number?: {
+		tel?: string;
+		mobile?: string;
+	};
+	address?: {
+		billing?: {
+			company?: {
+				vat?: string;
+				reg?: string;
+			};
+			street?: string;
+			suburb?: string;
+			country?: string;
+			cityTown?: string;
+			additional?: string;
+			postalCode?: string;
+		};
+		physical?: {
+			company?: {
+				vat?: string;
+				reg?: string;
+			};
+			street?: string;
+			suburb?: string;
+			country?: string;
+			cityTown?: string;
+			additional?: string;
+			postalCode?: string;
+		};
+		same?: boolean;
+	};
+	identification?: {
+		type?: string;
+		number?: string;
+	};
+	email?: string;
+	picture?: string;
+	language?: string;
+	timezone?: number;
+	username?: string;
+	validated?: number;
+}
+
+interface RETRIEVE_PARAMS { }
+
+interface RESET_PASSWORD_PARAMS { }
+
+interface CHANGE_PASSWORD_PARAMS {
+	old: string;
+	new: string;
+	confirm: string;
 }

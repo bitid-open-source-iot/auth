@@ -22,8 +22,8 @@ export class RemoveAccountPage implements OnInit, OnDestroy {
 	public errors: any = {
 		password: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	public async submit() {
 		this.loading = true;
@@ -52,18 +52,18 @@ export class RemoveAccountPage implements OnInit, OnDestroy {
   this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/account']);
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.close.unsubscribe();
+		this.observers.form.unsubscribe();
+		this.observers.close.unsubscribe();
 	}
 
 }

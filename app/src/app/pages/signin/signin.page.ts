@@ -30,10 +30,10 @@ export class SignInPage implements OnInit, OnDestroy {
 		email: '',
 		password: ''
 	};
-	public loading: boolean;
+	public loading: boolean = false;
 	private appId: string;
 	private allowaccess: boolean = false;
-	private subscriptions: any = {};
+	private observers: any = {};
 
 	public signup() {
 		this.router.navigate(['/signup'], {
@@ -90,13 +90,13 @@ export class SignInPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 
 				if (typeof(params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
@@ -111,8 +111,8 @@ export class SignInPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.form.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

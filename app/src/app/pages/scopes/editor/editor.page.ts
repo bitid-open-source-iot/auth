@@ -33,9 +33,9 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 	public filter: FormGroup = new FormGroup({
 		apps: new FormControl('', [Validators.required])
 	});
-	public loading: boolean;
+	public loading: boolean = false;
 	public scopeId: string;
-	private subscriptions: any = {};
+	private observers: any = {};
 
 	private async get() {
 		this.loading = true;
@@ -99,7 +99,7 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 			delete this.scopeId;
 		}
 
-		const response = await this.service[mode]({
+		const response = await (this.service as any)[mode]({
 			url: this.form.value.url,
 			appId: this.form.value.appId,
 			scopeId: this.scopeId,
@@ -121,13 +121,13 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/scopes']);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				this.mode = params.mode;
 				this.scopeId = params.scopeId;
 				if (this.mode != 'add') {
@@ -141,8 +141,8 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

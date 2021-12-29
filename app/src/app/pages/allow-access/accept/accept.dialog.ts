@@ -24,8 +24,8 @@ export class AcceptDialog implements OnInit, OnDestroy {
 		privacyPolicy: '',
 		termsAndConditions: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	public async submit() {
 		this.loading = true;
@@ -46,13 +46,13 @@ export class AcceptDialog implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
+		this.observers.form.unsubscribe();
 	}
 
 }

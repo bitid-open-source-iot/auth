@@ -45,15 +45,15 @@ export class FormErrorService {
 					if (!checkDirty || (control.dirty || control.touched)) {
 						for (const key in control.errors) {
 							if (key && key !== 'not_allowed_characters') {
-								formErrors[field] = formErrors[field] || messages[key];
+								formErrors[field] = formErrors[field] || (messages as any)[key];
 							} else {
-								formErrors[field] = formErrors[field] || messages[key](control.errors[key]);
-							}
-						}
-					}
-				}
-			}
-		}
+								formErrors[field] = formErrors[field] || (messages as any)[key](control.errors[key]);
+							};
+						};
+					};
+				};
+			};
+		};
 		return formErrors;
 	}
 }

@@ -1,3 +1,9 @@
+<mat-toolbar>
+    <label for="Feature Editor">
+        Feature Editor
+    </label>
+</mat-toolbar>
+
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
@@ -6,10 +12,10 @@
             </mat-label>
             
             <mat-select name="appId" placeholder="appId" formControlName="appId" required>
-                <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no apps found" formControlName="apps"></ngx-mat-select-search>
+                <mat-option>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let app of apps.data | filterBy : {'name': filter.value.apps}" [value]="app.appId">
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { 'name': filter.value }" [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>
@@ -43,7 +49,7 @@
             </mat-error>
         </mat-form-field>
 
-        
+        <button #button type="submit" style="display: none;"></button>
     </form>
     
     <section [formGroup]="form">
@@ -52,7 +58,7 @@
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="!loading && !form.invalid && submit()">
+    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="button.click()">
         {{ mode }}
     </button>
 </mat-footer>

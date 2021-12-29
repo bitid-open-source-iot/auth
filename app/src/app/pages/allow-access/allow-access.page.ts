@@ -15,7 +15,7 @@ import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { AccountService } from 'src/app/services/account/account.service';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
 @Component({
 	selector: 'allow-access-page',
@@ -25,14 +25,14 @@ import { LocalstorageService } from 'src/app/services/localstorage/localstorage.
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private buttons: ButtonsService, private localstorage: LocalstorageService) { }
+	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private buttons: ButtonsService, private localstorage: LocalStorageService) { }
 
 	public app: any = {};
 	public url: string;
 	public appId: string;
 	public returl: string;
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
@@ -120,9 +120,9 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.config = this.config.loaded.subscribe(loaded => {
+		this.observers.config = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				this.appId = params.appId;
 				this.returl = params.returl;
 				this.process();
@@ -131,7 +131,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.config?.unsubscribe();
+		this.observers.config?.unsubscribe();
 	}
 
 }

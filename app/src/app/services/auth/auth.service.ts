@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
-import { environment } from 'src/environments/environment';
+
+/* --- SERVICES --- */
 import { AccountService } from '../account/account.service';
-import { LocalstorageService } from '../localstorage/localstorage.service';
+import { LocalStorageService } from '../local-storage/local-storage.service';
 
 @Injectable({
 	providedIn: 'root'
@@ -10,7 +11,7 @@ import { LocalstorageService } from '../localstorage/localstorage.service';
 
 export class AuthManager implements CanActivate {
 
-	constructor(private account: AccountService, private localstorage: LocalstorageService) { }
+	constructor(private account: AccountService, private localstorage: LocalStorageService) { }
 
 	canActivate() {
 		const now = new Date();
@@ -37,18 +38,21 @@ export class AuthManager implements CanActivate {
 				const expiry = new Date(token.expiry);
 				if (expiry < now) {
 					valid = false;
-				}
+				};
 			} else {
 				valid = false;
-			}
-		}
+			};
+		};
+
 		if (this.account.authenticated.value != valid) {
 			this.account.authenticated.next(valid);
-		}
+		};
+
 		if (valid) {
 			return true;
-		} else {
-			this.account.signout();
-		}
+		};
+
+		this.account.signout();
+		return false;
 	}
 }

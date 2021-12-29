@@ -17,9 +17,9 @@ export class ViewTokenPage implements OnInit, OnDestroy {
 	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private buttons: ButtonsService, public service: TokensService) { }
 
 	public token: Token = new Token();
-	public loading: boolean;
+	public loading: boolean = false;
 	public tokenId: string;
-	private subscriptions: any = {};
+	private observers: any = {};
 
 	private async get() {
 		this.loading = true;
@@ -53,11 +53,11 @@ export class ViewTokenPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/tokens']);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				this.tokenId = this.route.snapshot.queryParams.tokenId;
 				this.get();
@@ -66,8 +66,8 @@ export class ViewTokenPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

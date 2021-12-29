@@ -33,9 +33,9 @@ export class GenerateTokenPage implements OnInit, OnDestroy {
 	public filter: FormGroup = new FormGroup({
 		apps: new FormControl('', [Validators.required])
 	});
-	public loading: boolean;
+	public loading: boolean = false;
 	public tokenId: string;
-	private subscriptions: any = {};
+	private observers: any = {};
 
 	private async get() {
 		this.loading = true;
@@ -114,11 +114,11 @@ export class GenerateTokenPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/tokens']);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				this.tokenId = this.route.snapshot.queryParams.tokenId;
 				if (typeof(this.tokenId) != 'undefined' && this.tokenId != null) {
@@ -132,8 +132,8 @@ export class GenerateTokenPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

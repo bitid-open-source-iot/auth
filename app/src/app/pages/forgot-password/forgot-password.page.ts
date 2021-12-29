@@ -26,8 +26,8 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	public errors: any = {
 		email: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
@@ -61,7 +61,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			const params = this.route.snapshot.queryParams;
+			const params: any = this.route.snapshot.queryParams;
 			if (Object.keys(this.app).includes('url')) {
 				this.router.navigate(['/allow-access'], {
 					queryParams: {
@@ -87,13 +87,13 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.code) != 'undefined' && params.code != null) {
 					this.form.controls.code.setValue(params.code);
 				}
@@ -114,8 +114,8 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.form.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

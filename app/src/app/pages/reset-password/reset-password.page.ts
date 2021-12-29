@@ -31,8 +31,8 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		email: '',
 		confirm: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
@@ -92,13 +92,13 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.email) != 'undefined') {
 					this.form.controls.email.setValue(params.email);
 				}
@@ -117,8 +117,8 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.form.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

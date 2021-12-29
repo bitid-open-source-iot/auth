@@ -83,8 +83,8 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 	public filter: FormGroup = new FormGroup({
 		scopes: new FormControl('', [Validators.required]),
 	});
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 	readonly keycodes: number[] = [ENTER, COMMA];
 
 	private async get() {
@@ -173,7 +173,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 			delete this.appId;
 		}
 
-		const response = await this.service[mode]({
+		const response = await (this.service as any)[mode]({
 			theme: {
 				color: this.form.value.theme.color,
 				background: this.form.value.theme.background
@@ -227,13 +227,13 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/apps']);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				this.mode = params.mode;
 				this.appId = params.appId;
 				if (this.mode != 'add') {
@@ -247,8 +247,8 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

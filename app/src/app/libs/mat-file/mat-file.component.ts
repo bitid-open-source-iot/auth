@@ -1,6 +1,6 @@
 import { environment } from 'src/environments/environment';
 import { ToastService } from 'src/app/services/toast/toast.service';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Input, OnInit, Component, Renderer2, ElementRef, ViewEncapsulation } from '@angular/core';
 
@@ -20,7 +20,7 @@ import { Input, OnInit, Component, Renderer2, ElementRef, ViewEncapsulation } fr
 
 export class MatFileComponent implements ControlValueAccessor, OnInit {
 
-    constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalstorageService) { }
+    constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalStorageService) { }
 
     @Input('src') public src: string;
     @Input('accept') public accept: string = 'image/*';

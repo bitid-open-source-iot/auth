@@ -17,4 +17,4 @@ import { FilterPipe } from './filter.pipe';
 	]
 })
 
-export class FilterPipeModule {}
+export class FilterPipeModule { }

@@ -1,5 +1,8 @@
+/* --- PIPES --- */
+import { DescribePipe } from './describe.pipe';
+
+/* --- MODULES --- */
 import { NgModule } from '@angular/core';
-import { OrderPipe } from './order.pipe';
 import { CommonModule } from '@angular/common';
 
 @NgModule({
@@ -7,14 +10,11 @@ import { CommonModule } from '@angular/common';
 		CommonModule
 	],
 	exports: [
-		OrderPipe
+		DescribePipe
 	],
 	declarations: [
-		OrderPipe
-	],
-	entryComponents: [
-		OrderPipe
+		DescribePipe
 	]
 })
 
-export class OrderPipeModule { }
+export class DescribePipeModule { }

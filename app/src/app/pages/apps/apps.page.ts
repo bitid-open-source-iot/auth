@@ -11,7 +11,7 @@ import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { AppsFilterDialog } from './filter/filter.dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
@@ -24,15 +24,15 @@ export class AppsPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
-	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalstorageService) { }
+	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private buttons: ButtonsService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalStorageService) { }
 
 	public apps: MatTableDataSource<App> = new MatTableDataSource<App>();
 	public filter: any = this.filters.get({
 		private: []
 	})
 	public columns: string[] = ['icon', 'name', 'private', 'options'];
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async list() {
 		this.loading = true;
@@ -198,7 +198,7 @@ export class AppsPage implements OnInit, OnDestroy {
 		this.apps.sort.active = 'name';
 		this.apps.sort.direction = 'asc';
 
-		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+		this.observers.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/apps', 'editor'], {
 				queryParams: {
 					mode: 'add'
@@ -206,17 +206,17 @@ export class AppsPage implements OnInit, OnDestroy {
 			});
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				this.list();
 			}
 		});
 
-        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+        this.observers.search = this.buttons.search.value.subscribe(value => {
             this.apps.filter = value;
         });
 
-        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
             const dialog = await this.dialog.open(AppsFilterDialog, {
                 data: this.filter,
                 panelClass: 'filter-dialog'
@@ -236,10 +236,10 @@ export class AppsPage implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.buttons.reset('search');
-		this.subscriptions.add.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
-		this.subscriptions.search.unsubscribe();
-		this.subscriptions.filter.unsubscribe();
+		this.observers.add.unsubscribe();
+		this.observers.loaded.unsubscribe();
+		this.observers.search.unsubscribe();
+		this.observers.filter.unsubscribe();
 	}
 
 }

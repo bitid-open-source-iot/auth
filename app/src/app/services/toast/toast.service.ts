@@ -10,7 +10,7 @@ export class ToastService {
 	constructor(private snackbar: MatSnackBar) { }
 
 	public async show(message: string, duration?: number) {
-		return await this.snackbar.open(message, null, {
+		return await this.snackbar.open(message, '', {
 			duration: duration || 3000,
 			panelClass: 'toast'
 		});

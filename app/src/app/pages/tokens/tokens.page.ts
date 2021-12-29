@@ -9,12 +9,11 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { TokensFilterDialog } from './filter/filter.dialog';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
@@ -27,7 +26,7 @@ export class TokensPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort;
 
-	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private clipboard: Clipboard, private localstorage: LocalstorageService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private buttons: ButtonsService, private clipboard: Clipboard, private localstorage: LocalStorageService) { }
 
 	public filter: any = this.filters.get({
 		appId: []
@@ -35,8 +34,8 @@ export class TokensPage implements OnInit, OnDestroy {
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
 	public tokenId: string;
 	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'disabled', 'options'];
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	public locked() {
 		this.toast.show('This token has been locked as it is your current login token!');
@@ -79,7 +78,7 @@ export class TokensPage implements OnInit, OnDestroy {
 		});
 
 		if (apps.ok) {
-			this.apps.data = apps.result.map(o => new App(o));
+			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
 		}
@@ -252,7 +251,7 @@ export class TokensPage implements OnInit, OnDestroy {
 		this.tokens.sort.active = 'expiry';
 		this.tokens.sort.direction = 'desc';
 
-		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+		this.observers.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/tokens', 'generate'], {
 				queryParams: {
 					mode: 'add'
@@ -260,7 +259,7 @@ export class TokensPage implements OnInit, OnDestroy {
 			});
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				await this.list();
 				await this.load();
@@ -268,11 +267,11 @@ export class TokensPage implements OnInit, OnDestroy {
 			}
 		});
 
-		this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+		this.observers.search = this.buttons.search.value.subscribe(value => {
 			this.tokens.filter = value;
 		});
 
-		this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
 			const dialog = await this.dialog.open(TokensFilterDialog, {
 				data: this.filter,
 				panelClass: 'filter-dialog'
@@ -292,10 +291,10 @@ export class TokensPage implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.buttons.reset('search');
-		this.subscriptions.add.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
-		this.subscriptions.search.unsubscribe();
-		this.subscriptions.filter.unsubscribe();
+		this.observers.add.unsubscribe();
+		this.observers.loaded.unsubscribe();
+		this.observers.search.unsubscribe();
+		this.observers.filter.unsubscribe();
 	}
 
 }

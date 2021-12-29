@@ -35,8 +35,8 @@ export class GroupsEditorpage implements OnInit, OnDestroy {
 		app: new FormControl('', [Validators.required]),
 	});
 	public groupId: string;
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async get() {
 		this.loading = true;
@@ -80,7 +80,7 @@ export class GroupsEditorpage implements OnInit, OnDestroy {
 		});
 
 		if (apps.ok) {
-			this.apps.data = apps.result.map(o => new App(o));
+			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
 			this.toast.show(apps.error.message);
@@ -98,7 +98,7 @@ export class GroupsEditorpage implements OnInit, OnDestroy {
 			delete this.groupId;
 		}
 
-		const response = await this.service[mode]({
+		const response = await (this.service as any)[mode]({
 			appId: this.form.value.appId,
 			groupId: this.groupId,
 			description: this.form.value.description,
@@ -120,13 +120,13 @@ export class GroupsEditorpage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			this.router.navigate(['/groups']);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				this.mode = params.mode;
 				this.groupId = params.groupId;
 				if (this.mode != 'add') {
@@ -140,8 +140,8 @@ export class GroupsEditorpage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

@@ -18,23 +18,23 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-	public app: any = { };
+	public app: any = {};
 	public form: FormGroup = new FormGroup({
 		code: new FormControl(null, [Validators.required, Validators.min(100000), Validators.max(999999), Validators.minLength(6), Validators.maxLength(6)]),
 		email: new FormControl(null, [Validators.email, Validators.required])
 	});
-	public appId: string;
+	public appId: string | undefined;
 	public errors: any = {
 		code: '',
 		email: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
 
-		const response = await this.apps.load({
+		const response = await this.apps.get({
 			filter: [
 				'url',
 				'icon',
@@ -49,10 +49,10 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 			this.app = response.result;
 			if (!this.form.invalid) {
 				this.submit();
-			}
+			};
 		} else {
-			this.toast.show('Issue loading app!');
-		}
+			this.toast.show(response.error.message);
+		};
 	}
 
 	public async submit() {
@@ -64,7 +64,7 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			const params = this.route.snapshot.queryParams;
+			const params: any = this.route.snapshot.queryParams;
 			if (Object.keys(this.app).includes('url')) {
 				this.router.navigate(['/allow-access'], {
 					queryParams: {
@@ -81,44 +81,44 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 					},
 					replaceUrl: true
 				});
-			}
+			};
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.code) != 'undefined' && params.code != null) {
-					this.form.controls.code.setValue(params.code);
-				}
+					this.form.controls['code'].setValue(params.code);
+				};
 				if (typeof (params.email) != 'undefined' && params.email != null) {
-					this.form.controls.email.setValue(params.email);
-				}
-				if (typeof(params.appId) != 'undefined' && params.appId != null) {
+					this.form.controls['email'].setValue(params.email);
+				};
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				} else {
 					this.app.icon = environment.icon;
-				}
+				};
 				if (!this.form.invalid) {
 					this.submit();
-				}
-			}
+				};
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.form?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

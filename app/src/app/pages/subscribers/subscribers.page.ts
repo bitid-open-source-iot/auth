@@ -25,8 +25,8 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	public type: string;
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['email', 'role', 'options'];
-	public loading: boolean;
-	private subscriptions: any = { };
+	public loading: boolean = false;
+	private observers: any = { };
 
 	private async get() {
 		this.loading = true;
@@ -201,17 +201,17 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		this.buttons.hide('search');
 		this.buttons.hide('filter');
 
-		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+		this.observers.add = this.buttons.add.click.subscribe(event => {
 			this.editor();
 		});
 
-		this.subscriptions.close = this.buttons.close.click.subscribe(event => {
+		this.observers.close = this.buttons.close.click.subscribe(event => {
 			window.history.back();
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				this.id = params.id;
 				this.type = params.type;
 
@@ -221,9 +221,9 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.add.unsubscribe();
-		this.subscriptions.close.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.add.unsubscribe();
+		this.observers.close.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

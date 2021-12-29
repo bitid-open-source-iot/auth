@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { LocalstorageService } from '../localstorage/localstorage.service';
+
+/* --- SERVICES --- */
+import { LocalStorageService } from '../local-storage/local-storage.service';
 
 @Injectable({
     providedIn: 'root'
@@ -10,12 +12,12 @@ export class FiltersService {
 
     private filter: BehaviorSubject<Filter[]> = new BehaviorSubject<Filter[]>([]);
 
-    constructor(private localstorage: LocalstorageService) {
+    constructor(private localstorage: LocalStorageService) {
         this.filter.next(this.localstorage.getObject('filters', []));
     };
 
     public get(filter: any) {
-        let found: boolean;
+        let found: boolean = false;
         this.filter.value.map(o => {
             if (o.route == window.location.pathname) {
                 found = true;
@@ -57,7 +59,7 @@ export class FiltersService {
 
 }
 
-export interface Filter {
+interface Filter {
     'route': string;
     'filter': any;
 }

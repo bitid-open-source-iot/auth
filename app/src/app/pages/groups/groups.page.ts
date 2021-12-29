@@ -13,7 +13,7 @@ import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { GroupsFilterDialog } from './filter/filter.dialog';
 import { MatTableDataSource } from '@angular/material/table';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
@@ -26,15 +26,15 @@ export class GroupsPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, {static: true}) private sort: MatSort;
 
-	constructor(public apps: AppsService, private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private buttons: ButtonsService, private confirm: ConfirmService, private service: GroupsService, private localstorage: LocalstorageService) { }
+	constructor(public apps: AppsService, private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private buttons: ButtonsService, private confirm: ConfirmService, private service: GroupsService, private localstorage: LocalStorageService) { }
 
 	public groups: MatTableDataSource<Group> = new MatTableDataSource<Group>();
 	public filter: any = this.filters.get({
 		appId: []
 	})
 	public columns: string[] = ['description', 'appId', 'options'];
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async list() {
 		this.loading = true;
@@ -69,7 +69,7 @@ export class GroupsPage implements OnInit, OnDestroy {
 		});
 
 		if (apps.ok) {
-			this.apps.data = apps.result.map(o => new App(o));
+			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
 		}
@@ -218,7 +218,7 @@ export class GroupsPage implements OnInit, OnDestroy {
 		this.groups.sort.active = 'name';
 		this.groups.sort.direction = 'asc';
 
-		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+		this.observers.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/groups', 'editor'], {
 				queryParams: {
 					mode: 'add'
@@ -226,18 +226,18 @@ export class GroupsPage implements OnInit, OnDestroy {
 			});
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				await this.load();
 				await this.list();
 			};
 		});
 
-        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+        this.observers.search = this.buttons.search.value.subscribe(value => {
             this.groups.filter = value;
         });
 
-        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
             const dialog = await this.dialog.open(GroupsFilterDialog, {
                 data: this.filter,
                 panelClass: 'filter-dialog'
@@ -257,10 +257,10 @@ export class GroupsPage implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.buttons.reset('search');
-		this.subscriptions.add.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
-		this.subscriptions.search.unsubscribe();
-		this.subscriptions.filter.unsubscribe();
+		this.observers.add.unsubscribe();
+		this.observers.loaded.unsubscribe();
+		this.observers.search.unsubscribe();
+		this.observers.filter.unsubscribe();
 	}
 
 }

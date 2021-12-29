@@ -44,8 +44,8 @@ export class SignUpPage implements OnInit, OnDestroy {
 		newsAndChanges: '',
 		termsAndConditions: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
@@ -71,7 +71,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 	public async submit() {
 		this.loading = true;
 
-		const params = this.route.snapshot.queryParams;
+		const params: any = this.route.snapshot.queryParams;
 
 		const response = await this.service.register({
 			name: {
@@ -111,13 +111,13 @@ export class SignUpPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
-				const params = this.route.snapshot.queryParams;
+				const params: any = this.route.snapshot.queryParams;
 				if (typeof(params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
@@ -129,8 +129,8 @@ export class SignUpPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.form.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
+		this.observers.form.unsubscribe();
+		this.observers.loaded.unsubscribe();
 	}
 
 }

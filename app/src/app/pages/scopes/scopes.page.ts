@@ -32,8 +32,8 @@ export class ScopesPage implements OnInit, OnDestroy {
 	});
 	public scopes: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['app', 'url', 'description', 'options'];
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async list() {
 		this.loading = true;
@@ -71,7 +71,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 		});
 
 		if (apps.ok) {
-			this.apps.data = apps.result.map(o => new App(o));
+			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
 		}
@@ -173,7 +173,7 @@ export class ScopesPage implements OnInit, OnDestroy {
 		this.scopes.sort.active = 'url';
 		this.scopes.sort.direction = 'asc';
 
-		this.subscriptions.add = this.buttons.add.click.subscribe(event => {
+		this.observers.add = this.buttons.add.click.subscribe(event => {
 			this.router.navigate(['/scopes', 'editor'], {
 				queryParams: {
 					mode: 'add'
@@ -181,18 +181,18 @@ export class ScopesPage implements OnInit, OnDestroy {
 			});
 		});
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				await this.list();
 				await this.load();
 			}
 		});
 
-        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+        this.observers.search = this.buttons.search.value.subscribe(value => {
             this.scopes.filter = value;
         });
 
-        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
             const dialog = await this.dialog.open(ScopesFilterDialog, {
                 data: this.filter,
                 panelClass: 'filter-dialog'
@@ -212,10 +212,10 @@ export class ScopesPage implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.buttons.reset('search');
-		this.subscriptions.add.unsubscribe();
-		this.subscriptions.loaded.unsubscribe();
-		this.subscriptions.search.unsubscribe();
-		this.subscriptions.filter.unsubscribe();
+		this.observers.add.unsubscribe();
+		this.observers.loaded.unsubscribe();
+		this.observers.search.unsubscribe();
+		this.observers.filter.unsubscribe();
 	}
 
 }

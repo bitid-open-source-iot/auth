@@ -1,5 +1,5 @@
 import { environment } from 'src/environments/environment';
-import { LocalstorageService } from 'src/app/services/localstorage/localstorage.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { Input, Output, Renderer2, Directive, ElementRef, EventEmitter, AfterViewInit, OnChanges } from '@angular/core';
 
 @Directive({
@@ -12,7 +12,7 @@ export class UploadDirective implements OnChanges, AfterViewInit {
 	@Input('upload-accept') private accept = 'image/*';
 	@Output('upload-change') private change: EventEmitter<any> = new EventEmitter<any>();
 
-	constructor(private el: ElementRef, private renderer: Renderer2, private localstorage: LocalstorageService) {
+	constructor(private el: ElementRef, private renderer: Renderer2, private localstorage: LocalStorageService) {
 		this.element = this.el.nativeElement;
 		this.renderer.setStyle(this.element, 'margin-bottom', '20px');
 		this.renderer.setStyle(this.element, 'background-size', 'cover');

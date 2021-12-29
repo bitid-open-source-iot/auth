@@ -1,75 +1,75 @@
 import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
-import { environment } from 'src/environments/environment';
-import { LocalstorageService } from '../localstorage/localstorage.service';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-@Injectable()
+/* --- SERVICES --- */
+import { LocalStorageService } from '../local-storage/local-storage.service';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
+
+@Injectable({
+	providedIn: 'root'
+})
 
 export class ApiService {
 
-	constructor(private http: HttpClient, private router: Router, private localstorage: LocalstorageService) { }
+	constructor(private http: HttpClient, private router: Router, private localstorage: LocalStorageService) { }
 
-	public async put(url, endpoint, payload) {
+	public async put(url: string, endpoint: string, payload: any) {
 		const options = {
-			headers: new HttpHeaders({
+			'headers': new HttpHeaders({
 				'Content-Type': 'application/json'
 			})
 		};
 
 		payload.header = {
-			appId: environment.appId,
-			email: this.localstorage.get('email')
+			'appId': environment.appId,
+			'email': this.localstorage.get('email'),
+			'userId': this.localstorage.get('userId')
 		};
 
-		return await this.http.put(url + endpoint, payload, options)
+		return await this.http.put([url, endpoint].join(''), payload, options)
 			.toPromise()
 			.then(response => {
-				return {
-					ok: true,
-					result: response
-				};
+				return ({
+					'ok': true,
+					'result': response
+				} as RESPONSE);
 			})
 			.catch(error => {
 				return this.error(error);
 			});
 	}
 
-	public async post(url, endpoint, payload) {
-		const email = this.localstorage.get('email');
-		const token = this.localstorage.get('token');
-
-		if (typeof (token) == 'undefined' || (typeof (email) == 'undefined')) {
-			this.localstorage.clear();
-			this.router.navigate(['/signin']);
-		}
-
+	public async post(url: string, endpoint: string, payload: any) {
 		const options = {
-			headers: new HttpHeaders({
+			'headers': new HttpHeaders({
 				'Content-Type': 'application/json',
-				Authorization: token
+				'Authorization': this.localstorage.get('token')
 			})
 		};
 
 		payload.header = {
-			email,
-			appId: environment.appId
+			'email': this.localstorage.get('email'),
+			'appId': environment.appId,
+			'userId': this.localstorage.get('userId')
 		};
 
-		return await this.http.post(url + endpoint, payload, options)
+		return await this.http.post([url, endpoint].join(''), payload, options)
 			.toPromise()
 			.then(response => {
-				return {
+				return ({
 					ok: true,
 					result: response
-				};
+				} as RESPONSE);
 			})
 			.catch(error => {
 				return this.error(error);
 			});
 	}
 
-	private async error(error) {
+	private async error(error: any) {
 		if (error.error) {
 			if (error.error.errors) {
 				error.error = error.error.errors[0];
@@ -81,12 +81,22 @@ export class ApiService {
 					this.localstorage.clear();
 					this.router.navigate(['/signin']);
 				}
-				return error;
+				return (error as RESPONSE);
 			} else {
-				return error;
-			}
+				return (error as RESPONSE);
+			};
 		} else {
-			return error;
-		}
+			return (error as RESPONSE);
+		};
 	}
+}
+
+
+interface RESPONSE {
+	ok: boolean;
+	error?: {
+		code?: number;
+		message?: string;
+	};
+	result?: any;
 }

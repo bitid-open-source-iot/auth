@@ -30,8 +30,8 @@ export class AccountPage implements OnInit, OnDestroy {
 		picture: '',
 		username: ''
 	};
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	public async submit() {
 		this.loading = true;
@@ -64,7 +64,7 @@ export class AccountPage implements OnInit, OnDestroy {
 		this.buttons.hide('filter');
 		this.buttons.hide('search');
 
-		this.subscriptions.user = this.service.user.subscribe(user => {
+		this.observers.user = this.service.user.subscribe(user => {
 			if (typeof(user) != 'undefined' && user != null) {
 				this.form.controls.picture.setValue(user.picture);
 				this.form.controls.username.setValue(user.username);
@@ -77,7 +77,7 @@ export class AccountPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.subscriptions.user.unsubscribe();
+		this.observers.user.unsubscribe();
 	}
 
 }

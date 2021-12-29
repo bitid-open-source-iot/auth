@@ -25,8 +25,8 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
     public filter: FormGroup = new FormGroup({
         app: new FormControl('')
     });
-    public loading: boolean;
-    private subscriptions: any = {}
+    public loading: boolean = false;
+    private observers: any = {}
 
     private async load() {
         this.loading = true;
@@ -39,7 +39,7 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
         });
 
         if (apps.ok) {
-            this.apps.data = apps.result.map(o => new App(o));
+            this.apps.data = apps.result.map((o: App) => new App(o));
         } else {
             this.apps.data = [];
         }
@@ -60,7 +60,7 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
     };
 
     ngOnInit(): void {
-        this.subscriptions.form = this.form.valueChanges.subscribe(data => {
+        this.observers.form = this.form.valueChanges.subscribe(data => {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
         })
 
@@ -68,7 +68,7 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.subscriptions.form.unsubscribe();
+        this.observers.form.unsubscribe();
     }
 
 }

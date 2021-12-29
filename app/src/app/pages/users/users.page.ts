@@ -26,8 +26,8 @@ export class UsersPage implements OnInit, OnDestroy {
 	});
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['namefirst', 'namemiddle', 'namelast', 'email', 'numbertel', 'numbercell', 'validated'];
-	public loading: boolean;
-	private subscriptions: any = {};
+	public loading: boolean = false;
+	private observers: any = {};
 
 	private async list() {
 		this.loading = true;
@@ -68,17 +68,17 @@ export class UsersPage implements OnInit, OnDestroy {
 		this.sort.direction = 'asc';
 		this.users.sort = this.sort;
 
-		this.subscriptions.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
 			if (loaded) {
 				await this.list();
 			}
 		});
 
-        this.subscriptions.search = this.buttons.search.value.subscribe(value => {
+        this.observers.search = this.buttons.search.value.subscribe(value => {
             this.users.filter = value;
         });
 
-        this.subscriptions.filter = this.buttons.filter.click.subscribe(async event => {
+        this.observers.filter = this.buttons.filter.click.subscribe(async event => {
             const dialog = await this.dialog.open(UsersFilterDialog, {
                 data: this.filter,
                 panelClass: 'filter-dialog'
@@ -98,9 +98,9 @@ export class UsersPage implements OnInit, OnDestroy {
 
 	ngOnDestroy(): void {
 		this.buttons.reset('search');
-		this.subscriptions.loaded.unsubscribe();
-		this.subscriptions.search.unsubscribe();
-		this.subscriptions.filter.unsubscribe();
+		this.observers.loaded.unsubscribe();
+		this.observers.search.unsubscribe();
+		this.observers.filter.unsubscribe();
 	}
 
 }
