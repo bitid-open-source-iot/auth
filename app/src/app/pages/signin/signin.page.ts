@@ -71,7 +71,7 @@ export class SignInPage implements OnInit, OnDestroy {
 	private async load() {
 		this.loading = true;
 
-		const response = await this.apps.load({
+		const response = await this.apps.get({
 			filter: [
 				'icon',
 				'name',

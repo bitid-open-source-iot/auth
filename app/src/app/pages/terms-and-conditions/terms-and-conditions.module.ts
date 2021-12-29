@@ -7,7 +7,14 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { TermsAndConditionsRoutingModule } from './terms-and-conditions-routing.module';
+import { Routes, RouterModule } from '@angular/router';
+
+const routes: Routes = [
+	{
+		path: '',
+		component: TermsAndConditionsPage
+	}
+];
 
 @NgModule({
 	imports: [
@@ -15,11 +22,11 @@ import { TermsAndConditionsRoutingModule } from './terms-and-conditions-routing.
 		MatIconModule,
 		MatButtonModule,
 		MatToolbarModule,
-		TermsAndConditionsRoutingModule
+		RouterModule.forChild(routes)
 	],
 	declarations: [
 		TermsAndConditionsPage
 	]
 })
 
-export class TermsAndConditionsModule { }
+export class TermsAndConditionsPageModule { }

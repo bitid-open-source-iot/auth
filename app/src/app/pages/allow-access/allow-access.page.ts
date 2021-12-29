@@ -13,7 +13,6 @@ import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
@@ -28,16 +27,16 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
 
 	public app: any = {};
-	public url: string;
-	public appId: string;
-	public returl: string;
+	public url: string | undefined;
+	public appId: string | undefined;
+	public returl: string | undefined;
 	public loading: boolean = false;
 	private observers: any = {};
 
 	private async load() {
 		this.loading = true;
 
-		const apps = await this.apps.load({
+		const apps = await this.apps.get({
 			filter: [
 				'icon',
 				'name',
@@ -115,11 +114,6 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.buttons.hide('add');
-		this.buttons.hide('close');
-		this.buttons.hide('filter');
-		this.buttons.hide('search');
-
 		this.observers.config = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;

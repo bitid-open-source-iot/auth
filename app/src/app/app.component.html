@@ -15,8 +15,7 @@
         </mat-toolbar>
 
         <mat-list>
-            <mat-list-item lines="full" routerLink="/account" routerLinkActive="active" matRipple
-                (click)="menu.close()">
+            <mat-list-item lines="full" routerLink="/account" routerLinkActive="active" matRipple (click)="menu.close()">
                 <mat-icon>
                     account
                 </mat-icon>
@@ -24,8 +23,7 @@
                 Account
             </mat-list-item>
 
-            <mat-list-item lines="full" routerLink="/settings" routerLinkActive="active" matRipple
-                (click)="menu.close()">
+            <mat-list-item lines="full" routerLink="/settings" routerLinkActive="active" matRipple (click)="menu.close()">
                 <mat-icon>
                     settings
                 </mat-icon>
@@ -33,7 +31,7 @@
                 Settings
             </mat-list-item>
 
-            <mat-list-item lines="full" matRipple (click)="menu.close() && account.signout()">
+            <mat-list-item lines="full" matRipple (click)="signout()">
                 <mat-icon>
                     exit_to_app
                 </mat-icon>

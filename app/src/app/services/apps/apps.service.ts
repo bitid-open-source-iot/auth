@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 /* --- CLASSES --- */
 import { App } from 'src/app/classes/app';
-import { User } from 'src/app/classes/user';
+import { Accessor } from 'src/app/classes/accessor';
 
 /* --- SERVICES --- */
 import { ApiService } from '../api/api.service';
@@ -59,38 +59,40 @@ export class AppsService {
 }
 
 interface ADD_PARAMS {
-	icons: {
-		icon72x72: string;
-		icon96x96: string;
-		icon128x128: string;
-		icon144x144: string;
-		icon152x152: string;
-		icon192x192: string;
-		icon384x384: string;
-		icon512x512: string;
+	icons?: {
+		icon72x72?: string;
+		icon96x96?: string;
+		icon128x128?: string;
+		icon144x144?: string;
+		icon152x152?: string;
+		icon192x192?: string;
+		icon384x384?: string;
+		icon512x512?: string;
 	};
-	theme: {
-		color: string;
-		background: string;
+	theme?: {
+		color?: string;
+		background?: string;
 	};
-	google: {
-		database: string;
-		credentials: any;
+	google?: {
+		database?: string;
+		credentials?: any;
 	};
-	url: string;
-	icon: string;
-	name: string;
-	users?: User[];
-	scopes: string[];
-	secret: string;
-	private: boolean;
-	domains: string[];
-	favicon: string;
-	organizationOnly: number;
+	url?: string;
+	icon?: string;
+	name?: string;
+	apps?: Accessor[];
+	users?: Accessor[];
+	groups?: Accessor[];
+	scopes?: string[];
+	secret?: string;
+	private?: boolean;
+	domains?: string[];
+	favicon?: string;
+	organizationOnly?: number;
 }
 
 interface GET_PARAMS {
-	appId: string;
+	appId?: string;
 	filter?: string[];
 }
 
@@ -101,10 +103,10 @@ interface LIST_PARAMS {
 }
 
 interface SHARE_PARAMS {
-	id: string;
-	role: 1 | 2 | 3 | 4;
-	type: string;
-	appId: string;
+	id?: string;
+	role?: 1 | 2 | 3 | 4;
+	type?: string;
+	appId?: string;
 }
 
 interface UPDATE_PARAMS {
@@ -139,24 +141,24 @@ interface UPDATE_PARAMS {
 }
 
 interface DELETE_PARAMS {
-	appId: string;
+	appId?: string;
 }
 
 interface UNSUBSCRIBE_PARAMS {
-	id: string;
-	type: string;
-	appId: string;
+	id?: string;
+	type?: string;
+	appId?: string;
 }
 
 interface CHANGE_OWNER_PARAMS {
-	id: string;
-	type: string;
-	appId: string;
+	id?: string;
+	type?: string;
+	appId?: string;
 }
 
 interface UPDATE_SUBSCRIBER_PARAMS {
-	id: string;
-	role: 1 | 2 | 3 | 4;
-	type: string;
-	appId: string;
+	id?: string;
+	role?: 1 | 2 | 3 | 4;
+	type?: string;
+	appId?: string;
 }

@@ -1,7 +1,9 @@
-import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+
+/* --- SERVICES --- */
+import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 
 @Component({
 	selector: 'user-editor-dialog',
@@ -39,17 +41,17 @@ export class UserEditorDialog implements OnInit, OnDestroy {
 
 		if (typeof (this.config) != 'undefined' && this.config != null) {
 			if (typeof (this.config.role) != 'undefined' && this.config.role != null) {
-				this.form.controls.role.setValue(this.config.role);
-			}
+				this.form.controls['role'].setValue(this.config.role);
+			};
 			if (typeof (this.config.email) != 'undefined' && this.config.email != null) {
-				this.form.controls.email.setValue(this.config.email);
-				this.form.controls.email.disable();
-			}
-		}
+				this.form.controls['email'].setValue(this.config.email);
+				this.form.controls['email'].disable();
+			};
+		};
 	}
 
 	ngOnDestroy(): void {
-		this.subscribers.form.unsubscribe();
+		this.subscribers.form?.unsubscribe();
 	}
 
 }

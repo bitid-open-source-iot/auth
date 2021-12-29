@@ -5,7 +5,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { BackButtonModule } from 'src/app/libs/back-button/back-button.module';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
 import { ResetPasswordPage } from './reset-password.page';
@@ -33,13 +32,14 @@ const routes: Routes = [
 		MatContentModule,
 		MatToolbarModule,
 		FlexLayoutModule,
-		BackButtonModule,
 		MatFormFieldModule,
 		ReactiveFormsModule,
 		MatProgressSpinnerModule,
 		RouterModule.forChild(routes)
 	],
-	declarations: [ResetPasswordPage]
+	declarations: [
+		ResetPasswordPage
+	]
 })
 
-export class ResetPasswordModule { }
+export class ResetPasswordPageModule { }

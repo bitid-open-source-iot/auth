@@ -48,15 +48,14 @@
 
         <mat-form-field appearance="outline">
             <mat-label>
-                Scopes
+                Scope(s)
             </mat-label>
 
-            <mat-select name="scopes" placeholder="scopes" formControlName="scopes" required multiple>
-                <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter scopes" noEntriesFoundLabel="no scopes found"
-                        formControlName="scopes"></ngx-mat-select-search>
+            <mat-select name="scopes" placeholder="scope(s)" formControlName="scopes" required multiple>
+                <mat-option>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter scopes..." noEntriesFoundLabel="There are no scopes matching your query!"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let scope of scopes.data | filterBy : {'url': filter.value.scopes}"
+                <mat-option *ngFor="let scope of scopes.data | orderBy : 'url' | filterBy : { url: filter.value }"
                     [value]="scope.url">
                     {{ scope.url }}
                 </mat-option>

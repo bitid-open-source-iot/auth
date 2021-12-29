@@ -3,52 +3,52 @@ import { Accessor } from './accessor';
 export class App {
 
 	public icons = <{
-		icon72x72?: string;
-		icon96x96?: string;
-		icon128x128?: string;
-		icon144x144?: string;
-		icon152x152?: string;
-		icon192x192?: string;
-		icon384x384?: string;
-		icon512x512?: string;
+		icon72x72?: string | undefined;
+		icon96x96?: string | undefined;
+		icon128x128?: string | undefined;
+		icon144x144?: string | undefined;
+		icon152x152?: string | undefined;
+		icon192x192?: string | undefined;
+		icon384x384?: string | undefined;
+		icon512x512?: string | undefined;
 	}>{
-			icon72x72: '',
-			icon96x96: '',
-			icon128x128: '',
-			icon144x144: '',
-			icon152x152: '',
-			icon192x192: '',
-			icon384x384: '',
-			icon512x512: ''
+			icon72x72: undefined,
+			icon96x96: undefined,
+			icon128x128: undefined,
+			icon144x144: undefined,
+			icon152x152: undefined,
+			icon192x192: undefined,
+			icon384x384: undefined,
+			icon512x512: undefined
 		};
 	public theme = <{
-		color: string;
-		background: string;
+		color: string | undefined;
+		background: string | undefined;
 	}>{
-			color: '#000000',
-			background: '#FFFFFF'
+			color: undefined,
+			background: undefined
 		};
 	public google = <{
-		database: string;
-		credentials: any;
+		database: string | undefined;
+		credentials: any | undefined;
 	}>{
-			database: '',
-			credentials: {}
+			database: undefined,
+			credentials: undefined
 		};
-	public url: string = '';
+	public url: string | undefined;
 	public apps: Accessor[] = [];
-	public role: number = 0;
-	public icon: string = '';
-	public name: string = '';
+	public role: 0 | 1 | 2 | 3 | 4 | 5 = 0;
+	public icon: string | undefined;
+	public name: string | undefined;
 	public users: Accessor[] = [];
-	public appId: string = '';
+	public appId: string | undefined;
 	public scopes: string[] = [];
 	public groups: Accessor[] = [];
-	public secret: string = '';
-	public private: boolean = false;
+	public secret: string | undefined;
+	public private: boolean | undefined;
 	public domains: string[] = [];
-	public favicon: string = '';
-	public organizationOnly?: number;
+	public favicon: string | undefined;
+	public organizationOnly: number | undefined;
 
 	constructor(args?: APP) {
 		if (typeof (args) != 'undefined' && args != null) {
@@ -161,14 +161,14 @@ export interface APP {
 		credentials?: any;
 	};
 	url?: string;
-	apps: Accessor[]
-	role?: number;
+	apps?: Accessor[]
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
 	icon?: string;
 	name?: string;
 	users?: Accessor[];
 	appId?: string;
 	scopes?: string[];
-	groups: Accessor[];
+	groups?: Accessor[];
 	secret?: string;
 	private?: boolean;
 	domains?: string[];

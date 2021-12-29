@@ -1,9 +1,10 @@
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-        <div [class.required]="!form.value.picture" upload [upload-src]="form.value.picture" upload-accept="image/*"
-            (upload-change)="upload($event)" matRipple>
-            <mat-icon>publish</mat-icon>
-        </div>
+        <mat-file required="true" formControlName="picture">
+            <mat-label>
+                Profile Image <span>*</span>
+            </mat-label>
+        </mat-file>
 
         <section formGroupName="name">
             <mat-form-field appearance="outline">

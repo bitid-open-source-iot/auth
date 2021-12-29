@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 /* --- CLASSES --- */
-import { Account } from 'src/app/classes/account';
+import { User } from 'src/app/classes/user';
 
 /* --- DIALOGS --- */
 import { UsersFilterDialog } from './filter/filter.dialog';
@@ -49,7 +49,7 @@ export class UsersPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.users.data = response.result.map((o: Account) => new Account(o));
+			this.users.data = response.result.map((o: User) => new User(o));
 		} else {
 			this.users.data = [];
 		};

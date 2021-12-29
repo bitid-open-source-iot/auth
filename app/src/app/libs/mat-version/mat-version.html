@@ -1,0 +1,10 @@
+<h1>
+    V{{ version }}
+</h1>
+<p>
+    {{ (available | async) ? 'Update Available!' : 'Latest Is Installed!' }}
+</p>
+<mat-icon color="warn" *ngIf="available | async">
+    error
+</mat-icon>
+<div class="overlay" matRipple></div>

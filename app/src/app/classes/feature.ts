@@ -1,11 +1,17 @@
 export class Feature {
 
-	public app: any = {};
-	public role = 0;
-	public appId: string;
-	public title: string;
-	public featureId: string;
-	public description: string;
+	public app = <{
+		name: string | undefined;
+		icon: string | undefined;
+	}>{
+			name: undefined,
+			icon: undefined
+		};
+	public role: 0 | 1 | 2 | 3 | 4 | 5 = 0;
+	public appId: string | undefined;
+	public title: string | undefined;
+	public featureId: string | undefined;
+	public description: string | undefined;
 
 	constructor(args?: FEATURE) {
 		if (typeof (args) != 'undefined' && args != null) {
@@ -42,9 +48,9 @@ export interface FEATURE {
 		name: string;
 		icon: string;
 	};
-	role: number;
-	appId: string;
-	title: string;
-	featureId: string;
-	description: string;
+	role: 0 | 1 | 2 | 3 | 4 | 5;
+	appId: string | undefined;
+	title: string | undefined;
+	featureId: string | undefined;
+	description: string | undefined;
 }

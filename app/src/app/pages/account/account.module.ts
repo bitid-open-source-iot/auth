@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { AccountPage } from './account.page';
-import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -37,7 +36,6 @@ const routes: Routes = [
 	imports: [
 		FormsModule,
 		CommonModule,
-		UploadModule,
 		MatIconModule,
 		MatMenuModule,
 		MatInputModule,
@@ -59,4 +57,4 @@ const routes: Routes = [
 	]
 })
 
-export class AccountModule { }
+export class AccountPageModule { }

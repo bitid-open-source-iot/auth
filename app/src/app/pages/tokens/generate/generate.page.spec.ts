@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GenerateTokenPage } from './generate.page';
+import { TokensGeneratePage } from './generate.page';
 
-describe('GenerateTokenPage', () => {
-  let component: GenerateTokenPage;
-  let fixture: ComponentFixture<GenerateTokenPage>;
+describe('TokensGeneratePage', () => {
+  let component: TokensGeneratePage;
+  let fixture: ComponentFixture<TokensGeneratePage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GenerateTokenPage]
+      declarations: [TokensGeneratePage]
     })
       .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(GenerateTokenPage);
+    fixture = TestBed.createComponent(TokensGeneratePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

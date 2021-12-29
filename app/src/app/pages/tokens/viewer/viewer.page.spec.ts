@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewTokenPage } from './view.page';
+import { TokensViewerPage } from './viewer.page';
 
-describe('ViewTokenPage', () => {
-  let component: ViewTokenPage;
-  let fixture: ComponentFixture<ViewTokenPage>;
+describe('TokensViewerPage', () => {
+  let component: TokensViewerPage;
+  let fixture: ComponentFixture<TokensViewerPage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ViewTokenPage]
+      declarations: [TokensViewerPage]
     })
       .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ViewTokenPage);
+    fixture = TestBed.createComponent(TokensViewerPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

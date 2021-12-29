@@ -14,7 +14,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class FeaturesFilterDialog implements OnInit, OnDestroy {
 
-    constructor(public apps: AppsService, private dialog: MatDialogRef<FeaturesFilterDialog>, @Inject(MAT_DIALOG_DATA) public config, private formerror: FormErrorService) { }
+    constructor(public apps: AppsService, private dialog: MatDialogRef<FeaturesFilterDialog>, @Inject(MAT_DIALOG_DATA) public config: any, private formerror: FormErrorService) { }
 
     public form: FormGroup = new FormGroup({
         appId: new FormControl([])
@@ -45,30 +45,30 @@ export class FeaturesFilterDialog implements OnInit, OnDestroy {
         }
 
         if (typeof (this.config.appId) != 'undefined' && this.config.appId != null) {
-            this.form.controls.appId.setValue(this.config.appId);
+            this.form.controls['appId'].setValue(this.config.appId);
         };
 
         this.loading = false;
-    };
+    }
 
     public async close() {
         this.dialog.close(false);
-    };
+    }
 
     public async submit() {
         this.dialog.close(this.form.value);
-    };
+    }
 
     ngOnInit(): void {
         this.observers.form = this.form.valueChanges.subscribe(data => {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        })
+        });
 
         this.load();
     }
 
     ngOnDestroy(): void {
-        this.observers.form.unsubscribe();
+        this.observers.form?.unsubscribe();
     }
 
 }

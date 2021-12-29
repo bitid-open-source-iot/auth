@@ -54,4 +54,4 @@ const routes: Routes = [
 	]
 })
 
-export class SubscribersModule { }
+export class SubscribersPageModule { }

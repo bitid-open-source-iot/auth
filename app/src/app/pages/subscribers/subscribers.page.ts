@@ -1,14 +1,17 @@
 import { MatDialog } from '@angular/material/dialog';
+import { ActivatedRoute } from '@angular/router';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+
+/* --- DIALOGS --- */
+import { UserEditorDialog } from './editor/editor.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { GroupsService } from 'src/app/services/groups/groups.service';
-import { ActivatedRoute } from '@angular/router';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
-import { UserEditorDialog } from './editor/editor.dialog';
-import { MatTableDataSource } from '@angular/material/table';
-import { OnInit, Component, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'subscribers-page',
@@ -20,9 +23,9 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private config: ConfigService, private groups: GroupsService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService) { }
 
-	public id: string;
-	public role: number;
-	public type: string;
+	public id: string | undefined;
+	public role: number | undefined;
+	public type: string | undefined;
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['email', 'role', 'options'];
 	public loading: boolean = false;
@@ -52,7 +55,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				service = this.groups;
 				params.groupId = this.id;
 				break;
-		}
+		};
 
 		const response = await service.get(params);
 
@@ -61,12 +64,12 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			this.users.data = response.result.users;
 		} else {
 			this.users.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	private async share(user) {
+	private async share(user: any) {
 		this.loading = true;
 
 		const params: any = {
@@ -88,7 +91,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				service = this.groups;
 				params.groupId = this.id;
 				break;
-		}
+		};
 
 		const response = await service.share(params);
 
@@ -98,12 +101,12 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			this.toast.show('User was shared!');
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public async editor(user?) {
+	public async editor(user?: any) {
 		const dialog = await this.dialog.open(UserEditorDialog, {
 			data: user,
 			panelClass: 'user-editor-dialog'
@@ -115,16 +118,16 @@ export class SubscribersPage implements OnInit, OnDestroy {
 					this.updatesubscriber(user.email, result.role);
 				} else {
 					this.share(result);
-				}
-			}
+				};
+			};
 		});
 	}
 
-	public async unsubscribe(email) {
+	public async unsubscribe(email: string) {
 		this.loading = true;
 
 		const params: any = {
-			email
+			email: email
 		};
 		let service: any;
 
@@ -141,7 +144,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				service = this.groups;
 				params.groupId = this.id;
 				break;
-		}
+		};
 
 		const response = await service.unsubscribe(params);
 
@@ -149,23 +152,23 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			for (let i = 0; i < this.users.data.length; i++) {
 				if (this.users.data[i].email == email) {
 					this.users.data.splice(i, 1);
-				}
-			}
+				};
+			};
 			this.users.data = JSON.parse(JSON.stringify(this.users.data));
 			this.toast.show('User was removed!');
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public async updatesubscriber(email, role) {
+	public async updatesubscriber(email: string, role: number) {
 		this.loading = true;
 
 		const params: any = {
-			role,
-			email
+			role: role,
+			email: email
 		};
 		let service: any;
 
@@ -182,7 +185,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				service = this.groups;
 				params.groupId = this.id;
 				break;
-		}
+		};
 
 		const response = await service.updatesubscriber(params);
 
@@ -190,40 +193,25 @@ export class SubscribersPage implements OnInit, OnDestroy {
 			this.toast.show('User was updated!');
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
 
 	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.show('close');
-		this.buttons.hide('search');
-		this.buttons.hide('filter');
-
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.editor();
-		});
-
-		this.observers.close = this.buttons.close.click.subscribe(event => {
-			window.history.back();
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
 				this.id = params.id;
 				this.type = params.type;
 
 				this.get();
-			}
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.add.unsubscribe();
-		this.observers.close.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

@@ -15,13 +15,13 @@ export class SearchComponent implements OnInit {
     @Output('change') public change: EventEmitter<string> = new EventEmitter<string>();
     @Input('placeholder') public placeholder: string = '';
 
-    @ViewChild(MatInput, { 'static': true }) private input: MatInput;
+    @ViewChild(MatInput, { static: true }) private input?: MatInput;
 
     constructor(private el: ElementRef) {
         this.element = this.el.nativeElement;
     };
 
-    public active: boolean;
+    public active: boolean = false;
     public element: HTMLElement;
 
     public reset() {
@@ -33,10 +33,10 @@ export class SearchComponent implements OnInit {
         this.value = '';
         this.active = !this.active;
         this.change.emit(this.value);
-        setTimeout(() => this.input.focus(), 100);
+        setTimeout(() => this.input?.focus(), 100);
     };
 
-    public changes(value) {
+    public changes(value: string) {
         this.change.emit(value);
     };
 

@@ -1,8 +1,12 @@
-import { environment } from 'src/environments/environment';
-import { ToastService } from 'src/app/services/toast/toast.service';
-import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
 import { Input, OnInit, Component, Renderer2, ElementRef, ViewEncapsulation } from '@angular/core';
+
+/* --- SERVICES --- */
+import { ToastService } from 'src/app/services/toast/toast.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'mat-file',
@@ -22,15 +26,15 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
 
     constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalStorageService) { }
 
-    @Input('src') public src: string;
+    @Input('src') public src: string | undefined;
     @Input('accept') public accept: string = 'image/*';
-    @Input('required') public required: boolean;
+    @Input('required') public required: boolean = false;
     @Input('min-width') public minWidth: number = 0;
     @Input('max-width') public maxWidth: number = 0;
     @Input('min-height') public minHeight: number = 0;
     @Input('max-height') public maxHeight: number = 0;
 
-    onChange = (src) => { };
+    onChange = (src: string) => { };
 
     onTouched = () => { };
 
@@ -102,6 +106,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
                             return false;
                         };
                         _URL.revokeObjectURL(objectUrl);
+                        return ev;
                     };
                     img.src = objectUrl;
 

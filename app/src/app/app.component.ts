@@ -1,11 +1,18 @@
+import { MatDrawer } from '@angular/material/sidenav';
 import { OnInit, Component, ViewChild } from '@angular/core';
 
 /* --- SERVICES --- */
-import { SplashScreen } from './libs/splashscreen/splashscreen';
+import { MenuService } from './services/menu/menu.service';
 import { UpdateService } from './libs/update/update.service';
 import { ConfigService } from './services/config/config.service';
 import { AccountService } from './services/account/account.service';
 import { SettingsService } from './services/settings/settings.service';
+
+/* --- COMPONENTS --- */
+import { SplashScreen } from './libs/splashscreen/splashscreen';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'app-root',
@@ -15,9 +22,21 @@ import { SettingsService } from './services/settings/settings.service';
 
 export class AppComponent implements OnInit {
 
+    @ViewChild(MatDrawer, { static: true }) private drawer?: MatDrawer;
     @ViewChild(SplashScreen, { static: true }) private splashscreen?: SplashScreen;
 
-    constructor(private config: ConfigService, private update: UpdateService, public account: AccountService, private settings: SettingsService) { }
+    constructor(public menu: MenuService, public account: AccountService, private config: ConfigService, private update: UpdateService, private settings: SettingsService) { }
+
+    public icon: string = environment.icon;
+    public title: any[] = [];
+    public badges: any = {};
+    public appName: string = environment.appName;
+    public authenticated?: boolean;
+
+    public async signout() {
+        await this.menu.close();
+        await this.account.signout();
+    }
 
     private async initialize() {
         await this.splashscreen?.show();
@@ -30,13 +49,34 @@ export class AppComponent implements OnInit {
     }
 
     ngOnInit(): void {
+        this.menu.events.subscribe(event => {
+            switch (event) {
+                case ('open'):
+                    this.drawer?.open();
+                    break;
+                case ('close'):
+                    this.drawer?.close();
+                    break;
+                case ('toggle'):
+                    this.drawer?.toggle();
+                    break;
+            };
+        });
+
+        this.menu.badge.subscribe((data: any) => {
+            Object.keys(data).map(key => {
+                (this.badges as any)[key] = data[key];
+            });
+        });
+
         this.config.loaded.subscribe(async (loaded) => {
             if (loaded) {
                 this.account.validate();
             };
         });
 
-        this.account.authenticated.subscribe(async (authenticated) => {
+        this.account.authenticated.subscribe(async (authenticated: any) => {
+            this.authenticated = authenticated;
             if (authenticated) {
                 this.account.init();
             };

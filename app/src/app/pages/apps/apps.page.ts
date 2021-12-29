@@ -1,18 +1,23 @@
-import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+
+/* --- DIALOGS --- */
+import { AppsFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
-import { AppsFilterDialog } from './filter/filter.dialog';
-import { MatTableDataSource } from '@angular/material/table';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'apps-page',
@@ -22,7 +27,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class AppsPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
 	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalStorageService) { }
 
@@ -49,16 +54,16 @@ export class AppsPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.apps.data = response.result.map(app => new App(app));
+			this.apps.data = response.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public unfilter(key, value) {
-		this.filter[key] = this.filter[key].filter(o => o != value);
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
 		this.filters.update(this.filter);
 		this.list();
 	}
@@ -119,7 +124,7 @@ export class AppsPage implements OnInit, OnDestroy {
 
 								const response = await this.service.unsubscribe({
 									appId: app.appId,
-									email: this.localstorage.get('email')
+									userId: this.localstorage.get('userId')
 								});
 
 								if (response.ok) {
@@ -188,58 +193,37 @@ export class AppsPage implements OnInit, OnDestroy {
 		return result;
 	}
 
-	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(AppsFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
 
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
+
+	ngOnInit(): void {
 		this.apps.sort = this.sort;
 		this.apps.sort.active = 'name';
 		this.apps.sort.direction = 'asc';
 
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.router.navigate(['/apps', 'editor'], {
-				queryParams: {
-					mode: 'add'
-				}
-			});
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				this.list();
-			}
-		});
-
-		this.observers.search = this.buttons.search.value.subscribe(value => {
-			this.apps.filter = value;
-		});
-
-		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-			const dialog = await this.dialog.open(AppsFilterDialog, {
-				data: this.filter,
-				panelClass: 'filter-dialog'
-			});
-
-			await dialog.afterClosed().subscribe(async result => {
-				if (result) {
-					Object.keys(result).map(key => {
-						this.filter[key] = result[key];
-					});
-					this.filters.update(this.filter);
-					this.list();
-				};
-			});
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.add.unsubscribe();
-		this.observers.loaded.unsubscribe();
-		this.observers.search.unsubscribe();
-		this.observers.filter.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

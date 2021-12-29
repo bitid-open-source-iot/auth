@@ -82,4 +82,4 @@ const routes: Routes = [
 	]
 })
 
-export class TipsAndUpdatesModule { }
+export class TipsAndUpdatesPageModule { }

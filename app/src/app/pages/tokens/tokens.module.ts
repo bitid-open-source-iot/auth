@@ -1,7 +1,9 @@
 /* --- PAGES --- */
 import { TokensPage } from './tokens.page';
-import { ViewTokenPage } from './view/view.page';
-import { GenerateTokenPage } from './generate/generate.page';
+import { TokensViewerPage } from './viewer/viewer.page';
+import { TokensGeneratePage } from './generate/generate.page';
+
+/* --- DIALOGS --- */
 import { TokensFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */
@@ -41,11 +43,11 @@ const routes: Routes = [
 	},
 	{
 		path: 'view',
-		component: ViewTokenPage
+		component: TokensViewerPage
 	},
 	{
 		path: 'generate',
-		component: GenerateTokenPage
+		component: TokensGeneratePage
 	}
 ];
 
@@ -82,10 +84,10 @@ const routes: Routes = [
 	],
 	declarations: [
 		TokensPage,
-		ViewTokenPage,
-		GenerateTokenPage,
+		TokensViewerPage,
+		TokensGeneratePage,
 		TokensFilterDialog
 	]
 })
 
-export class TokensModule { }
+export class TokensPageModule { }

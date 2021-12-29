@@ -1,19 +1,24 @@
-import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
-import { Feature } from 'src/app/classes/feature';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { Feature } from 'src/app/classes/feature';
+
+/* --- DIALOGS --- */
+import { FeaturesFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { FeaturesService } from 'src/app/services/features/features.service';
-import { MatTableDataSource } from '@angular/material/table';
-import { FeaturesFilterDialog } from './filter/filter.dialog';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'features-page',
@@ -23,7 +28,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class FeaturesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: FeaturesService) { }
 
@@ -50,10 +55,10 @@ export class FeaturesPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.features.data = response.result.map(feature => new Feature(feature));
+			this.features.data = response.result.map((o: Feature) => new Feature(o));
 		} else {
 			this.features.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
@@ -72,13 +77,13 @@ export class FeaturesPage implements OnInit, OnDestroy {
 			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public unfilter(key, value) {
-		this.filter[key] = this.filter[key].filter(o => o != value);
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
 		this.filters.update(this.filter);
 		this.list();
 	}
@@ -134,12 +139,12 @@ export class FeaturesPage implements OnInit, OnDestroy {
 											this.features.data.splice(i, 1);
 											this.toast.show('Feature was removed!');
 											break;
-										}
-									}
+										};
+									};
 									this.features.data = JSON.parse(JSON.stringify(this.features.data));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -161,59 +166,38 @@ export class FeaturesPage implements OnInit, OnDestroy {
 		return result;
 	}
 
-	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(FeaturesFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
 
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
+
+	ngOnInit(): void {
 		this.features.sort = this.sort;
 		this.features.sort.active = 'title';
 		this.features.sort.direction = 'asc';
 
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.router.navigate(['/features', 'editor'], {
-				queryParams: {
-					mode: 'add'
-				}
-			});
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				await this.list();
 				await this.load();
-			}
-		});
-
-		this.observers.search = this.buttons.search.value.subscribe(value => {
-			this.features.filter = value;
-		});
-
-		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-			const dialog = await this.dialog.open(FeaturesFilterDialog, {
-				data: this.filter,
-				panelClass: 'filter-dialog'
-			});
-
-			await dialog.afterClosed().subscribe(async result => {
-				if (result) {
-					Object.keys(result).map(key => {
-						this.filter[key] = result[key];
-					});
-					this.filters.update(this.filter);
-					this.list();
-				};
-			});
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.add.unsubscribe();
-		this.observers.loaded.unsubscribe();
-		this.observers.filter.unsubscribe();
-		this.observers.search.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

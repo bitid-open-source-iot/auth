@@ -46,4 +46,4 @@ const routes: Routes = [
 	]
 })
 
-export class SettingsModule { }
+export class SettingsPageModule { }

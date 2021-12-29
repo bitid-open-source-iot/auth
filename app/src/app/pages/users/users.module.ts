@@ -60,4 +60,4 @@ const routes: Routes = [
 	]
 })
 
-export class UsersModule { }
+export class UsersPageModule { }

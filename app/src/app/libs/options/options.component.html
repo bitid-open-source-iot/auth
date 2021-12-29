@@ -3,17 +3,13 @@
 </h1>
 
 <mat-list>
-    <mat-list-item lines="full" *ngFor="let option of options" [color]="option.color" [class.danger]="option.danger"
-        [class.disabled]="option.disabled" matRipple [matRippleDisabled]="option.disabled"
-        (click)="!option.disabled && submit(option)">
+    <mat-list-item lines="full" *ngFor="let option of options" [class.danger]="option.danger" [class.disabled]="option.disabled" matRipple [matRippleDisabled]="option.disabled" (click)="!option.disabled && submit(option)">
         <mat-icon slot="start">
             {{ option.icon }}
         </mat-icon>
 
-        <mat-label>
-            <h3>
-                {{ option.title }}
-            </h3>
-        </mat-label>
+        <h3>
+            {{ option.title }}
+        </h3>
     </mat-list-item>
 </mat-list>

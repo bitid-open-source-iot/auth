@@ -1,11 +1,13 @@
+import { Router, ActivatedRoute } from '@angular/router';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
 	selector: 'reset-password-page',
@@ -24,7 +26,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		confirm: new FormControl('', [Validators.required])
 	});
 	public app: any = {};
-	public appId: string;
+	public appId: string | undefined;
 	public errors: any = {
 		old: '',
 		new: '',
@@ -37,7 +39,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	private async load() {
 		this.loading = true;
 
-		const response = await this.apps.load({
+		const response = await this.apps.get({
 			filter: [
 				'url',
 				'icon',
@@ -53,7 +55,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 			this.app = response.result;
 		} else {
 			this.toast.show('Issue loading app!');
-		}
+		};
 	}
 
 	public async submit() {
@@ -62,7 +64,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		const response = await this.service.changepassword({
 			old: this.form.value.old,
 			new: this.form.value.new,
-			email: this.form.value.email
+			confirm: this.form.value.confirm
 		});
 
 		this.loading = false;
@@ -84,11 +86,11 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 					},
 					replaceUrl: true
 				});
-			}
+			};
 			this.toast.show('Password was changed!');
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 	}
 
 	ngOnInit(): void {
@@ -100,10 +102,10 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.email) != 'undefined') {
-					this.form.controls.email.setValue(params.email);
+					this.form.controls['email'].setValue(params.email);
 				}
 				if (typeof (params.password) != 'undefined') {
-					this.form.controls.old.setValue(params.password);
+					this.form.controls['old'].setValue(params.password);
 				}
 				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
@@ -117,8 +119,8 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
-		this.observers.form.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.form?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

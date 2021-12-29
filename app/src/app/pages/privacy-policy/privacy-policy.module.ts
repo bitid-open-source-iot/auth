@@ -7,7 +7,14 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { PrivacyPolicyRoutingModule } from './privacy-policy-routing.module';
+import { Routes, RouterModule } from '@angular/router';
+
+const routes: Routes = [
+	{
+		path: '',
+		component: PrivacyPolicyPage
+	}
+];
 
 @NgModule({
 	imports: [
@@ -15,11 +22,11 @@ import { PrivacyPolicyRoutingModule } from './privacy-policy-routing.module';
 		MatIconModule,
 		MatButtonModule,
 		MatToolbarModule,
-		PrivacyPolicyRoutingModule
+		RouterModule.forChild(routes)
 	],
 	declarations: [
 		PrivacyPolicyPage
 	]
 })
 
-export class PrivacyPolicyModule { }
+export class PrivacyPolicyPageModule { }

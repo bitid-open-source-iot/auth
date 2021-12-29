@@ -63,7 +63,7 @@ export class TokensService {
 
 interface GET_PARAMS {
 	filter?: string[];
-	tokenId: string;
+	tokenId?: string;
 }
 
 interface LIST_PARAMS {
@@ -75,46 +75,46 @@ interface LIST_PARAMS {
 }
 
 interface SHARE_PARAMS {
-	id: string;
-	role: 1 | 2 | 3 | 4;
-	type: string;
-	tokenId: string;
+	id?: string;
+	role?: 1 | 2 | 3 | 4;
+	type?: string;
+	tokenId?: string;
 }
 
 interface UPDATE_PARAMS {
-	tokenId: string;
+	tokenId?: string;
 	disabled?: boolean;
 }
 
 interface REVOKE_PARAMS {
-	tokenId: string;
+	tokenId?: string;
 }
 
 interface RETRIEVE_PARAMS {
-	tokenId: string;
+	tokenId?: string;
 }
 
 interface GENERATE_PARAMS {
-	appId: string;
-	expiry: Date;
-	description: string;
+	appId?: string;
+	expiry?: Date;
+	description?: string;
 }
 
 interface UNSUBSCRIBE_PARAMS {
-	id: string;
-	type: string;
-	tokenId: string;
+	id?: string;
+	type?: string;
+	tokenId?: string;
 }
 
 interface CHANGE_OWNER_PARAMS {
-	id: string;
-	type: string;
-	tokenId: string;
+	id?: string;
+	type?: string;
+	tokenId?: string;
 }
 
 interface UPDATE_SUBSCRIBER_PARAMS {
-	id: string;
-	role: 1 | 2 | 3 | 4;
-	type: string;
-	tokenId: string;
+	id?: string;
+	role?: 1 | 2 | 3 | 4;
+	type?: string;
+	tokenId?: string;
 }

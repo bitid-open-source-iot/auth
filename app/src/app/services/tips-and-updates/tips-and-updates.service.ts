@@ -43,14 +43,14 @@ export class TipsAndUpdatesService {
 
 
 interface ADD_PARAMS {
-	data: string;
-	appId: string;
-	title: string;
-	subtitle: string;
+	data?: string;
+	appId?: string;
+	title?: string;
+	subtitle?: string;
 }
 
 interface GET_PARAMS {
-	itemId: string;
+	itemId?: string;
 	filter?: string[];
 }
 
@@ -63,10 +63,10 @@ interface UPDATE_PARAMS {
 	data?: string;
 	appId?: string;
 	title?: string;
-	itemId: string;
+	itemId?: string;
 	subtitle?: string;
 }
 
 interface DELETE_PARAMS {
-	itemId: string;
+	itemId?: string;
 }

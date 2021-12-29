@@ -1,7 +1,9 @@
-import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+
+/* --- SERVICES --- */
+import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 
 @Component({
     selector: 'apps-filter-dialog',
@@ -12,7 +14,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class AppsFilterDialog implements OnInit, OnDestroy {
 
-    constructor(private dialog: MatDialogRef<AppsFilterDialog>, @Inject(MAT_DIALOG_DATA) public config, private formerror: FormErrorService) { }
+    constructor(private dialog: MatDialogRef<AppsFilterDialog>, @Inject(MAT_DIALOG_DATA) public config: any, private formerror: FormErrorService) { }
 
     public form: FormGroup = new FormGroup({
         private: new FormControl([])
@@ -27,7 +29,7 @@ export class AppsFilterDialog implements OnInit, OnDestroy {
         this.loading = true;
 
         if (typeof (this.config.private) != 'undefined' && this.config.private != null) {
-            this.form.controls.private.setValue(this.config.private);
+            this.form.controls['private'].setValue(this.config.private);
         };
 
         this.loading = false;
@@ -50,7 +52,7 @@ export class AppsFilterDialog implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        this.observers.form.unsubscribe();
+        this.observers.form?.unsubscribe();
     }
 
 }

@@ -1,19 +1,24 @@
-import { App } from 'src/app/classes/app';
-import { Scope } from 'src/app/classes/scope';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { Scope } from 'src/app/classes/scope';
+
+/* --- DIALOGS --- */
+import { ScopesFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ScopesService } from 'src/app/services/scopes/scopes.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
-import { MatTableDataSource } from '@angular/material/table';
-import { ScopesFilterDialog } from './filter/filter.dialog';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'scopes-page',
@@ -23,7 +28,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class ScopesPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private filters: FiltersService, private service: ScopesService) { }
 
@@ -52,10 +57,10 @@ export class ScopesPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.scopes.data = response.result.map(scope => new Scope(scope));
+			this.scopes.data = response.result.map((o: Scope) => new Scope(o));
 		} else {
 			this.scopes.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
@@ -74,13 +79,13 @@ export class ScopesPage implements OnInit, OnDestroy {
 			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public unfilter(key, value) {
-		this.filter[key] = this.filter[key].filter(o => o != value);
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
 		this.filters.update(this.filter);
 		this.list();
 	}
@@ -136,12 +141,12 @@ export class ScopesPage implements OnInit, OnDestroy {
 											this.scopes.data.splice(i, 1);
 											this.toast.show('Scope was removed!');
 											break;
-										}
-									}
+										};
+									};
 									this.scopes.data = JSON.parse(JSON.stringify(this.scopes.data));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -163,59 +168,38 @@ export class ScopesPage implements OnInit, OnDestroy {
 		return result;
 	}
 
-	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(ScopesFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
 
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
+
+	ngOnInit(): void {
 		this.scopes.sort = this.sort;
 		this.scopes.sort.active = 'url';
 		this.scopes.sort.direction = 'asc';
 
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.router.navigate(['/scopes', 'editor'], {
-				queryParams: {
-					mode: 'add'
-				}
-			});
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				await this.list();
 				await this.load();
-			}
-		});
-
-		this.observers.search = this.buttons.search.value.subscribe(value => {
-			this.scopes.filter = value;
-		});
-
-		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-			const dialog = await this.dialog.open(ScopesFilterDialog, {
-				data: this.filter,
-				panelClass: 'filter-dialog'
-			});
-
-			await dialog.afterClosed().subscribe(async result => {
-				if (result) {
-					Object.keys(result).map(key => {
-						this.filter[key] = result[key];
-					});
-					this.filters.update(this.filter);
-					this.list();
-				};
-			});
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.add.unsubscribe();
-		this.observers.loaded.unsubscribe();
-		this.observers.search.unsubscribe();
-		this.observers.filter.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

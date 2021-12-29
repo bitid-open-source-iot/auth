@@ -21,8 +21,7 @@
 
             <mat-select name="appId" formControlName="appId" multiple>
                 <mat-option>
-                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..."
-                        noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
 
                 <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value }"

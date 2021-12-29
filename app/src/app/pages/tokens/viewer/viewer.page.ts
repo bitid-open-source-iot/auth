@@ -10,18 +10,18 @@ import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 
 @Component({
-	selector: 'view-token-page',
-	styleUrls: ['./view.page.scss'],
-	templateUrl: './view.page.html'
+	selector: 'tokens-viewer-page',
+	styleUrls: ['./viewer.page.scss'],
+	templateUrl: './viewer.page.html'
 })
 
-export class ViewTokenPage implements OnInit, OnDestroy {
+export class TokensViewerPage implements OnInit, OnDestroy {
 
 	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, public service: TokensService) { }
 
 	public token: Token = new Token();
 	public loading: boolean = false;
-	public tokenId: string = '';
+	public tokenId: string | undefined;
 	private observers: any = {};
 
 	private async get() {

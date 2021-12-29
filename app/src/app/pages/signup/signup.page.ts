@@ -1,12 +1,16 @@
-import { environment } from 'src/environments/environment';
+import { Router, ActivatedRoute } from '@angular/router';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'signup-page',
@@ -20,18 +24,18 @@ export class SignUpPage implements OnInit, OnDestroy {
 
 	public form: FormGroup = new FormGroup({
 		name: new FormGroup({
-			last: new FormControl('', [Validators.required]),
-			first: new FormControl('', [Validators.required])
+			last: new FormControl(null, [Validators.required]),
+			first: new FormControl(null, [Validators.required])
 		}),
-		email: new FormControl('', [Validators.email, Validators.required]),
-		confirm: new FormControl('', [Validators.required]),
-		password: new FormControl('', [Validators.required]),
+		email: new FormControl(null, [Validators.email, Validators.required]),
+		confirm: new FormControl(null, [Validators.required]),
+		password: new FormControl(null, [Validators.required]),
 		privacyPolicy: new FormControl(false, [Validators.required]),
 		newsAndChanges: new FormControl(true, [Validators.required]),
 		termsAndConditions: new FormControl(false, [Validators.required])
 	});
 	public app: any = {};
-	public appId: string;
+	public appId: string | undefined;
 	public errors: any = {
 		name: {
 			last: '',
@@ -50,7 +54,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 	private async load() {
 		this.loading = true;
 
-		const response = await this.apps.load({
+		const response = await this.apps.get({
 			filter: [
 				'icon',
 				'name',
@@ -65,7 +69,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 			this.app = response.result;
 		} else {
 			this.toast.show('Issue loading app!');
-		}
+		};
 	}
 
 	public async submit() {
@@ -99,7 +103,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 			});
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
@@ -115,7 +119,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.appId) != 'undefined' && params.appId != null) {
@@ -123,14 +127,14 @@ export class SignUpPage implements OnInit, OnDestroy {
 					this.load();
 				} else {
 					this.app.icon = environment.icon;
-				}
-			}
+				};
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.form.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.form?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

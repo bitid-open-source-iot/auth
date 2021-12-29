@@ -19,11 +19,11 @@
             </mat-label>
 
             <mat-select name="appId" placeholder="appId" formControlName="appId" required multiple>
-                <mat-option [formGroup]="filter">
-                    <ngx-mat-select-search placeholderLabel="filter apps" noEntriesFoundLabel="no app found"
-                        formControlName="app"></ngx-mat-select-search>
+                <mat-option>
+                    <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
-                <mat-option *ngFor="let app of apps.data | filterBy : {'name': filter.value.app}" [value]="app.appId">
+
+                <mat-option *ngFor="let app of apps.data | orderBy : 'name' | filterBy : { name: filter.value }" [value]="app.appId">
                     {{ app.name }}
                 </mat-option>
             </mat-select>

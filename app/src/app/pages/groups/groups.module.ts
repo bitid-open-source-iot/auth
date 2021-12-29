@@ -1,11 +1,12 @@
 /* --- PAGES --- */
 import { GroupsPage } from './groups.page';
-import { GroupsEditorpage } from './editor/editor.page';
+import { GroupsEditorPage } from './editor/editor.page';
+
+/* --- DIALOGS --- */
 import { GroupsFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
-import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
 import { MatFileModule } from 'src/app/libs/mat-file/mat-file.module';
 import { MatSortModule } from '@angular/material/sort';
@@ -40,7 +41,7 @@ const routes: Routes = [
 	},
 	{
 		path: 'editor',
-		component: GroupsEditorpage
+		component: GroupsEditorPage
 	}
 ];
 
@@ -48,7 +49,6 @@ const routes: Routes = [
 	imports: [
 		FormsModule,
 		CommonModule,
-		UploadModule,
 		MatSortModule,
 		OptionsModule,
 		MatTabsModule,
@@ -77,9 +77,9 @@ const routes: Routes = [
 	],
 	declarations: [
 		GroupsPage,
-		GroupsEditorpage,
+		GroupsEditorPage,
 		GroupsFilterDialog
 	]
 })
 
-export class GroupsModule { }
+export class GroupsPageModule { }

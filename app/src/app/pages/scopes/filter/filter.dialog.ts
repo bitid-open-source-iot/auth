@@ -1,9 +1,13 @@
-import { App } from 'src/app/classes/app';
-import { AppsService } from 'src/app/services/apps/apps.service';
-import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+
+/* --- SERVICES --- */
+import { AppsService } from 'src/app/services/apps/apps.service';
+import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 
 @Component({
     selector: 'scopes-filter-dialog',
@@ -14,7 +18,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class ScopesFilterDialog implements OnInit, OnDestroy {
 
-    constructor(public apps: AppsService, private dialog: MatDialogRef<ScopesFilterDialog>, @Inject(MAT_DIALOG_DATA) public config, private formerror: FormErrorService) { }
+    constructor(public apps: AppsService, private dialog: MatDialogRef<ScopesFilterDialog>, @Inject(MAT_DIALOG_DATA) public config: any, private formerror: FormErrorService) { }
 
     public form: FormGroup = new FormGroup({
         appId: new FormControl([])
@@ -22,9 +26,6 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
     public errors: any = {
         appId: ''
     };
-    public filter: FormGroup = new FormGroup({
-        app: new FormControl('')
-    });
     public loading: boolean = false;
     private observers: any = {}
 
@@ -42,10 +43,10 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
             this.apps.data = apps.result.map((o: App) => new App(o));
         } else {
             this.apps.data = [];
-        }
+        };
 
         if (typeof (this.config.appId) != 'undefined' && this.config.appId != null) {
-            this.form.controls.appId.setValue(this.config.appId);
+            this.form.controls['appId'].setValue(this.config.appId);
         };
 
         this.loading = false;

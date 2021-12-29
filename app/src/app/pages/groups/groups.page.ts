@@ -1,20 +1,25 @@
-import { App } from 'src/app/classes/app';
-import { Group } from 'src/app/classes/group';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { Group } from 'src/app/classes/group';
+
+/* --- DIALOGS --- */
+import { GroupsFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { GroupsService } from 'src/app/services/groups/groups.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
-import { ButtonsService } from 'src/app/services/buttons/buttons.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
-import { GroupsFilterDialog } from './filter/filter.dialog';
-import { MatTableDataSource } from '@angular/material/table';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
 	selector: 'groups-page',
@@ -24,7 +29,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 
 export class GroupsPage implements OnInit, OnDestroy {
 
-	@ViewChild(MatSort, { static: true }) private sort: MatSort;
+	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
 
 	constructor(public apps: AppsService, private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private confirm: ConfirmService, private service: GroupsService, private localstorage: LocalStorageService) { }
 
@@ -50,10 +55,10 @@ export class GroupsPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.groups.data = response.result.map(o => new Group(o));
+			this.groups.data = response.result.map((o: Group) => new Group(o));
 		} else {
 			this.groups.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
@@ -72,13 +77,13 @@ export class GroupsPage implements OnInit, OnDestroy {
 			this.apps.data = apps.result.map((o: App) => new App(o));
 		} else {
 			this.apps.data = [];
-		}
+		};
 
 		this.loading = false;
 	}
 
-	public unfilter(key, value) {
-		this.filter[key] = this.filter[key].filter(o => o != value);
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
 		this.filters.update(this.filter);
 		this.list();
 	}
@@ -148,12 +153,12 @@ export class GroupsPage implements OnInit, OnDestroy {
 											this.groups.data.splice(i, 1);
 											this.toast.show('You were unsubscribed!');
 											break;
-										}
-									}
-									this.groups.data = JSON.parse(JSON.stringify(this.groups.data));
+										};
+									};
+									this.groups.data = this.groups.data.map((o: Group) => new Group(o));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -181,12 +186,12 @@ export class GroupsPage implements OnInit, OnDestroy {
 											this.groups.data.splice(i, 1);
 											this.toast.show('Group was removed!');
 											break;
-										}
-									}
-									this.groups.data = JSON.parse(JSON.stringify(this.groups.data));
+										};
+									};
+									this.groups.data = this.groups.data.map((o: Group) => new Group(o));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -208,59 +213,38 @@ export class GroupsPage implements OnInit, OnDestroy {
 		return result;
 	}
 
-	ngOnInit(): void {
-		this.buttons.show('add');
-		this.buttons.hide('close');
-		this.buttons.show('filter');
-		this.buttons.show('search');
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(GroupsFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
 
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
+	}
+
+	ngOnInit(): void {
 		this.groups.sort = this.sort;
 		this.groups.sort.active = 'name';
 		this.groups.sort.direction = 'asc';
 
-		this.observers.add = this.buttons.add.click.subscribe(event => {
-			this.router.navigate(['/groups', 'editor'], {
-				queryParams: {
-					mode: 'add'
-				}
-			});
-		});
-
-		this.observers.loaded = this.config.loaded.subscribe(async loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				await this.load();
 				await this.list();
 			};
 		});
-
-		this.observers.search = this.buttons.search.value.subscribe(value => {
-			this.groups.filter = value;
-		});
-
-		this.observers.filter = this.buttons.filter.click.subscribe(async event => {
-			const dialog = await this.dialog.open(GroupsFilterDialog, {
-				data: this.filter,
-				panelClass: 'filter-dialog'
-			});
-
-			await dialog.afterClosed().subscribe(async result => {
-				if (result) {
-					Object.keys(result).map(key => {
-						this.filter[key] = result[key];
-					});
-					this.filters.update(this.filter);
-					this.list();
-				};
-			});
-		});
 	}
 
 	ngOnDestroy(): void {
-		this.buttons.reset('search');
-		this.observers.add.unsubscribe();
-		this.observers.loaded.unsubscribe();
-		this.observers.search.unsubscribe();
-		this.observers.filter.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

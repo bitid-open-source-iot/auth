@@ -78,4 +78,4 @@ const routes: Routes = [
 	]
 })
 
-export class ScopesModule { }
+export class ScopesPageModule { }

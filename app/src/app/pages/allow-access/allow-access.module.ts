@@ -14,7 +14,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
-import { BackButtonModule } from 'src/app/libs/back-button/back-button.module';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { Routes, RouterModule } from '@angular/router';
@@ -39,7 +38,6 @@ const routes: Routes = [
 		MatSelectModule,
 		MatToolbarModule,
 		MatContentModule,
-		BackButtonModule,
 		MatToolbarModule,
 		MatCheckboxModule,
 		MatFormFieldModule,
@@ -53,4 +51,4 @@ const routes: Routes = [
 	]
 })
 
-export class AllowAccessModule { }
+export class AllowAccessPageModule { }

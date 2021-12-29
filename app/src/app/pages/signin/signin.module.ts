@@ -50,4 +50,4 @@ const routes: Routes = [
 	]
 })
 
-export class SignInModule { }
+export class SignInPageModule { }

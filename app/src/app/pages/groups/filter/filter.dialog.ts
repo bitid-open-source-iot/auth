@@ -14,7 +14,7 @@ import { OnInit, Inject, Component, OnDestroy, ViewEncapsulation } from '@angula
 
 export class GroupsFilterDialog implements OnInit, OnDestroy {
 
-    constructor(public apps: AppsService, private dialog: MatDialogRef<GroupsFilterDialog>, @Inject(MAT_DIALOG_DATA) public config, private formerror: FormErrorService) { }
+    constructor(public apps: AppsService, private dialog: MatDialogRef<GroupsFilterDialog>, @Inject(MAT_DIALOG_DATA) public config: any, private formerror: FormErrorService) { }
 
     public form: FormGroup = new FormGroup({
         appId: new FormControl([])
@@ -45,7 +45,7 @@ export class GroupsFilterDialog implements OnInit, OnDestroy {
         }
 
         if (typeof (this.config.appId) != 'undefined' && this.config.appId != null) {
-            this.form.controls.appId.setValue(this.config.appId);
+            this.form.controls['appId'].setValue(this.config.appId);
         };
 
         this.loading = false;

@@ -52,4 +52,4 @@ const routes: Routes = [
 	]
 })
 
-export class SignUpModule { }
+export class SignUpPageModule { }

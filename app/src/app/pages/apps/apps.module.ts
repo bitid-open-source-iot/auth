@@ -5,7 +5,6 @@ import { AppsFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
-import { UploadModule } from 'src/app/libs/upload/upload.module';
 import { CommonModule } from '@angular/common';
 import { MatFileModule } from 'src/app/libs/mat-file/mat-file.module';
 import { MatSortModule } from '@angular/material/sort';
@@ -47,7 +46,6 @@ const routes: Routes = [
 	imports: [
 		FormsModule,
 		CommonModule,
-		UploadModule,
 		MatSortModule,
 		OptionsModule,
 		MatTabsModule,
@@ -80,4 +78,4 @@ const routes: Routes = [
 	]
 })
 
-export class AppsModule { }
+export class AppsPageModule { }

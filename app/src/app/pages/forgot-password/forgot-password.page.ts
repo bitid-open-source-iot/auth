@@ -22,7 +22,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.email, Validators.required])
 	});
-	public appId: string;
+	public appId: string | undefined;
 	public errors: any = {
 		email: ''
 	};
@@ -32,7 +32,7 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 	private async load() {
 		this.loading = true;
 
-		const response = await this.apps.load({
+		const response = await this.apps.get({
 			filter: [
 				'url',
 				'icon',
@@ -47,10 +47,10 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 			this.app = response.result;
 			if (!this.form.invalid) {
 				this.submit();
-			}
+			};
 		} else {
 			this.toast.show('Issue loading app!');
-		}
+		};
 	}
 
 	public async submit() {
@@ -78,10 +78,10 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 					},
 					replaceUrl: true
 				});
-			}
+			};
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
@@ -95,27 +95,27 @@ export class ForgotPasswordPage implements OnInit, OnDestroy {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.code) != 'undefined' && params.code != null) {
-					this.form.controls.code.setValue(params.code);
-				}
+					this.form.controls['code'].setValue(params.code);
+				};
 				if (typeof (params.email) != 'undefined' && params.email != null) {
-					this.form.controls.email.setValue(params.email);
-				}
+					this.form.controls['email'].setValue(params.email);
+				};
 				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
 				} else {
 					this.app.icon = environment.icon;
-				}
+				};
 				if (!this.form.invalid) {
 					this.submit();
-				}
-			}
+				};
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.form.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.form?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

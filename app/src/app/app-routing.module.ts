@@ -6,84 +6,84 @@ const routes: Routes = [
 	{
 		path: 'apps',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/apps/apps.module').then(m => m.AppsModule)
+		loadChildren: () => import('./pages/apps/apps.module').then(m => m.AppsPageModule)
 	},
 	{
 		path: 'users',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/users/users.module').then(m => m.UsersModule)
+		loadChildren: () => import('./pages/users/users.module').then(m => m.UsersPageModule)
 	},
 	{
 		path: 'signin',
-		loadChildren: () => import('./pages/signin/signin.module').then(m => m.SignInModule)
+		loadChildren: () => import('./pages/signin/signin.module').then(m => m.SignInPageModule)
 	},
 	{
 		path: 'signup',
-		loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignUpModule)
+		loadChildren: () => import('./pages/signup/signup.module').then(m => m.SignUpPageModule)
 	},
 	{
 		path: 'groups',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/groups/groups.module').then(m => m.GroupsModule)
+		loadChildren: () => import('./pages/groups/groups.module').then(m => m.GroupsPageModule)
 	},
 	{
 		path: 'scopes',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/scopes/scopes.module').then(m => m.ScopesModule)
+		loadChildren: () => import('./pages/scopes/scopes.module').then(m => m.ScopesPageModule)
 	},
 	{
 		path: 'tokens',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/tokens/tokens.module').then(m => m.TokensModule)
+		loadChildren: () => import('./pages/tokens/tokens.module').then(m => m.TokensPageModule)
 	},
 	{
 		path: 'account',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/account/account.module').then(m => m.AccountModule)
+		loadChildren: () => import('./pages/account/account.module').then(m => m.AccountPageModule)
 	},
 	{
 		path: 'settings',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/settings/settings.module').then(m => m.SettingsModule)
+		loadChildren: () => import('./pages/settings/settings.module').then(m => m.SettingsPageModule)
 	},
 	{
 		path: 'features',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/features/features.module').then(m => m.FeaturesModule)
+		loadChildren: () => import('./pages/features/features.module').then(m => m.FeaturesPageModule)
 	},
 	{
 		path: 'subscribers',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/subscribers/subscribers.module').then(m => m.SubscribersModule)
+		loadChildren: () => import('./pages/subscribers/subscribers.module').then(m => m.SubscribersPageModule)
 	},
 	{
 		path: 'allow-access',
-		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessModule)
+		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessPageModule)
 	},
 	{
 		path: 'forgot-password',
-		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordModule)
+		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule)
 	},
 	{
 		path: 'privacy-policy',
-		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyModule)
+		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule)
 	},
 	{
 		path: 'reset-password',
-		loadChildren: () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordModule)
+		loadChildren: () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordPageModule)
 	},
 	{
 		path: 'verify-account',
-		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountModule)
+		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountPageModule)
 	},
 	{
 		path: 'tips-and-updates',
 		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/tips-and-updates/tips-and-updates.module').then(m => m.TipsAndUpdatesModule)
+		loadChildren: () => import('./pages/tips-and-updates/tips-and-updates.module').then(m => m.TipsAndUpdatesPageModule)
 	},
 	{
 		path: 'terms-and-conditions',
-		loadChildren: () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsModule)
+		loadChildren: () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsPageModule)
 	},
 	{
 		path: '**',

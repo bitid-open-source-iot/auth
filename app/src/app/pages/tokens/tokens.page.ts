@@ -38,7 +38,7 @@ export class TokensPage implements OnInit, OnDestroy {
 		appId: []
 	});
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
-	public tokenId: string = '';
+	public tokenId: string | undefined;
 	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'disabled', 'options'];
 	public loading: boolean = false;
 	private observers: any = {};

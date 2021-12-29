@@ -135,10 +135,10 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 											break;
 										}
 									}
-									this.table.data = this.table.data.map(o => new TipUpdate(o));
+									this.table.data = this.table.data.map((o: TipUpdate) => new TipUpdate(o));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}

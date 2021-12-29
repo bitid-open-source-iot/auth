@@ -24,15 +24,15 @@ export class OptionsService {
 }
 
 interface CONFIG {
-	'role': number;
-	'title': string;
-	'options': OPTION[];
+	role?: number;
+	title?: string;
+	options?: OPTION[];
 }
 
 interface OPTION {
-	'icon'?: string;
-	'title'?: string;
-	'danger'?: boolean;
-	'handler'?: Function;
-	'disabled': number[];
+	icon?: string;
+	title?: string;
+	danger?: boolean;
+	handler?: Function;
+	disabled?: number[];
 }

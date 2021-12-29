@@ -103,7 +103,7 @@ export class TipsAndUpdatesEditorPage implements OnInit, OnDestroy {
 			delete this.itemId;
 		};
 
-		const response = await (this.service as any)[mode]({
+		const response = await (this.service as any)[mode as any]({
 			data: this.form.value.data,
 			appId: this.form.value.appId,
 			title: this.form.value.title,
