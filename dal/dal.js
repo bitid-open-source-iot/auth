@@ -196,6 +196,10 @@ var module = function () {
 							{
 								'_id': ObjectId(args.req.body.appId),
 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(args.req.body.appId),
+								'bitid.auth.private': false
 							}
 						]
 					}
@@ -505,6 +509,20 @@ var module = function () {
 				}
 			];
 
+			if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
+				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
+					params[2].$match.$or.push({
+						private: {
+							$in: args.req.body.private
+						}
+					});
+				} else if (typeof (args.req.body.private) == 'boolean') {
+					params[2].$match.$or.push({
+						private: args.req.body.private
+					});
+				};
+			};
+
 			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
 				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
 					params[2].$match.$or.map(param => {
@@ -516,16 +534,6 @@ var module = function () {
 					params[2].$match.$or.map(param => {
 						param._id = ObjectId(args.req.body.appId);
 					});
-				};
-			};
-
-			if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
-				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
-					params.private = {
-						$in: args.req.body.private
-					};
-				} else if (typeof (args.req.body.private) == 'boolean') {
-					params.private = args.req.body.private;
 				};
 			};
 
@@ -2496,16 +2504,21 @@ var module = function () {
 		verify: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.body.code) != 'undefined') {
-				args.req.body.code = parseInt(args.req.body.code);
+			var params = {
+				'email': format.email(args.req.body.email)
 			};
 
-			var params = {
-				'email': format.email(args.req.body.header.email)
+			var filter = {
+				'_id': 1,
+				'name': 1,
+				'email': 1,
+				'validated': 1
 			};
 
 			db.call({
+				'limit': 1,
 				'params': params,
+				'filter': filter,
 				'operation': 'find',
 				'collection': 'tblUsers',
 				'allowNoRecordsFound': true
@@ -2514,18 +2527,22 @@ var module = function () {
 					var deferred = Q.defer();
 
 					if (result.length > 0) {
-						var user = result[0];
+						args.user = result[0];
 
-						if (user.validated == 1) {
+						if (args.user.validated == 1) {
 							var err = new ErrorResponse();
 							err.error.errors[0].code = 409;
 							err.error.errors[0].reason = 'User is already verified';
 							err.error.errors[0].message = 'User is already verified';
 							deferred.reject(err);
 						} else {
+							if (typeof (args.req.body.code) != 'undefined' && args.req.body.code != null) {
+								args.req.body.code = parseInt(args.req.body.code);
+							};
+
 							var params = {
 								'code': args.req.body.code,
-								'email': format.email(args.req.body.header.email),
+								'email': format.email(args.req.body.email),
 								'validated': 0
 							};
 
@@ -2552,7 +2569,7 @@ var module = function () {
 
 					if (result.length > 0) {
 						var params = {
-							'email': format.email(args.req.body.header.email)
+							'email': format.email(args.req.body.email)
 						};
 
 						var update = {
@@ -2841,176 +2858,212 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'name': {
-					'last': '',
-					'first': '',
-					'middle': ''
-				},
-				'number': {
-					'tel': '',
-					'mobile': ''
-				},
-				'address': {
-					'billing': {
-						'company': {
-							'vat': '',
-							'reg': ''
-						},
-						'street': '',
-						'suburb': '',
-						'country': '',
-						'cityTown': '',
-						'additional': '',
-						'postalCode': ''
-					},
-					'physical': {
-						'company': {
-							'vat': '',
-							'reg': ''
-						},
-						'street': '',
-						'suburb': '',
-						'country': '',
-						'cityTown': '',
-						'additional': '',
-						'postalCode': ''
-					},
-					'same': false
-				},
-				'identification': {
-					'type': '',
-					'number': ''
-				},
-				'code': Math.floor(Math.random() * 900000 + 100000),
-				'salt': args.req.body.salt,
-				'hash': args.req.body.hash,
-				'email': format.email(args.req.body.header.email),
-				'picture': '',
-				'language': '',
-				'timezone': 0,
-				'username': '',
-				'validated': 0,
-				'serverDate': new Date(),
-				'privacyPolicy': false,
-				'newsAndChanges': false,
-				'termsAndConditions': false
+				'email': format.email(args.req.body.email)
 			};
 
-			if (typeof (args.req.body.picture) != 'undefined') {
-				params.picture = args.req.body.picture;
-			};
-			if (typeof (args.req.body.language) != 'undefined') {
-				params.language = args.req.body.language;
-			};
-			if (typeof (args.req.body.timezone) != 'undefined') {
-				params.timezone = args.req.body.timezone;
-			};
-			if (typeof (args.req.body.username) != 'undefined') {
-				params.username = args.req.body.username;
-			};
-			if (typeof (args.req.body.name) != 'undefined') {
-				if (typeof (args.req.body.name.last) != 'undefined') {
-					params.name.last = args.req.body.name.last;
-				};
-				if (typeof (args.req.body.name.first) != 'undefined') {
-					params.name.first = args.req.body.name.first;
-				};
-				if (typeof (args.req.body.name.middle) != 'undefined') {
-					params.name.middle = args.req.body.name.middle;
-				};
-			};
-			if (typeof (args.req.body.number) != 'undefined') {
-				if (typeof (args.req.body.number.tel) != 'undefined') {
-					params.number.tel = args.req.body.number.tel;
-				};
-				if (typeof (args.req.body.number.mobile) != 'undefined') {
-					params.number.mobile = args.req.body.number.mobile;
-				};
-			};
-			if (typeof (args.req.body.address) != 'undefined') {
-				if (typeof (args.req.body.address.billing) != 'undefined') {
-					if (typeof (args.req.body.address.billing.company) != 'undefined') {
-						if (typeof (args.req.body.address.billing.company.vat) != 'undefined') {
-							params.address.billing.company.vat = args.req.body.address.billing.company.vat;
-						};
-						if (typeof (args.req.body.address.billing.company.reg) != 'undefined') {
-							params.address.billing.company.reg = args.req.body.address.billing.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.billing.street) != 'undefined') {
-						params.address.billing.street = args.req.body.address.billing.street;
-					};
-					if (typeof (args.req.body.address.billing.suburb) != 'undefined') {
-						params.address.billing.suburb = args.req.body.address.billing.suburb;
-					};
-					if (typeof (args.req.body.address.billing.country) != 'undefined') {
-						params.address.billing.country = args.req.body.address.billing.country;
-					};
-					if (typeof (args.req.body.address.billing.cityTown) != 'undefined') {
-						params.address.billing.cityTown = args.req.body.address.billing.cityTown;
-					};
-					if (typeof (args.req.body.address.billing.additional) != 'undefined') {
-						params.address.billing.additional = args.req.body.address.billing.additional;
-					};
-					if (typeof (args.req.body.address.billing.postalCode) != 'undefined') {
-						params.address.billing.postalCode = args.req.body.address.billing.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.physical) != 'undefined') {
-					if (typeof (args.req.body.address.physical.company) != 'undefined') {
-						if (typeof (args.req.body.address.physical.company.vat) != 'undefined') {
-							params.address.physical.company.vat = args.req.body.address.physical.company.vat;
-						};
-						if (typeof (args.req.body.address.physical.company.reg) != 'undefined') {
-							params.address.physical.company.reg = args.req.body.address.physical.company.reg;
-						};
-					};
-					if (typeof (args.req.body.address.physical.street) != 'undefined') {
-						params.address.physical.street = args.req.body.address.physical.street;
-					};
-					if (typeof (args.req.body.address.physical.suburb) != 'undefined') {
-						params.address.physical.suburb = args.req.body.address.physical.suburb;
-					};
-					if (typeof (args.req.body.address.physical.country) != 'undefined') {
-						params.address.physical.country = args.req.body.address.physical.country;
-					};
-					if (typeof (args.req.body.address.physical.cityTown) != 'undefined') {
-						params.address.physical.cityTown = args.req.body.address.physical.cityTown;
-					};
-					if (typeof (args.req.body.address.physical.additional) != 'undefined') {
-						params.address.physical.additional = args.req.body.address.physical.additional;
-					};
-					if (typeof (args.req.body.address.physical.postalCode) != 'undefined') {
-						params.address.physical.postalCode = args.req.body.address.physical.postalCode;
-					};
-				};
-				if (typeof (args.req.body.address.same) != 'undefined') {
-					params.address.same = args.req.body.address.same;
-				};
-			};
-			if (typeof (args.req.body.identification) != 'undefined') {
-				if (typeof (args.req.body.identification.type) != 'undefined') {
-					params.identification.type = args.req.body.identification.type;
-				};
-				if (typeof (args.req.body.identification.number) != 'undefined') {
-					params.identification.number = args.req.body.identification.number;
-				};
-			};
-			if (typeof (args.req.body.privacyPolicy) != 'undefined') {
-				params.privacyPolicy = args.req.body.privacyPolicy;
-			};
-			if (typeof (args.req.body.newsAndChanges) != 'undefined') {
-				params.newsAndChanges = args.req.body.newsAndChanges;
-			};
-			if (typeof (args.req.body.termsAndConditions) != 'undefined') {
-				params.termsAndConditions = args.req.body.termsAndConditions;
+			var filter = {
+				'_id': 1,
+				'validated': 1
 			};
 
 			db.call({
+				'limit': 1,
 				'params': params,
-				'operation': 'insert',
-				'collection': 'tblUsers'
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblUsers',
+				'allowNoRecordsFound': true
 			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.length == 0) {
+						var params = {
+							'name': {
+								'last': '',
+								'first': '',
+								'middle': ''
+							},
+							'number': {
+								'tel': '',
+								'mobile': ''
+							},
+							'address': {
+								'billing': {
+									'company': {
+										'vat': '',
+										'reg': ''
+									},
+									'street': '',
+									'suburb': '',
+									'country': '',
+									'cityTown': '',
+									'additional': '',
+									'postalCode': ''
+								},
+								'physical': {
+									'company': {
+										'vat': '',
+										'reg': ''
+									},
+									'street': '',
+									'suburb': '',
+									'country': '',
+									'cityTown': '',
+									'additional': '',
+									'postalCode': ''
+								},
+								'same': false
+							},
+							'identification': {
+								'type': '',
+								'number': ''
+							},
+							'code': Math.floor(Math.random() * 900000 + 100000),
+							'salt': args.req.body.salt,
+							'hash': args.req.body.hash,
+							'email': format.email(args.req.body.email),
+							'picture': '',
+							'language': '',
+							'timezone': 0,
+							'username': '',
+							'validated': 0,
+							'serverDate': new Date(),
+							'privacyPolicy': false,
+							'newsAndChanges': false,
+							'termsAndConditions': false
+						};
+
+						if (typeof (args.req.body.picture) != 'undefined') {
+							params.picture = args.req.body.picture;
+						};
+						if (typeof (args.req.body.language) != 'undefined') {
+							params.language = args.req.body.language;
+						};
+						if (typeof (args.req.body.timezone) != 'undefined') {
+							params.timezone = args.req.body.timezone;
+						};
+						if (typeof (args.req.body.username) != 'undefined') {
+							params.username = args.req.body.username;
+						};
+						if (typeof (args.req.body.name) != 'undefined') {
+							if (typeof (args.req.body.name.last) != 'undefined') {
+								params.name.last = args.req.body.name.last;
+							};
+							if (typeof (args.req.body.name.first) != 'undefined') {
+								params.name.first = args.req.body.name.first;
+							};
+							if (typeof (args.req.body.name.middle) != 'undefined') {
+								params.name.middle = args.req.body.name.middle;
+							};
+						};
+						if (typeof (args.req.body.number) != 'undefined') {
+							if (typeof (args.req.body.number.tel) != 'undefined') {
+								params.number.tel = args.req.body.number.tel;
+							};
+							if (typeof (args.req.body.number.mobile) != 'undefined') {
+								params.number.mobile = args.req.body.number.mobile;
+							};
+						};
+						if (typeof (args.req.body.address) != 'undefined') {
+							if (typeof (args.req.body.address.billing) != 'undefined') {
+								if (typeof (args.req.body.address.billing.company) != 'undefined') {
+									if (typeof (args.req.body.address.billing.company.vat) != 'undefined') {
+										params.address.billing.company.vat = args.req.body.address.billing.company.vat;
+									};
+									if (typeof (args.req.body.address.billing.company.reg) != 'undefined') {
+										params.address.billing.company.reg = args.req.body.address.billing.company.reg;
+									};
+								};
+								if (typeof (args.req.body.address.billing.street) != 'undefined') {
+									params.address.billing.street = args.req.body.address.billing.street;
+								};
+								if (typeof (args.req.body.address.billing.suburb) != 'undefined') {
+									params.address.billing.suburb = args.req.body.address.billing.suburb;
+								};
+								if (typeof (args.req.body.address.billing.country) != 'undefined') {
+									params.address.billing.country = args.req.body.address.billing.country;
+								};
+								if (typeof (args.req.body.address.billing.cityTown) != 'undefined') {
+									params.address.billing.cityTown = args.req.body.address.billing.cityTown;
+								};
+								if (typeof (args.req.body.address.billing.additional) != 'undefined') {
+									params.address.billing.additional = args.req.body.address.billing.additional;
+								};
+								if (typeof (args.req.body.address.billing.postalCode) != 'undefined') {
+									params.address.billing.postalCode = args.req.body.address.billing.postalCode;
+								};
+							};
+							if (typeof (args.req.body.address.physical) != 'undefined') {
+								if (typeof (args.req.body.address.physical.company) != 'undefined') {
+									if (typeof (args.req.body.address.physical.company.vat) != 'undefined') {
+										params.address.physical.company.vat = args.req.body.address.physical.company.vat;
+									};
+									if (typeof (args.req.body.address.physical.company.reg) != 'undefined') {
+										params.address.physical.company.reg = args.req.body.address.physical.company.reg;
+									};
+								};
+								if (typeof (args.req.body.address.physical.street) != 'undefined') {
+									params.address.physical.street = args.req.body.address.physical.street;
+								};
+								if (typeof (args.req.body.address.physical.suburb) != 'undefined') {
+									params.address.physical.suburb = args.req.body.address.physical.suburb;
+								};
+								if (typeof (args.req.body.address.physical.country) != 'undefined') {
+									params.address.physical.country = args.req.body.address.physical.country;
+								};
+								if (typeof (args.req.body.address.physical.cityTown) != 'undefined') {
+									params.address.physical.cityTown = args.req.body.address.physical.cityTown;
+								};
+								if (typeof (args.req.body.address.physical.additional) != 'undefined') {
+									params.address.physical.additional = args.req.body.address.physical.additional;
+								};
+								if (typeof (args.req.body.address.physical.postalCode) != 'undefined') {
+									params.address.physical.postalCode = args.req.body.address.physical.postalCode;
+								};
+							};
+							if (typeof (args.req.body.address.same) != 'undefined') {
+								params.address.same = args.req.body.address.same;
+							};
+						};
+						if (typeof (args.req.body.identification) != 'undefined') {
+							if (typeof (args.req.body.identification.type) != 'undefined') {
+								params.identification.type = args.req.body.identification.type;
+							};
+							if (typeof (args.req.body.identification.number) != 'undefined') {
+								params.identification.number = args.req.body.identification.number;
+							};
+						};
+						if (typeof (args.req.body.privacyPolicy) != 'undefined') {
+							params.privacyPolicy = args.req.body.privacyPolicy;
+						};
+						if (typeof (args.req.body.newsAndChanges) != 'undefined') {
+							params.newsAndChanges = args.req.body.newsAndChanges;
+						};
+						if (typeof (args.req.body.termsAndConditions) != 'undefined') {
+							params.termsAndConditions = args.req.body.termsAndConditions;
+						};
+
+						deferred.resolve({
+							'params': params,
+							'operation': 'insert',
+							'collection': 'tblUsers'
+						});
+					} else if (result[0].validated == 0) {
+						deferred.reject({
+							code: 72,
+							message: 'Account has been created but is awaiting email verification!'
+						});
+					} else {
+						deferred.reject({
+							code: 70,
+							message: 'This account already exists!'
+						});
+					};
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.user = result[0];
 					args.result = result[0];
@@ -3267,7 +3320,14 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var params = {
-				'email': format.email(args.req.body.header.email)
+				'email': format.email(args.req.body.email)
+			};
+
+			var filter = {
+				'_id': 1,
+				'salt': 1,
+				'hash': 1,
+				'validated': 1
 			};
 
 			if (typeof (args.req.body.expiry) == 'undefined') {
@@ -3279,7 +3339,9 @@ var module = function () {
 			};
 
 			db.call({
+				'limit': 1,
 				'params': params,
+				'filter': filter,
 				'operation': 'find',
 				'collection': 'tblUsers',
 				'allowNoRecordsFound': true
@@ -3343,8 +3405,8 @@ var module = function () {
 
 						var valid = true;
 
-						const users = args.app.bitid.auth.users.map(user => user.email);
-						if (args.app.private && !users.includes(args.req.body.header.email)) {
+						const users = args.app.bitid.auth.users.map(user => user.id.toString());
+						if (args.app.private && !users.includes(args.user).toString()) {
 							valid = false;
 						};
 
@@ -3425,8 +3487,88 @@ var module = function () {
 				.then(db.call)
 				.then(result => {
 					args.result = result[0];
+					args.result.userId = args.user._id;
 					deferred.resolve(args);
 				}, err => {
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		resetpassword: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'email': format.email(args.req.body.email)
+			};
+
+			var filter = {
+				'_id': 1,
+				'name': 1,
+				'email': 1,
+				'validated': 1
+			};
+
+			db.call({
+				'limit': 1,
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblUsers',
+				'allowNoRecordsFound': true
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.length > 0) {
+						args.user = result[0];
+
+						if (args.user.validated == 0) {
+							deferred.reject({
+								code: 409,
+								message: 'User is already verified'
+							});
+						} else {
+							args.user.password = tools.random(16);
+							var encryption = tools.encryption.saltHashPassword(args.user.password);
+
+							var params = {
+								'email': format.email(args.req.body.email)
+							};
+							var update = {
+								$set: {
+									'salt': encryption.salt,
+									'hash': encryption.hash,
+									'serverDate': new Date()
+								}
+							};
+
+							deferred.resolve({
+								'params': params,
+								'update': update,
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+						};
+					} else {
+						deferred.reject({
+							code: 401,
+							message: 'Account not yet registered!'
+						});
+					};
+
+					return deferred.promise;
+				})
+				.then(db.call)
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
 
@@ -3454,6 +3596,73 @@ var module = function () {
 				'operation': 'update',
 				'collection': 'tblUsers'
 			})
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+		changepassword: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.header.userId),
+				'validated': 1
+			};
+
+			var filter = {
+				'salt': 1,
+				'hash': 1
+			};
+
+			db.call({
+				'limit': 1,
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblUsers'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var encryption = tools.encryption.sha512(args.req.body.old, result[0].salt);
+					if (encryption.hash == result[0].hash) {
+						var password = tools.encryption.saltHashPassword(args.req.body.new);
+
+						var params = {
+							'_id': ObjectId(args.req.body.header.userId)
+						};
+						var update = {
+							$set: {
+								'salt': password.salt,
+								'hash': password.hash
+							}
+						};
+
+						deferred.resolve({
+							'params': params,
+							'update': update,
+							'operation': 'update',
+							'collection': 'tblUsers'
+						});
+					} else {
+						deferred.reject({
+							code: 401,
+							message: 'Password is incorrect!'
+						});
+					};
+
+					return deferred.promise;
+				})
+				.then(db.call)
 				.then(result => {
 					args.result = result;
 					deferred.resolve(args);
@@ -4358,6 +4567,10 @@ var module = function () {
 						$or: [
 							{
 								'_id': ObjectId(args.req.body.scopeId),
+								'_base.bitid.private': false
+							},
+							{
+								'_id': ObjectId(args.req.body.scopeId),
 								'_base.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
@@ -4516,7 +4729,7 @@ var module = function () {
 							{
 								$match: {
 									$expr: {
-										$and: [
+										$or: [
 											{
 												$eq: ['$_id', '$$appId']
 											}
@@ -4605,6 +4818,9 @@ var module = function () {
 				{
 					$match: {
 						$or: [
+							{
+								'_base.bitid.auth.private': false
+							},
 							{
 								'_base.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},

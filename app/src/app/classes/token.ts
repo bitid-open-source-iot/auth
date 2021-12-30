@@ -9,14 +9,23 @@ export class Token {
 			name: undefined,
 			icon: undefined
 		};
-	public role = 0;
-	public appId: string | undefined;
+	public token = <{
+		scopes?: string[] | undefined;
+		expiry?: Date | undefined;
+		timezone?: number | undefined;
+		description?: number | undefined;
+	}>{
+		scopes: undefined,
+		expiry: undefined,
+		timezone: undefined,
+		description: undefined
+	};
+	public role: 0 | 1 | 2 | 3 | 4 | 5 = 0;
 	public apps: Accessor[] = [];
+	public appId: string | undefined;
 	public users: Accessor[] = [];
 	public groups: Accessor[] = [];
 	public device: string | undefined;
-	public expiry: string | undefined;
-	public scopes: string[] = [];
 	public tokenId: string | undefined;
 	public disabled: boolean = false;
 	public description: string | undefined;
@@ -31,6 +40,20 @@ export class Token {
 					this.app.name = args.app.name;
 				};
 			};
+			if (typeof (args.token) != 'undefined' && args.token != null) {
+				if (typeof (args.token.scopes) != 'undefined' && args.token.scopes != null) {
+					this.token.scopes = args.token.scopes;
+				};
+				if (typeof (args.token.expiry) != 'undefined' && args.token.expiry != null) {
+					this.token.expiry = new Date(args.token.expiry);
+				};
+				if (typeof (args.token.timezone) != 'undefined' && args.token.timezone != null) {
+					this.token.timezone = args.token.timezone;
+				};
+				if (typeof (args.token.description) != 'undefined' && args.token.description != null) {
+					this.token.description = args.token.description;
+				};
+			};
 			if (typeof (args.role) != 'undefined' && args.role != null) {
 				this.role = args.role;
 			};
@@ -43,17 +66,11 @@ export class Token {
 			if (typeof (args.users) != 'undefined' && args.users != null) {
 				this.users = args.users.map(o => new Accessor(o));
 			};
-			if (typeof (args.scopes) != 'undefined' && args.scopes != null) {
-				this.scopes = args.scopes;
-			};
 			if (typeof (args.groups) != 'undefined' && args.groups != null) {
 				this.groups = args.groups.map(o => new Accessor(o));
 			};
 			if (typeof (args.device) != 'undefined' && args.device != null) {
 				this.device = args.device;
-			};
-			if (typeof (args.expiry) != 'undefined' && args.expiry != null) {
-				this.expiry = args.expiry;
 			};
 			if (typeof (args.tokenId) != 'undefined' && args.tokenId != null) {
 				this.tokenId = args.tokenId;
@@ -69,21 +86,25 @@ export class Token {
 
 }
 
-export interface TOKEN {
+interface TOKEN {
 	app?: {
-		icon?: string;
-		name?: any;
+		icon?: string | undefined;
+		name?: any | undefined;
 	};
-	role?: number;
+	token?: {
+		scopes?: string[] | undefined;
+		expiry?: Date | undefined;
+		timezone?: number | undefined;
+		description?: number | undefined;
+	};
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
 	apps?: Accessor[];
-	appId?: string;
+	appId?: string | undefined;
 	users?: Accessor[];
 	groups?: Accessor[];
-	device?: string;
-	scopes?: string[];
-	expiry?: string;
-	tokenId?: string;
-	disabled?: boolean;
-	selected?: boolean;
-	description?: string;
+	device?: string | undefined;
+	tokenId?: string | undefined;
+	disabled?: boolean | undefined;
+	selected?: boolean | undefined;
+	description?: string | undefined;
 }

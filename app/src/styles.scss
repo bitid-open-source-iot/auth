@@ -91,7 +91,6 @@ select {
 [mat-stroked-button] {
     width: 100%;
     height: 48px;
-    text-transform: uppercase;
 }
 mat-toolbar {
     max-height: 56px !important;
@@ -198,6 +197,13 @@ body.dark-mode {
     form {
         color: #e0e0e0 !important;
     }
+    mat-chip {
+        color: #e0e0e0 !important;
+        background-color: #212121 !important;
+        mat-icon {
+            color: #e0e0e0 !important;
+        }
+    }
     mat-card,
     mat-drawer,
     mat-footer,
@@ -290,6 +296,9 @@ body.dark-mode {
                     background-color: #424242 !important;
                 }
             }
+            mat-list mat-list-item {
+                color: #e0e0e0 !important;
+            }
         }
         mat-drawer-content {
             mat-toolbar {
@@ -298,10 +307,16 @@ body.dark-mode {
                     background-color: rgba(255, 255, 255, 0.1) !important;
                 }
             }
-            mat-list mat-list-item {
-                color: #e0e0e0 !important;
-            }
         }
+    }
+    mat-file mat-label {
+        background-color: #000 !important;
+    }
+    mat-file:hover {
+        mat-label {
+            color: #FFF !important;
+        }
+        border: 2px solid #FFF !important;
     }
 }
 .mat-drawer-inner-container::-webkit-scrollbar {
@@ -310,8 +325,25 @@ body.dark-mode {
 .mat-drawer-inner-container::-webkit-scrollbar-thumb {
     display: none !important;
 }
-home-page,
-settings-page {
+apps-page,
+users-page,
+groups-page,
+scopes-page,
+tokens-page,
+signin-page,
+signup-page,
+account-page,
+features-page,
+settings-page,
+apps-editor-page,
+subscribers-page,
+allow-access-page,
+scopes-editor-page,
+verify-account-page,
+features-editor-page,
+change-password-page,
+forgot-password-page,
+tips-and-updates-page {
     height: 100vh;
     display: flex;
     position: relative;
@@ -350,6 +382,9 @@ settings-page {
             font-size: 12px !important;
             padding-left: 8px !important;
         }
+        mat-icon {
+            margin-right: 4px;
+        }
     }
 }
 .filter-dialog {
@@ -385,4 +420,7 @@ settings-page {
             margin-left: 8px !important;
         }
     }
+}
+input[type=color] {
+    height: 16px;
 }

@@ -18,7 +18,13 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-	public app: any = {};
+	public app = {
+		url: '',
+		icon: environment.icon,
+		name: environment.appName,
+		privacyPolicy: environment.privacyPolicy,
+		termsAndConditions: environment.termsAndConditions
+	};
 	public form: FormGroup = new FormGroup({
 		code: new FormControl(null, [Validators.required, Validators.min(100000), Validators.max(999999), Validators.minLength(6), Validators.maxLength(6)]),
 		email: new FormControl(null, [Validators.email, Validators.required])
@@ -46,7 +52,9 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 		this.loading = false;
 
 		if (response.ok) {
-			this.app = response.result;
+			this.app.url = response.result.url;
+			this.app.icon = response.result.icon;
+			this.app.name = response.result.name;
 			if (!this.form.invalid) {
 				this.submit();
 			};

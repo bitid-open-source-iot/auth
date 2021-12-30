@@ -196,8 +196,7 @@ var module = function () {
 			};
 
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(myModule.apps.validate)
+			myModule.apps.validate(args)
 				.then(myModule.auth.verify)
 				.then(emails.welcome)
 				.then(args => {
@@ -315,38 +314,9 @@ var module = function () {
 				'res': res
 			};
 
-			/*
-				- select user by email
-				- generate random new password
-				- update user details
-				- send email to user with new password
-			*/
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(args => {
-					var deferred = Q.defer();
-
-					var length = 16;
-					var charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-					args.user.password = '';
-
-					for (var i = 0, n = charset.length; i < length; ++i) {
-						args.user.password += charset.charAt(Math.floor(Math.random() * n));
-					};
-
-					var encryption = tools.encryption;
-					var newpassword = encryption.saltHashPassword(args.user.password);
-					args.password = {
-						'salt': newpassword.salt,
-						'hash': newpassword.hash
-					};
-
-					deferred.resolve(args);
-
-					return deferred.promise;
-				})
-				.then(myModule.auth.changepassword)
-				.then(myModule.apps.validate)
+			myModule.apps.validate(args)
+				.then(myModule.auth.resetpassword)
 				.then(emails.resetpassword)
 				.then(args => {
 					if (!__settings.production) {
@@ -364,31 +334,8 @@ var module = function () {
 				'res': res
 			};
 
-			var password = tools.encryption.saltHashPassword(args.req.body.new);
-			args.password = {
-				'salt': password.salt,
-				'hash': password.hash
-			};
-
 			var myModule = new dal.module();
-			myModule.users.get(args)
-				.then(args => {
-					var deferred = Q.defer();
-
-					var password = tools.encryption.sha512(args.req.body.old, args.result.salt);
-
-					if (password.hash == args.result.hash) {
-						deferred.resolve(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Password is incorrect!';
-						err.error.errors[0].message = 'Password is incorrect!';
-						deferred.reject(err);
-					};
-
-					return deferred.promise;
-				})
+			myModule.apps.validate(args)
 				.then(myModule.auth.changepassword)
 				.then(args => {
 					__responder.success(req, res, args.result);

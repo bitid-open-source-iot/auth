@@ -23,9 +23,9 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private config: ConfigService, private groups: GroupsService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService) { }
 
-	public id: string | undefined;
-	public role: number | undefined;
-	public type: string | undefined;
+	public id: string = 'unset';
+	public role: number = 0;
+	public type: string = 'unset';
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
 	public columns: string[] = ['email', 'role', 'options'];
 	public loading: boolean = false;

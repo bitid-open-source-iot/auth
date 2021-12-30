@@ -16,10 +16,10 @@ export class AuthManager implements CanActivate {
 	canActivate() {
 		const now = new Date();
 		let valid = true;
-		const email = this.localstorage.get('email');
 		const token = this.localstorage.getObject('token');
+		const userId = this.localstorage.get('userId');
 
-		if (!email || !token) {
+		if (!userId || !token) {
 			valid = false;
 		} else {
 			// let scopes = token.scopes.map(o => o.url);

@@ -43,14 +43,14 @@ export class Feature {
 
 }
 
-export interface FEATURE {
-	app: {
-		name: string;
-		icon: string;
+interface FEATURE {
+	app?: {
+		name?: string;
+		icon?: string;
 	};
-	role: 0 | 1 | 2 | 3 | 4 | 5;
-	appId: string | undefined;
-	title: string | undefined;
-	featureId: string | undefined;
-	description: string | undefined;
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
+	appId?: string;
+	title?: string;
+	featureId?: string;
+	description?: string;
 }

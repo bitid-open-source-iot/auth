@@ -1,115 +1,121 @@
-<mat-content>
-    <img [src]="app.icon" alt="icon" width="100" height="100">
+<mat-content fxLayout="column" fxLayoutAlign="center center">
+    <mat-card>
+        <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
-    <h1>
-        {{ app.name ? app.name : 'Auth' }}
-    </h1>
+        <div class="icon" [style.background-image]="'url(' + app.icon + ')'"></div>
+        
+        <h1>
+            Sign Up
+        </h1>
 
-    <h2>
-        Sign Up
-    </h2>
+        <p>
+            to use {{ app.name }}
+        </p>
 
-    <form [formGroup]="form" (ngSubmit)="form.value.password == form.value.confirm && !form.invalid && submit()">
-        <section formGroupName="name">
+        <form [formGroup]="form" (ngSubmit)="form.value.confirm == form.value.password && !loading && !form.invalid && submit()">
+            <section formGroupName="name">
+                <mat-form-field appearance="outline">
+                    <mat-label>
+                        First Name
+                    </mat-label>
+    
+                    <input matInput type="text" name="first name" placeholder="first name" formControlName="first" required>
+    
+                    <mat-error *ngIf="errors.name.first">
+                        {{ errors.name.first }}
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>
+                        Last Name
+                    </mat-label>
+    
+                    <input matInput type="text" name="last name" placeholder="last name" formControlName="last" required>
+    
+                    <mat-error *ngIf="errors.name.last">
+                        {{ errors.name.last }}
+                    </mat-error>
+                </mat-form-field>
+            </section>
+
             <mat-form-field appearance="outline">
                 <mat-label>
-                    First Name
+                    Email
                 </mat-label>
 
-                <input matInput type="text" name="first name" placeholder="first name" formControlName="first" required>
+                <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
 
-                <mat-error *ngIf="errors.name.first">
-                    {{ errors.name.first }}
+                <mat-error *ngIf="errors.email">
+                    {{ errors.email }}
                 </mat-error>
             </mat-form-field>
 
             <mat-form-field appearance="outline">
                 <mat-label>
-                    Last Name
+                    Password
                 </mat-label>
 
-                <input matInput type="text" name="last name" placeholder="last name" formControlName="last" required>
+                <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
 
-                <mat-error *ngIf="errors.name.last">
-                    {{ errors.name.last }}
+                <mat-error *ngIf="errors.password">
+                    {{ errors.password }}
                 </mat-error>
             </mat-form-field>
-        </section>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Email
-            </mat-label>
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Confirm Password
+                </mat-label>
 
-            <input matInput type="email" name="email" placeholder="email" formControlName="email" required>
+                <input matInput type="password" name="confirm password" placeholder="confirm password" formControlName="confirm" required>
 
-            <mat-error *ngIf="errors.email">
-                {{ errors.email }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.confirm">
+                    {{ errors.confirm }}
+                </mat-error>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Password
-            </mat-label>
+            <mat-checkbox color="primary" formControlName="newsAndChanges">
+                I want to recieve news & changes
+            </mat-checkbox>
 
-            <input matInput type="password" name="password" placeholder="password" formControlName="password" required>
+            <mat-checkbox color="primary" formControlName="privacyPolicy">
+                I have read and agree to the privacy policy
+                <b>
+                    Required to continue!
+                </b>
+            </mat-checkbox>
 
-            <mat-error *ngIf="errors.password">
-                {{ errors.password }}
-            </mat-error>
-        </mat-form-field>
+            <mat-checkbox color="primary" formControlName="termsAndConditions">
+                I have read and agree to the terms & conditions
+                <b>
+                    Required to continue!
+                </b>
+            </mat-checkbox>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Confirm Password
-            </mat-label>
+            <div class="button-footer">
+                <button type="button" mat-stroked-button color="primary" routerLink="/signin" queryParamsHandling="preserve">
+                    Sign In
+                </button>
 
-            <input matInput type="password" name="confirm password" placeholder="confirm password"
-                formControlName="confirm" required>
+                <button type="submit" mat-flat-button color="primary">
+                    Next
+                </button>
+            </div>
+        </form>
+        
+        <div class="row-below-card">
+            <a href="https://www.bitid.co.za" target="_blank">
+                Powered by biTid
+            </a>
+            
+            <a [href]="app.privacyPolicy" target="_blank">
+                Privacy Policy
+            </a>
 
-            <mat-error *ngIf="errors.confirm || form.value.password != form.value.confirm">
-                {{ errors.confirm }}
-                {{ form.value.password != form.value.confirm && errors.confirm ? ' & ' : '' }}
-                {{ form.value.password != form.value.confirm ? 'Passwords do not match!' : '' }}
-            </mat-error>
-        </mat-form-field>
-
-        <h2>
-            Terms of Service
-        </h2>
-
-        <mat-checkbox color="primary" formControlName="newsAndChanges">
-            I want to be notified of news & changes
-        </mat-checkbox>
-
-        <mat-checkbox color="primary" formControlName="privacyPolicy">
-            I have read and agree to the <a href="https://www.bitid.co.za/privacy-policy" target="_blank">Privacy
-                Policy</a>
-        </mat-checkbox>
-
-        <mat-hint class="checkbox-hint">
-            Required to continue
-        </mat-hint>
-
-        <mat-checkbox color="primary" formControlName="termsAndConditions">
-            I have read and agree to the <a href="https://www.bitid.co.za/terms-and-conditions" target="_blank">Terms &
-                Conditions</a>
-        </mat-checkbox>
-
-        <mat-hint class="checkbox-hint">
-            Required to continue
-        </mat-hint>
-
-        <button type="submit" mat-flat-button color="primary"
-            [disabled]="form.invalid || !form.value.privacyPolicy || !form.value.termsAndConditions">
-            {{ loading ? '' : 'sign up' }}
-
-            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
-        </button>
-
-        <button type="button" mat-stroked-button color="primary" (click)="verifyaccount()">
-            verify account
-        </button>
-    </form>
+            <a [href]="app.termsAndConditions" target="_blank">
+                Terms & Conditions
+            </a>
+        </div>
+    </mat-card>
 </mat-content>

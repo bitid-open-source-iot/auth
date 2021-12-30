@@ -19,6 +19,9 @@ import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'apps-page',
 	styleUrls: ['./apps.page.scss'],
@@ -28,6 +31,7 @@ import { LocalStorageService } from 'src/app/services/local-storage/local-storag
 export class AppsPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private confirm: ConfirmService, private service: AppsService, private localstorage: LocalStorageService) { }
 
@@ -123,8 +127,9 @@ export class AppsPage implements OnInit, OnDestroy {
 								this.loading = true;
 
 								const response = await this.service.unsubscribe({
-									appId: app.appId,
-									userId: this.localstorage.get('userId')
+									id: this.localstorage.get('userId'),
+									type: 'user',
+									appId: app.appId
 								});
 
 								if (response.ok) {
@@ -133,18 +138,18 @@ export class AppsPage implements OnInit, OnDestroy {
 											this.apps.data.splice(i, 1);
 											this.toast.show('You were unsubscribed!');
 											break;
-										}
-									}
-									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+										};
+									};
+									this.apps.data = this.apps.data.map((o: App) => new App(o));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
 						});
 					},
-					disabled: [5]
+					disabled: [0, 5]
 				},
 				{
 					icon: 'delete',
@@ -166,12 +171,12 @@ export class AppsPage implements OnInit, OnDestroy {
 											this.apps.data.splice(i, 1);
 											this.toast.show('App was removed!');
 											break;
-										}
-									}
-									this.apps.data = JSON.parse(JSON.stringify(this.apps.data));
+										};
+									};
+									this.apps.data = this.apps.data.map((o: App) => new App(o));
 								} else {
 									this.toast.show(response.error.message);
-								}
+								};
 
 								this.loading = false;
 							}
@@ -181,16 +186,6 @@ export class AppsPage implements OnInit, OnDestroy {
 				}
 			]
 		});
-	}
-
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.description;
-			}
-		});
-		return result;
 	}
 
 	public async OpenFilter() {
@@ -217,13 +212,18 @@ export class AppsPage implements OnInit, OnDestroy {
 
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				this.list();
+				await this.list();
 			};
+		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.apps.filter = value;
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

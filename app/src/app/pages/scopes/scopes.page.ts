@@ -20,6 +20,9 @@ import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'scopes-page',
 	styleUrls: ['./scopes.page.scss'],
@@ -29,6 +32,7 @@ import { FiltersService } from 'src/app/services/filters/filters.service';
 export class ScopesPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService, private filters: FiltersService, private service: ScopesService) { }
 
@@ -36,7 +40,6 @@ export class ScopesPage implements OnInit, OnDestroy {
 		appId: []
 	});
 	public scopes: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['app', 'url', 'description', 'options'];
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -46,11 +49,10 @@ export class ScopesPage implements OnInit, OnDestroy {
 		const response = await this.service.list({
 			filter: [
 				'url',
-				'app',
 				'role',
 				'appId',
-				'roles',
 				'scopeId',
+				'app.name',
 				'description'
 			],
 			appId: this.filter.appId
@@ -72,7 +74,8 @@ export class ScopesPage implements OnInit, OnDestroy {
 			filter: [
 				'name',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (apps.ok) {
@@ -84,10 +87,21 @@ export class ScopesPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public unfilter(key: string, value: any) {
-		this.filter[key] = this.filter[key].filter((o: any) => o != value);
-		this.filters.update(this.filter);
-		this.list();
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(ScopesFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
+
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
 	}
 
 	public async options(scope: Scope) {
@@ -152,37 +166,16 @@ export class ScopesPage implements OnInit, OnDestroy {
 							}
 						});
 					},
-					disabled: [0, 1, 2, 3, 4]
+					disabled: [0, 1]
 				}
 			]
 		});
 	}
 
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.name;
-			}
-		});
-		return result;
-	}
-
-	public async OpenFilter() {
-		const dialog = await this.dialog.open(ScopesFilterDialog, {
-			data: this.filter,
-			panelClass: 'filter-dialog'
-		});
-
-		await dialog.afterClosed().subscribe(async result => {
-			if (result) {
-				Object.keys(result).map(key => {
-					this.filter[key] = result[key];
-				});
-				this.filters.update(this.filter);
-				this.list();
-			};
-		});
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
 	}
 
 	ngOnInit(): void {
@@ -192,14 +185,19 @@ export class ScopesPage implements OnInit, OnDestroy {
 
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				await this.list();
 				await this.load();
+				await this.list();
 			};
+		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.scopes.filter = value;
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

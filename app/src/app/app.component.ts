@@ -27,10 +27,13 @@ export class AppComponent implements OnInit {
 
     constructor(public menu: MenuService, public account: AccountService, private config: ConfigService, private update: UpdateService, private settings: SettingsService) { }
 
+    public app = {
+        icon: environment.icon,
+        name: environment.appName
+    };
     public icon: string = environment.icon;
     public title: any[] = [];
     public badges: any = {};
-    public appName: string = environment.appName;
     public authenticated?: boolean;
 
     public async signout() {
@@ -72,6 +75,8 @@ export class AppComponent implements OnInit {
         this.config.loaded.subscribe(async (loaded) => {
             if (loaded) {
                 this.account.validate();
+                this.app.icon = environment.icon;
+                this.app.name = environment.appName;
             };
         });
 

@@ -42,13 +42,13 @@ export class Group {
 
 }
 
-export interface GROUP {
-	role: 0 | 1 | 2 | 3 | 4 | 5;
-	apps: Accessor[];
-	users: Accessor[];
-	appId: string[];
-	groups: Accessor[];
-	groupId: string;
-	description: string;
-	organizationOnly: number;
+interface GROUP {
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
+	apps?: Accessor[];
+	users?: Accessor[];
+	appId?: string[];
+	groups?: Accessor[];
+	groupId?: string;
+	description?: string;
+	organizationOnly?: number;
 }

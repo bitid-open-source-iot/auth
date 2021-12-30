@@ -14,6 +14,9 @@ import { UsersService } from 'src/app/services/users/users.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'users-page',
 	styleUrls: ['./users.page.scss'],
@@ -23,6 +26,7 @@ import { FiltersService } from 'src/app/services/filters/filters.service';
 export class UsersPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(private config: ConfigService, private dialog: MatDialog, private filters: FiltersService, private service: UsersService) { }
 
@@ -30,7 +34,6 @@ export class UsersPage implements OnInit, OnDestroy {
 		validated: []
 	});
 	public users: MatTableDataSource<any> = new MatTableDataSource<any>();
-	public columns: string[] = ['name.first', 'name.middle', 'name.last', 'email', 'number.tel', 'number.mobile', 'validated'];
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -81,7 +84,7 @@ export class UsersPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
-		this.sort.active = 'name-first';
+		this.sort.active = 'name.first';
 		this.sort.direction = 'asc';
 		this.users.sort = this.sort;
 

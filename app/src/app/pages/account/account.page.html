@@ -1,6 +1,6 @@
 <mat-content>
     <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
-        <mat-file required="true" formControlName="picture">
+        <mat-file [required]="true" formControlName="picture">
             <mat-label>
                 Profile Image <span>*</span>
             </mat-label>

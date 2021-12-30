@@ -1,4 +1,5 @@
 import * as path from 'object-path';
+import { Title } from '@angular/platform-browser';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
@@ -16,7 +17,7 @@ export class ConfigService {
 
 	public loaded: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
 
-	constructor(private api: ApiService) { }
+	constructor(private api: ApiService, private title: Title) { }
 
 	public async init() {
 		if (environment.production) {
@@ -33,6 +34,7 @@ export class ConfigService {
 			favicon.href = response.result.favicon;
 			let manifest = <HTMLLinkElement>document.getElementById('manifest');
 			manifest.href = [environment.auth, '/apps/manifest'].join('');
+			this.title.setTitle(environment.appName);
 			this.loaded.next(true);
 			return true;
 		} else {

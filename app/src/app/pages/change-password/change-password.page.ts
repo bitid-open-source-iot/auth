@@ -9,30 +9,38 @@ import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
+
 @Component({
-	selector: 'reset-password-page',
-	styleUrls: ['./reset-password.page.scss'],
-	templateUrl: './reset-password.page.html'
+	selector: 'change-password-page',
+	styleUrls: ['./change-password.page.scss'],
+	templateUrl: './change-password.page.html'
 })
 
-export class ResetPasswordPage implements OnInit, OnDestroy {
+export class ChangePasswordPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
+	public app = {
+		url: '',
+		icon: environment.icon,
+		name: environment.appName,
+		privacyPolicy: environment.privacyPolicy,
+		termsAndConditions: environment.termsAndConditions
+	};
 	public form: FormGroup = new FormGroup({
-		old: new FormControl('', [Validators.required]),
-		new: new FormControl('', [Validators.required]),
-		email: new FormControl('', [Validators.required]),
-		confirm: new FormControl('', [Validators.required])
+		old: new FormControl(null, [Validators.required]),
+		new: new FormControl(null, [Validators.required]),
+		confirm: new FormControl(null, [Validators.required])
 	});
-	public app: any = {};
 	public appId: string | undefined;
 	public errors: any = {
 		old: '',
 		new: '',
-		email: '',
 		confirm: ''
 	};
+	public userId: string = '';
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -64,6 +72,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		const response = await this.service.changepassword({
 			old: this.form.value.old,
 			new: this.form.value.new,
+			userId: this.userId,
 			confirm: this.form.value.confirm
 		});
 
@@ -73,7 +82,7 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 			if (Object.keys(this.app).includes('url')) {
 				this.router.navigate(['/allow-access'], {
 					queryParams: {
-						appId: this.app.appId,
+						appId: this.appId,
 						email: this.form.value.email,
 						returl: this.app.url + '/authenticate'
 					},
@@ -94,6 +103,15 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		this.observers.new = this.form.controls['new'].valueChanges.subscribe(value => {
+			if (typeof (value) != 'undefined' && value != null && typeof (this.form.value.confirm) != 'undefined' && this.form.value.confirm != null && value != this.form.value.confirm) {
+				this.errors.new = 'Passwords do not match!';
+				this.form.controls['password'].setErrors({
+					noMatch: 'Passwords do not match!'
+				});
+			};
+		});
+
 		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
@@ -101,26 +119,35 @@ export class ResetPasswordPage implements OnInit, OnDestroy {
 		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
-				if (typeof (params.email) != 'undefined') {
-					this.form.controls['email'].setValue(params.email);
-				}
+				this.userId = params.userId;
 				if (typeof (params.password) != 'undefined') {
 					this.form.controls['old'].setValue(params.password);
-				}
+				};
 				if (typeof (params.appId) != 'undefined' && params.appId != null) {
 					this.appId = params.appId;
 					this.load();
-				}
+				};
 				if (params.email == '' || params.email == null || typeof (params.email) == 'undefined' || params.password == '' || params.password == null || typeof (params.password) == 'undefined') {
 					this.router.navigate(['/']);
-				}
-			}
+				};
+			};
+		});
+
+		this.observers.confirm = this.form.controls['confirm'].valueChanges.subscribe(value => {
+			if (typeof (value) != 'undefined' && value != null && typeof (this.form.value.new) != 'undefined' && this.form.value.new != null && value != this.form.value.new) {
+				this.errors.confirm = 'Passwords do not match!';
+				this.form.controls['confirm'].setErrors({
+					noMatch: 'Passwords do not match!'
+				});
+			};
 		});
 	}
 
 	ngOnDestroy(): void {
+		this.observers.new?.unsubscribe();
 		this.observers.form?.unsubscribe();
 		this.observers.loaded?.unsubscribe();
+		this.observers.confirm?.unsubscribe();
 	}
 
 }

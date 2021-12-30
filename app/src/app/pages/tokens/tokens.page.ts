@@ -22,6 +22,9 @@ import { OptionsService } from 'src/app/libs/options/options.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'tokens-page',
 	styleUrls: ['./tokens.page.scss'],
@@ -31,6 +34,7 @@ import { LocalStorageService } from 'src/app/services/local-storage/local-storag
 export class TokensPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TokensService, private clipboard: Clipboard, private localstorage: LocalStorageService) { }
 
@@ -39,13 +43,8 @@ export class TokensPage implements OnInit, OnDestroy {
 	});
 	public tokens: MatTableDataSource<Token> = new MatTableDataSource<Token>();
 	public tokenId: string | undefined;
-	public columns: string[] = ['icon', 'app', 'description', 'expiry', 'disabled', 'options'];
 	public loading: boolean = false;
 	private observers: any = {};
-
-	public locked() {
-		this.toast.show('This token has been locked as it is your current login token!');
-	}
 
 	private async list() {
 		this.loading = true;
@@ -54,12 +53,10 @@ export class TokensPage implements OnInit, OnDestroy {
 			filter: [
 				'app',
 				'role',
-				'device',
-				'scopes',
-				'expiry',
 				'tokenId',
 				'disabled',
-				'description'
+				'description',
+				'token.expiry'
 			],
 			appId: this.filter.appId
 		});
@@ -92,165 +89,6 @@ export class TokensPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public unfilter(key: string, value: any) {
-		this.filter[key] = this.filter[key].filter((o: any) => o != value);
-		this.filters.update(this.filter);
-		this.list();
-	}
-
-	public async disable(token: Token) {
-		this.loading = true;
-
-		const response = await this.service.update({
-			tokenId: token.tokenId,
-			disabled: !token.disabled
-		});
-
-		if (response.ok) {
-			token.disabled = !token.disabled;
-		} else {
-			this.toast.show(response.error.message);
-		};
-
-		this.loading = false;
-	}
-
-	public async options(token: Token) {
-		this.sheet.show({
-			role: token.role,
-			title: token.description,
-			options: [
-				{
-					icon: 'launch',
-					title: 'View',
-					handler: async () => {
-						this.router.navigate(['/tokens', 'view'], {
-							queryParams: {
-								tokenId: token.tokenId
-							}
-						});
-					},
-					disabled: [0]
-				},
-				{
-					icon: 'content_copy',
-					title: 'Copy',
-					handler: async () => {
-						this.loading = true;
-
-						const response = await this.service.get({
-							filter: [
-								'token'
-							],
-							tokenId: token.tokenId
-						});
-
-						if (response.ok) {
-							this.clipboard.copy(JSON.stringify(response.result.token))
-							this.toast.show('Token was copied to clipboard!');
-						} else {
-							this.toast.show(response.error.message);
-						};
-
-						this.loading = false;
-					},
-					disabled: [0, 1]
-				},
-				{
-					icon: 'people',
-					title: 'Subscribers',
-					handler: async () => {
-						this.router.navigate(['/subscribers'], {
-							queryParams: {
-								id: token.tokenId,
-								type: 'token'
-							}
-						});
-					},
-					disabled: [0, 1, 2, 3]
-				},
-				{
-					icon: 'remove',
-					title: 'Unubscribe',
-					danger: true,
-					handler: async () => {
-						this.confirm.show({
-							message: 'Are you sure you want to unsubscribe from ' + token.description + '?',
-							handler: async () => {
-								this.loading = true;
-
-								const response = await this.service.unsubscribe({
-									id: this.localstorage.get('userId'),
-									type: 'usere',
-									tokenId: token.tokenId
-								});
-
-								if (response.ok) {
-									for (let i = 0; i < this.tokens.data.length; i++) {
-										if (this.tokens.data[i].tokenId == token.tokenId) {
-											this.tokens.data.splice(i, 1);
-											this.toast.show('You were unsubscribed!');
-											break;
-										}
-									}
-									this.tokens.data = JSON.parse(JSON.stringify(this.tokens.data));
-								} else {
-									this.toast.show(response.error.message);
-								};
-
-								this.loading = false;
-							}
-						});
-					},
-					disabled: [5]
-				},
-				{
-					icon: 'delete',
-					title: 'Revoke',
-					danger: true,
-					handler: async () => {
-						this.confirm.show({
-							message: 'Are you sure you want to revoke ' + token.description + '?',
-							handler: async () => {
-								this.loading = true;
-
-								const response = await this.service.revoke({
-									tokenId: token.tokenId
-								});
-
-								if (response.ok) {
-									for (let i = 0; i < this.tokens.data.length; i++) {
-										if (this.tokens.data[i].tokenId == token.tokenId) {
-											this.tokens.data.splice(i, 1);
-											this.toast.show('Token was revoked!');
-											break;
-										}
-									}
-									this.tokens.data = JSON.parse(JSON.stringify(this.tokens.data));
-								} else {
-									this.toast.show(response.error.message);
-								};
-
-								this.loading = false;
-							}
-						});
-					},
-					disabled: [0, 1, 2, 3, 4]
-				}
-			]
-		});
-	}
-
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.name;
-			}
-		});
-		return result;
-	}
-
 	public async OpenFilter() {
 		const dialog = await this.dialog.open(TokensFilterDialog, {
 			data: this.filter,
@@ -268,6 +106,162 @@ export class TokensPage implements OnInit, OnDestroy {
 		});
 	}
 
+	public async options(token: Token) {
+		if (token.tokenId == this.tokenId) {
+			this.toast.show('This token has been locked as it is your current login token!');	
+		} else {
+			this.sheet.show({
+				role: token.role,
+				title: token.description,
+				options: [
+					{
+						icon: 'launch',
+						title: 'View',
+						handler: async () => {
+							this.router.navigate(['/tokens', 'viewer'], {
+								queryParams: {
+									tokenId: token.tokenId
+								}
+							});
+						},
+						disabled: [0]
+					},
+					{
+						icon: 'content_copy',
+						title: 'Copy',
+						handler: async () => {
+							this.loading = true;
+
+							const response = await this.service.get({
+								filter: [
+									'token'
+								],
+								tokenId: token.tokenId
+							});
+
+							if (response.ok) {
+								this.clipboard.copy(JSON.stringify(response.result.token))
+								this.toast.show('Token was copied to clipboard!');
+							} else {
+								this.toast.show(response.error.message);
+							};
+
+							this.loading = false;
+						},
+						disabled: [0, 1]
+					},
+					{
+						icon: 'people',
+						title: 'Subscribers',
+						handler: async () => {
+							this.router.navigate(['/subscribers'], {
+								queryParams: {
+									id: token.tokenId,
+									type: 'token'
+								}
+							});
+						},
+						disabled: [0, 1, 2, 3]
+					},
+					{
+						icon: 'remove',
+						title: 'Unubscribe',
+						danger: true,
+						handler: async () => {
+							this.confirm.show({
+								message: 'Are you sure you want to unsubscribe from ' + token.description + '?',
+								handler: async () => {
+									this.loading = true;
+
+									const response = await this.service.unsubscribe({
+										id: this.localstorage.get('userId'),
+										type: 'user',
+										tokenId: token.tokenId
+									});
+
+									if (response.ok) {
+										for (let i = 0; i < this.tokens.data.length; i++) {
+											if (this.tokens.data[i].tokenId == token.tokenId) {
+												this.tokens.data.splice(i, 1);
+												this.toast.show('You were unsubscribed!');
+												break;
+											};
+										};
+										this.tokens.data = this.tokens.data.map((o: Token) => new Token(o));
+									} else {
+										this.toast.show(response.error.message);
+									};
+
+									this.loading = false;
+								}
+							});
+						},
+						disabled: [5]
+					},
+					{
+						icon: 'delete',
+						title: 'Revoke',
+						danger: true,
+						handler: async () => {
+							this.confirm.show({
+								message: 'Are you sure you want to revoke ' + token.description + '?',
+								handler: async () => {
+									this.loading = true;
+
+									const response = await this.service.revoke({
+										tokenId: token.tokenId
+									});
+
+									if (response.ok) {
+										for (let i = 0; i < this.tokens.data.length; i++) {
+											if (this.tokens.data[i].tokenId == token.tokenId) {
+												this.tokens.data.splice(i, 1);
+												this.toast.show('Token was revoked!');
+												break;
+											};
+										};
+										this.tokens.data = this.tokens.data.map((o: Token) => new Token(o));
+									} else {
+										this.toast.show(response.error.message);
+									};
+
+									this.loading = false;
+								}
+							});
+						},
+						disabled: [0, 1, 2, 3, 4]
+					}
+				]
+			});
+		};
+	}
+
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
+	}
+
+	public async disable(event: MouseEvent | TouchEvent, token: Token) {
+		this.loading = true;
+
+		event.preventDefault();
+		event.stopPropagation();
+
+		const response = await this.service.update({
+			tokenId: token.tokenId,
+			disabled: !token.disabled
+		});
+
+		if (response.ok) {
+			token.disabled = !token.disabled;
+		} else {
+			this.toast.show(response.error.message);
+		};
+
+		this.loading = false;
+	}
+
 	ngOnInit(): void {
 		this.tokens.sort = this.sort;
 		this.tokens.sort.active = 'expiry';
@@ -275,15 +269,20 @@ export class TokensPage implements OnInit, OnDestroy {
 
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				await this.list();
 				await this.load();
+				await this.list();
 				this.tokenId = this.localstorage.get('tokenId', null);
 			};
+		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.tokens.filter = value;
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

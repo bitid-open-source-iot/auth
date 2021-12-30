@@ -1,9 +1,9 @@
 export class Icon {
 
-	public src: string;
-	public type: string;
-	public sizes: string;
-	public purpose: string;
+	public src: string | undefined;
+	public type: string | undefined;
+	public sizes: string | undefined;
+	public purpose: string | undefined;
 
 	constructor(args: ICON) {
 		if (typeof (args.src) != 'undefined' && args.src != null) {
@@ -22,9 +22,9 @@ export class Icon {
 
 }
 
-export interface ICON {
-	src: string;
-	type: string;
-	sizes: string;
-	purpose: string;
+interface ICON {
+	src?: string;
+	type?: string;
+	sizes?: string;
+	purpose?: string;
 }

@@ -75,7 +75,6 @@ export class ScopesEditorPage implements OnInit, OnDestroy {
 			filter: [
 				'role',
 				'name',
-				'icon',
 				'appId'
 			]
 		});

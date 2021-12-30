@@ -224,7 +224,7 @@ interface USER {
 			postalCode?: string;
 		};
 		physical?: {
-			company?: {
+			company: {
 				vat?: string;
 				reg?: string;
 			};

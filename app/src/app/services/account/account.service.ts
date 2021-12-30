@@ -123,6 +123,7 @@ export class AccountService {
 	}
 
 	public async changepassword(params: CHANGE_PASSWORD_PARAMS) {
+		this.localstorage.set('userId', params.userId);
 		return await this.api.put(environment.auth, '/auth/change-password', params);
 	}
 
@@ -140,52 +141,17 @@ interface SIGN_IN_PARAMS {
 }
 
 interface REGISTER_PARAMS {
-	name?: {
-		last?: string;
-		first?: string;
-		middle?: string;
+	name: {
+		last: string;
+		first: string;
 	};
-	number?: {
-		tel?: string;
-		mobile?: string;
-	};
-	address?: {
-		billing?: {
-			company?: {
-				vat?: string;
-				reg?: string;
-			};
-			street?: string;
-			suburb?: string;
-			country?: string;
-			cityTown?: string;
-			additional?: string;
-			postalCode?: string;
-		};
-		physical?: {
-			company?: {
-				vat?: string;
-				reg?: string;
-			};
-			street?: string;
-			suburb?: string;
-			country?: string;
-			cityTown?: string;
-			additional?: string;
-			postalCode?: string;
-		};
-		same?: boolean;
-	};
-	identification?: {
-		type?: string;
-		number?: string;
-	};
-	email?: string;
-	picture?: string;
-	language?: string;
-	timezone?: number;
-	username?: string;
-	validated?: number;
+	appId: string;
+	email: string;
+	confirm: string;
+	password: string;
+	privacyPolicy: string;
+	newsAndChanges: string;
+	termsAndConditions: string;
 }
 
 interface RETRIEVE_PARAMS { }
@@ -195,5 +161,6 @@ interface RESET_PASSWORD_PARAMS { }
 interface CHANGE_PASSWORD_PARAMS {
 	old: string;
 	new: string;
+	userId: string;
 	confirm: string;
 }

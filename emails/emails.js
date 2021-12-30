@@ -2,29 +2,6 @@ const Q = require('q');
 const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
 
-exports.test = () => {
-    var deferred = Q.defer();
-
-    try {
-        var config = JSON.parse(JSON.stringify(__settings.smtp));
-        delete config.from;
-        const transporter = nodemailer.createTransport(config);
-
-        transporter.sendMail({
-            from: __settings.smtp.from,
-            to: 'shane@bitid.co.za',
-            subject: 'Test',
-            text: 'hello world1',
-            html: '<h1>TEST1</h1>'
-        })
-        deferred.resolve()
-    } catch (e) {
-        deferred.reject(e)
-    }
-
-    return deferred.promise
-}
-
 exports.verify = (args) => {
     var deferred = Q.defer();
 
@@ -128,7 +105,7 @@ exports.resetpassword = (args) => {
 
     transporter.sendMail({
         'context': {
-            'link': [__settings.client.auth, '/reset-password?email=', args.user.email, '&password=', args.user.password, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join(''),
+            'link': [__settings.client.auth, '/reset-password?email=', args.user.email, '&userId=', args.user._id, '&password=', args.user.password, '&appId=', args.app.appId, '&returl=', args.app.url, '/authenticate'].join(''),
             'name': [args.user.name.first, args.user.name.last].join(' '),
             'branding': __settings.branding
         },

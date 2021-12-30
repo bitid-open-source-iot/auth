@@ -1,73 +1,86 @@
+<mat-toolbar>
+    <mat-menu-button></mat-menu-button>
+
+    <label for="scopes">
+        Scopes
+    </label>
+
+    <search placeholder="Filter scopes.."></search>
+
+    <button mat-icon-button (click)="OpenFilter()">
+        <mat-icon>
+            filter_list
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
 <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
-<mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
-    <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
-        <mat-icon>
-            apps
-        </mat-icon>
+<mat-content>
+    <mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
+        <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
+            <mat-icon>
+                apps
+            </mat-icon>
 
-        <mat-label>
-            {{ describe(apps.data, 'appId', id) }}
-        </mat-label>
+            <mat-label>
+                {{ apps.data | describe : 'appId' : id : 'name' }}
+            </mat-label>
 
-        <mat-icon matChipRemove>
-            cancel
-        </mat-icon>
-    </mat-chip>
-</mat-chip-list>
+            <mat-icon matChipRemove>
+                cancel
+            </mat-icon>
+        </mat-chip>
+    </mat-chip-list>
 
-<table mat-table [dataSource]="scopes" fxShow fxHide.xs="true" matSort>
-    <ng-container matColumnDef="app">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            App
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.app.name }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="url">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Scope
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.url }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Description
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.description }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="options(element)">
-                <mat-icon>
-                    more_vert
-                </mat-icon>
-            </button>
-        </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-</table>
-
-<mat-list fxHide fxShow.xs="true">
-    <mat-list-item lines="full" *ngFor="let element of scopes.data" (click)="options(element)" matRipple>
-        <mat-label>
-            <h3>
+    <table mat-table [dataSource]="scopes" fxShow fxHide.xs="true" matSort>
+        <ng-container matColumnDef="app.name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                App Name
+            </th>
+            <td mat-cell *matCellDef="let element">
                 {{ element.app.name }}
-            </h3>
-            <p>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="url">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Scope
+            </th>
+            <td mat-cell *matCellDef="let element">
                 {{ element.url }}
-            </p>
-        </mat-label>
-    </mat-list-item>
-</mat-list>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Description
+            </th>
+            <td mat-cell *matCellDef="let element">
+                {{ element.description }}
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['app.name', 'url', 'description']; sticky: true;"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['app.name', 'url', 'description'];" (click)="options(row)"></tr>
+    </table>
+
+    <mat-list fxHide fxShow.xs="true">
+        <mat-list-item lines="full" *ngFor="let element of scopes.data" (click)="options(element)" matRipple>
+            <mat-label>
+                <h3>
+                    {{ element.app.name }}
+                </h3>
+                <p>
+                    {{ element.url }}
+                </p>
+            </mat-label>
+        </mat-list-item>
+    </mat-list>
+</mat-content>
+
+<button mat-fab class="add-floating-button" color="primary" routerLink="editor" [queryParams]="{ mode: 'add' }">
+    <mat-icon>
+        add
+    </mat-icon>
+</button>

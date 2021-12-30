@@ -1,10 +1,10 @@
 <mat-drawer-container>
     <mat-drawer mode="over">
         <mat-toolbar>
-            <img [src]="icon" [alt]="appName" width="42" height="42" draggable="false">
+            <img [src]="app.icon" [alt]="app.name" width="42" height="42" draggable="false">
 
             <label>
-                {{ appName }}
+                {{ app.name }}
             </label>
 
             <button type="button" [autofocus]="false" mat-icon-button (click)="menu.close()">
@@ -17,10 +17,32 @@
         <mat-list>
             <mat-list-item lines="full" routerLink="/account" routerLinkActive="active" matRipple (click)="menu.close()">
                 <mat-icon>
-                    account
+                    account_circle
                 </mat-icon>
 
-                Account
+                <label for="account">
+                    Account
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/apps" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    apps
+                </mat-icon>
+
+                <label for="apps">
+                    Apps
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/scopes" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    api
+                </mat-icon>
+
+                <label for="scopes">
+                    Scopes
+                </label>
             </mat-list-item>
 
             <mat-list-item lines="full" routerLink="/settings" routerLinkActive="active" matRipple (click)="menu.close()">
@@ -28,7 +50,29 @@
                     settings
                 </mat-icon>
 
-                Settings
+                <label for="settings">
+                    Settings
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/tokens" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    token
+                </mat-icon>
+
+                <label for="tokens">
+                    Tokens
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/users" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    people
+                </mat-icon>
+
+                <label for="users">
+                    Users
+                </label>
             </mat-list-item>
 
             <mat-list-item lines="full" matRipple (click)="signout()">
@@ -36,7 +80,9 @@
                     exit_to_app
                 </mat-icon>
 
-                Sign Out
+                <label for="sign out">
+                    Sign Out
+                </label>
             </mat-list-item>
         </mat-list>
 

@@ -36,7 +36,8 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
             filter: [
                 'name',
                 'appId'
-            ]
+            ],
+            private: [true, false]
         });
 
         if (apps.ok) {
@@ -63,13 +64,13 @@ export class ScopesFilterDialog implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.observers.form = this.form.valueChanges.subscribe(data => {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        })
+        });
 
         this.load();
     }
 
     ngOnDestroy(): void {
-        this.observers.form.unsubscribe();
+        this.observers.form?.unsubscribe();
     }
 
 }

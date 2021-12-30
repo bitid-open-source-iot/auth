@@ -5,9 +5,9 @@ mat-drawer-container {
         width: 300px;
         mat-list {
             mat-list-item.active {
-                color: #2196f3;
+                color: #2196f3 !important;
                 mat-icon {
-                    color: #2196f3;
+                    color: #2196f3 !important;
                 }
             }
         }

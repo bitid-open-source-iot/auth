@@ -1,23 +1,70 @@
-mat-content {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    img {
-        margin: 20px 0px;
+mat-card {
+    width: calc(100% - 48px);
+    max-width: 400px;
+    mat-progress-bar {
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        position: absolute;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
     }
-    form {
-        max-width: 400px;
+    .icon {
+        width: 100px;
+        height: 100px;
+        margin: 8px auto;
+        display: block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+    h1, p {
+        margin: 8px !important;
+        text-align: center;
+    }
+    p {
+        font-size: 16px;
+    }
+    mat-checkbox {
+        position: relative;
+        margin-bottom: 12px;
+        b {
+            top: 16px;
+            left: 24px;
+            color: #9E9E9E;
+            position: absolute;
+            font-size: 12px;
+            font-weight: 500;
+        }
+    }
+    .button-footer {
+        display: flex;
+        margin-top: 8px;
+        justify-content: space-between;
+        flex-direction: row;
+        button {
+            width: calc(50% - 8px);
+        }
+    }
+    .row-below-card {
+        top: calc(100% + 8px);
+        left: 0px;
+        right: 0px;
+        height: 10px;
+        display: flex;
+        padding: 0px 16px;
+        position: absolute;
+        flex-direction: row;
+        justify-content: space-between;
         a {
-            color: #2196f3;
-        }
-        mat-checkbox {
-            margin-top: 8px;
-        }
-        .checkbox-hint {
-            margin-left: 24px;
-        }
-        [mat-flat-button] {
-            margin-top: 20px;
+            color: #9E9E9E;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            &:hover {
+                color: #3F51B5;
+                text-decoration: underline;
+            }
         }
     }
 }

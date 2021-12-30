@@ -6,10 +6,12 @@ import { BrowserModule } from '@angular/platform-browser';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
+import { MatVersionModule } from './libs/mat-version/mat-version.module';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SplashscreenModule } from './libs/splashscreen/splashscreen.module';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -47,10 +49,12 @@ import { environment } from '../environments/environment';
         MatIconModule,
         MatListModule,
         MatButtonModule,
+        MatVersionModule,
         MatToolbarModule,
         MatSidenavModule,
         AppRoutingModule,
         HttpClientModule,
+        MatSnackBarModule,
         SplashscreenModule,
         BrowserAnimationsModule,
         ServiceWorkerModule.register('ngsw-worker.js', {

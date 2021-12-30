@@ -22,6 +22,12 @@ export class SignUpPage implements OnInit, OnDestroy {
 
 	constructor(private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private apps: AppsService, private service: AccountService, private formerror: FormErrorService) { }
 
+	public app = {
+		icon: environment.icon,
+		name: environment.appName,
+		privacyPolicy: environment.privacyPolicy,
+		termsAndConditions: environment.termsAndConditions
+	};
 	public form: FormGroup = new FormGroup({
 		name: new FormGroup({
 			last: new FormControl(null, [Validators.required]),
@@ -34,7 +40,6 @@ export class SignUpPage implements OnInit, OnDestroy {
 		newsAndChanges: new FormControl(true, [Validators.required]),
 		termsAndConditions: new FormControl(false, [Validators.required])
 	});
-	public app: any = {};
 	public appId: string | undefined;
 	public errors: any = {
 		name: {
@@ -103,15 +108,19 @@ export class SignUpPage implements OnInit, OnDestroy {
 			});
 		} else {
 			this.toast.show(response.error.message);
+			if (response.error.code == 72) {
+				this.router.navigate(['/verify-account'], {
+					queryParams: {
+						email: this.form.value.email,
+						appId: this.appId
+					},
+					replaceUrl: true,
+					queryParamsHandling: 'merge'
+				});
+			};
 		};
 
 		this.loading = false;
-	}
-
-	public verifyaccount() {
-		this.router.navigate(['/verify-account'], {
-			queryParamsHandling: 'preserve'
-		});
 	}
 
 	ngOnInit(): void {
@@ -127,7 +136,26 @@ export class SignUpPage implements OnInit, OnDestroy {
 					this.load();
 				} else {
 					this.app.icon = environment.icon;
+					this.app.name = environment.appName;
 				};
+			};
+		});
+
+		this.observers.confirm = this.form.controls['confirm'].valueChanges.subscribe(value => {
+			if (typeof(value) != 'undefined' && value != null && typeof(this.form.value.password) != 'undefined' && this.form.value.password != null && value != this.form.value.password) {
+				this.errors.confirm = 'Passwords do not match!';
+				this.form.controls['confirm'].setErrors({
+					noMatch: 'Passwords do not match!'
+				});
+			};
+		});
+
+		this.observers.password = this.form.controls['password'].valueChanges.subscribe(value => {
+			if (typeof(value) != 'undefined' && value != null && typeof(this.form.value.confirm) != 'undefined' && this.form.value.confirm != null && value != this.form.value.confirm) {
+				this.errors.password = 'Passwords do not match!';
+				this.form.controls['password'].setErrors({
+					noMatch: 'Passwords do not match!'
+				});
 			};
 		});
 	}
@@ -135,6 +163,8 @@ export class SignUpPage implements OnInit, OnDestroy {
 	ngOnDestroy(): void {
 		this.observers.form?.unsubscribe();
 		this.observers.loaded?.unsubscribe();
+		this.observers.confirm?.unsubscribe();
+		this.observers.password?.unsubscribe();
 	}
 
 }

@@ -34,39 +34,7 @@ export class TokensGeneratePage implements OnInit, OnDestroy {
 		description: ''
 	};
 	public loading: boolean = false;
-	public tokenId: string | undefined;
 	private observers: any = {};
-
-	private async get() {
-		this.loading = true;
-
-		const response = await this.service.get({
-			filter: [
-				'role',
-				'appId',
-				'expiry',
-				'description'
-			],
-			tokenId: this.tokenId
-		});
-
-		if (response.ok) {
-			const token = new Token(response.result);
-			if (token.role >= 2) {
-				this.form.controls['appId'].setValue(token.appId);
-				this.form.controls['expiry'].setValue(moment(token.expiry).format('YYYY-MM-DDTHH:mm'));
-				this.form.controls['description'].setValue(token.description);
-			} else {
-				this.toast.show('You have insufficient rights to edit this token!');
-				this.router.navigate(['/tokens']);
-			};
-		} else {
-			this.toast.show(response.error.message);
-			this.router.navigate(['/tokens']);
-		};
-
-		this.loading = false;
-	}
 
 	private async load() {
 		this.loading = true;
@@ -77,7 +45,8 @@ export class TokensGeneratePage implements OnInit, OnDestroy {
 				'name',
 				'icon',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (response.ok) {
@@ -111,12 +80,7 @@ export class TokensGeneratePage implements OnInit, OnDestroy {
 	ngOnInit(): void {
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				const params: any = this.route.snapshot.queryParams;
-				this.tokenId = params.tokenId;
 				await this.load();
-				if (typeof (this.tokenId) != 'undefined' && this.tokenId != null) {
-					await this.get();
-				};
 			};
 		});
 	}

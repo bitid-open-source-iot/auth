@@ -1,5 +1,17 @@
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="scope editor">
+        {{ mode == 'add' ? 'Create Scope' : '' }}
+        {{ mode == 'copy' ? 'Copy Scope' : '' }}
+        {{ mode == 'update' ? 'Edit Scope' : '' }}
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
                 Url
@@ -17,7 +29,7 @@
                 App
             </mat-label>
 
-            <mat-select name="appId" placeholder="appId" formControlName="appId" required>
+            <mat-select name="appId" placeholder="app" formControlName="appId" required>
                 <mat-option>
                     <ngx-mat-select-search #filter placeholderLabel="Filter apps..." noEntriesFoundLabel="There are no apps matching your query!"></ngx-mat-select-search>
                 </mat-option>
@@ -50,6 +62,6 @@
 <mat-footer>
     <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
         (click)="!loading && !form.invalid && submit()">
-        {{ mode }}
+        Submit
     </button>
 </mat-footer>

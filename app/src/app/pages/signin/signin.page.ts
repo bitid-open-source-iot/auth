@@ -18,9 +18,11 @@ export class SignInPage implements OnInit, OnDestroy {
 
 	constructor(private apps: AppsService, private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
-	public app: any = {
+	public app = {
 		icon: environment.icon,
-		name: environment.appName
+		name: environment.appName,
+		privacyPolicy: environment.privacyPolicy,
+		termsAndConditions: environment.termsAndConditions
 	};
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.required]),
@@ -63,7 +65,7 @@ export class SignInPage implements OnInit, OnDestroy {
 			};
 		} else {
 			this.toast.show(response.error.message);
-		}
+		};
 
 		this.loading = false;
 	}
@@ -80,13 +82,13 @@ export class SignInPage implements OnInit, OnDestroy {
 			appId: this.appId
 		});
 
-		this.loading = false;
-
 		if (response.ok) {
 			this.app = response.result;
 		} else {
 			this.toast.show('Issue loading app!');
-		}
+		};
+
+		this.loading = false;
 	}
 
 	ngOnInit(): void {
@@ -97,15 +99,13 @@ export class SignInPage implements OnInit, OnDestroy {
 		this.observers.loaded = this.config.loaded.subscribe(loaded => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
-
-				if (typeof (params.appId) != 'undefined' && params.appId != null) {
-					this.appId = params.appId;
-				};
 				if (typeof (params.allowaccess) != 'undefined' && params.allowaccess != null) {
 					this.allowaccess = JSON.parse(params.allowaccess);
 				};
-
-				this.load();
+				if (typeof (params.appId) != 'undefined' && params.appId != null) {
+					this.appId = params.appId;
+					this.load();
+				};
 			};
 		});
 	}

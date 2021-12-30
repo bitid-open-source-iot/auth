@@ -141,7 +141,7 @@ export class App {
 
 }
 
-export interface APP {
+interface APP {
 	icons?: {
 		icon72x72?: string;
 		icon96x96?: string;

@@ -43,14 +43,14 @@ export class Scope {
 
 }
 
-export interface FEATURE {
-	app: {
-		name: string;
-		icon: string;
+interface FEATURE {
+	app?: {
+		name?: string;
+		icon?: string;
 	};
-	url: string;
-	role: 0 | 1 | 2 | 3 | 4 | 5;
-	appId: string;
-	scopeId: string;
-	description: string;
+	url?: string;
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
+	appId?: string;
+	scopeId?: string;
+	description?: string;
 }

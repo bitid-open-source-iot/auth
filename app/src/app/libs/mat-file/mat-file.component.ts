@@ -1,5 +1,5 @@
 import { NG_VALUE_ACCESSOR, ControlValueAccessor } from '@angular/forms';
-import { Input, OnInit, Component, Renderer2, ElementRef, ViewEncapsulation } from '@angular/core';
+import { Input, OnInit, Component, Renderer2, ElementRef, ViewEncapsulation, OnChanges } from '@angular/core';
 
 /* --- SERVICES --- */
 import { ToastService } from 'src/app/services/toast/toast.service';
@@ -24,8 +24,6 @@ import { environment } from 'src/environments/environment';
 
 export class MatFileComponent implements ControlValueAccessor, OnInit {
 
-    constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalStorageService) { }
-
     @Input('src') public src: string | undefined;
     @Input('accept') public accept: string = 'image/*';
     @Input('required') public required: boolean = false;
@@ -34,13 +32,14 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
     @Input('min-height') public minHeight: number = 0;
     @Input('max-height') public maxHeight: number = 0;
 
-    onChange = (src: string) => { };
+    constructor(private el: ElementRef, private toast: ToastService, private renderer: Renderer2, private localstorage: LocalStorageService) { }
 
-    onTouched = () => { };
+    public touched = false;
+    public disabled = false;
 
-    touched = false;
+    onChange = (src: string) => { }
 
-    disabled = false;
+    onTouched = () => { }
 
     markAsTouched() {
         if (!this.touched) {
@@ -65,7 +64,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
         this.disabled = disabled;
     }
 
-    ngOnInit(): void {
+    private process() {
         if (this.required && !this.src) {
             this.renderer.setStyle(this.el.nativeElement, 'color', '#F44336');
             this.renderer.setStyle(this.el.nativeElement, 'border-width', '2px');
@@ -75,7 +74,12 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
             this.renderer.setStyle(this.el.nativeElement, 'border-width', '1px');
             this.renderer.setStyle(this.el.nativeElement, 'border-color', '#e0e0e0');
         };
+        window.requestAnimationFrame(() => this.process());
+    }
 
+    ngOnInit(): void {
+        this.process();
+        
         this.renderer.listen(this.el.nativeElement, 'click', () => {
             const input = document.createElement('input');
             input.type = 'file';

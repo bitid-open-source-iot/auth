@@ -38,7 +38,7 @@
         <mat-list-item lines="full">
             <mat-label class="spacer">
                 <p>
-                    {{ token.expiry | date : 'yyyy/MM/dd HH:mm' }}
+                    {{ token.token.expiry | date : 'yyyy/MM/dd HH:mm' }}
                 </p>
             </mat-label>
         </mat-list-item>
@@ -47,7 +47,7 @@
             Scopes
         </div>
 
-        <mat-list-item *ngFor="let scope of token.scopes">
+        <mat-list-item *ngFor="let scope of token.token.scopes">
             <mat-label class="spacer">
                 <p>
                     {{ scope }}

@@ -20,7 +20,7 @@ import { ScopesService } from 'src/app/services/scopes/scopes.service';
 	templateUrl: './editor.page.html'
 })
 
-export class AppsEditorpage implements OnInit, OnDestroy {
+export class AppsEditorPage implements OnInit, OnDestroy {
 
 	constructor(private toast: ToastService, private route: ActivatedRoute, public scopes: ScopesService, private config: ConfigService, private router: Router, private service: AppsService) { }
 
@@ -53,7 +53,7 @@ export class AppsEditorpage implements OnInit, OnDestroy {
 		favicon: new FormControl(null, [Validators.required]),
 		organizationOnly: new FormControl(null, [Validators.required])
 	});
-	public mode: string | undefined;
+	public mode: string = 'unset';
 	public appId: string | undefined;
 	public errors: any = {
 		icons: {

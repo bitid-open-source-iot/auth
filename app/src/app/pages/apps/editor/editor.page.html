@@ -1,14 +1,22 @@
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="app editor">
+        {{ mode == 'add' ? 'Create App' : '' }}
+        {{ mode == 'copy' ? 'Copy App' : '' }}
+        {{ mode == 'update' ? 'Edit App' : '' }}
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-file formControlName="icon">
             <mat-label>
                 Icon <span>*</span>
             </mat-label>
         </mat-file>
-
-        <h2>
-            Details
-        </h2>
 
         <mat-form-field appearance="outline">
             <mat-label>
@@ -22,17 +30,39 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Secret
-            </mat-label>
+        <section>
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Secret
+                </mat-label>
 
-            <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
+                <input matInput type="text" name="secret" placeholder="secret" formControlName="secret" required>
 
-            <mat-error *ngIf="errors.secret">
-                {{ errors.secret }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.secret">
+                    {{ errors.secret }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Scope(s)
+                </mat-label>
+    
+                <mat-select name="scopes" placeholder="scope(s)" formControlName="scopes" required multiple>
+                    <mat-option>
+                        <ngx-mat-select-search #filter placeholderLabel="Filter scopes..." noEntriesFoundLabel="There are no scopes matching your query!"></ngx-mat-select-search>
+                    </mat-option>
+                    <mat-option *ngFor="let scope of scopes.data | orderBy : 'url' | filterBy : { url: filter.value }"
+                        [value]="scope.url">
+                        {{ scope.url }}
+                    </mat-option>
+                </mat-select>
+    
+                <mat-error *ngIf="errors.scopes">
+                    {{ errors.scopes }}
+                </mat-error>
+            </mat-form-field>
+        </section>
 
         <mat-form-field appearance="outline">
             <mat-label>
@@ -43,26 +73,6 @@
 
             <mat-error *ngIf="errors.url">
                 {{ errors.url }}
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Scope(s)
-            </mat-label>
-
-            <mat-select name="scopes" placeholder="scope(s)" formControlName="scopes" required multiple>
-                <mat-option>
-                    <ngx-mat-select-search #filter placeholderLabel="Filter scopes..." noEntriesFoundLabel="There are no scopes matching your query!"></ngx-mat-select-search>
-                </mat-option>
-                <mat-option *ngFor="let scope of scopes.data | orderBy : 'url' | filterBy : { url: filter.value }"
-                    [value]="scope.url">
-                    {{ scope.url }}
-                </mat-option>
-            </mat-select>
-
-            <mat-error *ngIf="errors.scopes">
-                {{ errors.scopes }}
             </mat-error>
         </mat-form-field>
 
@@ -90,30 +100,32 @@
             Theme
         </h2>
 
-        <mat-form-field appearance="outline" formGroupName="theme">
-            <mat-label>
-                Font Color
-            </mat-label>
+        <section>
+            <mat-form-field appearance="outline" formGroupName="theme">
+                <mat-label>
+                    Font Color
+                </mat-label>
 
-            <input matInput type="color" name="color" placeholder="font color" formControlName="color" required>
+                <input matInput type="color" name="color" placeholder="font color" formControlName="color" required>
 
-            <mat-error *ngIf="errors.theme.color">
-                {{ errors.theme.color }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.theme.color">
+                    {{ errors.theme.color }}
+                </mat-error>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline" formGroupName="theme">
-            <mat-label>
-                Background Color
-            </mat-label>
+            <mat-form-field appearance="outline" formGroupName="theme">
+                <mat-label>
+                    Background Color
+                </mat-label>
 
-            <input matInput type="color" name="background" placeholder="background color" formControlName="background"
-                required>
+                <input matInput type="color" name="background" placeholder="background color" formControlName="background"
+                    required>
 
-            <mat-error *ngIf="errors.theme.background">
-                {{ errors.theme.background }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.theme.background">
+                    {{ errors.theme.background }}
+                </mat-error>
+            </mat-form-field>
+        </section>
 
         <h2>
             Google
@@ -148,45 +160,47 @@
             Access Control
         </h2>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Access Mode
-            </mat-label>
+        <section>
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Access Mode
+                </mat-label>
 
-            <mat-select name="private" formControlName="private" required>
-                <mat-option [value]="false">
-                    Public
-                </mat-option>
-                <mat-option [value]="true">
-                    Private
-                </mat-option>
-            </mat-select>
+                <mat-select name="private" formControlName="private" required>
+                    <mat-option [value]="false">
+                        Public
+                    </mat-option>
+                    <mat-option [value]="true">
+                        Private
+                    </mat-option>
+                </mat-select>
 
-            <mat-error *ngIf="errors.private">
-                {{ errors.private }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.private">
+                    {{ errors.private }}
+                </mat-error>
+            </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Sharing Rules
-            </mat-label>
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Sharing Rules
+                </mat-label>
 
-            <mat-select name="organizationOnly" formControlName="organizationOnly" required>
-                <mat-option [value]="0">
-                    Share To Anyone
-                </mat-option>
-                <mat-option [value]="1">
-                    In Organization Only
-                </mat-option>
-            </mat-select>
+                <mat-select name="organizationOnly" formControlName="organizationOnly" required>
+                    <mat-option [value]="0">
+                        Share To Anyone
+                    </mat-option>
+                    <mat-option [value]="1">
+                        In Organization Only
+                    </mat-option>
+                </mat-select>
 
-            <mat-error *ngIf="errors.organizationOnly">
-                {{ errors.organizationOnly }}
-            </mat-error>
-        </mat-form-field>
+                <mat-error *ngIf="errors.organizationOnly">
+                    {{ errors.organizationOnly }}
+                </mat-error>
+            </mat-form-field>
+        </section>
 
-        <mat-file required="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256"
+        <mat-file [required]="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256"
             [max-height]="256" formControlName="favicon">
             <mat-label>
                 Favicon (256x256) <span>*</span>
@@ -194,68 +208,69 @@
         </mat-file>
 
         <div formGroupName="icons">
-            <mat-file required="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72"
+            <mat-file [required]="true" [required]="true" [min-width]="72" [max-width]="72" [min-height]="72" [max-height]="72"
                 formControlName="icon72x72">
                 <mat-label>
                     Icon (72x72) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="96" [max-width]="96" [min-height]="96" [max-height]="96"
+            <mat-file [required]="true" [min-width]="96" [max-width]="96" [min-height]="96" [max-height]="96"
                 formControlName="icon96x96">
                 <mat-label>
                     Icon (96x96) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="128" [max-width]="128" [min-height]="128" [max-height]="128"
+            <mat-file [required]="true" [min-width]="128" [max-width]="128" [min-height]="128" [max-height]="128"
                 formControlName="icon128x128">
                 <mat-label>
                     Icon (128x128) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="144" [max-width]="144" [min-height]="144" [max-height]="144"
+            <mat-file [required]="true" [min-width]="144" [max-width]="144" [min-height]="144" [max-height]="144"
                 formControlName="icon144x144">
                 <mat-label>
                     Icon (144x144) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="152" [max-width]="152" [min-height]="152" [max-height]="152"
+            <mat-file [required]="true" [min-width]="152" [max-width]="152" [min-height]="152" [max-height]="152"
                 formControlName="icon152x152">
                 <mat-label>
                     Icon (152x152) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="192" [max-width]="192" [min-height]="192" [max-height]="192"
+            <mat-file [required]="true" [min-width]="192" [max-width]="192" [min-height]="192" [max-height]="192"
                 formControlName="icon192x192">
                 <mat-label>
                     Icon (192x192) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="384" [max-width]="384" [min-height]="384" [max-height]="384"
+            <mat-file [required]="true" [min-width]="384" [max-width]="384" [min-height]="384" [max-height]="384"
                 formControlName="icon384x384">
                 <mat-label>
                     Icon (384x384) <span>*</span>
                 </mat-label>
             </mat-file>
 
-            <mat-file required="true" [min-width]="512" [max-width]="512" [min-height]="512" [max-height]="512"
+            <mat-file [required]="true" [min-width]="512" [max-width]="512" [min-height]="512" [max-height]="512"
                 formControlName="icon512x512">
                 <mat-label>
                     Icon (512x512) <span>*</span>
                 </mat-label>
             </mat-file>
         </div>
+
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
-        (click)="!loading && !form.invalid && submit()">
-        {{ mode }}
+    <button type="button" mat-flat-button color="primary" (click)="button.click()">
+        Submit
     </button>
 </mat-footer>

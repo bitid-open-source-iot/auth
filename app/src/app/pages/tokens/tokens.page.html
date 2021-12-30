@@ -1,106 +1,113 @@
+<mat-toolbar>
+    <mat-menu-button></mat-menu-button>
+
+    <label for="users">
+        Users
+    </label>
+
+    <search placeholder="Filter users.."></search>
+
+    <button mat-icon-button (click)="OpenFilter()">
+        <mat-icon>
+            filter_list
+        </mat-icon>
+    </button>
+</mat-toolbar>
+
 <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
-<mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
-    <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
-        <mat-icon>
-            apps
-        </mat-icon>
+<mat-content>
+    <mat-chip-list class="filterbar" *ngIf="filter.appId.length > 0">
+        <mat-chip *ngFor="let id of filter.appId" (removed)="unfilter('appId', id)">
+            <mat-icon>
+                apps
+            </mat-icon>
 
-        <mat-label>
-            {{ describe(apps.data, 'appId', id) }}
-        </mat-label>
+            <mat-label>
+                {{ apps.data | describe : 'appId' : id : 'name' }}
+            </mat-label>
 
-        <mat-icon matChipRemove>
-            cancel
-        </mat-icon>
-    </mat-chip>
-</mat-chip-list>
+            <mat-icon matChipRemove>
+                cancel
+            </mat-icon>
+        </mat-chip>
+    </mat-chip-list>
 
-<table mat-table [dataSource]="tokens" fxShow fxHide.xs="true" matSort>
-    <ng-container matColumnDef="icon">
-        <th mat-header-cell *matHeaderCellDef>
-            Icon
-        </th>
-        <td mat-cell *matCellDef="let element">
-            <img [src]="element.app.icon" [alt]="element.app.name" width="40" height="40" draggable="false">
-        </td>
-    </ng-container>
+    <table mat-table [dataSource]="tokens" fxShow fxHide.xs="true" matSort>
+        <ng-container matColumnDef="icon">
+            <th mat-header-cell *matHeaderCellDef>
+                Icon
+            </th>
+            <td mat-cell *matCellDef="let element">
+                <img [src]="element.app.icon" [alt]="element.app.name" width="40" height="40" draggable="false">
+            </td>
+        </ng-container>
 
-    <ng-container matColumnDef="app">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            App
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.app.name }}
-        </td>
-    </ng-container>
+        <ng-container matColumnDef="app.name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                App Name
+            </th>
+            <td mat-cell *matCellDef="let element">
+                {{ element.app.name }}
+            </td>
+        </ng-container>
 
-    <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Description
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.description }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="expiry">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>
-            Expiry
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.expiry | date : 'yyyy/MM/dd HH:mm' }}
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="disabled">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="disable(element)"
-                [disabled]="tokenId == element.tokenId || element.role < 2"
-                [matTooltip]="element.disabled ? 'Disabled' : 'Enabled'">
-                <mat-icon>
-                    {{ element.disabled ? 'do_disturb_on' : 'check_circle' }}
-                </mat-icon>
-            </button>
-        </td>
-    </ng-container>
-
-    <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-            <button mat-icon-button (click)="locked()" *ngIf="tokenId == element.tokenId">
-                <mat-icon>
-                    lock
-                </mat-icon>
-            </button>
-
-            <button mat-icon-button (click)="options(element)" *ngIf="tokenId != element.tokenId">
-                <mat-icon>
-                    more_vert
-                </mat-icon>
-            </button>
-        </td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-</table>
-
-<mat-list fxHide fxShow.xs="true">
-    <mat-list-item lines="full" *ngFor="let element of tokens.data" (click)="options(element)" matRipple>
-        <img slot="start" [src]="element.app.icon" [alt]="element.app.name" width="40" height="40" draggable="false">
-
-        <mat-label>
-            <h3>
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Description
+            </th>
+            <td mat-cell *matCellDef="let element">
                 {{ element.description }}
-                <small>
-                    {{ element.app.name }}
-                </small>
-            </h3>
-            <p>
-                {{ element.expiry | date : 'yyyy/MM/dd HH:mm' }}
-            </p>
-        </mat-label>
-    </mat-list-item>
-</mat-list>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="token.expiry">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                Expiry
+            </th>
+            <td mat-cell *matCellDef="let element">
+                {{ element.token.expiry | date : 'yyyy/MM/dd HH:mm' }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="disabled">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let element">
+                <button mat-icon-button (click)="disable($event, element)"
+                    [disabled]="tokenId == element.tokenId || element.role < 2"
+                    [matTooltip]="element.disabled ? 'Disabled' : 'Enabled'">
+                    <mat-icon>
+                        {{ element.disabled ? 'do_disturb_on' : 'check_circle' }}
+                    </mat-icon>
+                </button>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['icon', 'app.name', 'description', 'token.expiry', 'disabled']; sticky: true;"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['icon', 'app.name', 'description', 'token.expiry', 'disabled'];" (click)="options(row)"></tr>
+    </table>
+
+    <mat-list fxHide fxShow.xs="true">
+        <mat-list-item lines="full" *ngFor="let element of tokens.data" (click)="options(element)" matRipple>
+            <img slot="start" [src]="element.app.icon" [alt]="element.app.name" width="40" height="40" draggable="false">
+
+            <mat-label>
+                <h3>
+                    {{ element.description }}
+                    <small>
+                        {{ element.app.name }}
+                    </small>
+                </h3>
+                <p>
+                    {{ element.token.expiry | date : 'yyyy/MM/dd HH:mm' }}
+                </p>
+            </mat-label>
+        </mat-list-item>
+    </mat-list>
+</mat-content>
+
+<button mat-fab class="add-floating-button" color="primary" routerLink="generate">
+    <mat-icon>
+        add
+    </mat-icon>
+</button>

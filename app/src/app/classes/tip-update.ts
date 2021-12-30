@@ -47,15 +47,15 @@ export class TipUpdate {
 
 }
 
-export interface TIP_UPDATE {
-	app: {
-		name: string;
-		icon: string;
+interface TIP_UPDATE {
+	app?: {
+		name?: string;
+		icon?: string;
 	};
-	role: 0 | 1 | 2 | 3 | 4 | 5;
-	data: string;
-	appId: string;
-	title: string;
-	itemId: string;
-	subtitle: string;
+	role?: 0 | 1 | 2 | 3 | 4 | 5;
+	data?: string;
+	appId?: string;
+	title?: string;
+	itemId?: string;
+	subtitle?: string;
 }

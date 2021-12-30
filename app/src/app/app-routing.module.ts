@@ -65,25 +65,21 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule)
 	},
 	{
-		path: 'privacy-policy',
-		loadChildren: () => import('./pages/privacy-policy/privacy-policy.module').then(m => m.PrivacyPolicyPageModule)
-	},
-	{
 		path: 'reset-password',
-		loadChildren: () => import('./pages/reset-password/reset-password.module').then(m => m.ResetPasswordPageModule)
+		loadChildren: () => import('./pages/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
 	},
 	{
 		path: 'verify-account',
 		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountPageModule)
 	},
 	{
+		path: 'change-password',
+		loadChildren: () => import('./pages/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+	},
+	{
 		path: 'tips-and-updates',
 		canActivate: [AuthManager],
 		loadChildren: () => import('./pages/tips-and-updates/tips-and-updates.module').then(m => m.TipsAndUpdatesPageModule)
-	},
-	{
-		path: 'terms-and-conditions',
-		loadChildren: () => import('./pages/terms-and-conditions/terms-and-conditions.module').then(m => m.TermsAndConditionsPageModule)
 	},
 	{
 		path: '**',

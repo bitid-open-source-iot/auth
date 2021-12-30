@@ -105,7 +105,7 @@ if (tblApps.count() == 0) {
         ],
         '_id': ObjectId('000000000000000000000001'),
         'url': 'xxx',
-        'name': 'xxx',
+        'name': 'Auth',
         'icon': 'http://www.bitid.co.za/assets/logo.png',
         'secret': 'xxx',
         'serverDate': new Date()

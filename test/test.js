@@ -112,8 +112,9 @@ describe('Auth', function () {
             .then((result) => {
                 try {
                     token = result[0].token;
-                    result[0].should.have.property('email');
                     result[0].should.have.property('token');
+                    result[0].should.have.property('userId');
+                    result[0].should.have.property('tokenId');
                     done();
                 } catch (e) {
                     done(e);
@@ -1592,7 +1593,8 @@ var tools = {
             },
             verify: () => {
                 return tools.put('/auth/verify', {
-                    'code': code
+                    'code': code,
+                    'email': config.email
                 });
             },
             register: () => {
@@ -1637,6 +1639,7 @@ var tools = {
                         'type': 'id',
                         'number': 'xxx'
                     },
+                    'email': config.email,
                     'picture': 'xxx',
                     'language': 'english',
                     'password': config.password,
@@ -1731,17 +1734,20 @@ var tools = {
             },
             authenticate: () => {
                 return tools.put('/auth/authenticate', {
-                    'appId': config.appId,
+                    'email': config.email,
                     'password': config.password
                 });
             },
             resetpassword: () => {
-                return tools.put('/auth/reset-password', {});
+                return tools.put('/auth/reset-password', {
+                    'email': config.email
+                });
             },
             changepassword: () => {
                 return tools.put('/auth/change-password', {
                     'old': config.password,
-                    'new': 'QWERTY'
+                    'new': 'QWERTY',
+                    'confirm': config.password
                 });
             }
         },
@@ -2141,7 +2147,6 @@ var tools = {
 
         payload.header = {
             'appId': config.appId,
-            'email': config.email,
             'userId': config.userId
         };
 
@@ -2169,7 +2174,6 @@ var tools = {
 
         payload.header = {
             'appId': config.appId,
-            'email': config.email,
             'userId': config.userId
         };
 

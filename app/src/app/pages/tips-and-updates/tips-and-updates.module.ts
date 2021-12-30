@@ -6,7 +6,6 @@ import { TipsAndUpdatesEditorPage } from './editor/editor.page';
 import { TipsAndUpdatesFilterDialog } from './filter/filter.dialog';
 
 /* --- MODULES --- */
-import { QuillModule } from 'ngx-quill';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSortModule } from '@angular/material/sort';
@@ -71,7 +70,6 @@ const routes: Routes = [
 		MatFormFieldModule,
 		ReactiveFormsModule,
 		MatProgressBarModule,
-		QuillModule.forRoot(),
 		NgxMatSelectSearchModule,
 		RouterModule.forChild(routes)
 	],
