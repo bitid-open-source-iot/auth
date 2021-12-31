@@ -9,44 +9,50 @@
 <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
 <mat-content>
-    <table mat-table [dataSource]="users" fxShow fxHide.xs="true">
-        <ng-container matColumnDef="type">
-            <th mat-header-cell *matHeaderCellDef>
-                Type
-            </th>
-            <td mat-cell *matCellDef="let element">
-                <!-- {{ element.type }} -->
-            </td>
-        </ng-container>
+    <mat-list>
+        <h2 mat-subheader>
+            Apps
+        </h2>
 
-        <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>
-                Email
-            </th>
-            <td mat-cell *matCellDef="let element">
-                {{ element.email }}
-            </td>
-        </ng-container>
+        <mat-list-item lines="full" *ngFor="let element of data | filterBy : { type: 'app' }" (click)="options(element, 'app')">
+            <mat-label>
+                <h3>
+                    {{ element.email }}
+                </h3>
+                <p>
+                    {{ element.role == 1 ? 'Read' : ''}}
+                    {{ element.role == 2 ? 'Write' : ''}}
+                    {{ element.role == 3 ? 'Read/Write' : ''}}
+                    {{ element.role == 4 ? 'Admin' : ''}}
+                    {{ element.role == 5 ? 'Owner' : ''}}
+                </p>
+            </mat-label>
+        </mat-list-item>
+        
+        <h2 mat-subheader>
+            Users
+        </h2>
 
-        <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef>
-                Role
-            </th>
-            <td mat-cell *matCellDef="let element">
-                {{ element.role == 1 ? 'Read' : '' }}
-                {{ element.role == 2 ? 'Write' : '' }}
-                {{ element.role == 3 ? 'Read/Write' : '' }}
-                {{ element.role == 4 ? 'Admin' : '' }}
-                {{ element.role == 5 ? 'Owner' : '' }}
-            </td>
-        </ng-container>
+        <mat-list-item lines="full" *ngFor="let element of data | filterBy : { type: 'user' }" (click)="options(element, 'user')">
+            <mat-label>
+                <h3>
+                    {{ users.data | describe : 'userId' : element.id : 'name' }}
+                </h3>
+                <p>
+                    {{ element.role == 1 ? 'Read' : ''}}
+                    {{ element.role == 2 ? 'Write' : ''}}
+                    {{ element.role == 3 ? 'Read/Write' : ''}}
+                    {{ element.role == 4 ? 'Admin' : ''}}
+                    {{ element.role == 5 ? 'Owner' : ''}}
+                </p>
+            </mat-label>
+        </mat-list-item>
+        
+        <h2 mat-subheader>
+            Groups
+        </h2>
 
-        <tr mat-header-row *matHeaderRowDef="['type', 'email', 'role']; sticky: true;"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['type', 'email', 'role'];" (click)="options(row)"></tr>
-    </table>
-
-    <mat-list fxHide fxShow.xs="true">
-        <mat-list-item lines="full" *ngFor="let element of users.data" (click)="options(element)">
+        <mat-list-item lines="full" *ngFor="let element of data | filterBy : { type: 'group' }" (click)="options(element, 'group')">
             <mat-label>
                 <h3>
                     {{ element.email }}

@@ -3831,6 +3831,10 @@ var module = function () {
 							{
 								'_id': ObjectId(__settings.client.appId),
 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_id': ObjectId(__settings.client.appId),
+								'bitid.auth.private': false
 							}
 						]
 					}
@@ -3923,15 +3927,9 @@ var module = function () {
 					}
 				},
 				{
-					$match: {
-						'role': {
-							$gte: 4
-						}
-					}
-				},
-				{
 					$project: {
-						'_id': 1
+						'_id': 1,
+						'role': 1
 					}
 				}
 			];
@@ -3956,6 +3954,16 @@ var module = function () {
 						};
 					};
 
+					if (typeof (args.req.body.userId) != 'undefined' && args.req.body.userId != null) {
+						if (Array.isArray(args.req.body.userId) && args.req.body.userId?.length > 0) {
+							params._id = {
+								$in: args.req.body.userId.filter(id => typeof(id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
+							};
+						} else if (typeof (args.req.body.userId) == 'string' && args.req.body.userId?.length == 24) {
+							params._id = ObjectId(args.req.body.userId);
+						};
+					};
+
 					if (typeof (args.req.body.validated) != 'undefined') {
 						if (Array.isArray(args.req.body.validated) && args.req.body.validated.length > 0) {
 							params.validated = {
@@ -3967,7 +3975,12 @@ var module = function () {
 					};
 
 					var filter = {};
-					if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
+					if (result[0].role < 4) {
+						filter = {
+							'_id': 1,
+							'name': 1
+						};
+					} else if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
 						filter['_id'] = 0;
 						args.req.body.filter.map(f => {
 							if (f == 'userId') {

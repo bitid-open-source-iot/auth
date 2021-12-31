@@ -16,9 +16,12 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatRippleModule } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
+import { OrderPipeModule } from 'src/app/pipes/order/order.module';
+import { FilterPipeModule } from 'src/app/pipes/filter/filter.module';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { MatContentModule } from 'src/app/libs/mat-content/mat-content.module';
+import { DescribePipeModule } from 'src/app/pipes/describe/describe.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatBackButtonModule } from 'src/app/libs/mat-back-button/mat-back-button.module';
 import { Routes, RouterModule } from '@angular/router';
@@ -27,7 +30,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 const routes: Routes = [
 	{
-		path: '',
+		path: ':type/:id',
 		component: SubscribersPage
 	}
 ];
@@ -45,9 +48,12 @@ const routes: Routes = [
 		MatDialogModule,
 		MatButtonModule,
 		MatSelectModule,
+		OrderPipeModule,
+		FilterPipeModule,
 		MatContentModule,
 		MatToolbarModule,
 		FlexLayoutModule,
+		DescribePipeModule,
 		MatFormFieldModule,
 		MatBackButtonModule,
 		ReactiveFormsModule,
