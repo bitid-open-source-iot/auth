@@ -127,7 +127,7 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 					this.appId = params.appId;
 					this.load();
 				};
-				if (params.email == '' || params.email == null || typeof (params.email) == 'undefined' || params.password == '' || params.password == null || typeof (params.password) == 'undefined') {
+				if (params.userId == '' || params.userId == null || typeof (params.userId) == 'undefined') {
 					this.router.navigate(['/']);
 				};
 			};

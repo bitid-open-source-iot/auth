@@ -1,18 +1,27 @@
-import { App } from 'src/app/classes/app';
 import { Router } from '@angular/router';
 import { MatSort } from '@angular/material/sort';
-import { TipUpdate } from 'src/app/classes/tip-update';
 import { MatDialog } from '@angular/material/dialog';
+import { MatTableDataSource } from '@angular/material/table';
+import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { TipUpdate } from 'src/app/classes/tip-update';
+
+/* --- DIALOGS --- */
+import { TipsAndUpdatesFilterDialog } from './filter/filter.dialog';
+
+/* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
-import { MatTableDataSource } from '@angular/material/table';
 import { TipsAndUpdatesService } from 'src/app/services/tips-and-updates/tips-and-updates.service';
-import { TipsAndUpdatesFilterDialog } from './filter/filter.dialog';
-import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
+
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
 
 @Component({
 	selector: 'tips-and-updates-page',
@@ -23,6 +32,7 @@ import { OnInit, Component, ViewChild, OnDestroy } from '@angular/core';
 export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: TipsAndUpdatesService) { }
 
@@ -30,7 +40,6 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 		appId: []
 	});
 	public table: MatTableDataSource<TipUpdate> = new MatTableDataSource<TipUpdate>();
-	public columns: string[] = ['title', 'subtitle', 'options'];
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -64,7 +73,8 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 			filter: [
 				'name',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (apps.ok) {
@@ -76,10 +86,21 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public unfilter(key: string, value: any) {
-		this.filter[key] = this.filter[key].filter((o: any) => o != value);
-		this.filters.update(this.filter);
-		this.list();
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(TipsAndUpdatesFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
+
+		await dialog.afterClosed().subscribe(async (result) => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
 	}
 
 	public async options(item: TipUpdate) {
@@ -133,8 +154,8 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 											this.table.data.splice(i, 1);
 											this.toast.show('Item was removed!');
 											break;
-										}
-									}
+										};
+									};
 									this.table.data = this.table.data.map((o: TipUpdate) => new TipUpdate(o));
 								} else {
 									this.toast.show(response.error.message);
@@ -144,37 +165,16 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 							}
 						});
 					},
-					disabled: [0, 1, 2, 3, 4]
+					disabled: [0, 1]
 				}
 			]
 		});
 	}
 
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.name;
-			}
-		});
-		return result;
-	}
-
-	public async OpenFilter() {
-		const dialog = await this.dialog.open(TipsAndUpdatesFilterDialog, {
-			data: this.filter,
-			panelClass: 'filter-dialog'
-		});
-
-		await dialog.afterClosed().subscribe(async (result) => {
-			if (result) {
-				Object.keys(result).map(key => {
-					this.filter[key] = result[key];
-				});
-				this.filters.update(this.filter);
-				this.list();
-			};
-		});
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
 	}
 
 	ngOnInit(): void {
@@ -188,10 +188,15 @@ export class TipsAndUpdatesPage implements OnInit, OnDestroy {
 				await this.load();
 			};
 		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.table.filter = value;
+		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

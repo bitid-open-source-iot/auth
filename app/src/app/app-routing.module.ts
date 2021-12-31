@@ -61,20 +61,16 @@ const routes: Routes = [
 		loadChildren: () => import('./pages/allow-access/allow-access.module').then(m => m.AllowAccessPageModule)
 	},
 	{
-		path: 'forgot-password',
-		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule)
-	},
-	{
-		path: 'reset-password',
-		loadChildren: () => import('./pages/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
-	},
-	{
 		path: 'verify-account',
 		loadChildren: () => import('./pages/verify-account/verify-account.module').then(m => m.VerifyAccountPageModule)
 	},
 	{
 		path: 'change-password',
 		loadChildren: () => import('./pages/change-password/change-password.module').then(m => m.ChangePasswordPageModule)
+	},
+	{
+		path: 'forgot-password',
+		loadChildren: () => import('./pages/forgot-password/forgot-password.module').then(m => m.ForgotPasswordPageModule)
 	},
 	{
 		path: 'tips-and-updates',

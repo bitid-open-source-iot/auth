@@ -1,5 +1,17 @@
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="feature editor">
+        {{ mode == 'add' ? 'Create Feature' : '' }}
+        {{ mode == 'copy' ? 'Copy Feature' : '' }}
+        {{ mode == 'update' ? 'Edit Feature' : '' }}
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
                 App
@@ -44,12 +56,13 @@
                 {{ errors.description }}
             </mat-error>
         </mat-form-field>
+
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
-        (click)="!loading && !form.invalid && submit()">
-        {{ mode }}
+    <button type="button" mat-flat-button color="primary" (click)="button.click()">
+        Submit
     </button>
 </mat-footer>

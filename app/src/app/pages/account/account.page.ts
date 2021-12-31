@@ -3,7 +3,12 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 /* --- SERVICES --- */
 import { ToastService } from 'src/app/services/toast/toast.service';
+import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'account-page',
@@ -13,7 +18,7 @@ import { AccountService } from 'src/app/services/account/account.service';
 
 export class AccountPage implements OnInit, OnDestroy {
 
-	constructor(private toast: ToastService, private service: AccountService) { }
+	constructor(private toast: ToastService, private config: ConfigService, private service: AccountService, private localstorage: LocalStorageService) { }
 
 	public form: FormGroup = new FormGroup({
 		name: new FormGroup({
@@ -23,6 +28,8 @@ export class AccountPage implements OnInit, OnDestroy {
 		picture: new FormControl(null, [Validators.required]),
 		username: new FormControl(null, [Validators.required])
 	});
+	public appId: string = environment.appId;
+	public userId: string | undefined;
 	public errors: any = {
 		name: {
 			last: '',
@@ -46,17 +53,13 @@ export class AccountPage implements OnInit, OnDestroy {
 			username: this.form.value.username
 		});
 
-		this.loading = false;
-
 		if (response.ok) {
 			this.toast.show('Account was updated!');
 		} else {
 			this.toast.show('Issue updating account!');
 		};
-	}
 
-	public async upload(src: string) {
-		this.form.controls['picture'].setValue(src);
+		this.loading = false;
 	}
 
 	ngOnInit(): void {
@@ -70,10 +73,18 @@ export class AccountPage implements OnInit, OnDestroy {
 				};
 			};
 		});
+
+		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+			if (loaded) {
+				this.appId = environment.appId;
+				this.userId = this.localstorage.get('userId');
+			};
+		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.user.unsubscribe();
+		this.observers.user?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

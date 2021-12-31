@@ -7,12 +7,12 @@ import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
 
 @Component({
-	selector: 'remove-account-page',
-	styleUrls: ['./remove-account.page.scss'],
-	templateUrl: './remove-account.page.html'
+	selector: 'account-remove-page',
+	styleUrls: ['./remove.page.scss'],
+	templateUrl: './remove.page.html'
 })
 
-export class RemoveAccountPage implements OnInit, OnDestroy {
+export class AccountRemovePage implements OnInit, OnDestroy {
 
 	constructor(private toast: ToastService, private service: AccountService, private formerror: FormErrorService) { }
 

@@ -1,5 +1,5 @@
 import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
+import { OnInit, Component, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 /* --- CLASSES --- */
@@ -12,6 +12,9 @@ import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TipsAndUpdatesService } from 'src/app/services/tips-and-updates/tips-and-updates.service';
 
+/* --- DIRECTIVES --- */
+import { FroalaEditorDirective } from 'angular-froala-wysiwyg';
+
 @Component({
 	selector: 'tips-and-updates-editor-page',
 	styleUrls: ['./editor.page.scss'],
@@ -19,6 +22,8 @@ import { TipsAndUpdatesService } from 'src/app/services/tips-and-updates/tips-an
 })
 
 export class TipsAndUpdatesEditorPage implements OnInit, OnDestroy {
+
+	@ViewChild(FroalaEditorDirective, { static: true }) private editor?: FroalaEditorDirective;
 
 	constructor(public apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private config: ConfigService, private router: Router, private service: TipsAndUpdatesService) { }
 
@@ -79,9 +84,9 @@ export class TipsAndUpdatesEditorPage implements OnInit, OnDestroy {
 			filter: [
 				'role',
 				'name',
-				'icon',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (response.ok) {

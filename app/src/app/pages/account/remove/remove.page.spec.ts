@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RemoveAccountPage } from './remove-account.page';
+import { AccountRemovePage } from './remove.page';
 
-describe('RemoveAccountPage', () => {
-  let component: RemoveAccountPage;
-  let fixture: ComponentFixture<RemoveAccountPage>;
+describe('AccountRemovePage', () => {
+  let component: AccountRemovePage;
+  let fixture: ComponentFixture<AccountRemovePage>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [RemoveAccountPage]
+      declarations: [AccountRemovePage]
     })
       .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RemoveAccountPage);
+    fixture = TestBed.createComponent(AccountRemovePage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

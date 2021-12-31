@@ -1,9 +1,15 @@
-<mat-content>
-    <h1>
-        Remove Account
-    </h1>
+<mat-toolbar>
+    <mat-menu-button></mat-menu-button>
 
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+    <label for="remove account">
+        Remove Account
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <p class="notice">
             The removal of your account will mean you can no longer sign in to the platform. This does not remove the
             assets you have created in the time you have had an account with us and if you wish to signup again your
@@ -23,10 +29,12 @@
             </mat-error>
         </mat-form-field>
 
-        <button type="submit" mat-flat-button color="warn">
-            {{ loading ? '' : 'confirm & remove' }}
-
-            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
-        </button>
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
+
+<mat-footer>
+    <button type="button" mat-flat-button color="warn" (click)="button.click()">
+        Confirm & Remove
+    </button>
+</mat-footer>

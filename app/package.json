@@ -22,6 +22,7 @@
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
     "@angular/service-worker": "~13.1.0",
+    "angular-froala-wysiwyg": "^4.0.8",
     "ngx-mat-select-search": "^3.3.3",
     "object-path": "^0.11.8",
     "rxjs": "~7.4.0",

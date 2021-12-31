@@ -8,6 +8,7 @@ export class Group {
 	public appId: string[] = [];
 	public groups: Accessor[] = [];
 	public groupId: string | undefined;
+	public private: boolean | undefined;
 	public description: string | undefined;
 	public organizationOnly: number | undefined;
 
@@ -31,6 +32,9 @@ export class Group {
 			if (typeof (args.groupId) != 'undefined' && args.groupId != null) {
 				this.groupId = args.groupId;
 			};
+			if (typeof (args.private) != 'undefined' && args.private != null) {
+				this.private = args.private;
+			};
 			if (typeof (args.description) != 'undefined' && args.description != null) {
 				this.description = args.description;
 			};
@@ -49,6 +53,7 @@ interface GROUP {
 	appId?: string[];
 	groups?: Accessor[];
 	groupId?: string;
+	private?: boolean;
 	description?: string;
 	organizationOnly?: number;
 }

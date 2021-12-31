@@ -1,5 +1,15 @@
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!form.invalid && submit()">
+<mat-toolbar>
+    <mat-menu-button></mat-menu-button>
+
+    <label for="account">
+        Account
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-file [required]="true" formControlName="picture">
             <mat-label>
                 Profile Image <span>*</span>
@@ -45,17 +55,15 @@
         </mat-form-field>
 
         <button type="submit" mat-flat-button color="primary">
-            {{ loading ? '' : 'update' }}
-
-            <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
+            Update
         </button>
 
-        <button type="button" mat-stroked-button color="primary" margin-top routerLink="change-password">
-            change password
+        <button type="button" mat-flat-button color="warn" routerLink="remove">
+            Remove Account
         </button>
 
-        <button type="button" mat-flat-button color="warn" margin-top routerLink="remove-account">
-            remove account
+        <button type="button" mat-stroked-button color="primary" routerLink="/change-password" [queryParams]="{ userId: userId, appId: appId}">
+            Change Password
         </button>
     </form>
 </mat-content>

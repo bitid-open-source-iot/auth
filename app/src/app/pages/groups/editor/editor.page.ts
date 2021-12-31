@@ -26,11 +26,13 @@ export class GroupsEditorPage implements OnInit, OnDestroy {
 	public mode: string | undefined;
 	public form: FormGroup = new FormGroup({
 		appId: new FormControl([], [Validators.required]),
+		private: new FormControl(null, [Validators.required]),
 		description: new FormControl(null, [Validators.required]),
 		organizationOnly: new FormControl(null, [Validators.required])
 	});
 	public errors: any = {
 		appId: '',
+		private: '',
 		description: '',
 		organizationOnly: ''
 	};
@@ -45,6 +47,7 @@ export class GroupsEditorPage implements OnInit, OnDestroy {
 			filter: [
 				'role',
 				'appId',
+				'private',
 				'description',
 				'organizationOnly'
 			],
@@ -55,6 +58,7 @@ export class GroupsEditorPage implements OnInit, OnDestroy {
 			const group = new Group(response.result);
 			if (group.role > 1) {
 				this.form.controls['appId'].setValue(group.appId);
+				this.form.controls['private'].setValue(group.private);
 				this.form.controls['description'].setValue(group.description);
 				this.form.controls['organizationOnly'].setValue(group.organizationOnly);
 			} else {
@@ -76,7 +80,8 @@ export class GroupsEditorPage implements OnInit, OnDestroy {
 			filter: [
 				'name',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (apps.ok) {

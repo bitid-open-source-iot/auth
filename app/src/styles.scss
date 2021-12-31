@@ -235,6 +235,10 @@ body.dark-mode {
     .mat-select-value {
         color: #e0e0e0 !important;
     }
+    .fr-toolbar,
+    .fr-wrapper {
+        background-color: transparent !important;
+    }
     .mat-form-field-outline {
         color: #757575 !important;
     }
@@ -338,12 +342,15 @@ settings-page,
 apps-editor-page,
 subscribers-page,
 allow-access-page,
+groups-editor-page,
 scopes-editor-page,
+account-remove-page,
 verify-account-page,
 features-editor-page,
 change-password-page,
 forgot-password-page,
-tips-and-updates-page {
+tips-and-updates-page,
+tips-and-updates-editor-page {
     height: 100vh;
     display: flex;
     position: relative;
@@ -423,4 +430,15 @@ tips-and-updates-page {
 }
 input[type=color] {
     height: 16px;
+}
+.fr-second-toolbar {
+    display: none !important;
+}
+.fr-toolbar {
+    border-top-left-radius: 4px !important;
+    border-top-right-radius: 4px !important;
+}
+.fr-wrapper {
+    border-bottom-left-radius: 4px !important;
+    border-bottom-right-radius: 4px !important;
 }

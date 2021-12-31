@@ -1,6 +1,6 @@
 <mat-toolbar>
-    <label for="Filter Features">
-        Filter Features
+    <label for="Filter Tips & Updates">
+        Filter Tips & Updates
     </label>
 
     <button mat-icon-button (click)="close()">
@@ -10,9 +10,9 @@
     </button>
 </mat-toolbar>
 
-<mat-content>
-    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
+<mat-content>
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
@@ -41,6 +41,6 @@
 
 <mat-footer>
     <button type="button" color="primary" mat-flat-button (click)="button.click()">
-        submit
+        Apply
     </button>
 </mat-footer>

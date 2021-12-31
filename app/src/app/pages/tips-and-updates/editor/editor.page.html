@@ -1,11 +1,17 @@
 <mat-toolbar>
-    <label for="Feature Editor">
-        Feature Editor
+    <mat-back-button></mat-back-button>
+
+    <label for="Tips & Updates editor">
+        {{ mode == 'add' ? 'Create Tips & Updates' : '' }}
+        {{ mode == 'copy' ? 'Copy Tips & Updates' : '' }}
+        {{ mode == 'update' ? 'Edit Tips & Updates' : '' }}
     </label>
 </mat-toolbar>
 
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
                 App
@@ -51,16 +57,14 @@
             </mat-error>
         </mat-form-field>
 
+        <textarea [froalaEditor] formControlName="data"></textarea>
+
         <button #button type="submit" style="display: none;"></button>
     </form>
-
-    <!-- <section [formGroup]="form">
-        <quill-editor name="data" formControlName="data"></quill-editor>
-    </section> -->
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid" (click)="button.click()">
-        {{ mode }}
+    <button type="button" mat-flat-button color="primary" (click)="button.click()">
+        Submit
     </button>
 </mat-footer>

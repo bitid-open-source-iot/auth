@@ -1,82 +1,64 @@
-<table mat-table [dataSource]="users" fxShow fxHide.xs="true">
-    <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef>
-            Email
-        </th>
-        <td mat-cell *matCellDef="let element">
-            {{ element.email }}
-        </td>
-    </ng-container>
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
 
-    <ng-container matColumnDef="role">
-        <th mat-header-cell *matHeaderCellDef>
-            Role
-        </th>
-        <td mat-cell *matCellDef="let element">
-            <mat-select [(ngModel)]="element.role" (ngModelChange)="updatesubscriber(element.email, $event)"
-                [disabled]="role < 4 || element.role >= role || element.role == 5" required>
-                <mat-option [value]="1">
-                    Read
-                </mat-option>
-                <mat-option [value]="2">
-                    Write
-                </mat-option>
-                <mat-option [value]="3">
-                    Read/Write
-                </mat-option>
-                <mat-option [value]="4">
-                    Admin
-                </mat-option>
-                <mat-option [value]="5" disabled>
-                    Owner
-                </mat-option>
-            </mat-select>
-        </td>
-    </ng-container>
+    <label for="subscribers">
+        Subscribers
+    </label>
+</mat-toolbar>
 
-    <ng-container matColumnDef="options">
-        <th mat-header-cell *matHeaderCellDef></th>
-        <td mat-cell *matCellDef="let element">
-            <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5"
-                (click)="unsubscribe(element.email)">
-                <mat-icon>
-                    delete
-                </mat-icon>
-            </button>
-        </td>
-    </ng-container>
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
-    <tr mat-header-row *matHeaderRowDef="columns; sticky: true;"></tr>
-    <tr mat-row *matRowDef="let row; columns: columns;"></tr>
-</table>
+<mat-content>
+    <table mat-table [dataSource]="users" fxShow fxHide.xs="true">
+        <ng-container matColumnDef="type">
+            <th mat-header-cell *matHeaderCellDef>
+                Type
+            </th>
+            <td mat-cell *matCellDef="let element">
+                <!-- {{ element.type }} -->
+            </td>
+        </ng-container>
 
-<mat-list fxHide fxShow.xs="true">
-    <mat-list-item lines="full" *ngFor="let element of users.data">
-        <mat-label>
-            <h3>
+        <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>
+                Email
+            </th>
+            <td mat-cell *matCellDef="let element">
                 {{ element.email }}
-            </h3>
-            <p>
-                {{ element.role == 1 ? 'Read' : ''}}
-                {{ element.role == 2 ? 'Write' : ''}}
-                {{ element.role == 3 ? 'Read/Write' : ''}}
-                {{ element.role == 4 ? 'Admin' : ''}}
-                {{ element.role == 5 ? 'Owner' : ''}}
-            </p>
-        </mat-label>
+            </td>
+        </ng-container>
 
-        <button mat-icon-button [disabled]="role < 4 || element.role >= role || element.role == 5"
-            (click)="editor(element)">
-            <mat-icon>
-                edit
-            </mat-icon>
-        </button>
+        <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>
+                Role
+            </th>
+            <td mat-cell *matCellDef="let element">
+                {{ element.role == 1 ? 'Read' : '' }}
+                {{ element.role == 2 ? 'Write' : '' }}
+                {{ element.role == 3 ? 'Read/Write' : '' }}
+                {{ element.role == 4 ? 'Admin' : '' }}
+                {{ element.role == 5 ? 'Owner' : '' }}
+            </td>
+        </ng-container>
 
-        <button mat-icon-button color="warn" [disabled]="role < 4 || element.role >= role || element.role == 5"
-            (click)="unsubscribe(element.email)">
-            <mat-icon>
-                delete
-            </mat-icon>
-        </button>
-    </mat-list-item>
-</mat-list>
+        <tr mat-header-row *matHeaderRowDef="['type', 'email', 'role']; sticky: true;"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['type', 'email', 'role'];" (click)="options(row)"></tr>
+    </table>
+
+    <mat-list fxHide fxShow.xs="true">
+        <mat-list-item lines="full" *ngFor="let element of users.data" (click)="options(element)">
+            <mat-label>
+                <h3>
+                    {{ element.email }}
+                </h3>
+                <p>
+                    {{ element.role == 1 ? 'Read' : ''}}
+                    {{ element.role == 2 ? 'Write' : ''}}
+                    {{ element.role == 3 ? 'Read/Write' : ''}}
+                    {{ element.role == 4 ? 'Admin' : ''}}
+                    {{ element.role == 5 ? 'Owner' : ''}}
+                </p>
+            </mat-label>
+        </mat-list-item>
+    </mat-list>
+</mat-content>

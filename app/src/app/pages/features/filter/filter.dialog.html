@@ -1,7 +1,7 @@
 <mat-toolbar>
-    <mat-label class="spacer">
+    <label for="filter features">
         Filter Features
-    </mat-label>
+    </label>
 
     <button mat-icon-button (click)="close()">
         <mat-icon>
@@ -10,9 +10,9 @@
     </button>
 </mat-toolbar>
 
-<mat-content>
-    <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
 
+<mat-content>
     <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
@@ -34,8 +34,12 @@
             </mat-error>
         </mat-form-field>
 
-        <button type="submit" color="primary" mat-flat-button>
-            submit
-        </button>
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
+
+<mat-footer>
+    <button type="button" color="primary" mat-flat-button (click)="button.click()">
+        Apply
+    </button>
+</mat-footer>

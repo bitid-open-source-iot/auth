@@ -20,6 +20,9 @@ import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { FeaturesService } from 'src/app/services/features/features.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'features-page',
 	styleUrls: ['./features.page.scss'],
@@ -29,13 +32,13 @@ import { FeaturesService } from 'src/app/services/features/features.service';
 export class FeaturesPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(public apps: AppsService, private toast: ToastService, private dialog: MatDialog, private sheet: OptionsService, private config: ConfigService, private filters: FiltersService, private router: Router, private confirm: ConfirmService, private service: FeaturesService) { }
 
 	public filter: any = this.filters.get({
 		appId: []
 	});
-	public columns: string[] = ['title', 'description', 'options'];
 	public loading: boolean = false;
 	public features: MatTableDataSource<Feature> = new MatTableDataSource<Feature>();
 	private observers: any = {};
@@ -70,7 +73,8 @@ export class FeaturesPage implements OnInit, OnDestroy {
 			filter: [
 				'name',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (apps.ok) {
@@ -82,10 +86,21 @@ export class FeaturesPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public unfilter(key: string, value: any) {
-		this.filter[key] = this.filter[key].filter((o: any) => o != value);
-		this.filters.update(this.filter);
-		this.list();
+	public async OpenFilter() {
+		const dialog = await this.dialog.open(FeaturesFilterDialog, {
+			data: this.filter,
+			panelClass: 'filter-dialog'
+		});
+
+		await dialog.afterClosed().subscribe(async result => {
+			if (result) {
+				Object.keys(result).map(key => {
+					this.filter[key] = result[key];
+				});
+				this.filters.update(this.filter);
+				this.list();
+			};
+		});
 	}
 
 	public async options(feature: Feature) {
@@ -141,7 +156,7 @@ export class FeaturesPage implements OnInit, OnDestroy {
 											break;
 										};
 									};
-									this.features.data = JSON.parse(JSON.stringify(this.features.data));
+									this.features.data = this.features.data.map((o: Feature) => new Feature(o));
 								} else {
 									this.toast.show(response.error.message);
 								};
@@ -150,37 +165,16 @@ export class FeaturesPage implements OnInit, OnDestroy {
 							}
 						});
 					},
-					disabled: [0, 1, 2, 3, 4]
+					disabled: [0, 1]
 				}
 			]
 		});
 	}
 
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.name;
-			}
-		});
-		return result;
-	}
-
-	public async OpenFilter() {
-		const dialog = await this.dialog.open(FeaturesFilterDialog, {
-			data: this.filter,
-			panelClass: 'filter-dialog'
-		});
-
-		await dialog.afterClosed().subscribe(async result => {
-			if (result) {
-				Object.keys(result).map(key => {
-					this.filter[key] = result[key];
-				});
-				this.filters.update(this.filter);
-				this.list();
-			};
-		});
+	public unfilter(key: string, value: any) {
+		this.filter[key] = this.filter[key].filter((o: any) => o != value);
+		this.filters.update(this.filter);
+		this.list();
 	}
 
 	ngOnInit(): void {
@@ -190,14 +184,19 @@ export class FeaturesPage implements OnInit, OnDestroy {
 
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				await this.list();
 				await this.load();
+				await this.list();
 			};
+		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.features.filter = value;
 		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

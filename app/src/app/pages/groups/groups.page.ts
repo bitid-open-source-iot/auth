@@ -21,6 +21,9 @@ import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 import { FiltersService } from 'src/app/services/filters/filters.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
+/* --- COMPONENTS --- */
+import { SearchComponent } from 'src/app/libs/search/search.component';
+
 @Component({
 	selector: 'groups-page',
 	styleUrls: ['./groups.page.scss'],
@@ -30,14 +33,14 @@ import { LocalStorageService } from 'src/app/services/local-storage/local-storag
 export class GroupsPage implements OnInit, OnDestroy {
 
 	@ViewChild(MatSort, { static: true }) private sort: MatSort = new MatSort();
+	@ViewChild(SearchComponent, { static: true }) private search?: SearchComponent;
 
 	constructor(public apps: AppsService, private toast: ToastService, private config: ConfigService, private dialog: MatDialog, private sheet: OptionsService, private router: Router, private filters: FiltersService, private confirm: ConfirmService, private service: GroupsService, private localstorage: LocalStorageService) { }
 
-	public groups: MatTableDataSource<Group> = new MatTableDataSource<Group>();
 	public filter: any = this.filters.get({
 		appId: []
-	})
-	public columns: string[] = ['description', 'appId', 'options'];
+	});
+	public groups: MatTableDataSource<Group> = new MatTableDataSource<Group>();
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -70,7 +73,8 @@ export class GroupsPage implements OnInit, OnDestroy {
 			filter: [
 				'name',
 				'appId'
-			]
+			],
+			private: [true, false]
 		});
 
 		if (apps.ok) {
@@ -143,8 +147,9 @@ export class GroupsPage implements OnInit, OnDestroy {
 								this.loading = true;
 
 								const response = await this.service.unsubscribe({
-									groupId: group.groupId,
-									email: this.localstorage.get('email')
+									id: this.localstorage.get('userId'),
+									type: 'user',
+									groupId: group.groupId
 								});
 
 								if (response.ok) {
@@ -203,16 +208,6 @@ export class GroupsPage implements OnInit, OnDestroy {
 		});
 	}
 
-	public describe(array: any[], key: string, id: string) {
-		let result = '-';
-		array.map(o => {
-			if (o[key] == id) {
-				result = o.name;
-			}
-		});
-		return result;
-	}
-
 	public async OpenFilter() {
 		const dialog = await this.dialog.open(GroupsFilterDialog, {
 			data: this.filter,
@@ -241,10 +236,15 @@ export class GroupsPage implements OnInit, OnDestroy {
 				await this.list();
 			};
 		});
+
+		this.observers.search = this.search?.change.subscribe(value => {
+			this.groups.filter = value;
+		});
 	}
 
 	ngOnDestroy(): void {
 		this.observers.loaded?.unsubscribe();
+		this.observers.search?.unsubscribe();
 	}
 
 }

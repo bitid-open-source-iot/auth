@@ -35,6 +35,26 @@
                 </label>
             </mat-list-item>
 
+            <mat-list-item lines="full" routerLink="/groups" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    groups
+                </mat-icon>
+
+                <label for="groups">
+                    Groups
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/features" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    widgets
+                </mat-icon>
+
+                <label for="features">
+                    Features
+                </label>
+            </mat-list-item>
+
             <mat-list-item lines="full" routerLink="/scopes" routerLinkActive="active" matRipple (click)="menu.close()">
                 <mat-icon>
                     api
@@ -52,6 +72,16 @@
 
                 <label for="settings">
                     Settings
+                </label>
+            </mat-list-item>
+
+            <mat-list-item lines="full" routerLink="/tips-and-updates" routerLinkActive="active" matRipple (click)="menu.close()">
+                <mat-icon>
+                    tips_and_updates
+                </mat-icon>
+
+                <label for="tips and updates">
+                    Tips & Updates
                 </label>
             </mat-list-item>
 

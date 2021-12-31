@@ -1,7 +1,7 @@
 
 
   Software & Testing Details
-    ✔ DATE: 30/12/2021 21:27:55
+    ✔ DATE: 31/12/2021 11:01:30
     ✔ AUTHOR: claytoncc
     ✔ VERSION: 2.1.0
 
@@ -9,15 +9,15 @@
     ✔ /config/get
 
   Auth
-    ✔ /auth/register (3309ms)
-    ✔ /auth/verify (2903ms)
+    ✔ /auth/register (3457ms)
+    ✔ /auth/verify (3683ms)
     ✔ /auth/authenticate
     ✔ /auth/allow-access
     ✔ /auth/validate
     ✔ /auth/change-email
     ✔ /auth/change-email
     ✔ /auth/change-password
-    ✔ /auth/reset-password (3290ms)
+    ✔ /auth/reset-password (3383ms)
 
   Apps
     ✔ /apps/add
@@ -35,7 +35,7 @@
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get (41ms)
+    ✔ /scopes/get
     ✔ /scopes/list
     ✔ /scopes/update
 
@@ -79,12 +79,12 @@
   Remove Added Items
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete
+    ✔ /scopes/delete (40ms)
     ✔ /groups/delete
     ✔ /apps/delete
     ✔ /tokens/revoke
     ✔ /users/delete
 
 
-  59 passing (10s)
+  59 passing (11s)
 

@@ -1,5 +1,17 @@
-<mat-content>
-    <form [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="group editor">
+        {{ mode == 'add' ? 'Create Group' : '' }}
+        {{ mode == 'copy' ? 'Copy Group' : '' }}
+        {{ mode == 'update' ? 'Edit Group' : '' }}
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
         <mat-form-field appearance="outline">
             <mat-label>
                 Description
@@ -33,31 +45,56 @@
             </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-            <mat-label>
-                Sharing Rules
-            </mat-label>
+        <h2>
+            Access Control
+        </h2>
 
-            <mat-select name="organizationOnly" placeholder="organizationOnly" formControlName="organizationOnly"
-                required>
-                <mat-option [value]="0">
-                    Anyone can be shared
-                </mat-option>
-                <mat-option [value]="1">
-                    In Organization Only
-                </mat-option>
-            </mat-select>
+        <section>
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Access Mode
+                </mat-label>
 
-            <mat-error *ngIf="errors.organizationOnly">
-                {{ errors.organizationOnly }}
-            </mat-error>
-        </mat-form-field>
+                <mat-select name="private" formControlName="private" required>
+                    <mat-option [value]="false">
+                        Public
+                    </mat-option>
+                    <mat-option [value]="true">
+                        Private
+                    </mat-option>
+                </mat-select>
+
+                <mat-error *ngIf="errors.private">
+                    {{ errors.private }}
+                </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>
+                    Sharing Rules
+                </mat-label>
+
+                <mat-select name="organizationOnly" formControlName="organizationOnly" required>
+                    <mat-option [value]="0">
+                        Share To Anyone
+                    </mat-option>
+                    <mat-option [value]="1">
+                        In Organization Only
+                    </mat-option>
+                </mat-select>
+
+                <mat-error *ngIf="errors.organizationOnly">
+                    {{ errors.organizationOnly }}
+                </mat-error>
+            </mat-form-field>
+        </section>
+
+        <button #button type="submit" style="display: none;"></button>
     </form>
 </mat-content>
 
 <mat-footer>
-    <button type="button" mat-flat-button color="primary" [disabled]="form.invalid"
-        (click)="!loading && !form.invalid && submit()">
-        {{ mode }}
+    <button type="button" mat-flat-button color="primary" (click)="button.click()">
+        Submit
     </button>
 </mat-footer>
