@@ -1,12 +1,8 @@
-import { MatDialog } from '@angular/material/dialog';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 
 /* --- CLASSES --- */
 import { App } from 'src/app/classes/app';
-
-/* --- DIALOGS --- */
-import { AcceptDialog } from './accept/accept.dialog';
 
 /* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
@@ -16,6 +12,9 @@ import { TokensService } from 'src/app/services/tokens/tokens.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
+
 @Component({
 	selector: 'allow-access-page',
 	styleUrls: ['./allow-access.page.scss'],
@@ -24,14 +23,23 @@ import { LocalStorageService } from 'src/app/services/local-storage/local-storag
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private dialog: MatDialog, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
+	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
 
-	public app: any = {};
+	public app = {
+		icon: environment.icon,
+		name: environment.appName,
+		privacyPolicy: environment.privacyPolicy,
+		termsAndConditions: environment.termsAndConditions
+	};
 	public url: string | undefined;
 	public appId: string | undefined;
 	public returl: string | undefined;
 	public loading: boolean = false;
 	private observers: any = {};
+
+	public async back() {
+		window.history.back();
+	}
 
 	private async load() {
 		this.loading = true;
@@ -39,8 +47,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		const apps = await this.apps.get({
 			filter: [
 				'icon',
-				'name',
-				'scopes'
+				'name'
 			],
 			appId: this.appId
 		});
@@ -48,7 +55,8 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.loading = false;
 
 		if (apps.ok) {
-			this.app = new App(apps.result);
+			this.app.icon = apps.result.icon;
+			this.app.name = apps.result.name;
 		} else {
 			this.toast.show('Issue loading app!');
 		}
@@ -64,27 +72,13 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			this.url = [this.returl, '?', 'email=', this.localstorage.get('email'), '&', 'tokenId=', response.result.tokenId].join('');
+			this.url = [this.returl, '?email=', response.result.email, '&userId=', response.result.userId, '&tokenId=', response.result.tokenId].join('');
 			window.open(this.url, '_parent');
 		} else {
 			this.toast.show(response.error.message);
 		};
 
 		this.loading = false;
-	}
-
-	private async accept() {
-		const dialog = await this.dialog.open(AcceptDialog, {
-			panelClass: 'accept-dialog',
-			disableClose: true
-		});
-
-		await dialog.afterClosed().subscribe(async result => {
-			if (result) {
-				debugger
-				window.open(this.url, '_parent');
-			};
-		});
 	}
 
 	public async switch() {
@@ -99,8 +93,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	}
 
 	private async process() {
-		const valid = await this.account.validate();
-		if (valid) {
+		if (await this.account.validate()) {
 			this.load();
 		} else {
 			this.router.navigate(['/signin'], {

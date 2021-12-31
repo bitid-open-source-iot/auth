@@ -9236,6 +9236,10 @@ var module = function () {
 										{
 											'_id': ObjectId(args.req.body.appId),
 											'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+										},
+										{
+											'_id': ObjectId(args.req.body.appId),
+											'bitid.auth.private': false
 										}
 									]
 								}
@@ -9390,6 +9394,8 @@ var module = function () {
 				.then(db.call)
 				.then(result => {
 					args.result = result[0];
+					args.result.email = args.user.email;
+					args.result.userId = args.user._id;
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();

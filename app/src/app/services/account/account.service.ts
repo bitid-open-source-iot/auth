@@ -53,14 +53,16 @@ export class AccountService {
 
 	public async validate() {
 		const now = new Date();
+		
 		let valid = true;
-		const email = this.localstorage.get('email');
+		
 		const token = this.localstorage.getObject('token');
+		const userId = this.localstorage.get('userId');
 
-		if (!email || !token) {
+		if (!userId || !token) {
 			valid = false;
 		} else {
-			if (typeof (email) == 'undefined') {
+			if (typeof (userId) == 'undefined') {
 				valid = false;
 			};
 

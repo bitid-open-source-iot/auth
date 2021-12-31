@@ -1,4 +1,4 @@
-<mat-content>
+<!-- <mat-content>
     <div class="image-container">
         <img [src]="app.icon" alt="icon" width="100" height="100" *ngIf="app.icon">
     </div>
@@ -17,11 +17,48 @@
         <mat-progress-spinner mode="indeterminate" diameter="30" *ngIf="loading"></mat-progress-spinner>
     </button>
 
-    <button type="button" mat-stroked-button color="primary" (click)="switch()">
-        Switch Account
-    </button>
-
     <button type="button" mat-stroked-button color="primary" back-button>
         back
     </button>
+</mat-content> -->
+
+<mat-content fxLayout="column" fxLayoutAlign="center center">
+    <mat-card>
+        <mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+        
+        <div class="icon" [style.background-image]="'url(' + app.icon + ')'"></div>
+        
+        <h1>
+            Grant Access
+        </h1>
+
+        <p>
+            to continue to {{ app.name }}
+        </p>
+
+        <div class="button-footer">
+            <button type="button" mat-stroked-button color="primary" (click)="switch()">
+                Switch Account
+            </button>
+            
+            <button type="button" mat-flat-button color="primary" (click)="submit()">
+                Next
+            </button>
+        </div>
+
+
+        <div class="row-below-card">
+            <a href="https://www.bitid.co.za" target="_blank">
+                Powered by biTid
+            </a>
+            
+            <a [href]="app.privacyPolicy" target="_blank">
+                Privacy Policy
+            </a>
+
+            <a [href]="app.termsAndConditions" target="_blank">
+                Terms & Conditions
+            </a>
+        </div>
+    </mat-card>
 </mat-content>
