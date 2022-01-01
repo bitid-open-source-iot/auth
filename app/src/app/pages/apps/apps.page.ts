@@ -107,12 +107,7 @@ export class AppsPage implements OnInit, OnDestroy {
 					icon: 'people',
 					title: 'Subscribers',
 					handler: async () => {
-						this.router.navigate(['/subscribers'], {
-							queryParams: {
-								id: app.appId,
-								type: 'app'
-							}
-						});
+						this.router.navigate(['/subscribers', 'app', app.appId]);
 					},
 					disabled: [0, 1, 2, 3]
 				},

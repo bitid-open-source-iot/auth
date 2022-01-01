@@ -1,0 +1,86 @@
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="subscriber editor">
+        {{ mode == 'add' ? 'Add Subscriber' : '' }}
+        {{ mode == 'update' ? 'Edit Subscriber' : '' }}
+    </label>
+</mat-toolbar>
+
+<mat-progress-bar mode="indeterminate" *ngIf="loading"></mat-progress-bar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <form fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100" [formGroup]="form" (ngSubmit)="!loading && !form.invalid && submit()">
+        <mat-form-field appearance="outline">
+            <mat-label text-capitalize>
+                Search {{ form.value.type }}
+            </mat-label>
+
+            <input matInput type="text" placeholder="Start typing..." formControlName="search" [matAutocomplete]="search">
+
+            <mat-autocomplete #search="matAutocomplete">
+                <mat-option *ngFor="let o of options | orderBy : 'description'" [value]="o.description" (click)="setSearchValue(o.id)">
+                    {{ o.description }}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Type
+            </mat-label>
+
+            <mat-select name="type" placeholder="type" formControlName="type" required>
+                <mat-option value="app">
+                    App
+                </mat-option>
+                <mat-option value="user">
+                    User
+                </mat-option>
+                <mat-option value="group">
+                    Group
+                </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="errors.type">
+                {{ errors.type }}
+            </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Role
+            </mat-label>
+
+            <mat-select name="role" placeholder="role" formControlName="role" required>
+                <mat-option [value]="1">
+                    Read
+                </mat-option>
+                <mat-option [value]="2">
+                    Write
+                </mat-option>
+                <mat-option [value]="3">
+                    Read/Write
+                </mat-option>
+                <mat-option [value]="4">
+                    Admin
+                </mat-option>
+                <mat-option [value]="5" disabled>
+                    Owner
+                </mat-option>
+            </mat-select>
+
+            <mat-error *ngIf="errors.role">
+                {{ errors.role }}
+            </mat-error>
+        </mat-form-field>
+
+        <button #button type="submit" style="display: none;"></button>
+    </form>
+</mat-content>
+
+<mat-footer>
+    <button type="button" mat-flat-button color="primary" (click)="button.click()">
+        Submit
+    </button>
+</mat-footer>

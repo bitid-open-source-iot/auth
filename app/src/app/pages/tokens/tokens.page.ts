@@ -154,12 +154,7 @@ export class TokensPage implements OnInit, OnDestroy {
 						icon: 'people',
 						title: 'Subscribers',
 						handler: async () => {
-							this.router.navigate(['/subscribers'], {
-								queryParams: {
-									id: token.tokenId,
-									type: 'token'
-								}
-							});
+							this.router.navigate(['/subscribers', 'token', token.tokenId]);
 						},
 						disabled: [0, 1, 2, 3]
 					},

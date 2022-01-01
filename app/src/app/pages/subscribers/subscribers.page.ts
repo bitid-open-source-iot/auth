@@ -1,7 +1,11 @@
+import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 
 /* --- CLASSES --- */
+import { App } from 'src/app/classes/app';
+import { User } from 'src/app/classes/user';
+import { Group } from 'src/app/classes/group';
 import { Accessor } from 'src/app/classes/accessor';
 
 /* --- SERVICES --- */
@@ -13,9 +17,6 @@ import { ConfigService } from 'src/app/services/config/config.service';
 import { GroupsService } from 'src/app/services/groups/groups.service';
 import { OptionsService } from 'src/app/libs/options/options.service';
 import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
-import { App } from 'src/app/classes/app';
-import { Group } from 'src/app/classes/group';
-import { User } from 'src/app/classes/user';
 
 @Component({
 	selector: 'subscribers-page',
@@ -30,7 +31,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	public id: string = 'unset';
 	public role: number = 0;
 	public type: string = 'unset';
-	public data: Accessor[] = [];
+	public table: MatTableDataSource<Accessor> = new MatTableDataSource<Accessor>();
 	public loading: boolean = false;
 	private observers: any = {};
 
@@ -47,16 +48,16 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		};
 		let service: any;
 
-		switch(this.type) {
-			case('app'):
+		switch (this.type) {
+			case ('app'):
 				service = this.apps;
 				params.appId = this.id;
 				break;
-			case('group'):
+			case ('group'):
 				service = this.groups;
 				params.groupId = this.id;
 				break;
-			case('token'):
+			case ('token'):
 				service = this.tokens;
 				params.tokenId = this.id;
 				break;
@@ -65,23 +66,30 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		const response = await service.get(params);
 
 		if (response.ok) {
-			this.data = [];
+			this.table.data = [];
 			this.role = response.result.role;
-			response.result.apps.map((o: Accessor) => this.data.push({
+			response.result.apps.map((o: Accessor) => this.table.data.push({
 				id: o.id,
 				type: 'app',
-				role: o.role
+				role: o.role,
+				avatar: './assets/icons/icon-512x512.png',
+				description: '-'
 			}));
-			response.result.users.map((o: Accessor) => this.data.push({
+			response.result.users.map((o: Accessor) => this.table.data.push({
 				id: o.id,
 				type: 'user',
-				role: o.role
+				role: o.role,
+				avatar: './assets/icons/icon-512x512.png',
+				description: '-'
 			}));
-			response.result.groups.map((o: Accessor) => this.data.push({
+			response.result.groups.map((o: Accessor) => this.table.data.push({
 				id: o.id,
 				type: 'group',
-				role: o.role
+				role: o.role,
+				avatar: './assets/icons/icon-512x512.png',
+				description: '-'
 			}));
+			this.table.data = this.table.data.map((o: Accessor) => new Accessor(o));
 		} else {
 			this.toast.show(response.error.message);
 		};
@@ -94,15 +102,24 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		const apps = await this.apps.list({
 			filter: [
-				'appId',
-				'description'
+				'name',
+				'icon',
+				'appId'
 			],
-			appId: this.data.filter(o => o.type == 'app').map(o => o.id),
+			appId: this.table.data.filter(o => o.type == 'app').map(o => o.id),
 			private: [true, false]
 		} as any);
 
 		if (apps.ok) {
 			this.apps.data = apps.result.map((o: App) => new App(o));
+			this.apps.data.map(app => {
+				for (let i = 0; i < this.table.data.length; i++) {
+					if (this.table.data[i].id == app.appId && this.table.data[i].type == 'app') {
+						this.table.data[i].avatar = app.icon;
+						this.table.data[i].description = app.name;
+					};
+				};
+			});
 		} else {
 			this.apps.data = [];
 		};
@@ -110,17 +127,22 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		const users = await this.users.list({
 			filter: [
 				'userId',
+				'picture',
 				'description'
 			],
-			userId: this.data.filter(o => o.type == 'user').map(o => o.id)
+			userId: this.table.data.filter(o => o.type == 'user').map(o => o.id)
 		} as any);
 
 		if (users.ok) {
-			this.users.data = users.result.map((o: User) => new User(o)).map((o: User) => {
-				return {
-					name: [o.name.first, o.name.last].join(' '),
-					userId: o.userId
-				}
+			this.users.data = users.result.map((o: User) => new User(o));
+			
+			this.users.data.map(user => {
+				for (let i = 0; i < this.table.data.length; i++) {
+					if (this.table.data[i].id == user.userId && this.table.data[i].type == 'user') {
+						this.table.data[i].avatar = user.picture;
+						this.table.data[i].description = [user.name.first, user.name.last].join(' ')
+					};
+				};
 			});
 		} else {
 			this.users.data = [];
@@ -131,12 +153,20 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				'groupId',
 				'description'
 			],
-			groupId: this.data.filter(o => o.type == 'group').map(o => o.id),
+			groupId: this.table.data.filter(o => o.type == 'group').map(o => o.id),
 			private: [true, false]
 		} as any);
 
 		if (groups.ok) {
 			this.groups.data = groups.result.map((o: Group) => new Group(o));
+			this.groups.data.map(group => {
+				for (let i = 0; i < this.table.data.length; i++) {
+					if (this.table.data[i].id == group.groupId && this.table.data[i].type == 'group') {
+						this.table.data[i].avatar = './assets/group.png';
+						this.table.data[i].description = group.description;
+					};
+				};
+			});
 		} else {
 			this.groups.data = [];
 		};
@@ -144,23 +174,25 @@ export class SubscribersPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	public async options(accesor: Accessor, type: string) {
+	public async options(accesor: Accessor) {
 		this.sheet.show({
-			role: accesor.role,
-			title: 'accesor.title',
+			role: this.role,
+			title: accesor.description,
 			options: [
 				{
 					icon: 'edit',
 					title: 'Edit',
 					handler: async () => {
-						this.router.navigate(['/subscriptions', 'editor'], {
+						this.router.navigate(['/subscribers', this.type, this.id, 'editor'], {
 							queryParams: {
-								mode: 'update',
-								featureId: accesor.id
+								id: accesor.id,
+								role: accesor.role,
+								type: accesor.type,
+								mode: 'update'
 							}
 						});
 					},
-					disabled: [0, 1]
+					disabled: [0, 1, (accesor.role == 5 ? 5 : 0)]
 				},
 				{
 					icon: 'delete',

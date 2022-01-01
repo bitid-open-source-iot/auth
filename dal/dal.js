@@ -537,6 +537,15 @@ var module = function () {
 				};
 			};
 
+			if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
+				params[2].$match.$or.map(param => {
+					param.name = {
+						$regex: args.req.body.name,
+						$options: 'i'
+					};
+				});
+			};
+
 			var filter = {};
 			if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
 				filter['_id'] = 0;
@@ -561,6 +570,12 @@ var module = function () {
 			if (Object.keys(filter).length > 0) {
 				params.push({
 					$project: filter
+				});
+			};
+
+			if (typeof(args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
+				params.push({
+					$limit: args.req.body.limit
 				});
 			};
 
@@ -3957,7 +3972,7 @@ var module = function () {
 					if (typeof (args.req.body.userId) != 'undefined' && args.req.body.userId != null) {
 						if (Array.isArray(args.req.body.userId) && args.req.body.userId?.length > 0) {
 							params._id = {
-								$in: args.req.body.userId.filter(id => typeof(id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
+								$in: args.req.body.userId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
 							};
 						} else if (typeof (args.req.body.userId) == 'string' && args.req.body.userId?.length == 24) {
 							params._id = ObjectId(args.req.body.userId);
@@ -3978,7 +3993,8 @@ var module = function () {
 					if (result[0].role < 4) {
 						filter = {
 							'_id': 1,
-							'name': 1
+							'name': 1,
+							'picture': 1
 						};
 					} else if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
 						filter['_id'] = 0;

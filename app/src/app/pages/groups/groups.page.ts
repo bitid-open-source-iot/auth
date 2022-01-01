@@ -127,12 +127,7 @@ export class GroupsPage implements OnInit, OnDestroy {
 					icon: 'people',
 					title: 'Subscribers',
 					handler: async () => {
-						this.router.navigate(['/subscribers'], {
-							queryParams: {
-								id: group.groupId,
-								type: 'group'
-							}
-						});
+						this.router.navigate(['/subscribers', 'group', group.groupId]);
 					},
 					disabled: [0, 1, 2, 3]
 				},
