@@ -1,6 +1,10 @@
+import { MatDialog } from '@angular/material/dialog';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
+
+/* --- DIALOGS --- */
+import { SubscribersEditorDialog } from './editor/editor.dialog';
 
 /* --- CLASSES --- */
 import { App } from 'src/app/classes/app';
@@ -26,7 +30,7 @@ import { ConfirmService } from 'src/app/libs/confirm/confirm.service';
 
 export class SubscribersPage implements OnInit, OnDestroy {
 
-	constructor(public apps: AppsService, public users: UsersService, public groups: GroupsService, public tokens: TokensService, private toast: ToastService, private route: ActivatedRoute, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService) { }
+	constructor(public apps: AppsService, public users: UsersService, public groups: GroupsService, public tokens: TokensService, private dialog: MatDialog, private toast: ToastService, private route: ActivatedRoute, private sheet: OptionsService, private config: ConfigService, private router: Router, private confirm: ConfirmService) { }
 
 	public id: string = 'unset';
 	public role: number = 0;
@@ -135,7 +139,7 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		if (users.ok) {
 			this.users.data = users.result.map((o: User) => new User(o));
-			
+
 			this.users.data.map(user => {
 				for (let i = 0; i < this.table.data.length; i++) {
 					if (this.table.data[i].id == user.userId && this.table.data[i].type == 'user') {
@@ -175,6 +179,21 @@ export class SubscribersPage implements OnInit, OnDestroy {
 	}
 
 	public async options(accesor: Accessor) {
+		let disabled = {
+			edit: false,
+			delete: false,
+			makeOwner: false
+		};
+		
+		if (this.role < 4 || this.role <= accesor.role) {
+			disabled.edit = true;
+			disabled.delete = true;
+		};
+		
+		if (this.role < 5 || accesor.role == 5 || accesor.type != 'user') {
+			disabled.makeOwner = true;
+		};
+
 		this.sheet.show({
 			role: this.role,
 			title: accesor.description,
@@ -182,52 +201,229 @@ export class SubscribersPage implements OnInit, OnDestroy {
 				{
 					icon: 'edit',
 					title: 'Edit',
+					handler: async () => this.editor('update', accesor),
+					disabled: disabled.edit ? [this.role] : []
+				},
+				{
+					icon: 'remove',
+					title: 'Unsubscribe',
+					danger: true,
 					handler: async () => {
-						this.router.navigate(['/subscribers', this.type, this.id, 'editor'], {
-							queryParams: {
-								id: accesor.id,
-								role: accesor.role,
-								type: accesor.type,
-								mode: 'update'
+						this.confirm.show({
+							message: 'Are you sure you want to unsubscribe ' + accesor.description + '?',
+							handler: async () => {
+								this.loading = true;
+						
+								let params: any = {
+									id: accesor.id,
+									type: accesor.type
+								};
+								let service: any;
+						
+								switch (this.type) {
+									case ('app'):
+										service = this.apps;
+										params.appId = this.id;
+										break;
+									case ('group'):
+										service = this.groups;
+										params.groupId = this.id;
+										break;
+									case ('token'):
+										service = this.tokens;
+										params.tokenId = this.id;
+										break;
+								};
+						
+								const response = await service.unsubscribe(params);
+
+								if (response.ok) {
+									if (response.result.updated > 0) {
+										for (let i = 0; i < this.table.data.length; i++) {
+											if (this.table.data[i].id == accesor.id && this.table.data[i].type == accesor.type) {
+												this.table.data.splice(i, 1);
+												break;
+											};
+										};
+										this.table.data = this.table.data.map((o: Accessor) => new Accessor(o));
+									} else {
+										this.toast.show('Accesor was not unsubscribed from ' + this.type + '!');
+									};
+								} else {
+									this.toast.show(response.error.message);
+								};
+
+								this.loading = false;
 							}
 						});
 					},
-					disabled: [0, 1, (accesor.role == 5 ? 5 : 0)]
+					disabled: disabled.delete ? [this.role] : []
 				},
 				{
-					icon: 'delete',
-					title: 'Delete',
+					icon: 'vpn_key',
+					title: 'Make Owner',
 					danger: true,
 					handler: async () => {
-						// this.confirm.show({
-						// 	message: 'Are you sure you want to delete ' + feature.title + '?',
-						// 	handler: async () => {
-						// 		this.loading = true;
+						this.confirm.show({
+							message: 'Are you sure you want to change ownership to ' + accesor.description + '?',
+							handler: async () => {
+								this.loading = true;
+						
+								let params: any = {
+									id: accesor.id,
+									type: accesor.type
+								};
+								let service: any;
+						
+								switch (this.type) {
+									case ('app'):
+										service = this.apps;
+										params.appId = this.id;
+										break;
+									case ('group'):
+										service = this.groups;
+										params.groupId = this.id;
+										break;
+									case ('token'):
+										service = this.tokens;
+										params.tokenId = this.id;
+										break;
+								};
+						
+								const response = await service.changeowner(params);
 
-						// 		const response = await this.service.delete({
-						// 			featureId: feature.featureId
-						// 		});
+								if (response.ok) {
+									if (response.result.updated > 0) {
+										this.table.data.map((o: Accessor) => {
+											if (o.role == 5) {
+												o.role = 4;	
+											};
+										});
+										for (let i = 0; i < this.table.data.length; i++) {
+											if (this.table.data[i].id == accesor.id && this.table.data[i].type == accesor.type) {
+												this.table.data[i].role = 5;
+												break;
+											};
+										};
+										this.table.data = this.table.data.map((o: Accessor) => new Accessor(o));
+									} else {
+										this.toast.show('Accesor was not set as owner on ' + this.type + '!');
+									};
+								} else {
+									this.toast.show(response.error.message);
+								};
 
-						// 		if (response.ok) {
-						// 			for (let i = 0; i < this.features.data.length; i++) {
-						// 				if (this.features.data[i].featureId == feature.featureId) {
-						// 					this.features.data.splice(i, 1);
-						// 					this.toast.show('Feature was removed!');
-						// 					break;
-						// 				};
-						// 			};
-						// 			this.features.data = this.features.data.map((o: Feature) => new Feature(o));
-						// 		} else {
-						// 			this.toast.show(response.error.message);
-						// 		};
-
-						// 		this.loading = false;
-						// 	}
-						// });
+								this.loading = false;
+							}
+						});
 					},
-					disabled: [0, 1]
+					disabled: disabled.makeOwner ? [this.role] : []
 				}
 			]
+		});
+	}
+
+	public async editor(mode: string, accesor?: Accessor) {
+		const dialog = await this.dialog.open(SubscribersEditorDialog, {
+			data: {
+				id: this.id,
+				mode: mode,
+				type: this.type,
+				accesor: accesor
+			},
+			panelClass: 'fullscreen-dialog'
+		});
+
+		await dialog.afterClosed().subscribe(async (result) => {
+			if (result) {
+				if (mode == 'add') {
+					this.loading = true;
+			
+					let params: any = {
+						id: result.id,
+						type: result.type,
+						role: result.role
+					};
+					let service: any;
+			
+					switch (this.type) {
+						case ('app'):
+							service = this.apps;
+							params.appId = this.id;
+							break;
+						case ('group'):
+							service = this.groups;
+							params.groupId = this.id;
+							break;
+						case ('token'):
+							service = this.tokens;
+							params.tokenId = this.id;
+							break;
+					};
+			
+					const response = await service.share(params);
+
+					if (response.ok) {
+						if (response.result.updated > 0) {
+							this.table.data.push({
+								id: result.id,
+								type: result.type,
+								role: result.role,
+								avatar: '-',
+								description: '-'
+							});
+							await this.load();
+						} else {
+							this.toast.show('Accesor was not added to ' + this.type + '!');
+						};
+					} else {
+						this.toast.show(response.error.message);
+					};
+
+					this.loading = false;
+				} else if ('update') {
+					this.loading = true;
+			
+					let params: any = {
+						id: result.id,
+						type: result.type,
+						role: result.role
+					};
+					let service: any;
+			
+					switch (this.type) {
+						case ('app'):
+							service = this.apps;
+							params.appId = this.id;
+							break;
+						case ('group'):
+							service = this.groups;
+							params.groupId = this.id;
+							break;
+						case ('token'):
+							service = this.tokens;
+							params.tokenId = this.id;
+							break;
+					};
+			
+					const response = await service.updatesubscriber(params);
+
+					if (response.ok) {
+						for (let i = 0; i < this.table.data.length; i++) {
+							if (this.table.data[i].id == accesor?.id && this.table.data[i].type == accesor?.type) {
+								this.table.data[i].role = result.role;
+								break;
+							};
+						};
+					} else {
+						this.toast.show(response.error.message);
+					};
+
+					this.loading = false;
+				};
+
+				this.table.data = this.table.data.map((o: Accessor) => new Accessor(o));
+			};
 		});
 	}
 

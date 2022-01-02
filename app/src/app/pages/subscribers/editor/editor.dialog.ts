@@ -1,6 +1,5 @@
-import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { OnInit, Inject, Component, OnDestroy, AfterViewInit } from '@angular/core';
 
 /* --- CLASSES --- */
 import { App } from 'src/app/classes/app';
@@ -10,25 +9,23 @@ import { Group } from 'src/app/classes/group';
 /* --- SERVICES --- */
 import { AppsService } from 'src/app/services/apps/apps.service';
 import { UsersService } from 'src/app/services/users/users.service';
-import { ToastService } from 'src/app/services/toast/toast.service';
-import { ConfigService } from 'src/app/services/config/config.service';
 import { GroupsService } from 'src/app/services/groups/groups.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
-	selector: 'subscribers-editor-page',
-	styleUrls: ['./editor.page.scss'],
-	templateUrl: './editor.page.html'
+	selector: 'subscribers-editor-dialog',
+	styleUrls: ['./editor.dialog.scss'],
+	templateUrl: './editor.dialog.html'
 })
 
-export class SubscribersEditorPage implements OnInit, OnDestroy {
+export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 
-	constructor(private apps: AppsService, private users: UsersService, private route: ActivatedRoute, private toast: ToastService, private groups: GroupsService, private config: ConfigService, private router: Router, private formerror: FormErrorService) { }
+	constructor(private apps: AppsService, private users: UsersService, private dialog: MatDialogRef<SubscribersEditorDialog>, private groups: GroupsService, @Inject(MAT_DIALOG_DATA) private config: any, private formerror: FormErrorService) { }
 
 	public id?: string;
-	public role?: string | number;
 	public type?: string;
-	public mode?: 'add' | 'update';
+	public mode?: string;
 	public form: FormGroup = new FormGroup({
 		id: new FormControl(null, [Validators.required]),
 		role: new FormControl(1, [Validators.required]),
@@ -47,41 +44,11 @@ export class SubscribersEditorPage implements OnInit, OnDestroy {
 	private observers: any = {};
 
 	public async submit() {
-		this.loading = true;
-
-		let params: any = {
-			id: this.form.value.id,
-			type: this.form.value.type,
-			role: this.form.value.role
-		};
-		let service: any;
-
-		switch (this.type) {
-			case ('app'):
-				params.appId = this.id;
-				service = this.apps;
-				break;
-			case ('user'):
-				params.userId = this.id;
-				service = this.users;
-				break;
-			case ('group'):
-				params.groupId = this.id;
-				service = this.groups;
-				break;
-		};
-
-		const response = await service.share(params);
-
-		if (response.ok) {
-			this.router.navigate(['/subscribers', this.type, this.id], {
-				replaceUrl: true
-			});
-		} else {
-			this.toast.show(response.error.message);
-		};
-
-		this.loading = false;
+		delete this.form.value.search;
+		this.form.controls['id'].enable();
+		this.form.controls['type'].enable();
+		this.form.controls['search'].enable();
+		this.dialog.close(this.form.value);
 	}
 
 	private async search() {
@@ -167,7 +134,25 @@ export class SubscribersEditorPage implements OnInit, OnDestroy {
 		this.form.controls['id'].setValue(value);
 	}
 
-	ngOnInit(): void {
+	ngOnDestroy(): void {
+		this.observers.form?.unsubscribe();
+		this.observers.search?.unsubscribe();
+	}
+
+	ngAfterViewInit(): void {
+		this.mode = this.config.mode;
+		let accesor = this.config.accesor;
+		
+		if (this.config.mode == 'update') {
+			this.form.controls['id'].setValue(accesor?.id);
+			this.form.controls['id'].disable();
+			this.form.controls['type'].setValue(accesor?.type);
+			this.form.controls['type'].disable();
+			this.form.controls['role'].setValue(accesor?.role);
+			this.form.controls['search'].setValue(accesor?.description);
+			this.form.controls['search'].disable();
+		};
+
 		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
@@ -179,31 +164,6 @@ export class SubscribersEditorPage implements OnInit, OnDestroy {
 				this.options = [];
 			};
 		});
-
-		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
-			if (loaded) {
-				const params: any = this.route.snapshot.params;
-				const queryParams: any = this.route.snapshot.queryParams;
-				this.id = params.id;
-				this.type = params.type;
-				this.role = parseInt(queryParams.role);
-				this.mode = queryParams.mode;
-				if (this.mode == 'update') {
-					this.form.controls['id'].setValue(this.id);
-					this.form.controls['id'].disable();
-					this.form.controls['type'].setValue(this.type);
-					this.form.controls['type'].disable();
-					this.form.controls['role'].setValue(this.role);
-					this.form.controls['search'].disable();
-				};
-			};
-		});
-	}
-
-	ngOnDestroy(): void {
-		this.observers.form?.unsubscribe();
-		this.observers.search?.unsubscribe();
-		this.observers.loaded?.unsubscribe();
 	}
 
 }

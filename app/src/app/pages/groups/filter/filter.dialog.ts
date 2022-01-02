@@ -35,14 +35,15 @@ export class GroupsFilterDialog implements OnInit, OnDestroy {
             filter: [
                 'name',
                 'appId'
-            ]
+            ],
+            private: [true, false]
         });
 
         if (apps.ok) {
             this.apps.data = apps.result.map((o: App) => new App(o));
         } else {
             this.apps.data = [];
-        }
+        };
 
         if (typeof (this.config.appId) != 'undefined' && this.config.appId != null) {
             this.form.controls['appId'].setValue(this.config.appId);
@@ -62,13 +63,13 @@ export class GroupsFilterDialog implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.observers.form = this.form.valueChanges.subscribe(data => {
             this.errors = this.formerror.validateForm(this.form, this.errors, true);
-        })
+        });
 
         this.load();
     }
 
     ngOnDestroy(): void {
-        this.observers.form.unsubscribe();
+        this.observers.form?.unsubscribe();
     }
 
 }

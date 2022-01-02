@@ -22,9 +22,9 @@
         },
         "client": {
             "auth": "xxx",
+            "name": "Auth",
             "appId": "000000000000000000000001",
-            "drive": "xxx",
-            "appName": "Auth"
+            "drive": "xxx"
         },
         "mongodb": {
             "url": "xxx",

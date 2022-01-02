@@ -42,10 +42,11 @@ describe('Config', function () {
         tools.api.config.get()
             .then((result) => {
                 try {
-                    result.should.have.property('auth');
+                    result.should.have.property('icon');
+                    result.should.have.property('name');
                     result.should.have.property('appId');
-                    result.should.have.property('drive');
-                    result.should.have.property('appName');
+                    result.should.have.property('theme');
+                    result.should.have.property('favicon');
                     done();
                 } catch (e) {
                     done(e);

@@ -1,12 +1,15 @@
-import { AppsService } from 'src/app/services/apps/apps.service';
-import { environment } from 'src/environments/environment';
+import { Router, ActivatedRoute } from '@angular/router';
+import { OnInit, Component, OnDestroy } from '@angular/core';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+/* --- SERVICES --- */
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
 import { FormErrorService } from 'src/app/services/form-error/form-error.service';
-import { Router, ActivatedRoute } from '@angular/router';
-import { OnInit, Component, OnDestroy } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+
+/* --- ENVIRONMENT --- */
+import { environment } from 'src/environments/environment';
 
 @Component({
 	selector: 'signin-page',
@@ -16,11 +19,11 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 export class SignInPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
+	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
 	public app = {
 		icon: environment.icon,
-		name: environment.appName,
+		name: environment.name,
 		privacyPolicy: environment.privacyPolicy,
 		termsAndConditions: environment.termsAndConditions
 	};
@@ -33,8 +36,6 @@ export class SignInPage implements OnInit, OnDestroy {
 		password: ''
 	};
 	public loading: boolean = false;
-	private appId: string | undefined;
-	private allowaccess: boolean = false;
 	private observers: any = {};
 
 	public signup() {
@@ -52,7 +53,7 @@ export class SignInPage implements OnInit, OnDestroy {
 		});
 
 		if (response.ok) {
-			if (this.allowaccess) {
+			if (this.route.snapshot.queryParams['allowaccess']) {
 				this.toast.show('Sign in successfull, Taking you to app access!');
 				setTimeout(() => {
 					this.router.navigate(['/allow-access'], {
@@ -70,49 +71,29 @@ export class SignInPage implements OnInit, OnDestroy {
 		this.loading = false;
 	}
 
-	private async load() {
-		this.loading = true;
-
-		const response = await this.apps.get({
-			filter: [
-				'icon',
-				'name',
-				'scopes'
-			],
-			appId: this.appId
-		});
-
-		if (response.ok) {
-			this.app = response.result;
-		} else {
-			this.toast.show('Issue loading app!');
-		};
-
-		this.loading = false;
-	}
-
 	ngOnInit(): void {
 		this.observers.form = this.form.valueChanges.subscribe(data => {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
+				this.app.icon = environment.icon;
+				this.app.name = environment.name;
+				this.app.privacyPolicy = environment.privacyPolicy;
+				this.app.termsAndConditions = environment.termsAndConditions;
+
 				const params: any = this.route.snapshot.queryParams;
-				if (typeof (params.allowaccess) != 'undefined' && params.allowaccess != null) {
-					this.allowaccess = JSON.parse(params.allowaccess);
-				};
-				if (typeof (params.appId) != 'undefined' && params.appId != null) {
-					this.appId = params.appId;
-					this.load();
+				if (typeof(params.email) != 'undefined' && params.email != null) {
+					this.form.controls['email'].setValue(params.email);
 				};
 			};
 		});
 	}
 
 	ngOnDestroy(): void {
-		this.observers.form.unsubscribe();
-		this.observers.loaded.unsubscribe();
+		this.observers.form?.unsubscribe();
+		this.observers.loaded?.unsubscribe();
 	}
 
 }

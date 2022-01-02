@@ -322,6 +322,9 @@ body.dark-mode {
         }
         border: 2px solid #FFF !important;
     }
+    mat-avatar {
+        background-color: #212121;
+    }
 }
 .mat-drawer-inner-container::-webkit-scrollbar {
     display: none !important;
@@ -350,7 +353,7 @@ features-editor-page,
 change-password-page,
 forgot-password-page,
 tips-and-updates-page,
-subscribers-editor-page,
+subscribers-editor-dialog,
 tips-and-updates-editor-page {
     height: 100vh;
     display: flex;

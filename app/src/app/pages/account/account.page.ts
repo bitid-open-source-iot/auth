@@ -74,7 +74,7 @@ export class AccountPage implements OnInit, OnDestroy {
 			};
 		});
 
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				this.appId = environment.appId;
 				this.userId = this.localstorage.get('userId');

@@ -1,11 +1,7 @@
 import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
 
-/* --- CLASSES --- */
-import { App } from 'src/app/classes/app';
-
 /* --- SERVICES --- */
-import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { TokensService } from 'src/app/services/tokens/tokens.service';
@@ -23,16 +19,15 @@ import { environment } from 'src/environments/environment';
 
 export class AllowAccessPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
+	constructor(private toast: ToastService, private route: ActivatedRoute, private tokens: TokensService, private router: Router, private config: ConfigService, private account: AccountService, private localstorage: LocalStorageService) { }
 
 	public app = {
 		icon: environment.icon,
-		name: environment.appName,
+		name: environment.name,
 		privacyPolicy: environment.privacyPolicy,
 		termsAndConditions: environment.termsAndConditions
 	};
 	public url: string | undefined;
-	public appId: string | undefined;
 	public returl: string | undefined;
 	public loading: boolean = false;
 	private observers: any = {};
@@ -41,34 +36,13 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		window.history.back();
 	}
 
-	private async load() {
-		this.loading = true;
-
-		const apps = await this.apps.get({
-			filter: [
-				'icon',
-				'name'
-			],
-			appId: this.appId
-		});
-
-		this.loading = false;
-
-		if (apps.ok) {
-			this.app.icon = apps.result.icon;
-			this.app.name = apps.result.name;
-		} else {
-			this.toast.show('Issue loading app!');
-		}
-	}
-
 	public async submit() {
 		this.loading = true;
 
 		const response = await this.tokens.generate({
-			appId: this.appId,
+			appId: environment.appId,
 			expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-			description: this.app.name + ' (LOGIN)'
+			description: environment.name
 		});
 
 		if (response.ok) {
@@ -85,34 +59,37 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.localstorage.clear();
 		this.router.navigate(['/signin'], {
 			queryParams: {
-				appId: this.appId,
-				returl: this.returl,
 				allowaccess: true
-			}
+			},
+			queryParamsHandling: 'merge'
 		});
 	}
 
 	private async process() {
-		if (await this.account.validate()) {
-			this.load();
-		} else {
+		if (!await this.account.validate()) {
 			this.router.navigate(['/signin'], {
 				queryParams: {
-					appId: this.appId,
-					returl: this.returl,
 					allowaccess: true
-				}
+				},
+				queryParamsHandling: 'merge'
 			});
 		};
 	}
 
 	ngOnInit(): void {
-		this.observers.config = this.config.loaded.subscribe(loaded => {
+		this.observers.config = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				const params: any = this.route.snapshot.queryParams;
-				this.appId = params.appId;
-				this.returl = params.returl;
-				this.process();
+				this.app.icon = environment.icon;
+				this.app.name = environment.name;
+				this.app.privacyPolicy = environment.privacyPolicy;
+				this.app.termsAndConditions = environment.termsAndConditions;
+
+				if (typeof(this.route.snapshot.queryParams['returl']) != 'undefined' && this.route.snapshot.queryParams['returl'] != null) {
+					await this.process();
+				} else {
+					await window.alert('Please supply a return url in the query params of your request!');
+					window.history.back();
+				};
 			};
 		});
 	}

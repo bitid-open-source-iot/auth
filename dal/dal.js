@@ -6000,12 +6000,25 @@ var module = function () {
 
 			if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
 				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
-					params.private = {
-						$in: args.req.body.private
-					};
+					params[2].$match.$or.map(param => {
+						param['bitid.auth.private'] = {
+							$in: args.req.body.private
+						};
+					});
 				} else if (typeof (args.req.body.private) == 'boolean') {
-					params.private = args.req.body.private;
+					params[2].$match.$or.map(param => {
+						param['bitid.auth.private'] = args.req.body.private;
+					});
 				};
+			};
+
+			if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
+				params[2].$match.$or.map(param => {
+					param.description = {
+						$regex: args.req.body.description,
+						$options: 'i'
+					};
+				});
 			};
 
 			var filter = {};

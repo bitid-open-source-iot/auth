@@ -25,10 +25,10 @@ export class GroupsEditorPage implements OnInit, OnDestroy {
 
 	public mode: string | undefined;
 	public form: FormGroup = new FormGroup({
-		appId: new FormControl([], [Validators.required]),
-		private: new FormControl(null, [Validators.required]),
+		appId: new FormControl([]),
+		private: new FormControl(true, [Validators.required]),
 		description: new FormControl(null, [Validators.required]),
-		organizationOnly: new FormControl(null, [Validators.required])
+		organizationOnly: new FormControl(0, [Validators.required])
 	});
 	public errors: any = {
 		appId: '',

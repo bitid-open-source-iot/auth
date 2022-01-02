@@ -1,6 +1,8 @@
 /* --- PAGES --- */
 import { SubscribersPage } from './subscribers.page';
-import { SubscribersEditorPage } from './editor/editor.page';
+
+/* --- DIALOGS --- */
+import { SubscribersEditorDialog } from './editor/editor.dialog';
 
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
@@ -13,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { OrderPipeModule } from 'src/app/pipes/order/order.module';
 import { MatAvatarModule } from 'src/app/libs/mat-avatar/mat-avatar.module';
 import { MatFooterModule } from 'src/app/libs/mat-footer/mat-footer.module';
+import { MatDialogModule } from '@angular/material/dialog';
 import { FilterPipeModule } from 'src/app/pipes/filter/filter.module';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { FlexLayoutModule } from '@angular/flex-layout';
@@ -29,10 +32,6 @@ const routes: Routes = [
 	{
 		path: ':type/:id',
 		component: SubscribersPage
-	},
-	{
-		path: ':type/:id/editor',
-		component: SubscribersEditorPage
 	}
 ];
 
@@ -43,6 +42,7 @@ const routes: Routes = [
 		MatIconModule,
 		MatTableModule,
 		MatInputModule,
+		MatDialogModule,
 		MatAvatarModule,
 		MatButtonModule,
 		MatFooterModule,
@@ -62,7 +62,7 @@ const routes: Routes = [
 	],
 	declarations: [
 		SubscribersPage,
-		SubscribersEditorPage
+		SubscribersEditorDialog
 	]
 })
 

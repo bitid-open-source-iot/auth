@@ -24,7 +24,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 
 	public app = {
 		icon: environment.icon,
-		name: environment.appName,
+		name: environment.name,
 		privacyPolicy: environment.privacyPolicy,
 		termsAndConditions: environment.termsAndConditions
 	};
@@ -56,27 +56,6 @@ export class SignUpPage implements OnInit, OnDestroy {
 	public loading: boolean = false;
 	private observers: any = {};
 
-	private async load() {
-		this.loading = true;
-
-		const response = await this.apps.get({
-			filter: [
-				'icon',
-				'name',
-				'scopes'
-			],
-			appId: this.appId
-		});
-
-		this.loading = false;
-
-		if (response.ok) {
-			this.app = response.result;
-		} else {
-			this.toast.show('Issue loading app!');
-		};
-	}
-
 	public async submit() {
 		this.loading = true;
 
@@ -100,8 +79,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 			this.toast.show('Sign up successfull!');
 			this.router.navigate(['/verify-account'], {
 				queryParams: {
-					email: this.form.value.email,
-					appId: this.appId
+					email: this.form.value.email
 				},
 				replaceUrl: true,
 				queryParamsHandling: 'merge'
@@ -111,8 +89,7 @@ export class SignUpPage implements OnInit, OnDestroy {
 			if (response.error.code == 72) {
 				this.router.navigate(['/verify-account'], {
 					queryParams: {
-						email: this.form.value.email,
-						appId: this.appId
+						email: this.form.value.email
 					},
 					replaceUrl: true,
 					queryParamsHandling: 'merge'
@@ -130,14 +107,10 @@ export class SignUpPage implements OnInit, OnDestroy {
 
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
-				const params: any = this.route.snapshot.queryParams;
-				if (typeof (params.appId) != 'undefined' && params.appId != null) {
-					this.appId = params.appId;
-					this.load();
-				} else {
-					this.app.icon = environment.icon;
-					this.app.name = environment.appName;
-				};
+				this.app.icon = environment.icon;
+				this.app.name = environment.name;
+				this.app.privacyPolicy = environment.privacyPolicy;
+				this.app.termsAndConditions = environment.termsAndConditions;
 			};
 		});
 

@@ -1,5 +1,6 @@
 import { MatDrawer } from '@angular/material/sidenav';
-import { OnInit, Component, ViewChild } from '@angular/core';
+import { Router, NavigationEnd } from '@angular/router';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 
 /* --- SERVICES --- */
 import { MenuService } from './services/menu/menu.service';
@@ -20,26 +21,21 @@ import { environment } from 'src/environments/environment';
     templateUrl: './app.component.html'
 })
 
-export class AppComponent implements OnInit {
+export class AppComponent implements AfterViewInit {
 
     @ViewChild(MatDrawer, { static: true }) private drawer?: MatDrawer;
     @ViewChild(SplashScreen, { static: true }) private splashscreen?: SplashScreen;
 
-    constructor(public menu: MenuService, public account: AccountService, private config: ConfigService, private update: UpdateService, private settings: SettingsService) { }
+    constructor(public menu: MenuService, public account: AccountService, private config: ConfigService, private update: UpdateService, private router: Router, private settings: SettingsService) { }
 
     public app = {
         icon: environment.icon,
-        name: environment.appName
+        name: environment.name
     };
     public icon: string = environment.icon;
     public title: any[] = [];
     public badges: any = {};
     public authenticated?: boolean;
-
-    public async signout() {
-        await this.menu.close();
-        await this.account.signout();
-    }
 
     private async initialize() {
         await this.splashscreen?.show();
@@ -51,7 +47,7 @@ export class AppComponent implements OnInit {
         await this.splashscreen?.hide();
     }
 
-    ngOnInit(): void {
+    ngAfterViewInit(): void {
         this.menu.events.subscribe(event => {
             switch (event) {
                 case ('open'):
@@ -76,7 +72,13 @@ export class AppComponent implements OnInit {
             if (loaded) {
                 this.account.validate();
                 this.app.icon = environment.icon;
-                this.app.name = environment.appName;
+                this.app.name = environment.name;
+            };
+        });
+
+        this.router.events.subscribe((event: any) => {
+            if (event instanceof NavigationEnd && this.drawer?.opened) {
+                this.drawer?.close();
             };
         });
 
@@ -87,7 +89,12 @@ export class AppComponent implements OnInit {
             };
         });
 
-        this.initialize();
+        const ready = this.router.events.subscribe((event: any) => {
+            if (event instanceof NavigationEnd) {
+                ready.unsubscribe();
+                this.initialize();
+            };
+        });
     }
 
 }

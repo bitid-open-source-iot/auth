@@ -631,17 +631,17 @@ var module = function () {
 
 			var myModule = new dal.module();
 			myModule.config.get(args)
-				.then(args => {
-					var result = JSON.parse(JSON.stringify(__settings.client));
-					result.icon = args.result.icon;
-					result.appId = args.result._id;
-					result.theme = args.result.theme;
-					result.appName = args.result.name;
-					result.favicon = args.result.favicon;
-					__responder.success(req, res, result);
-				}, err => {
-					__responder.error(req, res, err);
-				});
+			.then(args => {
+				var result = JSON.parse(JSON.stringify(__settings.client));
+				result.icon = args.result.icon;
+				result.name = args.result.name;
+				result.appId = args.result._id;
+				result.theme = args.result.theme;
+				result.favicon = args.result.favicon;
+				__responder.success(req, res, result);
+			}, err => {
+				__responder.error(req, res, err);
+			});
 		}
 	};
 

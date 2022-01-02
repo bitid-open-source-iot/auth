@@ -3,7 +3,6 @@ import { OnInit, Component, OnDestroy } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 /* --- SERVICES --- */
-import { AppsService } from 'src/app/services/apps/apps.service';
 import { ToastService } from 'src/app/services/toast/toast.service';
 import { ConfigService } from 'src/app/services/config/config.service';
 import { AccountService } from 'src/app/services/account/account.service';
@@ -20,12 +19,12 @@ import { environment } from 'src/environments/environment';
 
 export class ChangePasswordPage implements OnInit, OnDestroy {
 
-	constructor(private apps: AppsService, private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
+	constructor(private route: ActivatedRoute, private toast: ToastService, private config: ConfigService, private router: Router, private service: AccountService, private formerror: FormErrorService) { }
 
 	public app = {
 		url: '',
 		icon: environment.icon,
-		name: environment.appName,
+		name: environment.name,
 		privacyPolicy: environment.privacyPolicy,
 		termsAndConditions: environment.termsAndConditions
 	};
@@ -34,7 +33,6 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 		new: new FormControl(null, [Validators.required]),
 		confirm: new FormControl(null, [Validators.required])
 	});
-	public appId: string | undefined;
 	public errors: any = {
 		old: '',
 		new: '',
@@ -43,28 +41,6 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 	public userId: string = '';
 	public loading: boolean = false;
 	private observers: any = {};
-
-	private async load() {
-		this.loading = true;
-
-		const response = await this.apps.get({
-			filter: [
-				'url',
-				'icon',
-				'name',
-				'appId'
-			],
-			appId: this.appId
-		});
-
-		this.loading = false;
-
-		if (response.ok) {
-			this.app = response.result;
-		} else {
-			this.toast.show('Issue loading app!');
-		};
-	}
 
 	public async submit() {
 		this.loading = true;
@@ -82,11 +58,10 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 			if (Object.keys(this.app).includes('url')) {
 				this.router.navigate(['/allow-access'], {
 					queryParams: {
-						appId: this.appId,
-						email: this.form.value.email,
-						returl: this.app.url + '/authenticate'
+						email: this.form.value.email
 					},
-					replaceUrl: true
+					replaceUrl: true,
+					queryParamsHandling: 'merge'
 				});
 			} else {
 				this.router.navigate(['/signin'], {
@@ -116,16 +91,17 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 			this.errors = this.formerror.validateForm(this.form, this.errors, true);
 		});
 
-		this.observers.loaded = this.config.loaded.subscribe(loaded => {
+		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
+				this.app.icon = environment.icon;
+				this.app.name = environment.name;
+				this.app.privacyPolicy = environment.privacyPolicy;
+				this.app.termsAndConditions = environment.termsAndConditions;
+
 				const params: any = this.route.snapshot.queryParams;
 				this.userId = params.userId;
 				if (typeof (params.password) != 'undefined') {
 					this.form.controls['old'].setValue(params.password);
-				};
-				if (typeof (params.appId) != 'undefined' && params.appId != null) {
-					this.appId = params.appId;
-					this.load();
 				};
 				if (params.userId == '' || params.userId == null || typeof (params.userId) == 'undefined') {
 					this.router.navigate(['/']);

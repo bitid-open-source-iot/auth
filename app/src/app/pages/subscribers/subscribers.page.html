@@ -55,7 +55,7 @@
     </table>
 </mat-content>
 
-<button mat-fab class="add-floating-button" color="primary" routerLink="editor" [queryParams]="{ mode: 'add' }">
+<button mat-fab class="add-floating-button" color="primary" (click)="editor('add')">
     <mat-icon>
         add
     </mat-icon>

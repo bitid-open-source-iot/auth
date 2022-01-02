@@ -4,7 +4,7 @@
 
 <mat-list>
     <mat-list-item lines="full" *ngFor="let option of options" [class.danger]="option.danger" [class.disabled]="option.disabled" matRipple [matRippleDisabled]="option.disabled" (click)="!option.disabled && submit(option)">
-        <mat-icon slot="start">
+        <mat-icon slot="start"  [color]="option.danger ? 'warn' : null">
             {{ option.icon }}
         </mat-icon>
 

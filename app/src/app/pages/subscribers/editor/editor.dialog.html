@@ -1,5 +1,9 @@
 <mat-toolbar>
-    <mat-back-button></mat-back-button>
+    <button mat-icon-button mat-dialog-close>
+        <mat-icon>
+            arrow_back
+        </mat-icon>
+    </button>
 
     <label for="subscriber editor">
         {{ mode == 'add' ? 'Add Subscriber' : '' }}
@@ -64,9 +68,6 @@
                 </mat-option>
                 <mat-option [value]="4">
                     Admin
-                </mat-option>
-                <mat-option [value]="5" disabled>
-                    Owner
                 </mat-option>
             </mat-select>
 

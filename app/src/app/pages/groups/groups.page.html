@@ -51,6 +51,10 @@
                 <span class="app-item" *ngFor="let id of element.appId">
                     {{ apps.data | describe : 'appId' : id : 'name' }}
                 </span>
+
+                <span *ngIf="element.appId?.length == 0">
+                    ALL
+                </span>
             </td>
         </ng-container>
 

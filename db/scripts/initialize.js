@@ -112,12 +112,6 @@ if (tblApps.count() == 0) {
     });
 
     db.tblApps.createIndex({
-        'name': 1
-    }, {
-        'unique': true
-    });
-
-    db.tblApps.createIndex({
         '_id': 1,
         'bitid.auth.apps.id': 1
     }, {
