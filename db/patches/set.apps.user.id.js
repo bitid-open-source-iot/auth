@@ -42,9 +42,6 @@ db.tblApps.aggregate(params).forEach(app => {
     }, {
         $set: {
             'bitid.auth.users.$.id': app.userId
-        },
-        $unset: {
-            'bitid.auth.users.$.email': true
         }
     });
     index++;

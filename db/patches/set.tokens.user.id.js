@@ -42,9 +42,6 @@ db.tblTokens.aggregate(params).forEach(token => {
     }, {
         $set: {
             'bitid.auth.users.$.id': token.userId
-        },
-        $unset: {
-            'bitid.auth.users.$.email': true
         }
     });
     index++;

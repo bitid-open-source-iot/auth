@@ -42,9 +42,6 @@ db.tblGroups.aggregate(params).forEach(group => {
     }, {
         $set: {
             'bitid.auth.users.$.id': group.userId
-        },
-        $unset: {
-            'bitid.auth.users.$.email': true
         }
     });
     index++;
