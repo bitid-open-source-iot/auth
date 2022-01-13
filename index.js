@@ -64,12 +64,15 @@ try {
                                         req.body.header.userId = args.result;
                                         next();
                                     }, error => {
+                                        console.log(error);
                                         next();
                                     });
                             } else {
+                                console.log(1);
                                 next();
                             };
                         } else {
+                            console.log(2);
                             next();
                         };
                     } else {
