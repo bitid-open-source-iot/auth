@@ -50,7 +50,7 @@ try {
                 }));
 
                 app.use((req, res, next) => {
-                    if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
+                    if (req.method != 'GET' && req.method != 'PUT') {
                         var args = {
                             'req': req,
                             'res': res
