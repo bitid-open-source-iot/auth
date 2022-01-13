@@ -446,3 +446,8 @@ input[type=color] {
     border-bottom-left-radius: 4px !important;
     border-bottom-right-radius: 4px !important;
 }
+mat-avatar.autocomplete-item {
+    display: inline-block !important;
+    margin-right: 16px !important;
+    vertical-align: middle !important;
+}

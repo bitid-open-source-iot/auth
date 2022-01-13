@@ -24,6 +24,7 @@
 
             <mat-autocomplete #search="matAutocomplete">
                 <mat-option *ngFor="let o of options | orderBy : 'description'" [value]="o.description" (click)="setSearchValue(o.id)">
+                    <mat-avatar [src]="o.icon" class="autocomplete-item"></mat-avatar>
                     {{ o.description }}
                 </mat-option>
             </mat-autocomplete>

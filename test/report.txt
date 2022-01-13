@@ -1,29 +1,29 @@
 
 
   Software & Testing Details
-    ✔ DATE: 13/01/2022 12:49:40
+    ✔ DATE: 13/01/2022 17:38:55
     ✔ AUTHOR: claytoncc
-    ✔ VERSION: 2.1.3
+    ✔ VERSION: 2.1.4
 
   Config
     ✔ /config/get
 
   Auth
-    ✔ /auth/register (3385ms)
-    ✔ /auth/verify (4135ms)
+    ✔ /auth/register (3876ms)
+    ✔ /auth/verify (4296ms)
     ✔ /auth/authenticate
     ✔ /auth/allow-access
     ✔ /auth/validate
     ✔ /auth/auth
     ✔ /auth/change-email
-    ✔ /auth/change-email (39ms)
+    ✔ /auth/change-email
     ✔ /auth/change-password
-    ✔ /auth/reset-password (3850ms)
+    ✔ /auth/reset-password (3831ms)
 
   Apps
     ✔ /apps/add
     ✔ /apps/get
-    ✔ /apps/list
+    ✔ /apps/list (42ms)
     ✔ /apps/share
     ✔ /apps/update
     ✔ /apps/is-admin
@@ -31,14 +31,14 @@
     ✔ /apps/unsubscribe
 
   Users
-    ✔ /users/get (43ms)
+    ✔ /users/get
     ✔ /users/update
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get (44ms)
-    ✔ /scopes/list (62ms)
-    ✔ /scopes/update (63ms)
+    ✔ /scopes/get (197ms)
+    ✔ /scopes/list (211ms)
+    ✔ /scopes/update (187ms)
 
   Groups
     ✔ /groups/add
@@ -50,13 +50,13 @@
     ✔ /groups/unsubscribe
 
   Tokens
-    ✔ /tokens/generate
+    ✔ /tokens/generate (77ms)
     ✔ /tokens/get
     ✔ /tokens/list
-    ✔ /tokens/update
+    ✔ /tokens/update (63ms)
     ✔ /tokens/share
-    ✔ /tokens/update-subscriber (41ms)
-    ✔ /tokens/unsubscribe (49ms)
+    ✔ /tokens/update-subscriber
+    ✔ /tokens/unsubscribe
     ✔ /tokens/retrieve
 
   Features
@@ -80,12 +80,12 @@
   Remove Added Items
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete (57ms)
+    ✔ /scopes/delete (198ms)
     ✔ /groups/delete
     ✔ /apps/delete
     ✔ /tokens/revoke
     ✔ /users/delete
 
 
-  60 passing (13s)
+  60 passing (14s)
 

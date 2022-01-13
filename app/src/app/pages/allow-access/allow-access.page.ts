@@ -24,6 +24,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 	public app = {
 		icon: environment.icon,
 		name: environment.name,
+		appId: environment.appId,
 		privacyPolicy: environment.privacyPolicy,
 		termsAndConditions: environment.termsAndConditions
 	};
@@ -40,9 +41,9 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 		this.loading = true;
 
 		const response = await this.tokens.generate({
-			appId: environment.appId,
+			appId: this.app.appId,
 			expiry: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-			description: environment.name
+			description: this.app.name
 		});
 
 		if (response.ok) {
@@ -84,8 +85,11 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 				this.app.privacyPolicy = environment.privacyPolicy;
 				this.app.termsAndConditions = environment.termsAndConditions;
 
-				if (typeof(this.route.snapshot.queryParams['returl']) != 'undefined' && this.route.snapshot.queryParams['returl'] != null) {
-					this.returl = this.route.snapshot.queryParams['returl'];
+				const params: any = this.route.snapshot.queryParams;
+
+				if (typeof (params.returl) != 'undefined' && params.returl != null) {
+					this.returl = params.returl;
+					this.app.appId = params.appId;
 					await this.process();
 				} else {
 					await window.alert('Please supply a return url in the query params of your request!');

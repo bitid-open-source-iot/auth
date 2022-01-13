@@ -130,9 +130,9 @@ export class SubscribersPage implements OnInit, OnDestroy {
 
 		const users = await this.users.list({
 			filter: [
+				'name',
 				'userId',
-				'picture',
-				'description'
+				'picture'
 			],
 			userId: this.table.data.filter(o => o.type == 'user').map(o => o.id)
 		} as any);

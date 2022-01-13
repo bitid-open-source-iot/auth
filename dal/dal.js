@@ -3815,6 +3815,11 @@ var module = function () {
 
 			var params = [
 				{
+					$match: {
+						'_id': ObjectId(__settings.client.appId)
+					}
+				},
+				{
 					$lookup: {
 						let: {
 							'appId': '$bitid.auth.apps.id'
@@ -3880,19 +3885,15 @@ var module = function () {
 					$match: {
 						$or: [
 							{
-								'_id': ObjectId(__settings.client.appId),
 								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(__settings.client.appId),
 								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(__settings.client.appId),
 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(__settings.client.appId),
 								'bitid.auth.private': false
 							}
 						]
@@ -4001,7 +4002,23 @@ var module = function () {
 				.then(result => {
 					var deferred = Q.defer();
 
-					var params = {};
+					var params = { };
+
+					if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
+						params.$or = [];
+						params.$or.push({
+							'name.last': {
+								$regex: args.req.body.name,
+								$options: 'i'
+							}
+						});
+						params.$or.push({
+							'name.first': {
+								$regex: args.req.body.name,
+								$options: 'i'
+							}
+						});
+					};
 
 					if (typeof (args.req.body.email) != 'undefined' && args.req.body.email != null) {
 						if (Array.isArray(args.req.body.email) && args.req.body.email?.length > 0) {
@@ -4051,7 +4068,13 @@ var module = function () {
 						});
 					};
 
+					var limit = 10000;
+					if (typeof (args.req.body.limit) != 'undefined' || args.req.body.limit != null) {
+						limit = args.req.body.limit;
+					};
+
 					deferred.resolve({
+						'limit': limit,
 						'params': params,
 						'filter': filter,
 						'operation': 'find',

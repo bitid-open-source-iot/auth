@@ -1,5 +1,6 @@
 /* --- MODULES --- */
 import { NgModule } from '@angular/core';
+import { UpdateModule } from './libs/update/update.module';
 import { OptionsModule } from './libs/options/options.module';
 import { ConfirmModule } from './libs/confirm/confirm.module';
 import { BrowserModule } from '@angular/platform-browser';
@@ -43,6 +44,7 @@ import { environment } from '../environments/environment';
 
 @NgModule({
     imports: [
+        UpdateModule,
         OptionsModule,
         ConfirmModule,
         BrowserModule,

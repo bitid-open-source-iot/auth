@@ -90,6 +90,8 @@ try {
                             var myModule = new dal.module();
                             myModule.auth.validate(args)
                                 .then(result => {
+                                    delete req.body.scope;
+                                    delete args.req.body.scope;
                                     next();
                                 }, err => {
                                     err.error.code = 401;

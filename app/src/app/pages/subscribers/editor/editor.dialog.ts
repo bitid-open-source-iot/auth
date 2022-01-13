@@ -55,41 +55,37 @@ export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 		this.searching = true;
 
 		let params: any = {
-			limit: 10
+			limit: 5
 		};
 		let service: any;
 
 		switch (this.form.value.type) {
 			case ('app'):
-				params = {
-					filter: [
-						'name',
-						'appId'
-					],
-					name: this.form.value.search,
-					private: [true, false]
-				};
+				params.filter = [
+					'name',
+					'icon',
+					'appId'
+				];
+				params.name = this.form.value.search;
+				params.private = [true, false];
 				service = this.apps;
 				break;
 			case ('user'):
-				params = {
-					filter: [
-						'name',
-						'userId'
-					],
-					name: this.form.value.search
-				};
+				params.filter = [
+					'name',
+					'userId',
+					'picture'
+				];
+				params.name = this.form.value.search;
 				service = this.users;
 				break;
 			case ('group'):
-				params = {
-					filter: [
-						'groupId',
-						'description'
-					],
-					private: [true, false],
-					description: this.form.value.search
-				};
+				params.filter = [
+					'groupId',
+					'description'
+				];
+				params.private = [true, false];
+				params.description = this.form.value.search;
 				service = this.groups;
 				break;
 		};
@@ -102,6 +98,7 @@ export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 					this.options = response.result.map((o: App) => {
 						return {
 							id: o.appId,
+							icon: o.icon,
 							description: o.name
 						};
 					});
@@ -110,6 +107,7 @@ export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 					this.options = response.result.map((o: User) => {
 						return {
 							id: o.userId,
+							icon: o.picture,
 							description: [o.name.first, o.name.last].join(' ')
 						};
 					});
@@ -118,6 +116,7 @@ export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 					this.options = response.result.map((o: Group) => {
 						return {
 							id: o.groupId,
+							icon: './assets/icons/icon-512x512.png',
 							description: o.description
 						};
 					});
@@ -142,7 +141,7 @@ export class SubscribersEditorDialog implements OnDestroy, AfterViewInit {
 	ngAfterViewInit(): void {
 		this.mode = this.config.mode;
 		let accesor = this.config.accesor;
-		
+
 		if (this.config.mode == 'update') {
 			this.form.controls['id'].setValue(accesor?.id);
 			this.form.controls['id'].disable();

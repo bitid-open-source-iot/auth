@@ -9,6 +9,17 @@ const config = require('./config.json');
 const subset = require('chai-subset');
 chai.use(subset);
 
+var email = () => {
+    var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+    var string = '';
+    for (var index = 0; index < 15; index++) {
+        string += chars[Math.floor(Math.random() * chars.length)];
+    };
+    return [string, '@gmail.com'].join('');
+};
+
+config.email = email();
+
 var code = null;
 var email = config.email;
 var token = null;
@@ -2208,13 +2219,5 @@ var tools = {
         deferred.resolve(result);
 
         return deferred.promise;
-    },
-    email: () => {
-        var chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
-        var string = '';
-        for (var index = 0; index < 15; index++) {
-            string += chars[Math.floor(Math.random() * chars.length)];
-        };
-        return [string, '@gmail.com'].join('');
     }
 };
