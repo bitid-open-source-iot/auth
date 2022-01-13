@@ -35,6 +35,11 @@ router.post('/change-email', (req, res) => {
 	myModule.auth.changeemail(req, res);
 });
 
+router.post('/allowaccess', (req, res) => {
+	var myModule = new bll.module();
+	myModule.auth.allowaccess(req, res);
+});
+
 router.post('/allow-access', (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.allowaccess(req, res);
