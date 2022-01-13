@@ -35,6 +35,7 @@ export class ConfigService {
 		const response = await this.api.put(environment.auth, '/config/get', params);
 
 		if (response.ok) {
+			delete response.result.appId;
 			Object.keys(response.result).map(key => {
 				path.set(environment, key, path.get(response.result, key));
 			});
