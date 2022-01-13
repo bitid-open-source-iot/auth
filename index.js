@@ -50,21 +50,25 @@ try {
                 }));
 
                 app.use((req, res, next) => {
-                    var args = {
-                        'req': req,
-                        'res': res
-                    };
+                    if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
+                        var args = {
+                            'req': req,
+                            'res': res
+                        };
 
-                    if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
-                        if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
-                            var myModule = new dal.module();
-                            myModule.users.id(args)
-                                .then(args => {
-                                    req.body.header.userId = args.result;
-                                    next();
-                                }, error => {
-                                    next();
-                                });
+                        if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
+                            if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
+                                var myModule = new dal.module();
+                                myModule.users.id(args)
+                                    .then(args => {
+                                        req.body.header.userId = args.result;
+                                        next();
+                                    }, error => {
+                                        next();
+                                    });
+                            } else {
+                                next();
+                            };
                         } else {
                             next();
                         };
