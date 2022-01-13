@@ -573,7 +573,7 @@ var module = function () {
 				});
 			};
 
-			if (typeof(args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
+			if (typeof (args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
 				params.push({
 					$limit: args.req.body.limit
 				});
@@ -2462,6 +2462,8 @@ var module = function () {
 					} else {
 						deferred.resolve(args);
 					};
+
+					return deferred.promise;
 				})
 				.then(result => {
 					var deferred = Q.defer();
@@ -2859,7 +2861,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				// .then(result => dalStatistics.write(args))
+				.then(result => dalStatistics.write(args))
 				.then(result => {
 					deferred.resolve(result);
 				}, err => {
