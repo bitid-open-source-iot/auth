@@ -115,21 +115,21 @@ if (tblApps.count() == 0) {
         '_id': 1,
         'bitid.auth.apps.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblApps.createIndex({
         '_id': 1,
         'bitid.auth.users.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblApps.createIndex({
         '_id': 1,
         'bitid.auth.groups.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 };
 
@@ -273,7 +273,7 @@ if (tblTokens.count() == 0) {
         'token.expiry': 1,
         'bitid.auth.apps.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblTokens.createIndex({
@@ -283,7 +283,7 @@ if (tblTokens.count() == 0) {
         'token.expiry': 1,
         'bitid.auth.users.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblTokens.createIndex({
@@ -293,7 +293,7 @@ if (tblTokens.count() == 0) {
         'token.expiry': 1,
         'bitid.auth.groups.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 };
 
@@ -334,21 +334,21 @@ if (tblGroups.count() == 0) {
         '_id': 1,
         'bitid.auth.apps.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblGroups.createIndex({
         '_id': 1,
         'bitid.auth.users.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 
     db.tblGroups.createIndex({
         '_id': 1,
         'bitid.auth.groups.id': 1
     }, {
-        'unique': true
+        'unique': false
     });
 };
 
