@@ -50,7 +50,7 @@ try {
                 }));
 
                 app.use((req, res, next) => {
-                    if (req.method != 'GET' && req.method != 'PUT') {
+                    if (req.method != 'GET') {
                         var args = {
                             'req': req,
                             'res': res
