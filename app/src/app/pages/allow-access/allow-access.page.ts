@@ -85,6 +85,7 @@ export class AllowAccessPage implements OnInit, OnDestroy {
 				this.app.termsAndConditions = environment.termsAndConditions;
 
 				if (typeof(this.route.snapshot.queryParams['returl']) != 'undefined' && this.route.snapshot.queryParams['returl'] != null) {
+					this.returl = this.route.snapshot.queryParams['returl'];
 					await this.process();
 				} else {
 					await window.alert('Please supply a return url in the query params of your request!');
