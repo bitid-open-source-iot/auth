@@ -2369,6 +2369,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			var token = JSON.parse(args.req.headers.authorization);
+			token.expiry = new Date(token.expiry);
 
 			var params = {
 				'token': token,
@@ -2432,16 +2433,10 @@ var module = function () {
 						};
 					});
 
-					var valid = false;
 					var found = false;
 					result.map(row => {
-						if (row.url == args.req.originalUrl || row.url == args.req.body.reqURI || row.url == '*') {
+						if (row.url == args.req.body.reqURI || row.url == '*') {
 							found = true;
-							scopes.map(scope => {
-								if (row.roles.includes(scope.role)) {
-									valid = true;
-								};
-							});
 						};
 					});
 
@@ -2449,15 +2444,8 @@ var module = function () {
 						var err = new ErrorResponse();
 						err.error.code = 401;
 						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope not allowed: ' + args.req.reqURI;
-						err.error.errors[0].message = 'Scope not allowed: ' + args.req.reqURI;
-						deferred.reject(err);
-					} else if (!valid) {
-						var err = new ErrorResponse();
-						err.error.code = 401;
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Scope role not allowed: ' + args.req.reqURI;
-						err.error.errors[0].message = 'Scope role not allowed: ' + args.req.reqURI;
+						err.error.errors[0].reason = 'Scope not allowed: ' + args.req.body.reqURI;
+						err.error.errors[0].message = 'Scope not allowed: ' + args.req.body.reqURI;
 						deferred.reject(err);
 					} else {
 						deferred.resolve(args);
@@ -2625,14 +2613,14 @@ var module = function () {
 		validate: (args) => {
 			var deferred = Q.defer();
 
-			if (typeof (args.req.headers.authorization) == 'undefined') {
+			if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
 				var err = new ErrorResponse();
 				err.error.code = 401;
 				err.error.errors[0].coded = 401;
 				err.error.errors[0].reason = 'token not found';
 				err.error.errors[0].message = 'token not found';
 				deferred.reject(err);
-				return false;
+				return;
 			} else {
 				try {
 					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
@@ -2643,11 +2631,73 @@ var module = function () {
 					err.error.errors[0].reason = 'invalid token object';
 					err.error.errors[0].message = 'invalid token object';
 					deferred.reject(err);
-					return false;
+					return;
 				};
 			};
 
+			args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
+
 			var params = [
+				{
+					$match: {
+						'token': args.req.headers.authorization,
+						'appId': ObjectId(args.req.body.header.appId)
+					}
+				},
+				{
+					$lookup: {
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: [ObjectId(args.req.body.header.appId), '$_id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1
+								}
+							}
+						],
+						as: '_app',
+						from: 'tblApps'
+					}
+				},
+				{
+					$unwind: '$_app'
+				},
+				{
+					$lookup: {
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$eq: [args.req.body.scope, '$url']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1
+								}
+							}
+						],
+						as: '_scope',
+						from: 'tblScopes'
+					}
+				},
+				{
+					$unwind: '$_scope'
+				},
 				{
 					$lookup: {
 						let: {
@@ -2740,20 +2790,14 @@ var module = function () {
 					$match: {
 						$or: [
 							{
-								'token': args.req.headers.authorization,
-								'appId': ObjectId(args.req.body.header.appId),
 								'disabled': false,
 								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'token': args.req.headers.authorization,
-								'appId': ObjectId(args.req.body.header.appId),
 								'disabled': false,
 								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'token': args.req.headers.authorization,
-								'appId': ObjectId(args.req.body.header.appId),
 								'disabled': false,
 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							}
@@ -2787,16 +2831,7 @@ var module = function () {
 						});
 
 						if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
-							var params = {
-								'url': args.req.body.scope
-							};
-
-							deferred.resolve({
-								'params': params,
-								'operation': 'find',
-								'collection': 'tblScopes',
-								'allowNoRecordsFound': true
-							});
+							deferred.resolve(result);
 						} else {
 							deferred.reject({
 								code: 401,
@@ -2806,64 +2841,15 @@ var module = function () {
 					} else {
 						deferred.reject({
 							code: 401,
-							message: 'Token was not found!'
-						});
-					};
-
-					return deferred.promise;
-				})
-				.then(db.call)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var params = {
-							'_id': ObjectId(args.req.body.header.appId)
-						};
-
-						deferred.resolve({
-							'params': params,
-							'operation': 'find',
-							'collection': 'tblApps',
-							'allowNoRecordsFound': true
-						});
-					} else {
-						deferred.reject({
-							code: 401,
-							message: 'Scope was not found!'
-						});
-					};
-
-					return deferred.promise;
-				})
-				.then(db.call)
-				.then(result => {
-					var deferred = Q.defer();
-
-					if (result.length > 0) {
-						var expiry = new Date(args.req.headers.authorization.expiry);
-						var current = new Date();
-
-						if (expiry < current) {
-							deferred.reject({
-								code: 401,
-								message: 'This token has expired!'
-							});
-						} else {
-							deferred.resolve(true);
-						};
-					} else {
-						deferred.reject({
-							code: 401,
-							message: 'App not found!'
+							message: 'Token was not found or has expired!'
 						});
 					};
 
 					return deferred.promise;
 				})
 				.then(result => dalStatistics.write(args))
-				.then(result => {
-					deferred.resolve(result);
+				.then(args => {
+					deferred.resolve(args);
 				}, err => {
 					deferred.reject(err);
 				});
@@ -3195,6 +3181,7 @@ var module = function () {
 			if (typeof (args.req.body.expiry) == 'undefined') {
 				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
 			};
+			args.req.body.expiry = new Date(args.req.body.expiry);
 
 			if (typeof (args.req.body.tokenAddOn) == 'undefined') {
 				args.req.body.tokenAddOn = {};
@@ -3350,6 +3337,7 @@ var module = function () {
 			if (typeof (args.req.body.expiry) == 'undefined') {
 				args.req.body.expiry = Date.now() + 31 * 24 * 60 * 60 * 1000;
 			};
+			args.req.body.expiry = new Date(args.req.body.expiry);
 
 			if (typeof (args.req.body.tokenAddOn) == 'undefined') {
 				args.req.body.tokenAddOn = {};

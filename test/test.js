@@ -172,26 +172,27 @@ describe('Auth', function () {
             });
     });
 
-    // it('/auth/auth', function (done) {
-    //     this.timeout(5000);
+    it('/auth/auth', function (done) {
+        this.timeout(5000);
 
-    //     tools.api.auth.auth()
-    //         .then((result) => {
-    //             try {
-    //                 result[0].should.have.property('email');
-    //                 result[0].should.have.property('appId');
-    //                 done();
-    //             } catch (e) {
-    //                 done(e);
-    //             };
-    //         }, (err) => {
-    //             try {
-    //                 done(err);
-    //             } catch (e) {
-    //                 done(e);
-    //             };
-    //         });
-    // });
+        tools.api.auth.auth()
+            .then((result) => {
+                try {
+                    // result[0].should.have.property('email');
+                    result[0].should.have.property('appId');
+                    // result[0].should.have.property('userId');
+                    done();
+                } catch (e) {
+                    done(e);
+                };
+            }, (err) => {
+                try {
+                    done(err);
+                } catch (e) {
+                    done(e);
+                };
+            });
+    });
 
     it('/auth/change-email', function (done) {
         this.timeout(5000);
@@ -1689,6 +1690,7 @@ var tools = {
                         '/tokens/get',
                         '/tokens/list',
                         '/tokens/share',
+                        '/tokens/update',
                         '/tokens/revoke',
                         '/tokens/retrieve',
                         '/tokens/generate',
@@ -1719,6 +1721,8 @@ var tools = {
                         '/features/list',
                         '/features/update',
                         '/features/delete',
+
+                        '/statistics/usage',
 
                         '/tips-and-updates/add',
                         '/tips-and-updates/get',
@@ -2166,6 +2170,10 @@ var tools = {
 
         const result = await response.json();
 
+        if (!response.ok) {
+            console.log(result);
+        };
+
         deferred.resolve(result);
 
         return deferred.promise;
@@ -2192,6 +2200,10 @@ var tools = {
         });
 
         const result = await response.json();
+
+        if (!response.ok) {
+            console.log(result);
+        };
 
         deferred.resolve(result);
 
