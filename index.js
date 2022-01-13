@@ -56,6 +56,8 @@ try {
                             'res': res
                         };
 
+                        console.log('Doing CHange Check');
+
                         if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
                             console.log('About to change email to userId');
                             if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
