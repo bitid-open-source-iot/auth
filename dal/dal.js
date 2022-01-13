@@ -121,6 +121,9 @@ var module = function () {
 
 			var params = [
 				{
+					$match: {}
+				},
+				{
 					$lookup: {
 						let: {
 							'appId': '$bitid.auth.apps.id'
@@ -186,19 +189,15 @@ var module = function () {
 					$match: {
 						$or: [
 							{
-								'_id': ObjectId(args.req.body.appId),
 								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(args.req.body.appId),
 								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(args.req.body.appId),
 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
 							},
 							{
-								'_id': ObjectId(args.req.body.appId),
 								'bitid.auth.private': false
 							}
 						]
@@ -292,6 +291,12 @@ var module = function () {
 					}
 				}
 			];
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				params[0].$match._id = ObjectId(args.req.body.appId);
+			} else if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
+				params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
+			};
 
 			var filter = {};
 			if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
