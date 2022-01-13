@@ -57,6 +57,7 @@ try {
                         };
 
                         if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
+                            console.log('About to change email to userId');
                             if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
                                 var myModule = new dal.module();
                                 myModule.users.id(args)
