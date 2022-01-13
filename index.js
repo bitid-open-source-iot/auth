@@ -75,16 +75,7 @@ try {
 
                 app.use((req, res, next) => {
                     if (__settings.authentication) {
-                        let testIfToken
-                        try {
-                            testIfToken = JSON.parse(req.headers.authorization)
-                            req.headers.authorization = req.headers.authorization;
-                        } catch (e) {
-                            req.headers.authorization = JSON.stringify({ "Bearer": req.headers.authorization, "scopes": [{ "url": "*", "role": "4" }], "expiry": 32503680000000, "pushToken": "", "tokenAddOn": {} })
-                        };
-
                         if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
-
                             var args = {
                                 'req': req,
                                 'res': res
