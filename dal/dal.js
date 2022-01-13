@@ -344,6 +344,55 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		load: (args) => {
+			var deferred = Q.defer();
+
+			var params = {};
+
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
+					params._id = ObjectId(args.req.body.appId);
+				};
+			};
+
+			if (Object.keys(params).length == 0) {
+				if (typeof (args.req.headers.origin) != 'undefined' && args.req.headers.origin != null) {
+					params.domains = args.req.headers.origin.replace('http://', '').replace('https://', '').split('/')[0];
+				};
+			};
+
+			var filter = {};
+			if (typeof (args.req.body.filter) != 'undefined') {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'appId') {
+						filter['_id'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
 		list: (args) => {
 			var deferred = Q.defer();
 

@@ -15,6 +15,11 @@ router.post('/get', (req, res) => {
 	myModule.apps.get(req, res);
 });
 
+router.put('/load', (req, res) => {
+	var myModule = new bll.module();
+	myModule.apps.load(req, res);
+});
+
 router.post('/list', (req, res) => {
 	var myModule = new bll.module();
 	myModule.apps.list(req, res);
