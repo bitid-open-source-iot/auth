@@ -56,10 +56,7 @@ try {
                             'res': res
                         };
 
-                        console.log('Doing CHange Check');
-
                         if (typeof (args.req.body?.header?.userId) == 'undefined' || args.req.body?.header?.userId == null) {
-                            console.log('About to change email to userId');
                             if (typeof (args.req.body?.header?.email) != 'undefined' && args.req.body?.header?.email != null) {
                                 var myModule = new dal.module();
                                 myModule.users.id(args)
@@ -67,15 +64,12 @@ try {
                                         req.body.header.userId = args.result;
                                         next();
                                     }, error => {
-                                        console.log(error);
                                         next();
                                     });
                             } else {
-                                console.log(1);
                                 next();
                             };
                         } else {
-                            console.log(2);
                             next();
                         };
                     } else {
