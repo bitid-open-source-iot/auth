@@ -2859,7 +2859,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(result => dalStatistics.write(args))
+				// .then(result => dalStatistics.write(args))
 				.then(result => {
 					deferred.resolve(result);
 				}, err => {
