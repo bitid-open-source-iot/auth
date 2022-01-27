@@ -42,6 +42,7 @@ export class App {
 	public name: string | undefined;
 	public users: Accessor[] = [];
 	public appId: string | undefined;
+	public config: Object = {};
 	public scopes: string[] = [];
 	public groups: Accessor[] = [];
 	public secret: string | undefined;
@@ -121,6 +122,9 @@ export class App {
 			if (typeof (args.groups) != 'undefined' && args.groups != null) {
 				this.groups = args.groups.map(o => new Accessor(o));
 			};
+			if (typeof (args.config) != 'undefined' && args.config != null) {
+				this.config = args.config;
+			};
 			if (typeof (args.domains) != 'undefined' && args.domains != null) {
 				this.domains = args.domains;
 			};
@@ -167,6 +171,7 @@ interface APP {
 	name?: string;
 	users?: Accessor[];
 	appId?: string;
+	config?: Object;
 	scopes?: string[];
 	groups?: Accessor[];
 	secret?: string;

@@ -200,6 +200,18 @@
             </mat-form-field>
         </section>
 
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Dynamic Config
+            </mat-label>
+
+            <textarea id="config-text-area" matInput cdkTextareaAutosize name="config" placeholder="dynamic config" formControlName="config" required></textarea>
+
+            <mat-error *ngIf="errors.config">
+                {{ errors.config }}
+            </mat-error>
+        </mat-form-field>
+
         <mat-file [required]="true" [accept]="'image/x-icon'" [min-width]="256" [max-width]="256" [min-height]="256"
             [max-height]="256" formControlName="favicon">
             <mat-label>

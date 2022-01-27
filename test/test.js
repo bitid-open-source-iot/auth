@@ -329,6 +329,7 @@ describe('Apps', function () {
                     result.should.have.property('appId');
                     result.should.have.property('users');
                     result.should.have.property('theme');
+                    result.should.have.property('config');
                     result.should.have.property('groups');
                     result.should.have.property('scopes');
                     result.should.have.property('secret');
@@ -365,6 +366,7 @@ describe('Apps', function () {
                     result[0].should.have.property('appId');
                     result[0].should.have.property('users');
                     result[0].should.have.property('theme');
+                    result[0].should.have.property('config');
                     result[0].should.have.property('groups');
                     result[0].should.have.property('scopes');
                     result[0].should.have.property('secret');
@@ -1484,6 +1486,9 @@ var tools = {
                         'color': '',
                         'background': ''
                     },
+                    'config': {
+                        'test': 'test'
+                    },
                     'google': {
                         'credentials': {
                             'type': 'xxx',
@@ -1522,6 +1527,7 @@ var tools = {
                         'appId',
                         'icons',
                         'theme',
+                        'config',
                         'groups',
                         'google',
                         'scopes',
@@ -1546,6 +1552,7 @@ var tools = {
                         'appId',
                         'icons',
                         'theme',
+                        'config',
                         'groups',
                         'google',
                         'scopes',

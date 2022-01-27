@@ -1,4 +1,4 @@
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
+import { TAB, COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Router, ActivatedRoute } from '@angular/router';
 import { OnInit, Component, OnDestroy } from '@angular/core';
@@ -46,6 +46,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 		url: new FormControl(null, [Validators.required]),
 		icon: new FormControl(null, [Validators.required]),
 		name: new FormControl(null, [Validators.required]),
+		config: new FormControl(null, [Validators.required]),
 		secret: new FormControl(null, [Validators.required]),
 		scopes: new FormControl([], [Validators.required]),
 		domains: new FormControl([], [Validators.required]),
@@ -77,6 +78,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 		url: '',
 		icon: '',
 		name: '',
+		config: '',
 		secret: '',
 		scopes: '',
 		domains: '',
@@ -99,6 +101,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 				'name',
 				'icons',
 				'theme',
+				'config',
 				'secret',
 				'google',
 				'scopes',
@@ -117,6 +120,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 				this.form.controls['icon'].setValue(app.icon);
 				this.form.controls['name'].setValue(app.name);
 				this.form.controls['secret'].setValue(app.secret);
+				this.form.controls['config'].setValue(JSON.stringify(app.config, null, 4));
 				this.form.controls['scopes'].setValue(app.scopes);
 				this.form.controls['domains'].setValue(app.domains);
 				this.form.controls['private'].setValue(app.private);
@@ -189,6 +193,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 			appId: this.appId,
 			icons: this.form.value.icons,
 			secret: this.form.value.secret,
+			config: JSON.parse(this.form.value.config),
 			scopes: this.form.value.scopes,
 			private: this.form.value.private,
 			domains: this.form.value.domains,
@@ -223,6 +228,31 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 	}
 
 	ngOnInit(): void {
+		const textarea: HTMLTextAreaElement = <HTMLTextAreaElement>document.getElementById('config-text-area');
+
+		textarea.addEventListener('keydown', (event: KeyboardEvent) => {
+			if (event.shiftKey && event.key === 'Tab') {
+				event.preventDefault();
+				textarea.value = textarea.value.substring(0, textarea.selectionStart - 1) + textarea.value.substring(textarea.selectionStart);
+			} else if (event.key === 'Tab') {
+				event.preventDefault();
+				textarea.setRangeText( '	', textarea.selectionStart, textarea.selectionStart, 'end');
+			};
+		});
+
+		this.observers.config = this.form.controls['config'].valueChanges.subscribe(async (config) => {
+			try {
+				JSON.parse(config);
+				this.form.controls['config'].setErrors(null);
+			} catch (error) {
+				this.form.controls['config'].setErrors({
+					pattern: 'Please enter valid JSON!'
+				});
+				this.form.controls['config'].markAsDirty();
+				this.errors.config = 'Please enter valid JSON!';
+			};
+		});
+
 		this.observers.loaded = this.config.loaded.subscribe(async (loaded) => {
 			if (loaded) {
 				const params: any = this.route.snapshot.queryParams;
@@ -237,6 +267,7 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.observers.config?.unsubscribe();
 		this.observers.loaded?.unsubscribe();
 	}
 

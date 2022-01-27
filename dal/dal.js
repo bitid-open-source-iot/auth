@@ -54,6 +54,7 @@ var module = function () {
 				'icon': args.req.body.icon,
 				'name': args.req.body.name,
 				'theme': args.req.body.theme || {},
+				'config': args.req.body.config || {},
 				'scopes': args.req.body.scopes || [],
 				'secret': args.req.body.secret,
 				'domains': args.req.body.domains || [],
@@ -1125,21 +1126,21 @@ var module = function () {
 							'serverDate': new Date()
 						}
 					};
-					if (typeof (args.req.body.google) != 'undefined') {
-						if (typeof (args.req.body.google.database) != 'undefined') {
+					if (typeof (args.req.body.google) != 'undefined' && args.req.body.google != null) {
+						if (typeof (args.req.body.google.database) != 'undefined' && args.req.body.google.database != null) {
 							update.$set['google.database'] = args.req.body.google.database;
 						};
-						if (typeof (args.req.body.google.credentials) == 'object') {
+						if (typeof (args.req.body.google.credentials) == 'object' && args.req.body.google.credentials != null) {
 							update.$set['google.credentials'] = args.req.body.google.credentials;
 						};
 					};
-					if (typeof (args.req.body.url) != 'undefined') {
+					if (typeof (args.req.body.url) != 'undefined' && args.req.body.url != null) {
 						update.$set.url = args.req.body.url;
 					};
-					if (typeof (args.req.body.name) != 'undefined') {
+					if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
 						update.$set.name = args.req.body.name;
 					};
-					if (typeof (args.req.body.icon) != 'undefined') {
+					if (typeof (args.req.body.icon) != 'undefined' && args.req.body.icon != null) {
 						update.$set.icon = args.req.body.icon;
 					};
 					if (typeof (args.req.body.icons) != 'undefined' && args.req.body.icons != null) {
@@ -1168,22 +1169,25 @@ var module = function () {
 							update.$set['icons.icon512x512'] = args.req.body.icons.icon512x512;
 						};
 					};
-					if (typeof (args.req.body.theme) != 'undefined') {
+					if (typeof (args.req.body.theme) != 'undefined' && args.req.body.theme != null) {
 						update.$set.theme = args.req.body.theme;
 					};
-					if (typeof (args.req.body.secret) != 'undefined') {
+					if (typeof (args.req.body.config) != 'undefined' && args.req.body.config != null) {
+						update.$set.config = args.req.body.config;
+					};
+					if (typeof (args.req.body.secret) != 'undefined' && args.req.body.secret != null) {
 						update.$set.secret = args.req.body.secret;
 					};
-					if (typeof (args.req.body.scopes) != 'undefined') {
+					if (typeof (args.req.body.scopes) != 'undefined' && args.req.body.scopes != null) {
 						update.$set.scopes = args.req.body.scopes;
 					};
-					if (typeof (args.req.body.domains) != 'undefined') {
+					if (typeof (args.req.body.domains) != 'undefined' && args.req.body.domains != null) {
 						update.$set.domains = args.req.body.domains;
 					};
-					if (typeof (args.req.body.favicon) != 'undefined') {
+					if (typeof (args.req.body.favicon) != 'undefined' && args.req.body.favicon != null) {
 						update.$set.favicon = args.req.body.favicon;
 					};
-					if (typeof (args.req.body.private) != 'undefined') {
+					if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
 						update.$set['bitid.auth.private'] = args.req.body.private;
 					};
 					if (typeof (args.req.body.organizationOnly) != 'undefined' && args.req.body.organizationOnly != null) {
@@ -1753,7 +1757,8 @@ var module = function () {
 						'url': 1,
 						'icon': 1,
 						'name': 1,
-						'appId': '$_id'
+						'appId': '$_id',
+						'config': 1
 					}
 				}
 			];
@@ -4011,7 +4016,7 @@ var module = function () {
 				.then(result => {
 					var deferred = Q.defer();
 
-					var params = { };
+					var params = {};
 
 					if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
 						params.$or = [];
