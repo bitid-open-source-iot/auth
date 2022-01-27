@@ -1854,7 +1854,7 @@ var module = function () {
 							'alias': [],
 							'bearer': tools.encryption.generateRandomString(64),
 							'scopes': args.app.scopes,
-							'expiry': args.req.body.expiry,
+							'expiry': new Date(args.req.body.expiry),
 							'timeZone': args.user.timeZone || 0,
 							'tokenAddOn': {},
 							'description': args.req.body.description
@@ -2691,12 +2691,17 @@ var module = function () {
 
 			args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
 
+			var match = {
+				'appId': ObjectId(args.req.body.header.appId)
+			};
+			Object.keys(args.req.headers.authorization).map(key => {
+				match['token.' + key] = args.req.headers.authorization[key];
+			});
+			delete match['token.expiry'];
+
 			var params = [
 				{
-					$match: {
-						'token': args.req.headers.authorization,
-						'appId': ObjectId(args.req.body.header.appId)
-					}
+					$match: match
 				},
 				{
 					$lookup: {
@@ -2904,7 +2909,11 @@ var module = function () {
 				.then(result => dalStatistics.write(args))
 				.then(args => {
 					deferred.resolve(args);
-				}, err => {
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
 					deferred.reject(err);
 				});
 
@@ -3344,7 +3353,7 @@ var module = function () {
 						'token': {
 							'bearer': tools.encryption.generateRandomString(64),
 							'scopes': args.req.body.scopes,
-							'expiry': args.req.body.expiry,
+							'expiry': new Date(args.req.body.expiry),
 							'timeZone': args.user.timeZone || 0,
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
@@ -3524,7 +3533,7 @@ var module = function () {
 							'scopes': [
 								'*'
 							],
-							'expiry': args.req.body.expiry,
+							'expiry': new Date(args.req.body.expiry),
 							'timeZone': args.user.timeZone || 0,
 							'tokenAddOn': args.req.body.tokenAddOn,
 							'description': args.req.body.description || args.app.name
@@ -9481,7 +9490,7 @@ var module = function () {
 							'alias': [],
 							'bearer': tools.encryption.generateRandomString(64),
 							'scopes': args.app.scopes,
-							'expiry': args.req.body.expiry,
+							'expiry': new Date(args.req.body.expiry),
 							'timeZone': args.user.timeZone || 0,
 							'tokenAddOn': {},
 							'description': args.req.body.description
