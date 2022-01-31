@@ -31,6 +31,7 @@ export class TokensViewerPage implements OnInit, OnDestroy {
 			filter: [
 				'app',
 				'appId',
+				'token',
 				'device',
 				'expiry',
 				'scopes',

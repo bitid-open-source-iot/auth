@@ -1,13 +1,19 @@
-<mat-content fxLayout="row">
-    <mat-list fxFlex="50" fxFlexOffset="25" fxFlex.lg="70" fxFlexOffset.lg="15" fxFlex.md="80" fxFlexOffset.md="10"
-        fxFlex.sm="90" fxFlexOffset.sm="5" fxFlex.xs="100" fxFlexOffset.xs="0">
+<mat-toolbar>
+    <mat-back-button></mat-back-button>
+
+    <label for="view token">
+        View Token
+    </label>
+</mat-toolbar>
+
+<mat-content fxLayout="row" fxLayoutAlign="center flex-start">
+    <mat-list fxFlex="60" fxFlex.lg="70" fxFlex.md="80" fxFlex.sm="90" fxFlex.xs="100">
         <div mat-subheader>
             App
         </div>
 
-        <mat-list-item lines="full">
-            <img slot="start" [src]="token.app.icon" [alt]="token.app.name" width="48" height="48" draggable="false"
-                *ngIf="token.app.icon">
+        <mat-list-item class="details" lines="full">
+            <img slot="start" [src]="token.app.icon" [alt]="token.app.name" width="48" height="48" draggable="false" *ngIf="token.app.icon">
 
             <mat-label class="spacer">
                 <h3>

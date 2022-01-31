@@ -1,16 +1,16 @@
 
 
   Software & Testing Details
-    ✔ DATE: 31/01/2022 20:59:43
+    ✔ DATE: 31/01/2022 21:36:23
     ✔ AUTHOR: claytoncc
-    ✔ VERSION: 2.1.8
+    ✔ VERSION: 2.1.9
 
   Config
-    ✔ /config/get (66ms)
+    ✔ /config/get
 
   Auth
-    ✔ /auth/register (4110ms)
-    ✔ /auth/verify (3582ms)
+    ✔ /auth/register (3753ms)
+    ✔ /auth/verify (3304ms)
     ✔ /auth/authenticate
     ✔ /auth/allow-access
     ✔ /auth/validate
@@ -18,7 +18,7 @@
     ✔ /auth/change-email
     ✔ /auth/change-email
     ✔ /auth/change-password
-    ✔ /auth/reset-password (3444ms)
+    ✔ /auth/reset-password (3682ms)
 
   Apps
     ✔ /apps/add
@@ -36,9 +36,9 @@
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get (220ms)
-    ✔ /scopes/list (205ms)
-    ✔ /scopes/update (172ms)
+    ✔ /scopes/get (201ms)
+    ✔ /scopes/list (206ms)
+    ✔ /scopes/update (183ms)
 
   Groups
     ✔ /groups/add
@@ -46,11 +46,11 @@
     ✔ /groups/list
     ✔ /groups/share
     ✔ /groups/update
-    ✔ /groups/update-subscriber (97ms)
-    ✔ /groups/unsubscribe (59ms)
+    ✔ /groups/update-subscriber (39ms)
+    ✔ /groups/unsubscribe
 
   Tokens
-    ✔ /tokens/generate (52ms)
+    ✔ /tokens/generate
     ✔ /tokens/get
     ✔ /tokens/list
     ✔ /tokens/update
@@ -80,11 +80,11 @@
   Remove Added Items
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete (173ms)
+    ✔ /scopes/delete (179ms)
     ✔ /groups/delete
-    ✔ /apps/delete
-    ✔ /tokens/revoke
-    ✔ /users/delete
+    ✔ /apps/delete (42ms)
+    ✔ /tokens/revoke (48ms)
+    ✔ /users/delete (57ms)
 
 
   60 passing (13s)
