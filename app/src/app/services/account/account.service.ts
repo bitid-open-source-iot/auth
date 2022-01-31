@@ -24,25 +24,54 @@ export class AccountService {
 	constructor(private api: ApiService, private router: Router, private localstorage: LocalStorageService) { }
 
 	public async init() {
-		const params = {
-			filter: [
-				'name',
-				'email',
-				'picture',
-				'username'
-			],
-			userId: this.localstorage.get('userId')
-		};
+		const now = new Date();
+		
+		let valid = true;
+		
+		const token = this.localstorage.getObject('token');
+		const userId = this.localstorage.get('userId');
 
-		const response = await this.api.post(environment.auth, '/users/get', params);
-
-		if (response.ok) {
-			this.user.next(response.result);
+		if (!userId || !token) {
+			valid = false;
 		} else {
-			this.user.next(null);
+			if (typeof (userId) == 'undefined') {
+				valid = false;
+			};
+
+			if (typeof (token.expiry) != 'undefined') {
+				const expiry = new Date(token.expiry);
+				if (expiry < now) {
+					valid = false;
+				};
+			} else {
+				valid = false;
+			};
 		};
 
-		return response;
+		if (valid) {
+			const params = {
+				filter: [
+					'name',
+					'email',
+					'picture',
+					'username'
+				],
+				userId: this.localstorage.get('userId')
+			};
+	
+			const response = await this.api.post(environment.auth, '/users/get', params);
+	
+			if (response.ok) {
+				this.user.next(response.result);
+			} else {
+				this.user.next(null);
+			};
+	
+			return response;
+		} else {
+			this.authenticated.next(false);
+			return false;
+		};
 	}
 
 	public async signout() {

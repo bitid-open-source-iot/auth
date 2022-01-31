@@ -70,9 +70,9 @@ export class AppComponent implements AfterViewInit {
 
         this.config.loaded.subscribe(async (loaded) => {
             if (loaded) {
-                this.account.validate();
                 this.app.icon = environment.icon;
                 this.app.name = environment.name;
+                await this.account.init();
             };
         });
 
@@ -84,9 +84,6 @@ export class AppComponent implements AfterViewInit {
 
         this.account.authenticated.subscribe(async (authenticated: any) => {
             this.authenticated = authenticated;
-            if (authenticated) {
-                this.account.init();
-            };
         });
 
         const ready = this.router.events.subscribe((event: any) => {

@@ -1,16 +1,16 @@
 
 
   Software & Testing Details
-    ✔ DATE: 31/01/2022 15:46:23
-    ✔ AUTHOR: connor
-    ✔ VERSION: 2.1.7
+    ✔ DATE: 31/01/2022 20:59:43
+    ✔ AUTHOR: claytoncc
+    ✔ VERSION: 2.1.8
 
   Config
-    ✔ /config/get
+    ✔ /config/get (66ms)
 
   Auth
-    ✔ /auth/register (3408ms)
-    ✔ /auth/verify (3362ms)
+    ✔ /auth/register (4110ms)
+    ✔ /auth/verify (3582ms)
     ✔ /auth/authenticate
     ✔ /auth/allow-access
     ✔ /auth/validate
@@ -18,16 +18,16 @@
     ✔ /auth/change-email
     ✔ /auth/change-email
     ✔ /auth/change-password
-    ✔ /auth/reset-password (3859ms)
+    ✔ /auth/reset-password (3444ms)
 
   Apps
     ✔ /apps/add
     ✔ /apps/get
-    ✔ /apps/list (39ms)
+    ✔ /apps/list
     ✔ /apps/share
     ✔ /apps/update
     ✔ /apps/is-admin
-    ✔ /apps/update-subscriber (38ms)
+    ✔ /apps/update-subscriber
     ✔ /apps/unsubscribe
 
   Users
@@ -36,9 +36,9 @@
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get (104ms)
-    ✔ /scopes/list (151ms)
-    ✔ /scopes/update (131ms)
+    ✔ /scopes/get (220ms)
+    ✔ /scopes/list (205ms)
+    ✔ /scopes/update (172ms)
 
   Groups
     ✔ /groups/add
@@ -46,11 +46,11 @@
     ✔ /groups/list
     ✔ /groups/share
     ✔ /groups/update
-    ✔ /groups/update-subscriber
-    ✔ /groups/unsubscribe
+    ✔ /groups/update-subscriber (97ms)
+    ✔ /groups/unsubscribe (59ms)
 
   Tokens
-    ✔ /tokens/generate
+    ✔ /tokens/generate (52ms)
     ✔ /tokens/get
     ✔ /tokens/list
     ✔ /tokens/update
@@ -80,12 +80,12 @@
   Remove Added Items
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete (103ms)
+    ✔ /scopes/delete (173ms)
     ✔ /groups/delete
     ✔ /apps/delete
     ✔ /tokens/revoke
     ✔ /users/delete
 
 
-  60 passing (12s)
+  60 passing (13s)
 
