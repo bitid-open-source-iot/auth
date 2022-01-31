@@ -454,15 +454,15 @@ BEGIN TRY
 		[domain].[url] AS [domain]
 	FROM
 		[dbo].[tblApps] AS [app]
-	INNER JOIN
+	FULL OUTER JOIN
 		[dbo].[tblAppsUsers] AS [user]
 	ON
 		[app].[id] = [user].[appId]
-	INNER JOIN
+	FULL OUTER JOIN
 		[dbo].[tblAppsScopes] AS [scope]
 	ON
 		[user].[appId] = [scope].[appId]
-	INNER JOIN
+	FULL OUTER JOIN
 		[dbo].[tblAppsDomains] AS [domain]
 	ON
 		[scope].[appId] = [domain].[appId]
