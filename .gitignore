@@ -1,6 +1,8 @@
-logs/*/
-logs/*.*
-config.json
-node_modules/
-package-lock.json
+# Files
 .env
+test/config.json
+package-lock.json
+
+# Folders
+logs/
+node_modules/

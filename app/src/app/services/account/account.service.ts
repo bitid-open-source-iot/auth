@@ -98,6 +98,8 @@ export class AccountService {
 	}
 
 	public async signin(params: SIGN_IN_PARAMS) {
+		this.localstorage.set('email', params.email);
+
 		const response = await this.api.put(environment.auth, '/auth/authenticate', params);
 
 		if (response.ok) {
