@@ -28,7 +28,7 @@ var params = [
     }
 ];
 var index = 0;
-var maximum = db.tblTokens.aggregate(params).count();
+var maximum = db.tblTokens.aggregate(params).toArray().length;
 var percentage = 0;
 
 db.tblTokens.aggregate(params).forEach(token => {

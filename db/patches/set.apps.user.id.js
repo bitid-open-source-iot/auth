@@ -28,7 +28,7 @@ var params = [
     }
 ];
 var index = 0;
-var maximum = db.tblApps.aggregate(params).count();
+var maximum = db.tblApps.aggregate(params).toArray().length;
 var percentage = 0;
 
 db.tblApps.aggregate(params).forEach(app => {
