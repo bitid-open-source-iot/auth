@@ -38,7 +38,7 @@ export class TokensFilterDialog implements OnInit, OnDestroy {
         const apps = await this.apps.list({
             filter: [
                 'name',
-                'appId'
+                'appId',
             ]
         });
 
