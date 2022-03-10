@@ -10,12 +10,35 @@ const express = require('express');
 const responder = require('./lib/responder');
 const ErrorResponse = require('./lib/error-response');
 
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+
 global.__base = __dirname + '/';
-global.__logger = require('./lib/logger');
 global.__settings = config;
 global.__responder = new responder.module();
 
-__logger.init();
+try{
+    __settings.port = process.env.AUTH_HOST.split(':')[2] || 9000
+    __settings.mssql = process.env.MSSQL
+    __settings.production = true //??Clayton
+    __settings.authentication = true
+    __settings.passwordResetDuration = process.env.PASSWORD_RESET_DURATION || 31
+    __settings.smtp = process.env.SMTP
+    __settings.client.auth = process.env.CLIENT_AUTH
+    __settings.client.appId = process.env.CLIENT_APPID
+    __settings.client.drive = process.env.CLIENT_DRIVE
+    __settings.client.appName = process.env.CLIENT_APPNAME
+
+    console.log('__settings', __settings)
+
+
+}catch(e){
+    console.error('ERROR APPLYING ENV VARIABLES', e)
+}
+
 
 try {
     var portal = {
@@ -66,31 +89,31 @@ try {
                 });
 
                 app.use('/apps', require('./api/apps'));
-                __logger.info('loaded ./api/apps');
+                console.log('loaded ./api/apps');
 
                 app.use('/auth', require('./api/auth'));
-                __logger.info('loaded ./api/auth');
+                console.log('loaded ./api/auth');
 
                 app.use('/users', require('./api/users'));
-                __logger.info('loaded ./api/users');
+                console.log('loaded ./api/users');
 
                 app.use('/scopes', require('./api/scopes'));
-                __logger.info('loaded ./api/scopes');
+                console.log('loaded ./api/scopes');
 
                 app.use('/config', require('./api/config'));
-                __logger.info('loaded ./api/config');
+                console.log('loaded ./api/config');
 
                 app.use('/tokens', require('./api/tokens'));
-                __logger.info('loaded ./api/tokens');
+                console.log('loaded ./api/tokens');
 
                 app.use('/features', require('./api/features'));
-                __logger.info('loaded ./api/features');
+                console.log('loaded ./api/features');
 
                 app.use('/statistics', require('./api/statistics'));
-                __logger.info('loaded ./api/statistics');
+                console.log('loaded ./api/statistics');
 
                 app.use('/health-check', require('@bitid/health-check'));
-                __logger.info('loaded ./api/health-check');
+                console.log('loaded ./api/health-check');
 
                 app.use((err, req, res, next) => {
                     var err = new ErrorResponse();
@@ -143,7 +166,7 @@ try {
                 .then(portal.triggers, null)
                 .then(args => {
                     console.log('Webserver Running on port: ', config.port);
-                    __logger.info('Webserver Running on port: ' + config.port);
+                    console.log('Webserver Running on port: ' + config.port);
                 }, err => {
                     console.log('Error Initializing: ', err);
                 });
@@ -163,7 +186,7 @@ try {
                     deferred.resolve();
                 })
                 .catch(err => {
-                    __logger.error('Database Connection Error: ' + err);
+                    console.error('Database Connection Error: ' + err);
                     deferred.reject(err);
                     setTimeout(() => portal.database(), 5000);
                 });
