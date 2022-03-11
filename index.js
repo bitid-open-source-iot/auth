@@ -11,7 +11,7 @@ const responder = require('./lib/responder');
 const ErrorResponse = require('./lib/error-response');
 
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') })
+require('dotenv').config({ path: path.resolve(__dirname, '.env-mssql') })
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 console.log('process.env.NODE_ENV', process.env.NODE_ENV);
