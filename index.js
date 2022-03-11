@@ -22,15 +22,15 @@ global.__responder = new responder.module();
 
 try{
     __settings.port = process.env.AUTH_PORT || 9000
-    __settings.mssql = process.env.MSSQL
+    __settings.mssql = process.env.AUTH_MSSQL
     __settings.production = true //??Clayton
     __settings.authentication = true
     __settings.passwordResetDuration = process.env.PASSWORD_RESET_DURATION || 31
     __settings.smtp = process.env.SMTP
-    __settings.client.auth = process.env.CLIENT_AUTH
-    __settings.client.appId = process.env.CLIENT_APPID
-    __settings.client.drive = process.env.CLIENT_DRIVE
-    __settings.client.appName = process.env.CLIENT_APPNAME
+    __settings.client.auth = process.env.AUTH_CLIENT_AUTH
+    __settings.client.appId = process.env.AUTH_CLIENT_APPID
+    __settings.client.drive = process.env.AUTH_CLIENT_DRIVE
+    __settings.client.appName = process.env.AUTH_CLIENT_APPNAME
 
     console.log('__settings', __settings)
 
