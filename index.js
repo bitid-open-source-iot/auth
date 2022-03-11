@@ -21,7 +21,7 @@ global.__settings = config;
 global.__responder = new responder.module();
 
 try{
-    __settings.port = process.env.AUTH_HOST.split(':')[2] || 9000
+    __settings.port = process.env.AUTH_PORT || 9000
     __settings.mssql = process.env.MSSQL
     __settings.production = true //??Clayton
     __settings.authentication = true
