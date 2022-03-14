@@ -30,9 +30,9 @@ exports.verify = (args) => {
         'template': 'verify'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
@@ -66,9 +66,9 @@ exports.welcome = (args) => {
         'template': 'welcome'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
@@ -103,9 +103,9 @@ exports.resetpassword = (args) => {
         'template': 'reset-password'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
@@ -120,7 +120,7 @@ exports.requestaccess = (args) => {
 
     if (to.length == 0) {
         deferred.resolve(args);
-        __logger.error('Could not find admins to send email to for request access! Will proceed anyway!');
+        console.error('Could not find admins to send email to for request access! Will proceed anyway!');
         return false;
     }
 
@@ -149,9 +149,9 @@ exports.requestaccess = (args) => {
         'template': 'request-access'
     }, (error, info) => {
         if (error) {
-            __logger.error(error);
+            console.error(error);
         } else {
-            __logger.info(info);
+            console.log(info);
         };
         deferred.resolve(args);
     });
