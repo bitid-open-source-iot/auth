@@ -1,16 +1,16 @@
 
 
   Software & Testing Details
-    ✔ DATE: 31/01/2022 21:36:23
+    ✔ DATE: 18/03/2022 09:27:01
     ✔ AUTHOR: claytoncc
-    ✔ VERSION: 2.1.9
+    ✔ VERSION: 2.2.0
 
   Config
     ✔ /config/get
 
   Auth
-    ✔ /auth/register (3753ms)
-    ✔ /auth/verify (3304ms)
+    ✔ /auth/register (821ms)
+    ✔ /auth/verify (833ms)
     ✔ /auth/authenticate
     ✔ /auth/allow-access
     ✔ /auth/validate
@@ -18,7 +18,7 @@
     ✔ /auth/change-email
     ✔ /auth/change-email
     ✔ /auth/change-password
-    ✔ /auth/reset-password (3682ms)
+    ✔ /auth/reset-password (760ms)
 
   Apps
     ✔ /apps/add
@@ -36,9 +36,9 @@
 
   Scopes
     ✔ /scopes/add
-    ✔ /scopes/get (201ms)
-    ✔ /scopes/list (206ms)
-    ✔ /scopes/update (183ms)
+    ✔ /scopes/get (180ms)
+    ✔ /scopes/list (196ms)
+    ✔ /scopes/update (172ms)
 
   Groups
     ✔ /groups/add
@@ -46,7 +46,7 @@
     ✔ /groups/list
     ✔ /groups/share
     ✔ /groups/update
-    ✔ /groups/update-subscriber (39ms)
+    ✔ /groups/update-subscriber
     ✔ /groups/unsubscribe
 
   Tokens
@@ -80,12 +80,12 @@
   Remove Added Items
     ✔ /features/delete
     ✔ /tips-and-updates/delete
-    ✔ /scopes/delete (179ms)
+    ✔ /scopes/delete (169ms)
     ✔ /groups/delete
-    ✔ /apps/delete (42ms)
-    ✔ /tokens/revoke (48ms)
-    ✔ /users/delete (57ms)
+    ✔ /apps/delete
+    ✔ /tokens/revoke
+    ✔ /users/delete
 
 
-  60 passing (13s)
+  60 passing (4s)
 
