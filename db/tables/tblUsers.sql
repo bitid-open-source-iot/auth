@@ -3,19 +3,16 @@ SET1 - Create tblUsers including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsers]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsers_AuditExact]
-END
-GO
 
 -- SET1
+
+PRINT 'Executing dbo.tblUsers.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblUsers]
 (
@@ -57,6 +54,12 @@ CREATE TABLE [dbo].[tblUsers]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblUsersEmail ON [dbo].[tblUsers] (email)
+
+
+
+END
+GO
+
 
 -- SET1
 

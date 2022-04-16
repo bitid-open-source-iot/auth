@@ -15,6 +15,7 @@ export class Token {
 	public tokenId: string|number;
 	public selected: boolean;
 	public description: string;
+	public roles: string;
 
 	constructor(args?: TOKEN) {
 		if (typeof (args) != 'undefined' && args !== null) {
@@ -53,6 +54,9 @@ export class Token {
 			if (typeof (args.description) != 'undefined' && args.description !== null) {
 				this.description = args.description;
 			}
+			if (typeof (args.roles) != 'undefined' && args.roles !== null) {
+				this.roles = args.roles;
+			}
 		}
 	}
 
@@ -72,4 +76,5 @@ export interface TOKEN {
 	tokenId?: string|number;
 	selected?: boolean;
 	description?: string;
+	roles?: string;
 }

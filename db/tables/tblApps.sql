@@ -3,19 +3,15 @@ SET1 - Create tblApps including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblApps]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblApps_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblApps.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblApps]
 (
@@ -37,6 +33,12 @@ CREATE TABLE [dbo].[tblApps]
 )
 
 CREATE UNIQUE INDEX tblAppsName ON [dbo].[tblApps] (name)
+
+
+END
+GO
+
+
 
 -- SET1
 

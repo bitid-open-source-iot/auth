@@ -31,7 +31,8 @@ CREATE PROCEDURE [dbo].[v1_Tokens_Add]
 	@device VARCHAR(255),
 	@expiry DATETIME,
 	@timezone INT,
-	@description VARCHAR(255)
+	@description VARCHAR(255),
+	@roles VARCHAR(50)
 AS
 
 SET NOCOUNT ON
@@ -45,7 +46,8 @@ BEGIN TRY
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		)
 	VALUES
 		(
@@ -55,7 +57,8 @@ BEGIN TRY
 			@device,
 			@expiry,
 			@timezone,
-			@description
+			@description,
+			@roles
 		)
 	
 	SELECT SCOPE_IDENTITY() AS [_id]
@@ -200,6 +203,7 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -269,6 +273,8 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -612,7 +618,8 @@ BEGIN TRY
 		[token].[bearer],
 		[scope].[scopeId],
 		[token].[timezone],
-		[token].[description]
+		[token].[description],
+		[token].[roles]
 	FROM
 		[dbo].[tblTokens] AS [token]
 	INNER JOIN
@@ -664,7 +671,8 @@ BEGIN TRY
 		[bearer],
 		[timezone],
 		ts.[scopeId],
-		[description]
+		[description],
+		t.[roles]
 	FROM
 		[dbo].[tblTokens] AS t
 	INNER JOIN

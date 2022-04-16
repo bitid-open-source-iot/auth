@@ -695,6 +695,7 @@ var module = function () {
 						};
 
 						args.result.token.scopes = args.app.scopes;
+						args.result.token.roles = args.app.bitid.auth.users.filter((o => o.userId == args.req.body.header.userId));
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
 							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
@@ -730,6 +731,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description || args.app.app.name)
+						.input('roles', JSON.stringify(args.result.token.roles))
 						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
@@ -1088,6 +1090,7 @@ var module = function () {
 			request.input('expiry', args.req.headers.authorization.expiry);
 			request.input('bearer', args.req.headers.authorization.bearer);
 			request.input('description', args.req.headers.authorization.description);
+			request.input('roles', args.req.headers.authorization.roles || '');
 
 			request.execute('v1_Auth_Validate')
 				.then(result => {
@@ -1685,6 +1688,7 @@ var module = function () {
 						};
 
 						args.result.token.scopes = args.app.scopes;
+						args.result.token.roles = args.app.bitid.auth.users
 
 						if (typeof (args.req.body.expiry) == 'undefined') {
 							args.req.body.expiry = new Date(Date.now() + parseInt(args.app.expiry));
@@ -1722,6 +1726,7 @@ var module = function () {
 						.input('expiry', args.req.body.expiry)
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description || args.app.app.name)
+						.input('roles', args.result.token.roles)
 						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {
@@ -2742,6 +2747,7 @@ var module = function () {
 							device: result[0].device,
 							expiry: result[0].expiry,
 							description: result[0].description,
+							roles: result[0].roles
 						};
 
 						args.result = project(args.result, filter);
@@ -2930,6 +2936,7 @@ var module = function () {
 							bearer: result[0].bearer,
 							timezone: result[0].timezone,
 							description: result[0].description,
+							roles: result[0].roles
 						};
 						deferred.resolve(args);
 					} else {
@@ -2986,6 +2993,7 @@ var module = function () {
 								bearer: result[0].bearer,
 								timezone: result[0].timezone,
 								description: result[0].description,
+								roles: result[0].roles,
 							},
 							_id: result[0]._id
 						};
@@ -3106,6 +3114,7 @@ var module = function () {
 							domains: _.uniqBy(result, 'domain').map(o => o.domain)
 						};
 						args.result.token.scopes = args.app.scopes;
+						args.result.token.roles = args.app.bitid.auth.users.filter((o => o.userId == args.req.body.header.userId));
 						deferred.resolve(args);
 					} else {
 						err.error.errors[0].code = 503;
@@ -3125,6 +3134,7 @@ var module = function () {
 						.input('expiry', new Date(args.req.body.expiry))
 						.input('timezone', args.user.timezone)
 						.input('description', args.req.body.description)
+						.input('roles', JSON.stringify(args.result.token.roles))
 						.execute('v1_Tokens_Add');
 				}, null)
 				.then(result => {

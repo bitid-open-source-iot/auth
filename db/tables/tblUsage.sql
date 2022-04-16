@@ -2,13 +2,14 @@
 SET1 - Create tblUsage
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsage' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsage]
-END
+-- SET1
+
+PRINT 'Executing dbo.tblUsage.TAB'
 GO
 
--- SET1
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsage' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblUsage]
 (
@@ -19,5 +20,10 @@ CREATE TABLE [dbo].[tblUsage]
 	[scopeId] INT NOT NULL,
 	PRIMARY KEY ([id])
 );
+
+
+END
+GO
+
 
 -- SET1

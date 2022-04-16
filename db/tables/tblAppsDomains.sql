@@ -3,19 +3,14 @@ SET1 - Create tblAppsDomains including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsDomains]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsDomains_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblAppsDomains.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblAppsDomains]
 (
@@ -27,6 +22,11 @@ CREATE TABLE [dbo].[tblAppsDomains]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblAppsDomainsUrlAppId ON [dbo].[tblAppsDomains] (url, appId)
+
+END
+GO
+
+
 
 -- SET1
 

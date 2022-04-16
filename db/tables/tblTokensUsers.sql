@@ -3,19 +3,15 @@ SET1 - Create tblTokensUsers including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensUsers]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensUsers_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokensUsers.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokensUsers]
 (
@@ -26,9 +22,11 @@ CREATE TABLE [dbo].[tblTokensUsers]
 	[tokenId] INT NOT NULL,
 	PRIMARY KEY ([id])
 )
-GO
+
 
 CREATE UNIQUE INDEX tblTokensUsersUserIdTokenId ON [dbo].[tblTokensUsers] (userId, tokenId)
+
+END
 GO
 
 -- SET1

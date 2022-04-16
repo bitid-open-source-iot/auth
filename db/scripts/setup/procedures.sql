@@ -1289,7 +1289,8 @@ CREATE PROCEDURE [dbo].[v1_Auth_Validate]
 	@userId INT,
 	@expiry DATETIME,
 	@bearer VARCHAR(255),
-	@description VARCHAR(255)
+	@description VARCHAR(255),
+	@roles VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -1334,6 +1335,8 @@ BEGIN TRY
 		[token].[bearer] = @bearer
 		AND
 		[token].[description] = @description
+		AND
+		[token].[roles] = @roles
 	
 	IF (@@ROWCOUNT = 0)
 	BEGIN
@@ -2394,7 +2397,8 @@ CREATE PROCEDURE [dbo].[v1_Tokens_Add]
 	@device VARCHAR(255),
 	@expiry DATETIME,
 	@timezone INT,
-	@description VARCHAR(255)
+	@description VARCHAR(255),
+	@roles VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -2408,7 +2412,8 @@ BEGIN TRY
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		)
 	VALUES
 		(
@@ -2418,7 +2423,8 @@ BEGIN TRY
 			@device,
 			@expiry,
 			@timezone,
-			@description
+			@description,
+			@roles
 		)
 	
 	SELECT SCOPE_IDENTITY() AS [_id]

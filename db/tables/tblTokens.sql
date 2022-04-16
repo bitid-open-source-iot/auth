@@ -3,19 +3,14 @@ SET1 - Create tblTokens including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokens]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokens_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokens.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokens]
 (
@@ -28,8 +23,15 @@ CREATE TABLE [dbo].[tblTokens]
 	[expiry] DATETIME NOT NULL,
 	[timezone] INT NOT NULL,
 	[description] VARCHAR(255) NOT NULL,
+	[roles] VARCHAR(MAX),
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
+
 
 -- SET1
 
@@ -53,6 +55,7 @@ BEGIN
 		[expiry] DATETIME NOT NULL,
 		[timezone] INT NOT NULL,
 		[description] VARCHAR(255) NOT NULL,
+		[roles] VARCHAR(MAX),
 		CONSTRAINT PK_tblTokens_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -90,7 +93,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -101,7 +105,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Inserted
 	END
 
@@ -121,7 +126,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -132,7 +138,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Inserted
 	END
 
@@ -151,7 +158,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -162,7 +170,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Deleted
 	END
 

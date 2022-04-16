@@ -3,19 +3,15 @@ SET1 - Create tblFeatures including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblFeatures]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblFeatures_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblFeatures.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblFeatures]
 (
@@ -27,6 +23,11 @@ CREATE TABLE [dbo].[tblFeatures]
 	[description] VARCHAR(255) NOT NULL,
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
 
 -- SET1
 

@@ -3,19 +3,15 @@ SET1 - Create tblAppsScopes including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsScopes]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsScopes_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblAppsScopes.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblAppsScopes]
 (
@@ -27,6 +23,11 @@ CREATE TABLE [dbo].[tblAppsScopes]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblAppsScopesAppIdScopeId ON [dbo].[tblAppsScopes] (appId, scopeId)
+
+
+END
+GO
+
 
 -- SET1
 

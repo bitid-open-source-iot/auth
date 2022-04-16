@@ -3,19 +3,14 @@ SET1 - Create tblTokensScopes including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensScopes]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensScopes_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokensScopes.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokensScopes]
 (
@@ -26,6 +21,12 @@ CREATE TABLE [dbo].[tblTokensScopes]
 	[tokenId] INT NOT NULL,
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
+
 
 -- SET1
 
