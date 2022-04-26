@@ -15,9 +15,18 @@
             "request": "attach",
             "name": "Attach to Remote",
             "address": "localhost",
-            "port": 9221,
+            "port": 9229,
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/var/www/node/auth"
-        }
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Kubernetes",
+            "address": "localhost",
+            "port": 9229,
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/"
+        },   
     ]
 }

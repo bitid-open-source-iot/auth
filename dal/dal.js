@@ -2903,6 +2903,8 @@ var module = function () {
 							});
 						};
 					} else {
+						console.error('args.req.headers.authorization', JSON.stringify(args.req.headers.authorization))
+						console.error('args.req.body.header', JSON.stringify(args.req.body.header))
 						deferred.reject({
 							code: 401,
 							message: 'Token was not found or has expired!'
