@@ -51,6 +51,7 @@ CREATE TABLE [dbo].[tblUsers]
 	[timezone] INT NOT NULL,
 	[username] VARCHAR(255),
 	[validated] INT NOT NULL,
+	[signature] VARCHAR(MAX),
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblUsersEmail ON [dbo].[tblUsers] (email)
@@ -110,6 +111,7 @@ BEGIN
 		[timezone] INT NOT NULL,
 		[username] VARCHAR(255),
 		[validated] INT NOT NULL,
+		[signature] VARCHAR(MAX),
 		CONSTRAINT PK_tblUsers_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -174,7 +176,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -212,7 +215,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Inserted
 	END
 
@@ -259,7 +263,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -297,7 +302,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Inserted
 	END
 
@@ -343,7 +349,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -381,7 +388,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Deleted
 	END
 

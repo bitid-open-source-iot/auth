@@ -3029,6 +3029,31 @@ var module = function () {
 
 					return deferred.promise;
 				}, null)
+
+				.then(res => {
+					return new sql.Request(transaction)
+						.input('userId', args.req.body.header.userId)
+						.execute('v1_Users_Get');
+				}, null)
+				.then(result => {
+					var deferred = Q.defer();
+
+					if (result.returnValue == 1 && result.recordset.length > 0) {
+						args.result.user = {
+							signature: result.recordset[0].signature
+						}
+						deferred.resolve(args);
+					} else {
+						err.error.errors[0].code = 503;
+						err.error.errors[0].reason = result.recordset[0].message;
+						err.error.errors[0].message = result.recordset[0].message;
+						deferred.reject(err);
+					};
+
+					return deferred.promise;
+				}, null)
+
+
 				.then(res => {
 					transaction.commit();
 				})

@@ -65,7 +65,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -147,7 +148,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -233,7 +235,8 @@ BEGIN TRY
 			[timezone],
 			[username],
 			[validated],
-			[serverDate]
+			[serverDate],
+			[signature]
 		FROM
 			[dbo].[tblUsers]
 		WHERE
@@ -337,7 +340,8 @@ CREATE PROCEDURE [dbo].[v1_Users_Update]
 	@addressPhysicalCompanyVat VARCHAR(255),
 	@addressPhysicalCompanyReg VARCHAR(255),
 	@addressPhysicalAdditional VARCHAR(255),
-	@addressPhysicalPostalCode VARCHAR(255)
+	@addressPhysicalPostalCode VARCHAR(255),
+	@signature VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -443,6 +447,9 @@ BEGIN TRY
 	UPDATE [dbo].[tblUsers] SET [addressPhysicalPostalCode] = @addressPhysicalPostalCode WHERE [id] = @userId AND @addressPhysicalPostalCode IS NOT NULL
 	SET @updated = @updated + @@ROWCOUNT
 	
+	UPDATE [dbo].[tblUsers] SET [signature] = @signature WHERE [id] = @userId AND @signature IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
 	SELECT @updated AS [n]
 	RETURN 1
 END TRY
