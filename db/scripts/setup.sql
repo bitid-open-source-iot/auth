@@ -1336,8 +1336,8 @@ BEGIN TRY
 		[token].[bearer] = @bearer
 		AND
 		[token].[description] = @description
-		AND
-		[token].[roles] = @roles
+		-- AND
+		-- [token].[roles] = @roles
 	
 	IF (@@ROWCOUNT = 0)
 	BEGIN
