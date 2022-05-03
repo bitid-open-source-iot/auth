@@ -1290,7 +1290,7 @@ CREATE PROCEDURE [dbo].[v1_Auth_Validate]
 	@expiry DATETIME,
 	@bearer VARCHAR(255),
 	@description VARCHAR(255),
-	@roles VARCHAR(MAX)
+	@roles VARCHAR(50)
 AS
 
 SET NOCOUNT ON
@@ -1346,7 +1346,7 @@ BEGIN TRY
 	
 	IF NOT EXISTS (SELECT [id] FROM [dbo].[tblTokensScopes] WHERE [scopeId] = @scopeId AND [tokenId] = @tokenId)
 	BEGIN
-		SELECT 'Scope not found in token!' AS [message]
+		SELECT 'Scope not found in token! scopeId: ' + CAST(@scopeId as VARCHAR(MAX)) + ' tokenId: ' + CAST(@tokenId as VARCHAR(MAX))  AS [message]
 		RETURN 0
 	END
 	
@@ -2398,7 +2398,7 @@ CREATE PROCEDURE [dbo].[v1_Tokens_Add]
 	@expiry DATETIME,
 	@timezone INT,
 	@description VARCHAR(255),
-	@roles VARCHAR(MAX)
+	@roles VARCHAR(50)
 AS
 
 SET NOCOUNT ON
@@ -2569,6 +2569,7 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -2638,6 +2639,8 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -2981,7 +2984,8 @@ BEGIN TRY
 		[token].[bearer],
 		[scope].[scopeId],
 		[token].[timezone],
-		[token].[description]
+		[token].[description],
+		[token].[roles]
 	FROM
 		[dbo].[tblTokens] AS [token]
 	INNER JOIN
@@ -3033,7 +3037,8 @@ BEGIN TRY
 		[bearer],
 		[timezone],
 		ts.[scopeId],
-		[description]
+		[description],
+		t.[roles]
 	FROM
 		[dbo].[tblTokens] AS t
 	INNER JOIN
@@ -3318,7 +3323,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -3400,7 +3406,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -3486,7 +3493,8 @@ BEGIN TRY
 			[timezone],
 			[username],
 			[validated],
-			[serverDate]
+			[serverDate],
+			[signature]
 		FROM
 			[dbo].[tblUsers]
 		WHERE
@@ -3590,7 +3598,8 @@ CREATE PROCEDURE [dbo].[v1_Users_Update]
 	@addressPhysicalCompanyVat VARCHAR(255),
 	@addressPhysicalCompanyReg VARCHAR(255),
 	@addressPhysicalAdditional VARCHAR(255),
-	@addressPhysicalPostalCode VARCHAR(255)
+	@addressPhysicalPostalCode VARCHAR(255),
+	@signature VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -3696,6 +3705,9 @@ BEGIN TRY
 	UPDATE [dbo].[tblUsers] SET [addressPhysicalPostalCode] = @addressPhysicalPostalCode WHERE [id] = @userId AND @addressPhysicalPostalCode IS NOT NULL
 	SET @updated = @updated + @@ROWCOUNT
 	
+	UPDATE [dbo].[tblUsers] SET [signature] = @signature WHERE [id] = @userId AND @signature IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
 	SELECT @updated AS [n]
 	RETURN 1
 END TRY

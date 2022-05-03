@@ -18,28 +18,5 @@
         "appId": "000000000000000000000001",
         "drive": "https://drive.bitid.co.za",
         "appName": "Auth"
-    },
-    "mongodb": {
-        "url": "xxx",
-        "database": "xxx"
-    },
-    "logger": {
-        "appenders": {
-            "auth": {
-                "type": "file",
-                "backups": 10,
-                "filename": "./logs/auth.log",
-                "absolute": true,
-                "maxLogSize": 102400
-            }
-        },
-        "categories": {
-            "default": {
-                "appenders": [
-                    "auth"
-                ],
-                "level": "error"
-            }
-        }
     }
 }

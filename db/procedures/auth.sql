@@ -178,7 +178,7 @@ BEGIN TRY
 	
 	IF NOT EXISTS (SELECT [id] FROM [dbo].[tblTokensScopes] WHERE [scopeId] = @scopeId AND [tokenId] = @tokenId)
 	BEGIN
-		SELECT 'Scope not found in token!' AS [message]
+		SELECT 'Scope not found in token! scopeId: ' + CAST(@scopeId as VARCHAR(MAX)) + ' tokenId: ' + CAST(@tokenId as VARCHAR(MAX))  AS [message]
 		RETURN 0
 	END
 	

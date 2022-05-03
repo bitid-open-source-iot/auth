@@ -1290,7 +1290,8 @@ CREATE PROCEDURE [dbo].[v1_Auth_Validate]
 	@userId INT,
 	@expiry DATETIME,
 	@bearer VARCHAR(255),
-	@description VARCHAR(255)
+	@description VARCHAR(255),
+	@roles VARCHAR(50)
 AS
 
 SET NOCOUNT ON
@@ -1335,6 +1336,8 @@ BEGIN TRY
 		[token].[bearer] = @bearer
 		AND
 		[token].[description] = @description
+		AND
+		[token].[roles] = @roles
 	
 	IF (@@ROWCOUNT = 0)
 	BEGIN
@@ -1344,7 +1347,7 @@ BEGIN TRY
 	
 	IF NOT EXISTS (SELECT [id] FROM [dbo].[tblTokensScopes] WHERE [scopeId] = @scopeId AND [tokenId] = @tokenId)
 	BEGIN
-		SELECT 'Scope not found in token!' AS [message]
+		SELECT 'Scope not found in token! scopeId: ' + CAST(@scopeId as VARCHAR(MAX)) + ' tokenId: ' + CAST(@tokenId as VARCHAR(MAX))  AS [message]
 		RETURN 0
 	END
 	
@@ -2395,7 +2398,8 @@ CREATE PROCEDURE [dbo].[v1_Tokens_Add]
 	@device VARCHAR(255),
 	@expiry DATETIME,
 	@timezone INT,
-	@description VARCHAR(255)
+	@description VARCHAR(255),
+	@roles VARCHAR(50)
 AS
 
 SET NOCOUNT ON
@@ -2409,7 +2413,8 @@ BEGIN TRY
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		)
 	VALUES
 		(
@@ -2419,7 +2424,8 @@ BEGIN TRY
 			@device,
 			@expiry,
 			@timezone,
-			@description
+			@description,
+			@roles
 		)
 	
 	SELECT SCOPE_IDENTITY() AS [_id]
@@ -2564,6 +2570,7 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -2633,6 +2640,8 @@ BEGIN TRY
 		[token].[expiry],
 		[token].[id] AS [_id],
 		[token].[description],
+		[token].[roles],
+		[token].[roles],
 		[app].[id] AS [appAppId],
 		[app].[icon] AS [appIcon],
 		[app].[name] AS [appName]
@@ -2976,7 +2985,8 @@ BEGIN TRY
 		[token].[bearer],
 		[scope].[scopeId],
 		[token].[timezone],
-		[token].[description]
+		[token].[description],
+		[token].[roles]
 	FROM
 		[dbo].[tblTokens] AS [token]
 	INNER JOIN
@@ -3028,7 +3038,8 @@ BEGIN TRY
 		[bearer],
 		[timezone],
 		ts.[scopeId],
-		[description]
+		[description],
+		t.[roles]
 	FROM
 		[dbo].[tblTokens] AS t
 	INNER JOIN
@@ -3313,7 +3324,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -3395,7 +3407,8 @@ BEGIN TRY
 		[timezone],
 		[username],
 		[validated],
-		[serverDate]
+		[serverDate],
+		[signature]
 	FROM
 		[dbo].[tblUsers]
 	WHERE
@@ -3481,7 +3494,8 @@ BEGIN TRY
 			[timezone],
 			[username],
 			[validated],
-			[serverDate]
+			[serverDate],
+			[signature]
 		FROM
 			[dbo].[tblUsers]
 		WHERE
@@ -3585,7 +3599,8 @@ CREATE PROCEDURE [dbo].[v1_Users_Update]
 	@addressPhysicalCompanyVat VARCHAR(255),
 	@addressPhysicalCompanyReg VARCHAR(255),
 	@addressPhysicalAdditional VARCHAR(255),
-	@addressPhysicalPostalCode VARCHAR(255)
+	@addressPhysicalPostalCode VARCHAR(255),
+	@signature VARCHAR(MAX)
 AS
 
 SET NOCOUNT ON
@@ -3691,6 +3706,9 @@ BEGIN TRY
 	UPDATE [dbo].[tblUsers] SET [addressPhysicalPostalCode] = @addressPhysicalPostalCode WHERE [id] = @userId AND @addressPhysicalPostalCode IS NOT NULL
 	SET @updated = @updated + @@ROWCOUNT
 	
+	UPDATE [dbo].[tblUsers] SET [signature] = @signature WHERE [id] = @userId AND @signature IS NOT NULL
+	SET @updated = @updated + @@ROWCOUNT
+
 	SELECT @updated AS [n]
 	RETURN 1
 END TRY
@@ -3708,19 +3726,15 @@ SET1 - Create tblApps including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblApps]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblApps_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblApps.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblApps' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblApps]
 (
@@ -3742,6 +3756,12 @@ CREATE TABLE [dbo].[tblApps]
 )
 
 CREATE UNIQUE INDEX tblAppsName ON [dbo].[tblApps] (name)
+
+
+END
+GO
+
+
 
 -- SET1
 
@@ -3918,19 +3938,14 @@ SET1 - Create tblAppsDomains including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsDomains]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsDomains_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblAppsDomains.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsDomains' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblAppsDomains]
 (
@@ -3942,6 +3957,11 @@ CREATE TABLE [dbo].[tblAppsDomains]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblAppsDomainsUrlAppId ON [dbo].[tblAppsDomains] (url, appId)
+
+END
+GO
+
+
 
 -- SET1
 
@@ -4059,19 +4079,15 @@ SET1 - Create tblAppsScopes including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsScopes]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsScopes_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblAppsScopes.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsScopes' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblAppsScopes]
 (
@@ -4083,6 +4099,11 @@ CREATE TABLE [dbo].[tblAppsScopes]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblAppsScopesAppIdScopeId ON [dbo].[tblAppsScopes] (appId, scopeId)
+
+
+END
+GO
+
 
 -- SET1
 
@@ -4200,19 +4221,15 @@ SET1 - Create tblAppsUsers including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsUsers' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsUsers]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsUsers_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblAppsUsers_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblAppsUsers.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblAppsUsers' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblAppsUsers]
 (
@@ -4225,6 +4242,11 @@ CREATE TABLE [dbo].[tblAppsUsers]
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblAppsUsersAppIdUserId ON [dbo].[tblAppsUsers] ([appId], [userId])
+
+
+END
+GO
+
 
 -- SET1
 
@@ -4344,19 +4366,15 @@ SET1 - Create tblFeatures including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblFeatures]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblFeatures_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblFeatures.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblFeatures' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblFeatures]
 (
@@ -4368,6 +4386,11 @@ CREATE TABLE [dbo].[tblFeatures]
 	[description] VARCHAR(255) NOT NULL,
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
 
 -- SET1
 
@@ -4494,19 +4517,15 @@ SET1 - Create tblScopes including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblScopes' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblScopes]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblScopes_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblScopes_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblScopes.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblScopes' AND [type] = 'U')
+BEGIN
+
+
 
 CREATE TABLE [dbo].[tblScopes]
 (
@@ -4520,6 +4539,11 @@ CREATE TABLE [dbo].[tblScopes]
 )
 
 CREATE UNIQUE INDEX tblScopesUrlAppId ON [dbo].[tblScopes] (url, appId)
+
+
+END
+GO
+
 
 -- SET1
 
@@ -4646,19 +4670,14 @@ SET1 - Create tblTokens including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokens]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokens_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokens.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokens' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokens]
 (
@@ -4671,8 +4690,15 @@ CREATE TABLE [dbo].[tblTokens]
 	[expiry] DATETIME NOT NULL,
 	[timezone] INT NOT NULL,
 	[description] VARCHAR(255) NOT NULL,
+	[roles] VARCHAR(MAX),
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
+
 
 -- SET1
 
@@ -4696,6 +4722,7 @@ BEGIN
 		[expiry] DATETIME NOT NULL,
 		[timezone] INT NOT NULL,
 		[description] VARCHAR(255) NOT NULL,
+		[roles] VARCHAR(MAX),
 		CONSTRAINT PK_tblTokens_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -4733,7 +4760,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -4744,7 +4772,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Inserted
 	END
 
@@ -4764,7 +4793,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -4775,7 +4805,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Inserted
 	END
 
@@ -4794,7 +4825,8 @@ BEGIN
 				[device],
 				[expiry],
 				[timezone],
-				[description]
+				[description],
+				[roles]
 			)
 		SELECT
 			[id],
@@ -4805,7 +4837,8 @@ BEGIN
 			[device],
 			[expiry],
 			[timezone],
-			[description]
+			[description],
+			[roles]
 		FROM Deleted
 	END
 
@@ -4818,19 +4851,14 @@ SET1 - Create tblTokensScopes including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensScopes]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensScopes_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokensScopes.TAB'
+GO
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensScopes' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokensScopes]
 (
@@ -4841,6 +4869,12 @@ CREATE TABLE [dbo].[tblTokensScopes]
 	[tokenId] INT NOT NULL,
 	PRIMARY KEY ([id])
 )
+
+
+END
+GO
+
+
 
 -- SET1
 
@@ -4958,19 +4992,15 @@ SET1 - Create tblTokensUsers including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensUsers]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblTokensUsers_AuditExact]
-END
-GO
-
 -- SET1
+
+PRINT 'Executing dbo.tblTokensUsers.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblTokensUsers' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblTokensUsers]
 (
@@ -4981,9 +5011,11 @@ CREATE TABLE [dbo].[tblTokensUsers]
 	[tokenId] INT NOT NULL,
 	PRIMARY KEY ([id])
 )
-GO
+
 
 CREATE UNIQUE INDEX tblTokensUsersUserIdTokenId ON [dbo].[tblTokensUsers] (userId, tokenId)
+
+END
 GO
 
 -- SET1
@@ -5101,13 +5133,14 @@ GO
 SET1 - Create tblUsage
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsage' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsage]
-END
+-- SET1
+
+PRINT 'Executing dbo.tblUsage.TAB'
 GO
 
--- SET1
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsage' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblUsage]
 (
@@ -5119,25 +5152,27 @@ CREATE TABLE [dbo].[tblUsage]
 	PRIMARY KEY ([id])
 );
 
+
+END
+GO
+
+
 -- SET1
 /*
 SET1 - Create tblUsers including Unique index
 SET2 - Create AuditExact and Triggers
 */
 
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsers]
-END
-GO
-
-IF EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers_AuditExact' AND [type] = 'U')
-BEGIN
-	DROP TABLE [dbo].[tblUsers_AuditExact]
-END
-GO
 
 -- SET1
+
+PRINT 'Executing dbo.tblUsers.TAB'
+GO
+
+
+IF NOT EXISTS (SELECT * FROM [sys].[objects] WHERE [name] = 'tblUsers' AND [type] = 'U')
+BEGIN
+
 
 CREATE TABLE [dbo].[tblUsers]
 (
@@ -5176,9 +5211,16 @@ CREATE TABLE [dbo].[tblUsers]
 	[timezone] INT NOT NULL,
 	[username] VARCHAR(255),
 	[validated] INT NOT NULL,
+	[signature] VARCHAR(MAX),
 	PRIMARY KEY ([id])
 )
 CREATE UNIQUE INDEX tblUsersEmail ON [dbo].[tblUsers] (email)
+
+
+
+END
+GO
+
 
 -- SET1
 
@@ -5229,6 +5271,7 @@ BEGIN
 		[timezone] INT NOT NULL,
 		[username] VARCHAR(255),
 		[validated] INT NOT NULL,
+		[signature] VARCHAR(MAX),
 		CONSTRAINT PK_tblUsers_AuditExact PRIMARY KEY CLUSTERED (ID)
 	)
 END
@@ -5293,7 +5336,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -5331,7 +5375,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Inserted
 	END
 
@@ -5378,7 +5423,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -5416,7 +5462,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Inserted
 	END
 
@@ -5462,7 +5509,8 @@ BEGIN
 				[language],
 				[timezone],
 				[username],
-				[validated]
+				[validated],
+				[signature]
 			)
 		SELECT
 			[id],
@@ -5500,7 +5548,8 @@ BEGIN
 			[language],
 			[timezone],
 			[username],
-			[validated]
+			[validated],
+			[signature]
 		FROM Deleted
 	END
 

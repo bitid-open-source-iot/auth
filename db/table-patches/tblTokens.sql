@@ -20,3 +20,24 @@ IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tb
     END
 
 -- SET1
+
+
+
+-- SET2
+
+/*
+    Add roles
+    Date: 2022/04/14
+    By: Shane Bowyer
+*/
+
+PRINT 'Adding colum roles to tblTokens_AuditExact if not exists'
+GO
+
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'[dbo].[tblTokens_AuditExact]') AND name = 'roles') 
+    BEGIN
+        ALTER TABLE tblTokens_AuditExact
+        ADD [roles] VARCHAR(50)
+    END
+
+-- SET2
