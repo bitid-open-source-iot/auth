@@ -2570,7 +2570,7 @@ var module = function () {
 
 			const request = new sql.Request(__database);
 
-			request.input('appId', args.req.body.appId);
+			request.input('appId', args.req.body.header.appId);
 			request.input('userId', args.req.body.header.userId);
 
 			request.execute('v1_Scopes_List')
