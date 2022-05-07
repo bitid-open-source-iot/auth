@@ -273,7 +273,7 @@ var module = function () {
 			var myModule = new dal.module();
 			myModule.auth.validate(args)
 				.then(args => {
-					__responder.success(req, res, true);
+					__responder.success(req, res, args);
 				}, err => {
 					__responder.error(req, res, err);
 				});

@@ -169,7 +169,9 @@ describe('Auth', function () {
         tools.api.auth.validate()
             .then((result) => {
                 try {
-                    result.should.have.property('passed');
+                    result.should.have.property('appId');
+                    result.should.have.property('userId');
+                    result.should.have.property('groupId');
                     done();
                 } catch (e) {
                     done(e);

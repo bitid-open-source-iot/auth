@@ -2914,7 +2914,198 @@ var module = function () {
 					return deferred.promise;
 				})
 				.then(result => dalStatistics.write(args))
-				.then(args => {
+				.then(async result => {
+					var params = [
+						{
+							$lookup: {
+								let: {
+									'appId': '$bitid.auth.apps.id'
+								},
+								pipeline: [
+									{
+										$match: {
+											$expr: {
+												$and: [
+													{
+														$in: ['$_id', '$$appId']
+													},
+													{
+														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+													}
+												]
+											}
+										}
+									},
+									{
+										$project: {
+											'_id': 1,
+											'bitid': 1
+										}
+									}
+								],
+								as: '_apps',
+								from: 'tblApps'
+							}
+						},
+						{
+							$lookup: {
+								let: {
+									'groupId': '$bitid.auth.groups.id'
+								},
+								pipeline: [
+									{
+										$match: {
+											$expr: {
+												$and: [
+													{
+														$in: ['$_id', '$$groupId']
+													},
+													{
+														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+													}
+												]
+											}
+										}
+									},
+									{
+										$project: {
+											'_id': 1,
+											'bitid': 1
+										}
+									}
+								],
+								as: '_groups',
+								from: 'tblGroups'
+							}
+						},
+						{
+							$match: {
+								$or: [
+									{
+										'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									},
+									{
+										'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									},
+									{
+										'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									}
+								]
+							}
+						},
+						{
+							$project: {
+								_id: 1
+							}
+						}
+					];
+
+					return {
+						'params': params,
+						'operation': 'aggregate',
+						'collection': 'tblApps',
+						'allowNoRecordsFound': true
+					};
+				})
+				.then(db.call)
+				.then(async result => {
+					args.apps = result.map(o => o._id.toString());
+
+					var params = [
+						{
+							$lookup: {
+								let: {
+									'appId': '$bitid.auth.apps.id'
+								},
+								pipeline: [
+									{
+										$match: {
+											$expr: {
+												$and: [
+													{
+														$in: ['$_id', '$$appId']
+													},
+													{
+														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+													}
+												]
+											}
+										}
+									},
+									{
+										$project: {
+											'_id': 1,
+											'bitid': 1
+										}
+									}
+								],
+								as: '_apps',
+								from: 'tblApps'
+							}
+						},
+						{
+							$lookup: {
+								let: {
+									'groupId': '$bitid.auth.groups.id'
+								},
+								pipeline: [
+									{
+										$match: {
+											$expr: {
+												$and: [
+													{
+														$in: ['$_id', '$$groupId']
+													},
+													{
+														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+													}
+												]
+											}
+										}
+									},
+									{
+										$project: {
+											'_id': 1,
+											'bitid': 1
+										}
+									}
+								],
+								as: '_groups',
+								from: 'tblGroups'
+							}
+						},
+						{
+							$match: {
+								$or: [
+									{
+										'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									},
+									{
+										'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									},
+									{
+										'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+									}
+								]
+							}
+						},
+						{
+							$project: {
+								_id: 1
+							}
+						}
+					];
+
+					return {
+						'params': params,
+						'operation': 'aggregate',
+						'collection': 'tblGroups',
+						'allowNoRecordsFound': true
+					};
+				})
+				.then(db.call)
+				.then(result => {
+					args.groups = result.map(o => o._id.toString());
 					deferred.resolve(args);
 				}, error => {
 					var err = new ErrorResponse();

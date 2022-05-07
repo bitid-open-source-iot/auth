@@ -1,91 +1,91 @@
 
 
   Software & Testing Details
-    ✔ DATE: 18/03/2022 09:27:01
+    ✔ DATE: 07/05/2022 12:43:27
     ✔ AUTHOR: claytoncc
     ✔ VERSION: 2.2.0
 
   Config
-    ✔ /config/get
+    ✔ /config/get (38ms)
 
   Auth
-    ✔ /auth/register (821ms)
-    ✔ /auth/verify (833ms)
+    ✔ /auth/register (806ms)
+    ✔ /auth/verify (824ms)
     ✔ /auth/authenticate
-    ✔ /auth/allow-access
-    ✔ /auth/validate
+    ✔ /auth/allow-access (64ms)
+    ✔ /auth/validate (48ms)
     ✔ /auth/auth
-    ✔ /auth/change-email
-    ✔ /auth/change-email
+    ✔ /auth/change-email (61ms)
+    ✔ /auth/change-email (58ms)
     ✔ /auth/change-password
-    ✔ /auth/reset-password (760ms)
+    ✔ /auth/reset-password (815ms)
 
   Apps
-    ✔ /apps/add
-    ✔ /apps/get
-    ✔ /apps/list
-    ✔ /apps/share
-    ✔ /apps/update
+    ✔ /apps/add (46ms)
+    ✔ /apps/get (48ms)
+    ✔ /apps/list (63ms)
+    ✔ /apps/share (59ms)
+    ✔ /apps/update (62ms)
     ✔ /apps/is-admin
-    ✔ /apps/update-subscriber
-    ✔ /apps/unsubscribe
+    ✔ /apps/update-subscriber (93ms)
+    ✔ /apps/unsubscribe (124ms)
 
   Users
-    ✔ /users/get
-    ✔ /users/update
+    ✔ /users/get (99ms)
+    ✔ /users/update (141ms)
 
   Scopes
-    ✔ /scopes/add
-    ✔ /scopes/get (180ms)
-    ✔ /scopes/list (196ms)
-    ✔ /scopes/update (172ms)
+    ✔ /scopes/add (141ms)
+    ✔ /scopes/get (322ms)
+    ✔ /scopes/list (304ms)
+    ✔ /scopes/update (270ms)
 
   Groups
-    ✔ /groups/add
-    ✔ /groups/get
-    ✔ /groups/list
-    ✔ /groups/share
-    ✔ /groups/update
-    ✔ /groups/update-subscriber
-    ✔ /groups/unsubscribe
+    ✔ /groups/add (49ms)
+    ✔ /groups/get (65ms)
+    ✔ /groups/list (72ms)
+    ✔ /groups/share (66ms)
+    ✔ /groups/update (81ms)
+    ✔ /groups/update-subscriber (67ms)
+    ✔ /groups/unsubscribe (70ms)
 
   Tokens
-    ✔ /tokens/generate
-    ✔ /tokens/get
-    ✔ /tokens/list
-    ✔ /tokens/update
-    ✔ /tokens/share
-    ✔ /tokens/update-subscriber
-    ✔ /tokens/unsubscribe
-    ✔ /tokens/retrieve
+    ✔ /tokens/generate (69ms)
+    ✔ /tokens/get (58ms)
+    ✔ /tokens/list (49ms)
+    ✔ /tokens/update (63ms)
+    ✔ /tokens/share (54ms)
+    ✔ /tokens/update-subscriber (77ms)
+    ✔ /tokens/unsubscribe (119ms)
+    ✔ /tokens/retrieve (39ms)
 
   Features
-    ✔ /features/add
-    ✔ /features/get
-    ✔ /features/list
-    ✔ /features/update
+    ✔ /features/add (67ms)
+    ✔ /features/get (75ms)
+    ✔ /features/list (63ms)
+    ✔ /features/update (62ms)
 
   Statistics
-    ✔ /statistics/usage
+    ✔ /statistics/usage (83ms)
 
   Tips & Updates
-    ✔ /tips-and-updates/add
-    ✔ /tips-and-updates/get
-    ✔ /tips-and-updates/list
-    ✔ /tips-and-updates/update
+    ✔ /tips-and-updates/add (56ms)
+    ✔ /tips-and-updates/get (48ms)
+    ✔ /tips-and-updates/list (54ms)
+    ✔ /tips-and-updates/update (58ms)
 
   Health Check
     ✔ /
 
   Remove Added Items
-    ✔ /features/delete
-    ✔ /tips-and-updates/delete
-    ✔ /scopes/delete (169ms)
-    ✔ /groups/delete
-    ✔ /apps/delete
-    ✔ /tokens/revoke
-    ✔ /users/delete
+    ✔ /features/delete (64ms)
+    ✔ /tips-and-updates/delete (61ms)
+    ✔ /scopes/delete (253ms)
+    ✔ /groups/delete (64ms)
+    ✔ /apps/delete (58ms)
+    ✔ /tokens/revoke (57ms)
+    ✔ /users/delete (46ms)
 
 
-  60 passing (4s)
+  60 passing (7s)
 
