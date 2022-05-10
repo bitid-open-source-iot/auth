@@ -1098,11 +1098,12 @@ var module = function () {
 						args.result = unwind(result.recordset[0]);
 						deferred.resolve(args);
 					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = result.recordset[0].message;
-						err.error.errors[0].message = result.recordset[0].message;
-						deferred.reject(err);
+						// var err = new ErrorResponse();
+						// err.error.errors[0].code = 401;
+						// err.error.errors[0].reason = result.recordset[0].message;
+						// err.error.errors[0].message = result.recordset[0].message;
+						// deferred.reject(err);
+						deferred.resolve(args);
 					}
 				})
 				.catch(error => {

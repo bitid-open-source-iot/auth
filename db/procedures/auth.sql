@@ -172,7 +172,8 @@ BEGIN TRY
 	
 	IF (@@ROWCOUNT = 0)
 	BEGIN
-		SELECT 'Token not found!' AS [message]
+		--SELECT 'Token not found!' AS [message]
+		SELECT 'Token not found! scopeId: ' + CAST(@scopeId as VARCHAR(MAX)) + ' tokenId: ' + CAST(@tokenId as VARCHAR(MAX))  AS [message]
 		RETURN 0
 	END
 	
