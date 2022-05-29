@@ -3040,7 +3040,9 @@ var module = function () {
 
 					if (result.returnValue == 1 && result.recordset.length > 0) {
 						args.result.user = {
-							signature: result.recordset[0].signature
+							signature: result.recordset[0].signature,
+							nameFirst: result.recordset[0].nameFirst,
+							nameLast: result.recordset[0].nameLast,
 						}
 						deferred.resolve(args);
 					} else {
