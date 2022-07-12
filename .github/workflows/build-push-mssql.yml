@@ -3,7 +3,7 @@ name: Publish Docker Image
 
 on:
   push:
-    branches: [ shanemssql ]
+    branches: [ mssql ]
   release:
     types:
       - published
