@@ -4262,6 +4262,7 @@ var module = function () {
 						filter = {
 							'_id': 1,
 							'name': 1,
+							'email': 1,
 							'picture': 1
 						};
 					} else if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
