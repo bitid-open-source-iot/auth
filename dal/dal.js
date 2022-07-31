@@ -2907,7 +2907,7 @@ var module = function () {
 						console.error('args.req.body.header', JSON.stringify(args.req.body.header))
 						deferred.reject({
 							code: 401,
-							message: 'Token was not found or has expired!'
+							message: `Token was not found or has expired! ${JSON.stringify(args.req.headers.authorization)}`
 						});
 					};
 
