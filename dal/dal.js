@@ -6259,16 +6259,16 @@ var module = function () {
 				}
 			];
 
-			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
-				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+			if (typeof (args.req.body.groupId) != 'undefined' && args.req.body.groupId != null) {
+				if (Array.isArray(args.req.body.groupId) && args.req.body.groupId.length > 0) {
 					params[2].$match.$or.map(param => {
 						param._id = {
-							$in: args.req.body.appId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
+							$in: args.req.body.groupId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
 						};
 					});
-				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
+				} else if (typeof (args.req.body.groupId) == 'string' && args.req.body.groupId?.length == 24) {
 					params[2].$match.$or.map(param => {
-						param._id = ObjectId(args.req.body.appId);
+						param._id = ObjectId(args.req.body.groupId);
 					});
 				};
 			};
