@@ -88,4 +88,4 @@ This project is licensed under the Apache License (Version 2) - see the [LICENSE
 
 
 # docker on local machine for testing
-docker run --rm --network host --name=auth --env-file /home/shane/Documents/GitCode/opensource/auth/.env shanebowyer/auth:master
+docker run --rm --network host --name=auth --env-file /home/shane/Documents/GitCode/opensource/auth/.envDocker shanebowyer/auth:master

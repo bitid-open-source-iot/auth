@@ -21,7 +21,6 @@ global.__settings = { ...configDefault, ...configEnvironment };
 global.__responder = new responder.module();
 
 try {
-    console.log(process.env)
     __settings.mongodb = process.env.mongodb;
     __settings.mongodb = __settings.mongodb.replace(/xxx/g, 'auth');
     __settings.mongodb = JSON.parse(__settings.mongodb);
