@@ -50,6 +50,15 @@ try {
                 }));
 
                 app.use((req, res, next) => {
+                    req.authorization = {
+                        appId: [],
+                        userId: req.body?.header?.userId,
+                        groupId: []
+                    };
+                    next();
+                });
+
+                app.use((req, res, next) => {
                     if (req.method != 'GET') {
                         var args = {
                             'req': req,

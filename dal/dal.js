@@ -2733,7 +2733,10 @@ var module = function () {
 					}
 				},
 				{
-					$unwind: '$_app'
+					$unwind: {
+						path: '$_app',
+						preserveNullAndEmptyArrays: true
+					}
 				},
 				{
 					$lookup: {
@@ -2741,7 +2744,7 @@ var module = function () {
 							{
 								$match: {
 									$expr: {
-										$and: [
+										$or: [
 											{
 												$eq: [args.req.body.scope, '$url']
 											}
@@ -2760,7 +2763,10 @@ var module = function () {
 					}
 				},
 				{
-					$unwind: '$_scope'
+					$unwind: {
+						path: '$_scope',
+						preserveNullAndEmptyArrays: true
+					}
 				},
 				{
 					$lookup: {
@@ -2870,7 +2876,9 @@ var module = function () {
 				},
 				{
 					$project: {
-						'_id': 1
+						'_id': 1,
+						'_app': 1,
+						'_scope': 1
 					}
 				}
 			];
@@ -2885,26 +2893,36 @@ var module = function () {
 					var deferred = Q.defer();
 
 					if (result.length > 0) {
-						var scopes = [];
-						args.req.headers.authorization.scopes.map(scope => {
-							if (typeof (scope) == 'object') {
-								scopes.push(scope.url);
-							} else if (typeof (scope) == 'string') {
-								scopes.push(scope);
-							};
-						});
-
-						if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
-							deferred.resolve(result);
-						} else {
+						if (!result[0]._app || result[0]._app?.length === 0) {
 							deferred.reject({
 								code: 401,
-								message: 'Scope not present in token!'
+								message: 'App was not found!'
 							});
-						};
+						} else if (!result[0]._scope || result[0]._scope?.length === 0) {
+							deferred.reject({
+								code: 401,
+								message: 'Scope was not found!'
+							});
+						} else {
+							var scopes = [];
+							args.req.headers.authorization.scopes.map(scope => {
+								if (typeof (scope) == 'object') {
+									scopes.push(scope.url);
+								} else if (typeof (scope) == 'string') {
+									scopes.push(scope);
+								};
+							});
+
+							if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
+								deferred.resolve(result);
+							} else {
+								deferred.reject({
+									code: 401,
+									message: 'Scope not present in token!'
+								});
+							};
+						}
 					} else {
-						console.error('args.req.headers.authorization', JSON.stringify(args.req.headers.authorization))
-						console.error('args.req.body.header', JSON.stringify(args.req.body.header))
 						deferred.reject({
 							code: 401,
 							message: `Token was not found or has expired! ${JSON.stringify(args.req.headers.authorization)}`
