@@ -1714,9 +1714,9 @@ var module = function () {
 							}
 						],
 						name: '$name',
-						scope: './',
+						scope: (args.req.secure ? 'https://' : 'http://' + (args.req.headers.origin || args.req.headers.referer)),
 						display: 'standalone',
-						start_url: './',
+						start_url: (args.req.secure ? 'https://' : 'http://' + (args.req.headers.origin || args.req.headers.referer)),
 						short_name: '$name',
 						theme_color: '$theme.color',
 						background_color: '$theme.background'
