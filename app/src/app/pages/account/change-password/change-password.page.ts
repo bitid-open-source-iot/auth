@@ -37,6 +37,7 @@ export class ChangePasswordPage implements OnInit, OnDestroy {
 			old: this.form.value.old,
 			new: this.form.value.new,
 			email: this.localstorage.get('email'),
+			userId: this.localstorage.get('userId'),
 			confirm: this.form.value.confirm
 		});
 

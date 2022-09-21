@@ -1,6 +1,7 @@
 const Q = require('q');
 const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
+const ErrorResponse = require('../lib/error-response');
 
 exports.verify = (args) => {
     var deferred = Q.defer();
@@ -78,37 +79,56 @@ exports.welcome = (args) => {
 
 exports.resetpassword = (args) => {
     var deferred = Q.defer();
+    try
+    {
+        const transporter = nodemailer.createTransport(__settings.smtp);
 
-    const transporter = nodemailer.createTransport(__settings.smtp);
-
-    transporter.use('compile', hbs({
-        'viewEngine': {
+        transporter.use('compile', hbs({
+            'viewEngine': {
+                'extName': '.hbs',
+                'layoutsDir': __dirname + '/templates',
+                'partialsDir': __dirname + '/templates',
+                'defaultLayout': 'reset-password.hbs'
+            },
             'extName': '.hbs',
-            'layoutsDir': __dirname + '/templates',
-            'partialsDir': __dirname + '/templates',
-            'defaultLayout': 'reset-password.hbs'
-        },
-        'extName': '.hbs',
-        'viewPath': __dirname + '/templates'
-    }));
+            'viewPath': __dirname + '/templates'
+        }));
 
-    transporter.sendMail({
-        'context': {
-            'link': [__settings.client.auth, '/reset-password?userId=', args.result.userId, '&password=', args.result.password, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join(''),
-            'name': [args.result.name.first, args.result.name.last].join(' ')
-        },
-        'to': __settings.production ? args.result.email : __settings.smtp.auth.user,
-        'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
-        'subject': 'Reset Password',
-        'template': 'reset-password'
-    }, (error, info) => {
-        if (error) {
-            console.error(error);
-        } else {
-            console.log(info);
-        };
-        deferred.resolve(args);
-    });
+        transporter.sendMail({
+            'context': {
+                'link': [__settings.client.auth, '/reset-password?userId=', args.result.userId, '&password=', args.result.password, '&appId=', args.result.app.appId, '&returl=', args.result.app.url, '/authenticate'].join(''),
+                'name': [args.result.name.first, args.result.name.last].join(' ')
+            },
+            'to': __settings.production ? args.result.email : __settings.smtp.auth.user,
+            'from': __settings.production ? 'support@bitid.co.za' : __settings.smtp.auth.user,
+            'subject': 'Reset Password',
+            'template': 'reset-password'
+        }, (error, info) => {
+            if (error) {
+                console.error(error);
+
+                var err = new ErrorResponse();
+                err.error.errors[0].code = 503;
+                err.error.errors[0].reason = "Unable to send the password reset email. An unexpected error has occurred.";
+                err.error.errors[0].message = error.message;
+
+                deferred.reject(err);
+            } else {
+                console.log(info);
+            };
+            deferred.resolve(args);
+        });
+    }
+    catch(error) {
+        console.error(error);
+
+        var err = new ErrorResponse();
+        err.error.errors[0].code = 503;
+        err.error.errors[0].reason = "Unable to send the password reset email. Please verify your SMTP details.";
+        err.error.errors[0].message = error.message;
+
+        deferred.reject(err);
+    }
 
     return deferred.promise;
 };

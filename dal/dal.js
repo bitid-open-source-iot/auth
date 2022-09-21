@@ -1820,40 +1820,40 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		resetpassword: (args) => {
-			var deferred = Q.defer();
+		// resetpassword: (args) => {
+		// 	var deferred = Q.defer();
 
-			const request = new sql.Request(__database);
+		// 	const request = new sql.Request(__database);
 
-			request.input('salt', args.req.body.salt);
-			request.input('hash', args.req.body.hash);
-			request.input('email', args.req.body.header.email);
-			request.input('appId', args.req.body.header.appId);
+		// 	request.input('salt', args.req.body.salt);
+		// 	request.input('hash', args.req.body.hash);
+		// 	request.input('email', args.req.body.header.email);
+		// 	request.input('appId', args.req.body.header.appId);
 
-			request.execute('v1_Auth_Reset_Password')
-				.then(result => {
-					if (result.returnValue == 1 && result.recordset.length > 0) {
-						args.result = unwind(result.recordset[0]);
-						args.result.password = args.req.body.password;
-						deferred.resolve(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = result.recordset[0].code;
-						err.error.errors[0].reason = result.recordset[0].message;
-						err.error.errors[0].message = result.recordset[0].message;
-						deferred.reject(err);
-					}
-				})
-				.catch(error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+		// 	request.execute('v1_Auth_Reset_Password')
+		// 		.then(result => {
+		// 			if (result.returnValue == 1 && result.recordset.length > 0) {
+		// 				args.result = unwind(result.recordset[0]);
+		// 				args.result.password = args.req.body.password;
+		// 				deferred.resolve(args);
+		// 			} else {
+		// 				var err = new ErrorResponse();
+		// 				err.error.errors[0].code = result.recordset[0].code;
+		// 				err.error.errors[0].reason = result.recordset[0].message;
+		// 				err.error.errors[0].message = result.recordset[0].message;
+		// 				deferred.reject(err);
+		// 			}
+		// 		})
+		// 		.catch(error => {
+		// 			var err = new ErrorResponse();
+		// 			err.error.errors[0].code = error.code;
+		// 			err.error.errors[0].reason = error.message;
+		// 			err.error.errors[0].message = error.message;
+		// 			deferred.reject(err);
+		// 		});
 
-			return deferred.promise;
-		},
+		// 	return deferred.promise;
+		// },
 
 		resetpassword: (args) => {
 			var deferred = Q.defer();
