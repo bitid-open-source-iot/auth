@@ -1,7 +1,7 @@
 export const environment = {
-    auth: 'https://auth.bitid.co.za',
+    auth: 'https://auth.metweb.co.za',
     appId: 1,
-    drive: 'https://drive.bitid.co.za',
+    drive: 'https://drive.metweb.co.za',
     appName: 'Auth',
     production: true
 };
