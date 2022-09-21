@@ -26,7 +26,7 @@ try{
     __settings.production = true //??Clayton
     __settings.authentication = true
     __settings.passwordResetDuration = process.env.PASSWORD_RESET_DURATION || 31
-    __settings.smtp = JSON.parse(process.env.SMTP)
+    __settings.smtp = process.env.SMTP
     __settings.client.auth = process.env.AUTH_CLIENT_AUTH
     __settings.client.appId = process.env.AUTH_CLIENT_APPID
     __settings.client.drive = process.env.AUTH_CLIENT_DRIVE
