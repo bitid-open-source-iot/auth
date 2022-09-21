@@ -81,7 +81,7 @@ exports.resetpassword = (args) => {
     var deferred = Q.defer();
     try
     {
-        const transporter = nodemailer.createTransport(__settings.smtp);
+        const transporter = nodemailer.createTransport(JSON.parse(__settings.smtp));
 
         transporter.use('compile', hbs({
             'viewEngine': {
