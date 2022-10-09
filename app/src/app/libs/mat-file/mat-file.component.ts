@@ -134,9 +134,7 @@ export class MatFileComponent implements ControlValueAccessor, OnInit {
                         }
                     };
 
-                    const url = [environment.drive, '/drive/files/upload?', 'email', '=', this.localstorage.get('email'), '&', 'appId', '=', environment.appId].join('');
-
-                    request.open('POST', url, true);
+                    request.open('POST', `${environment.drive}/drive/files/upload?userId=${this.localstorage.get('userId')}&appId=${environment.appId}`, true);
                     request.setRequestHeader('Authorization', this.localstorage.get('token'));
                     request.send(formData);
                 }

@@ -1,16 +1,18 @@
 {
   "name": "auth",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/test.js | tee test/report.txt"
+    "test": "mocha test/test.js | tee test/report.txt",
+    "build": "cd app && ng build",
+    "serve": "cd app && ng serve -o --port=9001 --host=127.0.0.1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bitid-open-source-iot/auth.git"
   },
-  "author": "",
+  "author": "biTid",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/bitid-open-source-iot/auth/issues"
