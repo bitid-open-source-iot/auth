@@ -8,6 +8,82 @@ exports.call = (args) => {
 	var collection = db.collection(args.collection);
 
 	switch (args.operation) {
+		case ('copy'):
+			collection.find(args.params).toArray((err, result) => {
+				if (typeof (result) == 'undefined') {
+					deferred.reject({
+						'code': 71,
+						'message': 'result undefined'
+					});
+				} else if (err) {
+					deferred.reject({
+						'code': 72,
+						'message': 'find error'
+					});
+				} else {
+					if (result.length > 0) {
+						let newDoc = result[0]
+						delete newDoc._id
+						if(args.description){
+							newDoc.description = args.description
+						}else{
+							newDoc.description = `Copy Of ${newDoc.description}`
+						}
+						for (let i = 0; i < newDoc.bitid.auth.users.length; i++) {
+							const user = newDoc.bitid.auth.users[i];
+							if(user.id.toString() == args.userId.toString()){
+								user.role = 5
+							}else if(user.role == 5 && user.id.toString() != args.userId.toString()){
+								user.role = 4
+							}
+						}
+						
+						collection.insertOne(newDoc, (err, result)=>{
+
+
+							if (err) {
+								if (err.code = '11000') {
+									deferred.reject({
+										'code': 70,
+										'message': 'already exists'
+									});
+								} else {
+									deferred.reject(err);
+								};
+							} else {
+								if (typeof (result) !== 'undefined') {
+									if (result.result.ok == 1) {
+										deferred.resolve(result.ops);
+									} else {
+										deferred.reject({
+											'code': 70,
+											'message': 'error copying'
+										});
+									};
+								} else {
+									deferred.reject({
+										'code': 70,
+										'message': 'error copying'
+									});
+								};
+							};
+
+
+
+						})
+					} else {
+						if (args.allowNoRecordsFound) {
+							deferred.resolve([]);
+						} else {
+							deferred.reject({
+								'code': 69,
+								'message': 'no records found'
+							});
+						};
+					};
+				};
+			});
+			break
 		case ('find'):
 			args.skip = args.skip || 0;
 			args.sort = args.sort || { '_id': -1 };

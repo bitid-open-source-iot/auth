@@ -10,6 +10,11 @@ router.post('/add', (req, res) => {
 	myModule.groups.add(req, res);
 });
 
+router.post('/copy', (req, res) => {
+	var myModule = new bll.module();
+	myModule.groups.copy(req, res);
+});
+
 router.post('/get', (req, res) => {
 	var myModule = new bll.module();
 	myModule.groups.get(req, res);

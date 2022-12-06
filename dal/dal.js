@@ -5888,6 +5888,36 @@ var module = function () {
 			return deferred.promise;
 		},
 
+		copy: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.groupId)
+			};
+
+
+			db.call({
+				'params': params,
+				'operation': 'copy',
+				'collection': 'tblGroups',
+				'description': args.req.body.description,
+				'userId': ObjectId(args.req.body.header.userId)
+			})
+				.then(result => {
+					args.result = result[0];
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
+
 		get: (args) => {
 			var deferred = Q.defer();
 

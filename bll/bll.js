@@ -517,6 +517,21 @@ var module = function () {
 				});
 		},
 
+		copy: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.groups.copy(args)
+				.then(args => {
+					__responder.success(req, res, args.result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
 		get: (req, res) => {
 			var args = {
 				'req': req,
