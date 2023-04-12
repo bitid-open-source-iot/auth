@@ -2,6 +2,9 @@
 
 # biTid Auth
 
+## docker
+docker run --network=iot -p 9000:9000 -d --name=auth-service shanebowyer/auth-service
+
 The **Auth Application/Service** manages users, clients(applications/services) and tokens of those users and clients. This service provides authentication and ensures that users can only interact with applications/services within their scope
 
 ## Getting Started
