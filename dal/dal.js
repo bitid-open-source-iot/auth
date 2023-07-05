@@ -6344,6 +6344,13 @@ var module = function () {
 				});
 			};
 
+			if (typeof (args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
+				params.push({
+					$limit: args.req.body.limit
+				});
+			};
+			
+
 			var filter = {};
 			if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
 				filter['_id'] = 0;
