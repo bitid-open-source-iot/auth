@@ -97,8 +97,12 @@ try {
                             args.req.body.scope = args.req.originalUrl;
 
                             var myModule = new dal.module();
-                            myModule.auth.validate(args)
+                            myModule.auth.validateV1(args)
                                 .then(result => {
+                                    req.validate = {...result};
+                                    delete req.validate.req;
+                                    delete req.validate.res;
+
                                     delete req.body.scope;
                                     delete args.req.body.scope;
                                     next();
