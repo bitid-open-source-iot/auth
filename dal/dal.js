@@ -396,247 +396,246 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		list: async (args) => {
+		list20230803: async (args) => {
 			var deferred = Q.defer();
 
-			var params = await BITID.list(args);
 
-			// var params = [
-			// 	{
-			// 		$lookup: {
-			// 			let: {
-			// 				'appId': '$bitid.auth.apps.id'
-			// 			},
-			// 			pipeline: [
-			// 				{
-			// 					$match: {
-			// 						$expr: {
-			// 							$and: [
-			// 								{
-			// 									$in: ['$_id', '$$appId']
-			// 								},
-			// 								{
-			// 									$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-			// 								}
-			// 							]
-			// 						}
-			// 					}
-			// 				},
-			// 				{
-			// 					$project: {
-			// 						'_id': 1,
-			// 						'bitid': 1
-			// 					}
-			// 				}
-			// 			],
-			// 			as: '_apps',
-			// 			from: 'tblApps'
-			// 		}
-			// 	},
-			// 	{
-			// 		$lookup: {
-			// 			let: {
-			// 				'groupId': '$bitid.auth.groups.id'
-			// 			},
-			// 			pipeline: [
-			// 				{
-			// 					$match: {
-			// 						$expr: {
-			// 							$and: [
-			// 								{
-			// 									$in: ['$_id', '$$groupId']
-			// 								},
-			// 								{
-			// 									$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-			// 								}
-			// 							]
-			// 						}
-			// 					}
-			// 				},
-			// 				{
-			// 					$project: {
-			// 						'_id': 1,
-			// 						'bitid': 1
-			// 					}
-			// 				}
-			// 			],
-			// 			as: '_groups',
-			// 			from: 'tblGroups'
-			// 		}
-			// 	},
-			// 	{
-			// 		$match: {
-			// 			$or: [
-			// 				{
-			// 					'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-			// 				},
-			// 				{
-			// 					'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-			// 				},
-			// 				{
-			// 					'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-			// 				}
-			// 			]
-			// 		}
-			// 	},
-			// 	{
-			// 		$addFields: {
-			// 			'role': {
-			// 				$reduce: {
-			// 					in: {
-			// 						$cond: {
-			// 							if: {
-			// 								$gte: ['$$this.role', '$$value']
-			// 							},
-			// 							then: '$$this.role',
-			// 							else: '$$value'
-			// 						}
-			// 					},
-			// 					input: {
-			// 						$filter: {
-			// 							cond: {
-			// 								$eq: ['$$item.match', true]
-			// 							},
-			// 							input: {
-			// 								$concatArrays: [
-			// 									{
-			// 										$map: {
-			// 											in: {
-			// 												id: '$$app.id',
-			// 												role: '$$app.role',
-			// 												match: {
-			// 													$cond: {
-			// 														if: {
-			// 															$in: ['$$app.id', '$_apps._id']
-			// 														},
-			// 														then: true,
-			// 														else: false
-			// 													}
-			// 												}
-			// 											},
-			// 											as: 'app',
-			// 											input: '$bitid.auth.apps'
-			// 										}
-			// 									},
-			// 									{
-			// 										$map: {
-			// 											in: {
-			// 												id: '$$user.id',
-			// 												role: '$$user.role',
-			// 												match: {
-			// 													$cond: {
-			// 														if: {
-			// 															$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
-			// 														},
-			// 														then: true,
-			// 														else: false
-			// 													}
-			// 												}
-			// 											},
-			// 											as: 'user',
-			// 											input: '$bitid.auth.users'
-			// 										}
-			// 									},
-			// 									{
-			// 										$map: {
-			// 											in: {
-			// 												id: '$$group.id',
-			// 												role: '$$group.role',
-			// 												match: {
-			// 													$cond: {
-			// 														if: {
-			// 															$in: ['$$group.id', '$_groups._id']
-			// 														},
-			// 														then: true,
-			// 														else: false
-			// 													}
-			// 												}
-			// 											},
-			// 											as: 'group',
-			// 											input: '$bitid.auth.groups'
-			// 										}
-			// 									}
-			// 								]
-			// 							},
-			// 							as: 'item'
-			// 						}
-			// 					},
-			// 					initialValue: 0
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// ];
+			var params = [
+				{
+					$lookup: {
+						let: {
+							'appId': '$bitid.auth.apps.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$appId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_apps',
+						from: 'tblApps'
+					}
+				},
+				{
+					$lookup: {
+						let: {
+							'groupId': '$bitid.auth.groups.id'
+						},
+						pipeline: [
+							{
+								$match: {
+									$expr: {
+										$and: [
+											{
+												$in: ['$_id', '$$groupId']
+											},
+											{
+												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+											}
+										]
+									}
+								}
+							},
+							{
+								$project: {
+									'_id': 1,
+									'bitid': 1
+								}
+							}
+						],
+						as: '_groups',
+						from: 'tblGroups'
+					}
+				},
+				{
+					$match: {
+						$or: [
+							{
+								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							},
+							{
+								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+							}
+						]
+					}
+				},
+				{
+					$addFields: {
+						'role': {
+							$reduce: {
+								in: {
+									$cond: {
+										if: {
+											$gte: ['$$this.role', '$$value']
+										},
+										then: '$$this.role',
+										else: '$$value'
+									}
+								},
+								input: {
+									$filter: {
+										cond: {
+											$eq: ['$$item.match', true]
+										},
+										input: {
+											$concatArrays: [
+												{
+													$map: {
+														in: {
+															id: '$$app.id',
+															role: '$$app.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$app.id', '$_apps._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'app',
+														input: '$bitid.auth.apps'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$user.id',
+															role: '$$user.role',
+															match: {
+																$cond: {
+																	if: {
+																		$eq: ['$$user.id', ObjectId(args.req.body.header.userId)]
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'user',
+														input: '$bitid.auth.users'
+													}
+												},
+												{
+													$map: {
+														in: {
+															id: '$$group.id',
+															role: '$$group.role',
+															match: {
+																$cond: {
+																	if: {
+																		$in: ['$$group.id', '$_groups._id']
+																	},
+																	then: true,
+																	else: false
+																}
+															}
+														},
+														as: 'group',
+														input: '$bitid.auth.groups'
+													}
+												}
+											]
+										},
+										as: 'item'
+									}
+								},
+								initialValue: 0
+							}
+						}
+					}
+				}
+			];
 
-			// if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
-			// 	if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
-			// 		params[2].$match.$or.push({
-			// 			private: {
-			// 				$in: args.req.body.private
-			// 			}
-			// 		});
-			// 	} else if (typeof (args.req.body.private) == 'boolean') {
-			// 		params[2].$match.$or.push({
-			// 			private: args.req.body.private
-			// 		});
-			// 	};
-			// };
+			if (typeof (args.req.body.private) != 'undefined' && args.req.body.private != null) {
+				if (Array.isArray(args.req.body.private) && args.req.body.private.length > 0) {
+					params[2].$match.$or.push({
+						private: {
+							$in: args.req.body.private
+						}
+					});
+				} else if (typeof (args.req.body.private) == 'boolean') {
+					params[2].$match.$or.push({
+						private: args.req.body.private
+					});
+				};
+			};
 
-			// if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
-			// 	if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
-			// 		params[2].$match.$or.map(param => {
-			// 			param._id = {
-			// 				$in: args.req.body.appId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
-			// 			};
-			// 		});
-			// 	} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
-			// 		params[2].$match.$or.map(param => {
-			// 			param._id = ObjectId(args.req.body.appId);
-			// 		});
-			// 	};
-			// };
+			if (typeof (args.req.body.appId) != 'undefined' && args.req.body.appId != null) {
+				if (Array.isArray(args.req.body.appId) && args.req.body.appId.length > 0) {
+					params[2].$match.$or.map(param => {
+						param._id = {
+							$in: args.req.body.appId.filter(id => typeof (id) != 'undefined' && id != null && id?.length == 24).map(id => ObjectId(id))
+						};
+					});
+				} else if (typeof (args.req.body.appId) == 'string' && args.req.body.appId?.length == 24) {
+					params[2].$match.$or.map(param => {
+						param._id = ObjectId(args.req.body.appId);
+					});
+				};
+			};
 
-			// if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
-			// 	params[2].$match.$or.map(param => {
-			// 		param.name = {
-			// 			$regex: args.req.body.name,
-			// 			$options: 'i'
-			// 		};
-			// 	});
-			// };
+			if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
+				params[2].$match.$or.map(param => {
+					param.name = {
+						$regex: args.req.body.name,
+						$options: 'i'
+					};
+				});
+			};
 
-			// var filter = {};
-			// if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
-			// 	filter['_id'] = 0;
-			// 	args.req.body.filter.map(f => {
-			// 		if (f == 'appId') {
-			// 			filter['_id'] = 1;
-			// 		} else if (f == 'apps') {
-			// 			filter['bitid.auth.apps'] = 1;
-			// 		} else if (f == 'users') {
-			// 			filter['bitid.auth.users'] = 1;
-			// 		} else if (f == 'groups') {
-			// 			filter['bitid.auth.groups'] = 1;
-			// 		} else if (f == 'private') {
-			// 			filter['bitid.auth.private'] = 1;
-			// 		} else if (f == 'organizationOnly') {
-			// 			filter['bitid.auth.organizationOnly'] = 1;
-			// 		} else {
-			// 			filter[f] = 1;
-			// 		};
-			// 	});
-			// };
-			// if (Object.keys(filter).length > 0) {
-			// 	params.push({
-			// 		$project: filter
-			// 	});
-			// };
+			var filter = {};
+			if (Array.isArray(args.req.body.filter) && args.req.body.filter?.length > 0) {
+				filter['_id'] = 0;
+				args.req.body.filter.map(f => {
+					if (f == 'appId') {
+						filter['_id'] = 1;
+					} else if (f == 'apps') {
+						filter['bitid.auth.apps'] = 1;
+					} else if (f == 'users') {
+						filter['bitid.auth.users'] = 1;
+					} else if (f == 'groups') {
+						filter['bitid.auth.groups'] = 1;
+					} else if (f == 'private') {
+						filter['bitid.auth.private'] = 1;
+					} else if (f == 'organizationOnly') {
+						filter['bitid.auth.organizationOnly'] = 1;
+					} else {
+						filter[f] = 1;
+					};
+				});
+			};
+			if (Object.keys(filter).length > 0) {
+				params.push({
+					$project: filter
+				});
+			};
 
-			// if (typeof (args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
-			// 	params.push({
-			// 		$limit: args.req.body.limit
-			// 	});
-			// };
+			if (typeof (args.req.body.limit) != 'undefined' && args.req.body.limit != null) {
+				params.push({
+					$limit: args.req.body.limit
+				});
+			};
 
 			db.call({
 				'params': params,
@@ -657,8 +656,26 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		listV1: (args) => {
+		list: async (args) => {
 			var deferred = Q.defer();
+			var query = await BITID.list(args);
+			
+			db.call({
+				'params': query.params,
+				'filter': query.filter,
+				'operation': 'aggregate',
+				'collection': 'tblApps'
+			})
+				.then(result => {
+					args.result = unlink(result);
+					deferred.resolve(args);
+				}, error => {
+					var err = new ErrorResponse();
+					err.error.errors[0].code = error.code;
+					err.error.errors[0].reason = error.message;
+					err.error.errors[0].message = error.message;
+					deferred.reject(err);
+				});
 
 			return deferred.promise;
 		},
