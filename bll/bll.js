@@ -264,20 +264,20 @@ var module = function () {
 				});
 		},
 
-		validate: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
+		// validate: (req, res) => {
+		// 	var args = {
+		// 		'req': req,
+		// 		'res': res
+		// 	};
 
-			var myModule = new dal.module();
-			myModule.auth.validate(args)
-				.then(args => {
-					__responder.success(req, res, args);
-				}, err => {
-					__responder.error(req, res, err);
-				});
-		},
+		// 	var myModule = new dal.module();
+		// 	myModule.auth.validate(args)
+		// 		.then(args => {
+		// 			__responder.success(req, res, args);
+		// 		}, err => {
+		// 			__responder.error(req, res, err);
+		// 		});
+		// },
 
 		allowaccess: (req, res) => {
 			var args = {

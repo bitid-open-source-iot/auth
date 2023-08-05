@@ -99,9 +99,9 @@ try {
                             var myModule = new dal.module();
                             myModule.auth.validateV1(args)
                                 .then(result => {
-                                    req.validate = {...result};
-                                    delete req.validate.req;
-                                    delete req.validate.res;
+                                    // req.validate = {...result};
+                                    // delete req.validate.req;
+                                    // delete req.validate.res;
 
                                     delete req.body.scope;
                                     delete args.req.body.scope;

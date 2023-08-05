@@ -658,14 +658,155 @@ var module = function () {
 
 		list: async (args) => {
 			var deferred = Q.defer();
-			var query = await BITID.list(args);
-			
+
+			var paramsUser = {
+				"bitid.auth.v1.type": "user",
+				"bitid.auth.v1.id": ObjectId(args.req.body.header.userId)
+			}
+
+			let query = await BITID.list(args);
+			let param = query.params.find(p => typeof (p.$match.$and) != 'undefined' && p.$match.$and != null);
+			param.$match.$and.push(paramsUser)
+			query.params['$match.$and'] = param.$match.$and
+
+
 			db.call({
 				'params': query.params,
-				'filter': query.filter,
+				// 'filter': query.filter,
 				'operation': 'aggregate',
 				'collection': 'tblApps'
 			})
+
+
+				.then(result => {
+					var deferred = Q.defer();
+					db.call({
+						'params': query.params,
+						'filter': query.filter,
+						'operation': 'aggregate',
+						'collection': 'tblApps',
+						'allowNoRecordsFound': true
+					})
+						.then(result => {
+							if (!args.apps) args.apps = [];
+							args.apps.push(...result.map(o => {
+								let a = o.bitid.auth.v1.find(user => user.id.toString() == args.req.body.header.userId);
+								let r = {
+									_id: o._id,
+									role: a.role,
+								}
+								for (let key in o) {
+									if (key != '_id') {
+										r[key] = o[key];
+									}
+								}
+								return r
+							}));
+							deferred.resolve(args);
+						}, error => {
+							var err = new ErrorResponse();
+							err.error.errors[0].code = 403;
+							err.error.errors[0].reason = 'error finding apps';
+							err.error.errors[0].message = 'error finding apps';
+							deferred.reject(err);
+						})
+
+					return deferred.promise;
+				}, null)
+
+				.then(result => {
+					var deferred = Q.defer();
+					db.call({
+						'params': paramsUser,
+						'filter': { _id: 1 },
+						'operation': 'find',
+						'collection': 'tblGroups',
+						'allowNoRecordsFound': true
+					})
+						.then(result => {
+							if (!args.groups) args.groups = [];
+							args.groups.push(...result.map(o => o._id.toString()));
+							deferred.resolve(args);
+						})
+
+					return deferred.promise;
+				})
+
+
+
+				.then(result => {
+					var deferred = Q.defer();
+
+					var paramsGroupApps = {
+						"bitid.auth.v1.type": "group",
+						"bitid.auth.v1.id": {
+							$in: args.groups.map(o => ObjectId(o))
+
+						}
+					}
+
+					db.call({
+						'params': paramsGroupApps,
+						'filter': query.filter,
+						'operation': 'find',
+						'collection': 'tblApps',
+						'allowNoRecordsFound': true
+					})
+						.then(result => {
+							if (!args.apps) args.apps = [];
+							let appsFromGroupId = result.map(o => {
+								let a = o.bitid.auth.v1.find(item => item.type == 'group' && args.groups.indexOf(item.id.toString()) > -1);
+								let r = {
+									_id: o._id,
+									role: a.role,
+								}
+								for (let key in o) {
+									if (key != '_id') {
+										r[key] = o[key];
+									}
+								}
+								return r
+							})
+							appsFromGroupId = appsFromGroupId.filter(item => item !== null);
+							args.apps.push(...appsFromGroupId);
+
+							appsFromGroupId.map(o => {
+								let appExists = args.apps.map(item => {
+									if(item._id.toString() == o._id.toString()){
+										return item;
+									}else{
+										return null
+									}
+								});
+								appExists = appExists.filter(item => item !== null);
+								if (appExists) {
+									if (app.role < o.role) {
+										app.role = parseInt(o.role);
+									}
+								} else {
+									console.log('wtf')
+								}
+							})
+
+
+							// deferred.resolve(result);
+							deferred.resolve(args.apps);
+						}, error => {
+							var err = new ErrorResponse();
+							err.error.errors[0].code = 403;
+							err.error.errors[0].reason = 'error finding apps by group';
+							err.error.errors[0].message = 'error finding apps by group';
+							deferred.reject(err);
+						})
+
+					return deferred.promise;
+				}, null)
+				
+				.then(result => {
+					return result
+				})
+
+
 				.then(result => {
 					args.result = unlink(result);
 					deferred.resolve(args);
@@ -1770,44 +1911,44 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		validate: (args) => {
-			var deferred = Q.defer();
+		// validateCanIDeleteThis: (args) => {
+		// 	var deferred = Q.defer();
 
-			var params = [
-				{
-					$match: {
-						'_id': ObjectId(args.req.body.header.appId)
-					}
-				},
-				{
-					$project: {
-						'url': 1,
-						'icon': 1,
-						'name': 1,
-						'appId': '$_id',
-						'config': 1
-					}
-				}
-			];
+		// 	var params = [
+		// 		{
+		// 			$match: {
+		// 				'_id': ObjectId(args.req.body.header.appId)
+		// 			}
+		// 		},
+		// 		{
+		// 			$project: {
+		// 				'url': 1,
+		// 				'icon': 1,
+		// 				'name': 1,
+		// 				'appId': '$_id',
+		// 				'config': 1
+		// 			}
+		// 		}
+		// 	];
 
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblApps'
-			})
-				.then(result => {
-					args.app = JSON.parse(JSON.stringify(result[0]));
-					deferred.resolve(args);
-				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
-					deferred.reject(err);
-				});
+		// 	db.call({
+		// 		'params': params,
+		// 		'operation': 'aggregate',
+		// 		'collection': 'tblApps'
+		// 	})
+		// 		.then(result => {
+		// 			args.app = JSON.parse(JSON.stringify(result[0]));
+		// 			deferred.resolve(args);
+		// 		}, error => {
+		// 			var err = new ErrorResponse();
+		// 			err.error.errors[0].code = error.code;
+		// 			err.error.errors[0].reason = error.message;
+		// 			err.error.errors[0].message = error.message;
+		// 			deferred.reject(err);
+		// 		});
 
-			return deferred.promise;
-		},
+		// 	return deferred.promise;
+		// },
 
 		allowaccess: (args) => {
 			var deferred = Q.defer();
@@ -2696,476 +2837,476 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		validate: (args) => {
-			var deferred = Q.defer();
+		// validate: (args) => {
+		// 	var deferred = Q.defer();
 
-			if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
-				var err = new ErrorResponse();
-				err.error.code = 401;
-				err.error.errors[0].coded = 401;
-				err.error.errors[0].reason = 'token not found';
-				err.error.errors[0].message = 'token not found';
-				deferred.reject(err);
-				return;
-			} else {
-				try {
-					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
-				} catch (error) {
-					var err = new ErrorResponse();
-					err.error.code = 401;
-					err.error.errors[0].coded = 401;
-					err.error.errors[0].reason = 'invalid token object';
-					err.error.errors[0].message = 'invalid token object';
-					deferred.reject(err);
-					return;
-				};
-			};
+		// 	if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
+		// 		var err = new ErrorResponse();
+		// 		err.error.code = 401;
+		// 		err.error.errors[0].coded = 401;
+		// 		err.error.errors[0].reason = 'token not found';
+		// 		err.error.errors[0].message = 'token not found';
+		// 		deferred.reject(err);
+		// 		return;
+		// 	} else {
+		// 		try {
+		// 			args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
+		// 		} catch (error) {
+		// 			var err = new ErrorResponse();
+		// 			err.error.code = 401;
+		// 			err.error.errors[0].coded = 401;
+		// 			err.error.errors[0].reason = 'invalid token object';
+		// 			err.error.errors[0].message = 'invalid token object';
+		// 			deferred.reject(err);
+		// 			return;
+		// 		};
+		// 	};
 
-			args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
+		// 	args.req.headers.authorization.expiry = new Date(args.req.headers.authorization.expiry);
 
-			var match = {
-				'appId': ObjectId(args.req.body.header.appId)
-			};
-			Object.keys(args.req.headers.authorization).map(key => {
-				match['token.' + key] = args.req.headers.authorization[key];
-			});
-			delete match['token.expiry'];
+		// 	var match = {
+		// 		'appId': ObjectId(args.req.body.header.appId)
+		// 	};
+		// 	Object.keys(args.req.headers.authorization).map(key => {
+		// 		match['token.' + key] = args.req.headers.authorization[key];
+		// 	});
+		// 	delete match['token.expiry'];
 
-			var params = [
-				{
-					$match: match
-				},
-				{
-					$lookup: {
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$and: [
-											{
-												$eq: [ObjectId(args.req.body.header.appId), '$_id']
-											}
-										]
-									}
-								}
-							},
-							{
-								$project: {
-									'_id': 1
-								}
-							}
-						],
-						as: '_app',
-						from: 'tblApps'
-					}
-				},
-				{
-					$unwind: {
-						path: '$_app',
-						preserveNullAndEmptyArrays: true
-					}
-				},
-				{
-					$lookup: {
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$or: [
-											{
-												$eq: [args.req.body.scope, '$url']
-											}
-										]
-									}
-								}
-							},
-							{
-								$project: {
-									'_id': 1
-								}
-							}
-						],
-						as: '_scope',
-						from: 'tblScopes'
-					}
-				},
-				{
-					$unwind: {
-						path: '$_scope',
-						preserveNullAndEmptyArrays: true
-					}
-				},
-				{
-					$lookup: {
-						let: {
-							'appId': {
-								$cond: {
-									'if': {
-										'$ne': [
-											{
-												'$type': '$bitid.auth.apps.id'
-											},
-											'array'
-										]
-									},
-									'then': [],
-									'else': '$bitid.auth.apps.id'
-								}
-							}
-						},
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$and: [
-											{
-												$in: ['$_id', '$$appId']
-											},
-											{
-												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-											}
-										]
-									}
-								}
-							},
-							{
-								$project: {
-									'_id': 1,
-									'bitid': 1
-								}
-							}
-						],
-						as: '_apps',
-						from: 'tblApps'
-					}
-				},
-				{
-					$lookup: {
-						let: {
-							'groupId': {
-								$cond: {
-									'if': {
-										'$ne': [
-											{
-												'$type': '$bitid.auth.groups.id'
-											},
-											'array'
-										]
-									},
-									'then': [],
-									'else': '$bitid.auth.groups.id'
-								}
-							}
-						},
-						pipeline: [
-							{
-								$match: {
-									$expr: {
-										$and: [
-											{
-												$in: ['$_id', '$$groupId']
-											},
-											{
-												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-											}
-										]
-									}
-								}
-							},
-							{
-								$project: {
-									'_id': 1,
-									'bitid': 1
-								}
-							}
-						],
-						as: '_groups',
-						from: 'tblGroups'
-					}
-				},
-				{
-					$match: {
-						$or: [
-							{
-								'disabled': false,
-								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-							},
-							{
-								'disabled': false,
-								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-							},
-							{
-								'disabled': false,
-								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-							}
-						]
-					}
-				},
-				{
-					$project: {
-						'_id': 1,
-						'_app': 1,
-						'_scope': 1
-					}
-				}
-			];
+		// 	var params = [
+		// 		{
+		// 			$match: match
+		// 		},
+		// 		{
+		// 			$lookup: {
+		// 				pipeline: [
+		// 					{
+		// 						$match: {
+		// 							$expr: {
+		// 								$and: [
+		// 									{
+		// 										$eq: [ObjectId(args.req.body.header.appId), '$_id']
+		// 									}
+		// 								]
+		// 							}
+		// 						}
+		// 					},
+		// 					{
+		// 						$project: {
+		// 							'_id': 1
+		// 						}
+		// 					}
+		// 				],
+		// 				as: '_app',
+		// 				from: 'tblApps'
+		// 			}
+		// 		},
+		// 		{
+		// 			$unwind: {
+		// 				path: '$_app',
+		// 				preserveNullAndEmptyArrays: true
+		// 			}
+		// 		},
+		// 		{
+		// 			$lookup: {
+		// 				pipeline: [
+		// 					{
+		// 						$match: {
+		// 							$expr: {
+		// 								$or: [
+		// 									{
+		// 										$eq: [args.req.body.scope, '$url']
+		// 									}
+		// 								]
+		// 							}
+		// 						}
+		// 					},
+		// 					{
+		// 						$project: {
+		// 							'_id': 1
+		// 						}
+		// 					}
+		// 				],
+		// 				as: '_scope',
+		// 				from: 'tblScopes'
+		// 			}
+		// 		},
+		// 		{
+		// 			$unwind: {
+		// 				path: '$_scope',
+		// 				preserveNullAndEmptyArrays: true
+		// 			}
+		// 		},
+		// 		{
+		// 			$lookup: {
+		// 				let: {
+		// 					'appId': {
+		// 						$cond: {
+		// 							'if': {
+		// 								'$ne': [
+		// 									{
+		// 										'$type': '$bitid.auth.apps.id'
+		// 									},
+		// 									'array'
+		// 								]
+		// 							},
+		// 							'then': [],
+		// 							'else': '$bitid.auth.apps.id'
+		// 						}
+		// 					}
+		// 				},
+		// 				pipeline: [
+		// 					{
+		// 						$match: {
+		// 							$expr: {
+		// 								$and: [
+		// 									{
+		// 										$in: ['$_id', '$$appId']
+		// 									},
+		// 									{
+		// 										$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 									}
+		// 								]
+		// 							}
+		// 						}
+		// 					},
+		// 					{
+		// 						$project: {
+		// 							'_id': 1,
+		// 							'bitid': 1
+		// 						}
+		// 					}
+		// 				],
+		// 				as: '_apps',
+		// 				from: 'tblApps'
+		// 			}
+		// 		},
+		// 		{
+		// 			$lookup: {
+		// 				let: {
+		// 					'groupId': {
+		// 						$cond: {
+		// 							'if': {
+		// 								'$ne': [
+		// 									{
+		// 										'$type': '$bitid.auth.groups.id'
+		// 									},
+		// 									'array'
+		// 								]
+		// 							},
+		// 							'then': [],
+		// 							'else': '$bitid.auth.groups.id'
+		// 						}
+		// 					}
+		// 				},
+		// 				pipeline: [
+		// 					{
+		// 						$match: {
+		// 							$expr: {
+		// 								$and: [
+		// 									{
+		// 										$in: ['$_id', '$$groupId']
+		// 									},
+		// 									{
+		// 										$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 									}
+		// 								]
+		// 							}
+		// 						}
+		// 					},
+		// 					{
+		// 						$project: {
+		// 							'_id': 1,
+		// 							'bitid': 1
+		// 						}
+		// 					}
+		// 				],
+		// 				as: '_groups',
+		// 				from: 'tblGroups'
+		// 			}
+		// 		},
+		// 		{
+		// 			$match: {
+		// 				$or: [
+		// 					{
+		// 						'disabled': false,
+		// 						'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 					},
+		// 					{
+		// 						'disabled': false,
+		// 						'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 					},
+		// 					{
+		// 						'disabled': false,
+		// 						'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 					}
+		// 				]
+		// 			}
+		// 		},
+		// 		{
+		// 			$project: {
+		// 				'_id': 1,
+		// 				'_app': 1,
+		// 				'_scope': 1
+		// 			}
+		// 		}
+		// 	];
 
-			db.call({
-				'params': params,
-				'operation': 'aggregate',
-				'collection': 'tblTokens',
-				'allowNoRecordsFound': true
-			})
-				.then(result => {
-					var deferred = Q.defer();
+		// 	db.call({
+		// 		'params': params,
+		// 		'operation': 'aggregate',
+		// 		'collection': 'tblTokens',
+		// 		'allowNoRecordsFound': true
+		// 	})
+		// 		.then(result => {
+		// 			var deferred = Q.defer();
 
-					if (result.length > 0) {
-						if (!result[0]._app || result[0]._app?.length === 0) {
-							deferred.reject({
-								code: 401,
-								message: 'App was not found!'
-							});
-						} else if (!result[0]._scope || result[0]._scope?.length === 0) {
-							deferred.reject({
-								code: 401,
-								message: 'Scope was not found!'
-							});
-						} else {
-							var scopes = [];
-							args.req.headers.authorization.scopes.map(scope => {
-								if (typeof (scope) == 'object') {
-									scopes.push(scope.url);
-								} else if (typeof (scope) == 'string') {
-									scopes.push(scope);
-								};
-							});
+		// 			if (result.length > 0) {
+		// 				if (!result[0]._app || result[0]._app?.length === 0) {
+		// 					deferred.reject({
+		// 						code: 401,
+		// 						message: 'App was not found!'
+		// 					});
+		// 				} else if (!result[0]._scope || result[0]._scope?.length === 0) {
+		// 					deferred.reject({
+		// 						code: 401,
+		// 						message: 'Scope was not found!'
+		// 					});
+		// 				} else {
+		// 					var scopes = [];
+		// 					args.req.headers.authorization.scopes.map(scope => {
+		// 						if (typeof (scope) == 'object') {
+		// 							scopes.push(scope.url);
+		// 						} else if (typeof (scope) == 'string') {
+		// 							scopes.push(scope);
+		// 						};
+		// 					});
 
-							if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
-								deferred.resolve(result);
-							} else {
-								deferred.reject({
-									code: 401,
-									message: 'Scope not present in token!'
-								});
-							};
-						}
-					} else {
-						deferred.reject({
-							code: 401,
-							message: `Token was not found or has expired! ${JSON.stringify(args.req.headers.authorization)}`
-						});
-					};
+		// 					if (scopes.includes('*') || scopes.includes(args.req.body.scope)) {
+		// 						deferred.resolve(result);
+		// 					} else {
+		// 						deferred.reject({
+		// 							code: 401,
+		// 							message: 'Scope not present in token!'
+		// 						});
+		// 					};
+		// 				}
+		// 			} else {
+		// 				deferred.reject({
+		// 					code: 401,
+		// 					message: `Token was not found or has expired! ${JSON.stringify(args.req.headers.authorization)}`
+		// 				});
+		// 			};
 
-					return deferred.promise;
-				})
-				.then(result => dalStatistics.write(args))
-				.then(async result => {
-					var params = [
-						{
-							$lookup: {
-								let: {
-									'appId': '$bitid.auth.apps.id'
-								},
-								pipeline: [
-									{
-										$match: {
-											$expr: {
-												$and: [
-													{
-														$in: ['$_id', '$$appId']
-													},
-													{
-														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-													}
-												]
-											}
-										}
-									},
-									{
-										$project: {
-											'_id': 1,
-											'bitid': 1
-										}
-									}
-								],
-								as: '_apps',
-								from: 'tblApps'
-							}
-						},
-						{
-							$lookup: {
-								let: {
-									'groupId': '$bitid.auth.groups.id'
-								},
-								pipeline: [
-									{
-										$match: {
-											$expr: {
-												$and: [
-													{
-														$in: ['$_id', '$$groupId']
-													},
-													{
-														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-													}
-												]
-											}
-										}
-									},
-									{
-										$project: {
-											'_id': 1,
-											'bitid': 1
-										}
-									}
-								],
-								as: '_groups',
-								from: 'tblGroups'
-							}
-						},
-						{
-							$match: {
-								$or: [
-									{
-										'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									},
-									{
-										'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									},
-									{
-										'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									}
-								]
-							}
-						},
-						{
-							$project: {
-								_id: 1
-							}
-						}
-					];
+		// 			return deferred.promise;
+		// 		})
+		// 		.then(result => dalStatistics.write(args))
+		// 		.then(async result => {
+		// 			var params = [
+		// 				{
+		// 					$lookup: {
+		// 						let: {
+		// 							'appId': '$bitid.auth.apps.id'
+		// 						},
+		// 						pipeline: [
+		// 							{
+		// 								$match: {
+		// 									$expr: {
+		// 										$and: [
+		// 											{
+		// 												$in: ['$_id', '$$appId']
+		// 											},
+		// 											{
+		// 												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 											}
+		// 										]
+		// 									}
+		// 								}
+		// 							},
+		// 							{
+		// 								$project: {
+		// 									'_id': 1,
+		// 									'bitid': 1
+		// 								}
+		// 							}
+		// 						],
+		// 						as: '_apps',
+		// 						from: 'tblApps'
+		// 					}
+		// 				},
+		// 				{
+		// 					$lookup: {
+		// 						let: {
+		// 							'groupId': '$bitid.auth.groups.id'
+		// 						},
+		// 						pipeline: [
+		// 							{
+		// 								$match: {
+		// 									$expr: {
+		// 										$and: [
+		// 											{
+		// 												$in: ['$_id', '$$groupId']
+		// 											},
+		// 											{
+		// 												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 											}
+		// 										]
+		// 									}
+		// 								}
+		// 							},
+		// 							{
+		// 								$project: {
+		// 									'_id': 1,
+		// 									'bitid': 1
+		// 								}
+		// 							}
+		// 						],
+		// 						as: '_groups',
+		// 						from: 'tblGroups'
+		// 					}
+		// 				},
+		// 				{
+		// 					$match: {
+		// 						$or: [
+		// 							{
+		// 								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							},
+		// 							{
+		// 								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							},
+		// 							{
+		// 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							}
+		// 						]
+		// 					}
+		// 				},
+		// 				{
+		// 					$project: {
+		// 						_id: 1
+		// 					}
+		// 				}
+		// 			];
 
-					return {
-						'params': params,
-						'operation': 'aggregate',
-						'collection': 'tblApps',
-						'allowNoRecordsFound': true
-					};
-				})
-				.then(db.call)
-				.then(async result => {
-					args.apps = result.map(o => o._id.toString());
+		// 			return {
+		// 				'params': params,
+		// 				'operation': 'aggregate',
+		// 				'collection': 'tblApps',
+		// 				'allowNoRecordsFound': true
+		// 			};
+		// 		})
+		// 		.then(db.call)
+		// 		.then(async result => {
+		// 			args.apps = result.map(o => o._id.toString());
 
-					var params = [
-						{
-							$lookup: {
-								let: {
-									'appId': '$bitid.auth.apps.id'
-								},
-								pipeline: [
-									{
-										$match: {
-											$expr: {
-												$and: [
-													{
-														$in: ['$_id', '$$appId']
-													},
-													{
-														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-													}
-												]
-											}
-										}
-									},
-									{
-										$project: {
-											'_id': 1,
-											'bitid': 1
-										}
-									}
-								],
-								as: '_apps',
-								from: 'tblApps'
-							}
-						},
-						{
-							$lookup: {
-								let: {
-									'groupId': '$bitid.auth.groups.id'
-								},
-								pipeline: [
-									{
-										$match: {
-											$expr: {
-												$and: [
-													{
-														$in: ['$_id', '$$groupId']
-													},
-													{
-														$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
-													}
-												]
-											}
-										}
-									},
-									{
-										$project: {
-											'_id': 1,
-											'bitid': 1
-										}
-									}
-								],
-								as: '_groups',
-								from: 'tblGroups'
-							}
-						},
-						{
-							$match: {
-								$or: [
-									{
-										'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									},
-									{
-										'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									},
-									{
-										'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
-									}
-								]
-							}
-						},
-						{
-							$project: {
-								_id: 1
-							}
-						}
-					];
+		// 			var params = [
+		// 				{
+		// 					$lookup: {
+		// 						let: {
+		// 							'appId': '$bitid.auth.apps.id'
+		// 						},
+		// 						pipeline: [
+		// 							{
+		// 								$match: {
+		// 									$expr: {
+		// 										$and: [
+		// 											{
+		// 												$in: ['$_id', '$$appId']
+		// 											},
+		// 											{
+		// 												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 											}
+		// 										]
+		// 									}
+		// 								}
+		// 							},
+		// 							{
+		// 								$project: {
+		// 									'_id': 1,
+		// 									'bitid': 1
+		// 								}
+		// 							}
+		// 						],
+		// 						as: '_apps',
+		// 						from: 'tblApps'
+		// 					}
+		// 				},
+		// 				{
+		// 					$lookup: {
+		// 						let: {
+		// 							'groupId': '$bitid.auth.groups.id'
+		// 						},
+		// 						pipeline: [
+		// 							{
+		// 								$match: {
+		// 									$expr: {
+		// 										$and: [
+		// 											{
+		// 												$in: ['$_id', '$$groupId']
+		// 											},
+		// 											{
+		// 												$in: [ObjectId(args.req.body.header.userId), '$bitid.auth.users.id']
+		// 											}
+		// 										]
+		// 									}
+		// 								}
+		// 							},
+		// 							{
+		// 								$project: {
+		// 									'_id': 1,
+		// 									'bitid': 1
+		// 								}
+		// 							}
+		// 						],
+		// 						as: '_groups',
+		// 						from: 'tblGroups'
+		// 					}
+		// 				},
+		// 				{
+		// 					$match: {
+		// 						$or: [
+		// 							{
+		// 								'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							},
+		// 							{
+		// 								'_apps.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							},
+		// 							{
+		// 								'_groups.bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+		// 							}
+		// 						]
+		// 					}
+		// 				},
+		// 				{
+		// 					$project: {
+		// 						_id: 1
+		// 					}
+		// 				}
+		// 			];
 
-					return {
-						'params': params,
-						'operation': 'aggregate',
-						'collection': 'tblGroups',
-						'allowNoRecordsFound': true
-					};
-				})
-				.then(db.call)
-				.then(result => {
-					args.groups = result.map(o => o._id.toString());
-					deferred.resolve(args);
-				}, async error => {
-					if (error.message.includes('PlanExecutor')) {
-						args = await dalAuth.validateV1(args);
-					} else {
-						var err = new ErrorResponse();
-						err.error.errors[0].code = error.code;
-						err.error.errors[0].reason = error.message;
-						err.error.errors[0].message = error.message;
-						deferred.reject(err);
-					}
-				});
+		// 			return {
+		// 				'params': params,
+		// 				'operation': 'aggregate',
+		// 				'collection': 'tblGroups',
+		// 				'allowNoRecordsFound': true
+		// 			};
+		// 		})
+		// 		.then(db.call)
+		// 		.then(result => {
+		// 			args.groups = result.map(o => o._id.toString());
+		// 			deferred.resolve(args);
+		// 		}, async error => {
+		// 			if (error.message.includes('PlanExecutor')) {
+		// 				args = await dalAuth.validateV1(args);
+		// 			} else {
+		// 				var err = new ErrorResponse();
+		// 				err.error.errors[0].code = error.code;
+		// 				err.error.errors[0].reason = error.message;
+		// 				err.error.errors[0].message = error.message;
+		// 				deferred.reject(err);
+		// 			}
+		// 		});
 
-			return deferred.promise;
-		},
+		// 	return deferred.promise;
+		// },
 
 		validateV1: (args) => {
 			var deferred = Q.defer();
@@ -3204,10 +3345,10 @@ var module = function () {
 
 			var paramsToken = match[0]
 
-			var paramsUser = {
-				"bitid.auth.v1.type": "user",
-				"bitid.auth.v1.id": ObjectId(args.req.body.header.userId)
-			}
+			// var paramsUser = {
+			// 	"bitid.auth.v1.type": "user",
+			// 	"bitid.auth.v1.id": ObjectId(args.req.body.header.userId)
+			// }
 
 			var paramsScope = {
 				"url": args.req.body.scope
@@ -3228,29 +3369,12 @@ var module = function () {
 				'collection': 'tblTokens',
 				'allowNoRecordsFound': false
 			})
-				.then(result => {
-					var deferred = Q.defer();
-					db.call({
-						'params': paramsUser,
-						'filter': {_id: 1},
-						'operation': 'find',
-						'collection': 'tblGroups',
-						'allowNoRecordsFound': true
-					})
-						.then(result => {
-							if (!args.groups) args.groups = [];
-							args.groups.push(...result.map(o => o._id.toString()));
-							deferred.resolve(args);
-						})
-
-					return deferred.promise;
-				})
-
+			//groups was here
 				.then(result => {
 					var deferred = Q.defer();
 					db.call({
 						'params': paramsScope,
-						'filter': {_id: 1},
+						'filter': { '_id': 1 },
 						'operation': 'find',
 						'collection': 'tblScopes',
 						'allowNoRecordsFound': false
@@ -3266,74 +3390,17 @@ var module = function () {
 						})
 
 					return deferred.promise;
-				},null)
-
-				.then(result => {
-					var deferred = Q.defer();
-					db.call({
-						'params': paramsUser,
-						'filter': {_id: 1},
-						'operation': 'find',
-						'collection': 'tblApps',
-						'allowNoRecordsFound': true
-					})
-						.then(result => {
-							if (!args.apps) args.apps = [];
-							args.apps.push(...result.map(o => o._id.toString()));
-							deferred.resolve(args);
-						}, error => {
-							var err = new ErrorResponse();
-							err.error.errors[0].code = 403;
-							err.error.errors[0].reason = 'error finding apps';
-							err.error.errors[0].message = 'error finding apps';
-							deferred.reject(err);
-						})
-
-					return deferred.promise;
-				},null)
-
-				.then(result => {
-					var deferred = Q.defer();
-
-					var paramsGroupApps = {
-						"bitid.auth.v1.type": "group",
-						"bitid.auth.v1.id": {
-							$in: result.groups.map(o => ObjectId(o))
-							
-						}				
-					}
-		
-					db.call({
-						'params': paramsGroupApps,
-						'filter': {_id: 1},
-						'operation': 'find',
-						'collection': 'tblApps',
-						'allowNoRecordsFound': true
-					})
-						.then(result => {
-							if (!args.apps) args.apps = [];
-							args.apps.push(...result.map(o => o._id.toString()));
-							deferred.resolve(result);
-						}, error => {
-							var err = new ErrorResponse();
-							err.error.errors[0].code = 403;
-							err.error.errors[0].reason = 'error finding apps by group';
-							err.error.errors[0].message = 'error finding apps by group';
-							deferred.reject(err);
-						})
-
-					return deferred.promise;
-				},null)
-
+				}, null)
+				//Was here
 				.then(result => {
 					deferred.resolve(args);
 				}, error => {
 					if (error?.message?.includes('PlanExecutor')) {
 						deferred.reject(error);
 					} else {
-						if(error.error) {
+						if (error.error) {
 							deferred.reject(error);
-						}else{
+						} else {
 							var err = new ErrorResponse();
 							err.error.errors[0].code = error.code;
 							err.error.errors[0].reason = error.message;
