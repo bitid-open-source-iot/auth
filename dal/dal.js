@@ -4336,6 +4336,9 @@ var module = function () {
 					'serverDate': new Date()
 				}
 			};
+			if (typeof (args.req.body.deviceId) != 'undefined') {
+				update.$set.deviceId = args.req.body.deviceId;
+			};
 			if (typeof (args.req.body.picture) != 'undefined') {
 				update.$set.picture = args.req.body.picture;
 			};
