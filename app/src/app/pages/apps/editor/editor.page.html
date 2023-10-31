@@ -76,6 +76,34 @@
             </mat-error>
         </mat-form-field>
 
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Privacy Policy Url
+            </mat-label>
+
+            <input matInput type="text" name="urlPrivacyPolicy" placeholder="urlPrivacyPolicy" formControlName="urlPrivacyPolicy" required>
+
+            <mat-error *ngIf="errors.urlPrivacyPolicy">
+                {{ errors.urlPrivacyPolicy }}
+            </mat-error>
+        </mat-form-field>
+
+
+        <mat-form-field appearance="outline">
+            <mat-label>
+                Terms and Conditions Url
+            </mat-label>
+
+            <input matInput type="text" name="urlTermsAndConditions" placeholder="urlTermsAndConditions" formControlName="urlTermsAndConditions" required>
+
+            <mat-error *ngIf="errors.urlTermsAndConditions">
+                {{ errors.urlTermsAndConditions }}
+            </mat-error>
+        </mat-form-field>
+
+
+
         <mat-form-field appearance="outline">
             <mat-label>
                 Domains

@@ -24,8 +24,8 @@ export class SignInPage implements OnInit, OnDestroy {
 	public app = {
 		icon: environment.icon,
 		name: environment.name,
-		privacyPolicy: environment.privacyPolicy,
-		termsAndConditions: environment.termsAndConditions
+		privacyPolicy: environment.urlPrivacyPolicy,
+		termsAndConditions: environment.urlTermsAndConditions
 	};
 	public form: FormGroup = new FormGroup({
 		email: new FormControl(null, [Validators.required]),
@@ -80,8 +80,8 @@ export class SignInPage implements OnInit, OnDestroy {
 			if (loaded) {
 				this.app.icon = environment.icon;
 				this.app.name = environment.name;
-				this.app.privacyPolicy = environment.privacyPolicy;
-				this.app.termsAndConditions = environment.termsAndConditions;
+				this.app.privacyPolicy = environment.urlPrivacyPolicy;
+				this.app.termsAndConditions = environment.urlTermsAndConditions;
 
 				const params: any = this.route.snapshot.queryParams;
 				if (typeof(params.email) != 'undefined' && params.email != null) {

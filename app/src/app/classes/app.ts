@@ -36,6 +36,8 @@ export class App {
 			credentials: undefined
 		};
 	public url: string | undefined;
+	public urlPrivacyPolicy: string | undefined;
+	public urlTermsAndConditions: string | undefined;
 	public apps: Accessor[] = [];
 	public role: 0 | 1 | 2 | 3 | 4 | 5 = 0;
 	public icon: string | undefined;
@@ -97,6 +99,12 @@ export class App {
 			};
 			if (typeof (args.url) != 'undefined' && args.url != null) {
 				this.url = args.url;
+			};
+			if (typeof (args.urlPrivacyPolicy) != 'undefined' && args.urlPrivacyPolicy != null) {
+				this.urlPrivacyPolicy = args.urlPrivacyPolicy;
+			};
+			if (typeof (args.urlTermsAndConditions) != 'undefined' && args.urlTermsAndConditions != null) {
+				this.urlTermsAndConditions = args.urlTermsAndConditions;
 			};
 			if (typeof (args.apps) != 'undefined' && args.apps != null) {
 				this.apps = args.apps.map(o => new Accessor(o));
@@ -165,6 +173,8 @@ interface APP {
 		credentials?: any;
 	};
 	url?: string;
+	urlPrivacyPolicy?: string;
+	urlTermsAndConditions?: string;
 	apps?: Accessor[]
 	role?: 0 | 1 | 2 | 3 | 4 | 5;
 	icon?: string;
