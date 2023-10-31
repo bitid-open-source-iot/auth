@@ -669,6 +669,8 @@ var module = function () {
 				result.appId = args.result._id;
 				result.theme = args.result.theme;
 				result.favicon = args.result.favicon;
+				result.urlPrivacyPolicy = args.result.urlPrivacyPolicy;
+				result.urlTermsAndConditions = args.result.urlTermsAndConditions;
 				__responder.success(req, res, result);
 			}, err => {
 				__responder.error(req, res, err);

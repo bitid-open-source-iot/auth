@@ -44,6 +44,8 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 			credentials: new FormControl(null, [Validators.required])
 		}),
 		url: new FormControl(null, [Validators.required]),
+		urlPrivacyPolicy: new FormControl(null, [Validators.required]),
+		urlTermsAndConditions: new FormControl(null, [Validators.required]),
 		icon: new FormControl(null, [Validators.required]),
 		name: new FormControl(null, [Validators.required]),
 		config: new FormControl(null, [Validators.required]),
@@ -76,6 +78,8 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 			credentials: ''
 		},
 		url: '',
+		urlPrivacyPolicy: '',
+		urlTermsAndConditions: '',
 		icon: '',
 		name: '',
 		config: '',
@@ -96,6 +100,8 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 		const response = await this.service.get({
 			filter: [
 				'url',
+				'urlPrivacyPolicy',
+				'urlTermsAndConditions',
 				'role',
 				'icon',
 				'name',
@@ -117,6 +123,8 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 			const app = new App(response.result);
 			if (app.role > 1) {
 				this.form.controls['url'].setValue(app.url);
+				this.form.controls['urlPrivacyPolicy'].setValue(app.urlPrivacyPolicy);
+				this.form.controls['urlTermsAndConditions'].setValue(app.urlTermsAndConditions);
 				this.form.controls['icon'].setValue(app.icon);
 				this.form.controls['name'].setValue(app.name);
 				this.form.controls['secret'].setValue(app.secret);
@@ -188,6 +196,8 @@ export class AppsEditorPage implements OnInit, OnDestroy {
 				credentials: this.form.value.google.credentials
 			},
 			url: this.form.value.url,
+			urlPrivacyPolicy: this.form.value.urlPrivacyPolicy,
+			urlTermsAndConditions: this.form.value.urlTermsAndConditions,
 			icon: this.form.value.icon,
 			name: this.form.value.name,
 			appId: this.appId,

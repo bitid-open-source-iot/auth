@@ -24,8 +24,8 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 	public app = {
 		icon: environment.icon,
 		name: environment.name,
-		privacyPolicy: environment.privacyPolicy,
-		termsAndConditions: environment.termsAndConditions
+		privacyPolicy: environment.urlPrivacyPolicy,
+		termsAndConditions: environment.urlTermsAndConditions
 	};
 	public form: FormGroup = new FormGroup({
 		code: new FormControl(null, [Validators.required, Validators.min(100000), Validators.max(999999), Validators.minLength(6), Validators.maxLength(6)]),
@@ -70,8 +70,8 @@ export class VerifyAccountPage implements OnInit, OnDestroy {
 			if (loaded) {
 				this.app.icon = environment.icon;
 				this.app.name = environment.name;
-				this.app.privacyPolicy = environment.privacyPolicy;
-				this.app.termsAndConditions = environment.termsAndConditions;
+				this.app.privacyPolicy = environment.urlPrivacyPolicy;
+				this.app.termsAndConditions = environment.urlTermsAndConditions;
 
 				const params: any = this.route.snapshot.queryParams;
 				if (typeof (params.code) != 'undefined' && params.code != null) {

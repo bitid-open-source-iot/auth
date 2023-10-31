@@ -6,6 +6,6 @@ export const environment = {
     drive: 'https://drive.bitid.co.za',
     version: require('../../package.json').version,
     production: false,
-    privacyPolicy: 'https://www.bitid.co.za/privacy-policy',
-    termsAndConditions: 'https://www.bitid.co.za/terms-and-conditions'
+    urlPrivacyPolicy: 'https://www.bitid.co.za/privacy-policy',
+    urlTermsAndConditions: 'https://www.bitid.co.za/terms-and-conditions'
 };

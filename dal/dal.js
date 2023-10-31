@@ -51,6 +51,8 @@ var module = function () {
 					'credentials': {}
 				},
 				'url': args.req.body.url,
+				'urlPrivacyPolicy': args.req.body.urlPrivacyPolicy,
+				'urlTermsAndConditions': args.req.body.urlTermsAndConditions,
 				'icon': args.req.body.icon,
 				'name': args.req.body.name,
 				'theme': args.req.body.theme || {},
@@ -1137,6 +1139,14 @@ var module = function () {
 					if (typeof (args.req.body.url) != 'undefined' && args.req.body.url != null) {
 						update.$set.url = args.req.body.url;
 					};
+					if (typeof (args.req.body.urlPrivacyPolicy) != 'undefined' && args.req.body.urlPrivacyPolicy != null) {
+						update.$set.urlPrivacyPolicy = args.req.body.urlPrivacyPolicy;
+					};
+					if (typeof (args.req.body.urlTermsAndConditions) != 'undefined' && args.req.body.urlTermsAndConditions != null) {
+						update.$set.urlTermsAndConditions = args.req.body.urlTermsAndConditions;
+					};
+
+
 					if (typeof (args.req.body.name) != 'undefined' && args.req.body.name != null) {
 						update.$set.name = args.req.body.name;
 					};
@@ -4523,7 +4533,9 @@ var module = function () {
 						'icon': 1,
 						'name': 1,
 						'theme': 1,
-						'favicon': 1
+						'favicon': 1,
+						'urlPrivacyPolicy': 1,
+						'urlTermsAndConditions': 1,
 					}
 				}
 			];
