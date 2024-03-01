@@ -8,11 +8,11 @@ const routes: Routes = [
 		canActivate: [AuthManager],
 		loadChildren: () => import('./pages/apps/apps.module').then(m => m.AppsPageModule)
 	},
-	{
-		path: 'users',
-		canActivate: [AuthManager],
-		loadChildren: () => import('./pages/users/users.module').then(m => m.UsersPageModule)
-	},
+	// {
+	// 	path: 'users',
+	// 	canActivate: [AuthManager],
+	// 	loadChildren: () => import('./pages/users/users.module').then(m => m.UsersPageModule)
+	// },
 	{
 		path: 'signin',
 		loadChildren: () => import('./pages/signin/signin.module').then(m => m.SignInPageModule)
