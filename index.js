@@ -28,6 +28,13 @@ try {
     __settings.client.drive = process.env.clientDrive;
     __settings.smtp = JSON.parse(process.env.smtp);
     __settings.branding = JSON.parse(process.env.branding);
+
+    __settings.telemetry.token = JSON.parse(process.env.BITID_TOKEN);
+    __settings.telemetry.email = process.env.BITID_EMAIL;
+    __settings.telemetry.host = process.env.hostTelemetry;
+    __settings.telemetry.userId = process.env.BITID_USER_ID;
+
+
     console.log(JSON.stringify(__settings));
 } catch (e) {
     console.error('ERROR APPLYING ENV VARIABLES', e)

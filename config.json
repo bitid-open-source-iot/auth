@@ -3,6 +3,16 @@
         "port": 9000,
         "production": true,
         "authentication": true,
+        "telemetry": {
+            "apps": [],
+            "host": "http://telemetry-service:8000",
+            "port": 443,
+            "path": "/telemetry/device",
+            "token": {},
+            "email": "xxx",
+            "appId": "000000000000000000000002",
+            "userId": "xxx"
+        },
         "smtp": {
             "tls": {
                 "rejectUnauthorized": false
