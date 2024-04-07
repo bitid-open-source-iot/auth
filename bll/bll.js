@@ -2,6 +2,7 @@
 const Q = require('q');
 const dal = require('../dal/dal');
 const tools = require('../lib/tools');
+const Telemetry = require('../lib/telemetry').Telemetry;
 const emails = require('../emails/emails');
 const ErrorResponse = require('../lib/error-response');
 
@@ -553,8 +554,35 @@ var module = function () {
 				'res': res
 			};
 
+
 			var myModule = new dal.module();
 			myModule.groups.list(args)
+				.then(async result => {
+					var deferred = Q.defer();
+					try{
+						args.groups = result.result;
+						var telemetry = new Telemetry();
+						let groupIds = args.groups.map(group => group._id);
+						args.groupIds = groupIds;
+						args.devices = await telemetry.listDevicesByGroups(args.groupIds)
+						args.devices = args.devices?.result || []
+						args.groups.map(group => {
+							group.devices = args.devices.filter(device => device.groups.filter(dg => dg.id == group._id).length > 0)
+						})
+						args.groups.map(group => {
+							group.devices.forEach(element => {
+								delete element.groups;
+							});
+						})
+						args.result = args.groups;
+						deferred.resolve(args);
+					}catch(err){
+						deferred.reject(err);
+					}
+					return deferred.promise;
+				}, err => {
+					deferred.reject(err);
+				})
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
