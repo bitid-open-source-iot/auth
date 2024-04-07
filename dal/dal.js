@@ -5877,6 +5877,7 @@ var module = function () {
 				},
 				'appId': [],
 				'serverDate': new Date(),
+				'icon': args.req.body.icon,
 				'description': args.req.body.description
 			};
 
@@ -6884,6 +6885,9 @@ var module = function () {
 					};
 					if (Array.isArray(args.req.body.appId)) {
 						update.$set.appId = args.req.body.appId.filter(id => typeof (id) == 'string' && id?.length == 24).map(id => ObjectId(id));
+					};
+					if (typeof (args.req.body.icon) != 'undefined' && args.req.body.icon != null) {
+						update.$set.icon = args.req.body.icon;
 					};
 					if (typeof (args.req.body.description) != 'undefined' && args.req.body.description != null) {
 						update.$set.description = args.req.body.description;
