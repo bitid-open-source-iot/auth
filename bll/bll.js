@@ -191,6 +191,21 @@ var module = function () {
 	};
 
 	var bllAuth = {
+		deleteAccount: (req, res) => {
+			var args = {
+				'req': req,
+				'res': res
+			};
+
+			var myModule = new dal.module();
+			myModule.auth.deleteAccount(args)
+				.then(result => {
+					__responder.success(req, res, result);
+				}, err => {
+					__responder.error(req, res, err);
+				});
+		},
+
 		auth: (req, res) => {
 			var args = {
 				'req': req,

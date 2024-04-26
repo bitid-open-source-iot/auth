@@ -2434,6 +2434,72 @@ var module = function () {
 	};
 
 	var dalAuth = {
+		deleteAccount: (args) => {
+			var deferred = Q.defer();
+
+			var params = {
+				'_id': ObjectId(args.req.body.header.userId)
+			};
+
+			var filter = {
+				'_id': 1
+			};
+
+			db.call({
+				'params': params,
+				'filter': filter,
+				'operation': 'find',
+				'collection': 'tblUsers'
+			})
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'_id': ObjectId(args.req.body.header.userId)
+					};
+
+					var update = {
+						$set: {
+							'validated': -1
+						}
+					};
+
+					deferred.resolve({
+						'params': params,
+						'update': update,
+						'operation': 'update',
+						'collection': 'tblUsers'
+					});
+					return deferred.promise;
+				})
+				.then(db.call)
+				.then(result => {
+					var deferred = Q.defer();
+
+					var params = {
+						'token': args.req.headers.authorization,
+						'bitid.auth.users.id': ObjectId(args.req.body.header.userId)
+					};
+
+					deferred.resolve({
+						'params': params,
+						'operation': 'remove',
+						'collection': 'tblTokens',
+						'allowNoRecordsFound': true
+					});
+					return deferred.promise;
+				})
+				.then(db.call)				
+				.then(result => {
+					args.result = result;
+					deferred.resolve(args);
+				}, err => {
+					deferred.reject(err);
+				});
+
+			return deferred.promise;
+		},
+
 		auth: (args) => {
 			var deferred = Q.defer();
 
@@ -9732,7 +9798,7 @@ var module = function () {
 					} else {
 						deferred.reject({
 							'code': 503,
-							'message': 'Account not validated'
+							'message': 'Account not valid'
 						});
 					};
 
