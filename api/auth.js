@@ -55,4 +55,9 @@ router.put('/change-password', (req, res) => {
 	myModule.auth.changepassword(req, res);
 });
 
+router.post('/delete-account', (req, res) => {
+	var myModule = new bll.module();
+	myModule.auth.deleteAccount(req, res);
+});
+
 module.exports = router;
