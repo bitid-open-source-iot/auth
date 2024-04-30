@@ -95,7 +95,7 @@ try {
 
                 app.use((req, res, next) => {
                     if (__settings.authentication) {
-                        if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth') {
+                        if (req.method != 'GET' && req.method != 'PUT' && req.originalUrl != '/auth/auth' && req.originalUrl != '/kubernetes') {
                             var args = {
                                 'req': req,
                                 'res': res
