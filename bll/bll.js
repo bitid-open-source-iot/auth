@@ -4,7 +4,6 @@ const dal = require('../dal/dal');
 const tools = require('../lib/tools');
 const Telemetry = require('../lib/telemetry').Telemetry;
 const emails = require('../emails/emails');
-const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
 	var bllApps = {
@@ -20,6 +19,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.add', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -35,6 +35,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -50,6 +51,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.load', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -65,6 +67,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -80,6 +83,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.share', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -95,6 +99,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -110,6 +115,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -125,6 +131,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.isadmin', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -140,6 +147,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.manifest', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -155,6 +163,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.allowaccess', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -170,6 +179,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.unsubscribe', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -185,6 +195,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllApps.updatesubscriber', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -202,6 +213,7 @@ var module = function () {
 				.then(result => {
 					__responder.success(req, res, result);
 				}, err => {
+					tools.log('error','error in bllAuth.deleteAccount', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -217,6 +229,7 @@ var module = function () {
 				.then(result => {
 					__responder.success(req, res, result);
 				}, err => {
+					tools.log('error','error in bllAuth.auth', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -234,6 +247,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.verify', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -249,7 +263,7 @@ var module = function () {
 			args.req.body.hash = password.hash;
 
 			if (!args.req.body.privacyPolicy) {
-				var err = new ErrorResponse();
+				let err = tools.log('error','Privacy Policy Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'Privacy Policy Acceptance Issue';
 				err.error.errors[0].message = 'Please accept our Privacy Policy';
@@ -258,7 +272,7 @@ var module = function () {
 			};
 
 			if (!args.req.body.termsAndConditions) {
-				var err = new ErrorResponse();
+				let err = tools.log('error','Terms & Conditions Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'Terms & Conditions Acceptance Issue';
 				err.error.errors[0].message = 'Please accept our Terms & Conditions';
@@ -276,6 +290,7 @@ var module = function () {
 					};
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.register', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -291,6 +306,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args);
 				}, err => {
+					tools.log('error','error in bllAuth.validate', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -306,6 +322,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.allowaccess', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -321,6 +338,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.changeemail', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -336,6 +354,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args);
 				}, err => {
+					tools.log('error','error in bllAuth.authenticate', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -356,6 +375,7 @@ var module = function () {
 					};
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.resetpassword', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -372,6 +392,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllAuth.changepassword', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -389,6 +410,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllUsers.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -404,6 +426,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllUsers.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -419,6 +442,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllUsers.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -434,6 +458,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllUsers.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -451,6 +476,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllScopes.add', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -466,6 +492,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllScopes.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -481,6 +508,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllScopes.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -496,6 +524,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllScopes.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -511,6 +540,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllScopes.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -529,6 +559,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.add', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -544,6 +575,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.copy', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -559,6 +591,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -600,15 +633,18 @@ var module = function () {
 						}
 						deferred.resolve(args);
 					}catch(err){
+						tools.log('error','error in bllGroups.list1', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 						deferred.reject(err);
 					}
 					return deferred.promise;
 				}, err => {
+					tools.log('error','error in bllGroups.list2', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					deferred.reject(err);
 				})
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.list3', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -624,6 +660,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.share', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -639,6 +676,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -654,6 +692,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -669,6 +708,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.unsubscribe', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -684,6 +724,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.changeowner', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -699,6 +740,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllGroups.updatesubscriber', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -724,6 +766,7 @@ var module = function () {
 				result.urlTermsAndConditions = args.result.urlTermsAndConditions;
 				__responder.success(req, res, result);
 			}, err => {
+				tools.log('error','error in bllConfig.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 				__responder.error(req, res, err);
 			});
 		}
@@ -741,6 +784,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -756,6 +800,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -771,6 +816,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.share', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -786,6 +832,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -801,6 +848,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.revoke', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -816,6 +864,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.retrieve', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -831,6 +880,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.generate', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -846,6 +896,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.unsubscribe', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -861,6 +912,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTokens.updatesubscriber', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -878,6 +930,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllFeatures.add', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -893,6 +946,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllFeatures.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -908,6 +962,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllFeatures.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -923,6 +978,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllFeatures.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -938,6 +994,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllFeatures.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -955,6 +1012,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllStatistics.usage', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}
@@ -972,6 +1030,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTipsAndUpdates.add', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -987,6 +1046,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTipsAndUpdates.get', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -1002,6 +1062,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTipsAndUpdates.list', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -1017,6 +1078,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTipsAndUpdates.update', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		},
@@ -1032,6 +1094,7 @@ var module = function () {
 				.then(args => {
 					__responder.success(req, res, args.result);
 				}, err => {
+					tools.log('error','error in bllTipsAndUpdates.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
 		}

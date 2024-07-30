@@ -1,6 +1,7 @@
 const Q = require('q');
 const hbs = require('nodemailer-express-handlebars');
 const nodemailer = require('nodemailer');
+const tools = require('../lib/tools');
 
 exports.verify = (args) => {
     var deferred = Q.defer();
@@ -34,9 +35,9 @@ exports.verify = (args) => {
         'template': 'verify'
     }, (error, info) => {
         if (error) {
-            console.error(error);
+            tools.log('error', 'error in emails.verify', error);
         } else {
-            console.log(info);
+            tools.log('info', 'info in emails.verify', info);
         };
         deferred.resolve(args);
     });
@@ -74,9 +75,9 @@ exports.welcome = (args) => {
         'template': 'welcome'
     }, (error, info) => {
         if (error) {
-            console.error(error);
+            tools.log('error', 'error in emails.welcome', error);
         } else {
-            console.log(info);
+            tools.log('info', 'info in emails.welcome', info);
         };
         deferred.resolve(args);
     });
@@ -115,9 +116,9 @@ exports.resetpassword = (args) => {
         'template': 'reset-password'
     }, (error, info) => {
         if (error) {
-            console.error(error);
+            tools.log('error', 'error in emails.resetpassword', error);
         } else {
-            console.log(info);
+            tools.log('info', 'info in emails.resetpassword', info);
         };
         deferred.resolve(args);
     });

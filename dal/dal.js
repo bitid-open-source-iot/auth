@@ -4,7 +4,6 @@ const tools = require('../lib/tools');
 const unlink = (args) => JSON.parse(JSON.stringify(args));
 const format = require('../lib/format');
 const ObjectId = require('mongodb').ObjectId;
-const ErrorResponse = require('../lib/error-response');
 
 var module = function () {
 	var dalApps = {
@@ -109,10 +108,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.add', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -337,10 +333,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -386,7 +379,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
+					let err = tools.log('error', 'error in dalApps.load', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
@@ -645,10 +638,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -915,10 +905,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.share', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -1218,10 +1205,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -1437,7 +1421,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
+					let err = tools.log('error', 'error in dalApps.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
@@ -1642,7 +1626,7 @@ var module = function () {
 					args.result = true;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
+					let err = tools.log('error', 'error in dalApps.isadmin', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
@@ -1743,10 +1727,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalApps.manifest', error, { reqHeaders: args?.req?.headers }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -1782,10 +1763,7 @@ var module = function () {
 					args.app = JSON.parse(JSON.stringify(result[0]));
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalApps.validate', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -1897,10 +1875,7 @@ var module = function () {
 					};
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.allowaccess', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -2155,10 +2130,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.unsubscribe', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -2422,10 +2394,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalApps.updatesubscriber', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -2576,7 +2545,7 @@ var module = function () {
 					});
 
 					if (!found) {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.auth', `Scope now allowed: ${args.req.body.reqURI}` , { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.code = 401;
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Scope not allowed: ' + args.req.body.reqURI;
@@ -2595,7 +2564,7 @@ var module = function () {
 					var expiry = new Date(token.expiry);
 
 					if (expiry < now) {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.auth', 'Token Expired', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.code = 401;
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Token Expired';
@@ -2670,7 +2639,7 @@ var module = function () {
 						args.user = result[0];
 
 						if (args.user.validated == 1) {
-							var err = new ErrorResponse();
+							var err = tools.log('error', 'error in dalAuth.verify', 'User is already verified', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 							err.error.errors[0].code = 409;
 							err.error.errors[0].reason = 'User is already verified';
 							err.error.errors[0].message = 'User is already verified';
@@ -2694,7 +2663,7 @@ var module = function () {
 							});
 						};
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.verify', 'Account not yet registered!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -2725,7 +2694,7 @@ var module = function () {
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.verify', 'Account registered but verification incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Account registered but verification incorrect!';
 						err.error.errors[0].message = 'Account registered but verification incorrect!';
@@ -2749,7 +2718,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
-				var err = new ErrorResponse();
+				var err = tools.log('error', 'error in dalAuth.validate', 'Token not found', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 				err.error.code = 401;
 				err.error.errors[0].coded = 401;
 				err.error.errors[0].reason = 'token not found';
@@ -2759,7 +2728,7 @@ var module = function () {
 				try {
 					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
 				} catch (error) {
-					var err = new ErrorResponse();
+					var err = tools.log('error', 'error in dalAuth.validate', 'invalid token object', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					err.error.code = 401;
 					err.error.errors[0].coded = 401;
 					err.error.errors[0].reason = 'invalid token object';
@@ -3200,10 +3169,7 @@ var module = function () {
 					args.groups = result.map(o => o._id.toString());
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					let err = tools.log('error', 'error in dalAuth.validate', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -3425,10 +3391,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalAuth.register', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -3439,7 +3402,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.body.email) == 'undefined') {
-				var err = new ErrorResponse();
+				var err = tools.log('error', 'error in dalAuth.changeemail', 'A replacement email is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'A replacement email is required!';
 				err.error.errors[0].message = 'A replacement email is required!';
@@ -3513,7 +3476,7 @@ var module = function () {
 						args.result = result;
 						deferred.resolve(args);
 					}, error => {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.changeemail', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = error.code;
 						err.error.errors[0].reason = error.message;
 						err.error.errors[0].message = error.message;
@@ -3555,14 +3518,14 @@ var module = function () {
 						if (args.user.validated == 1) {
 							deferred.resolve(args);
 						} else {
-							var err = new ErrorResponse();
+							var err = tools.log('error', 'error in dalAuth.allowaccess', 'Account verification is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Account verification is required!';
 							err.error.errors[0].message = 'Account verification is required!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.allowaccess', 'Account not yet registered!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -3608,7 +3571,7 @@ var module = function () {
 							'allowNoRecordsFound': true
 						});
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.allowaccess', 'Application not found!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Application not found!';
 						err.error.errors[0].message = 'Application not found!';
@@ -3715,21 +3678,21 @@ var module = function () {
 							if (args.user.validated == 1) {
 								deferred.resolve(args);
 							} else {
-								var err = new ErrorResponse();
+								var err = tools.log('error', 'error in dalAuth.authenticate', 'Account verification is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 								err.error.errors[0].code = 401;
 								err.error.errors[0].reason = 'Account verification is required!';
 								err.error.errors[0].message = 'Account verification is required!';
 								deferred.reject(err);
 							};
 						} else {
-							var err = new ErrorResponse();
+							var err = tools.log('error', 'error in dalAuth.authenticate', 'Password is incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Password is incorrect!';
 							err.error.errors[0].message = 'Password is incorrect!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.authenticate', 'Account not yet registered!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Account not yet registered!';
 						err.error.errors[0].message = 'Account not yet registered!';
@@ -3783,14 +3746,14 @@ var module = function () {
 								'allowNoRecordsFound': true
 							});
 						} else {
-							var err = new ErrorResponse();
+							var err = tools.log('error', 'error in dalAuth.authenticate', 'Application is private!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 							err.error.errors[0].code = 401;
 							err.error.errors[0].reason = 'Application is private!';
 							err.error.errors[0].message = 'Application is private!';
 							deferred.reject(err);
 						};
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalAuth.authenticate', 'Application not found!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 69;
 						err.error.errors[0].reason = 'Application not found!';
 						err.error.errors[0].message = 'Application not found!';
@@ -3923,10 +3886,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalAuth.resetpassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -3958,10 +3918,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalAuth.changepassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4025,10 +3982,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalAuth.changepassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4059,10 +4013,7 @@ var module = function () {
 					args.result = unlink(result[0]._id);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalUsers.id', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4099,10 +4050,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalUsers.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4388,10 +4336,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalUsers.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4524,10 +4469,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalUsers.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4558,7 +4500,7 @@ var module = function () {
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = new ErrorResponse();
+						var err = tools.log('error', 'error in dalUsers.delete', 'Password is incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 401;
 						err.error.errors[0].reason = 'Password is incorrect!';
 						err.error.errors[0].message = 'Password is incorrect!';
@@ -4572,10 +4514,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalUsers.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4629,10 +4568,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalConfig.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4854,10 +4790,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalScopes.add', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5104,10 +5037,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalScopes.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5384,10 +5314,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalScopes.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5648,10 +5575,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalScopes.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5899,10 +5823,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalScopes.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5958,10 +5879,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.add', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -5987,10 +5905,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.copy', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -6207,10 +6122,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -6467,10 +6379,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -6736,10 +6645,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.share', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -6974,10 +6880,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -7187,10 +7090,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -7445,10 +7345,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.unsubscribe', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -7774,10 +7671,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.changeowner', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -8041,10 +7935,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalGroups.updatesubscriber', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -8325,10 +8216,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -8632,10 +8520,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -8922,10 +8807,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.share', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -9174,10 +9056,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -9413,10 +9292,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.revoke', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -9586,10 +9462,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.retrieve', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -9853,10 +9726,7 @@ var module = function () {
 					args.result.userId = args.user._id;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.generate', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -10131,10 +10001,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.unsubscribe', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -10418,10 +10285,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTokens.updatesubscriber', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -10643,10 +10507,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalFeatures.add', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -10889,10 +10750,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalFeatures.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -11166,10 +11024,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalFeatures.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -11431,10 +11286,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalFeatures.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -11682,10 +11534,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalFeatures.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -11712,10 +11561,7 @@ var module = function () {
 				.then(result => {
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalStatistics.write', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -11736,7 +11582,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
+					var err = tools.log('error', 'error in dalStatistics.usage', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					err.error.errors[0].code = error.code;
 					err.error.errors[0].reason = error.message;
 					err.error.errors[0].message = error.message;
@@ -11962,10 +11808,7 @@ var module = function () {
 					args.result = result[0];
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTipsAndUpdates.add', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -12208,10 +12051,7 @@ var module = function () {
 					args.result = unlink(result[0]);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTipsAndUpdates.get', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -12485,10 +12325,7 @@ var module = function () {
 					args.result = unlink(result);
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTipsAndUpdates.list', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -12753,10 +12590,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTipsAndUpdates.update', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -13004,10 +12838,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = new ErrorResponse();
-					err.error.errors[0].code = error.code;
-					err.error.errors[0].reason = error.message;
-					err.error.errors[0].message = error.message;
+					var err = tools.log('error', 'error in dalTipsAndUpdates.delete', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 

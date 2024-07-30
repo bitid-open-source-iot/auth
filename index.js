@@ -6,8 +6,8 @@ const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
 const express = require('express');
+const tools = require('./lib/tools');
 const responder = require('./lib/responder');
-const ErrorResponse = require('./lib/error-response');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
@@ -37,7 +37,7 @@ try {
 
     console.log(JSON.stringify(__settings));
 } catch (e) {
-    console.error('ERROR APPLYING ENV VARIABLES', e)
+    tools.log('error','ERROR APPLYING ENV VARIABLES', e)
 };
 
 try {
@@ -110,6 +110,7 @@ try {
                                     delete args.req.body.scope;
                                     next();
                                 }, err => {
+                                    tools.log('error','ERROR IN API app.use.validate', err, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
                                     err.error.code = 401;
                                     err.error.errors[0].code = 401;
                                     __responder.error(req, res, err);
@@ -160,8 +161,8 @@ try {
                     res.sendFile(__dirname + '/app/dist/auth/index.html');
                 });
 
-                app.use((err, req, res, next) => {
-                    var err = new ErrorResponse();
+                app.use((error, req, res, next) => {
+                    let err = tools.log('error','ERROR IN API app.use', error, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
                     err.error.code = 503;
                     err.error.message = 'Something broke';
                     err.error.errors[0].code = 503;
@@ -173,8 +174,9 @@ try {
                 server.listen(__settings.port);
 
                 deferred.resolve();
-            } catch (err) {
-                deferred.reject(err.message);
+            } catch (e) {
+                tools.log('error','ERROR IN API init', e)
+                deferred.reject(e.message);
             };
 
             return deferred.promise;
@@ -212,7 +214,7 @@ try {
                     console.log('Webserver Running on port: ', __settings.port);
                     console.log('Webserver Running on port: ' + __settings.port);
                 }, err => {
-                    console.log('Error Initializing: ', err);
+                    tools.log('error', 'Error Initializing: ', err);
                 });
         },
 
@@ -223,7 +225,7 @@ try {
                 global.__database = database;
                 deferred.resolve();
             }, err => {
-                console.error('Database Connection Error: ' + err);
+                tools.log('error','Database Connection Error', err)
                 deferred.reject(err);
             });
 
@@ -235,5 +237,5 @@ try {
         'settings': __settings
     });
 } catch (error) {
-    console.log('The following error has occurred: ', error.message);
+    tools.log('error', 'The following error has occurred: ', error);
 };
