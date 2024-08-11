@@ -1,5 +1,5 @@
 # Files
-.env
+**.env
 .envDocker
 test/config.json
 package-lock.json
