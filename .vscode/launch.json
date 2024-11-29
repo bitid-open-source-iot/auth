@@ -12,6 +12,46 @@
         },
         {
             "type": "node",
+            "request": "launch",
+            "name": "Start Service Office",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "envFile": "${workspaceFolder}/.env.office.env",
+            "program": "${workspaceFolder}/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start Service Office-LiveDB",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "envFile": "${workspaceFolder}/.env.office-livedb.env",
+            "program": "${workspaceFolder}/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start Service Home",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "envFile": "${workspaceFolder}/.env.home.env",
+            "program": "${workspaceFolder}/index.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Start Service Home-LiveDB",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "envFile": "${workspaceFolder}/.env.home-livedb.env",
+            "program": "${workspaceFolder}/index.js"
+        },        
+        {
+            "type": "node",
             "request": "attach",
             "name": "Attach to Remote",
             "address": "localhost",

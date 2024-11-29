@@ -2714,8 +2714,14 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		validate: (args) => {
+		validate: async (args) => {
 			var deferred = Q.defer();
+
+			try {
+				await dalStatistics.write(args);
+			} catch (error) {
+				tools.log('error', 'error in dalAuth.validate', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+			};
 
 			if (typeof (args.req.headers.authorization) == 'undefined' || args.req.headers.authorization == null) {
 				var err = tools.log('error', 'error in dalAuth.validate', 'Token not found', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
@@ -2974,7 +2980,7 @@ var module = function () {
 
 					return deferred.promise;
 				})
-				.then(result => dalStatistics.write(args))
+				// .then(result => dalStatistics.write(args))
 				.then(async result => {
 					var params = [
 						{
@@ -11550,6 +11556,7 @@ var module = function () {
 				'scope': args.req.body.scope,
 				'appId': ObjectId(args.req.body.header.appId),
 				'userId': ObjectId(args.req.body.header.userId),
+				'header': args.req.body.header,
 				'serverDate': new Date()
 			};
 
