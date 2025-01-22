@@ -3255,7 +3255,7 @@ var module = function () {
 							'language': '',
 							'timezone': 0,
 							'username': '',
-							'validated': 1, //SB!0
+							'validated': 0, //SB!0
 							'serverDate': new Date(),
 							'privacyPolicy': false,
 							'newsAndChanges': false,
