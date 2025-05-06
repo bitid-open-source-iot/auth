@@ -158,7 +158,11 @@ try {
 
                 app.use('/', express.static(__dirname + '/app/dist/auth/'));
                 app.get('/*', (req, res) => {
-                    res.sendFile(__dirname + '/app/dist/auth/index.html');
+                    // res.sendFile(__dirname + '/app/dist/auth/index.html');
+                    fs.readFile(__dirname + '/app/dist/auth/index.html', 'utf8', (err, file) => {
+                        file = file.replace('<link id="manifest" rel="manifest" href="https://auth.bitid.co.za/apps/manifest">', `<link id="manifest" rel="manifest" href="${__settings.client.auth}/apps/manifest">`)
+                        Readable.from(file).pipe(res)
+                    })                    
                 });
 
                 app.use((error, req, res, next) => {
