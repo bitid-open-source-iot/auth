@@ -38,7 +38,7 @@ const routes: Routes = [
 	},
 	{
 		path: 'account',
-		canActivate: [AuthManager],
+		// canActivate: [AuthManager],
 		loadChildren: () => import('./pages/account/account.module').then(m => m.AccountPageModule)
 	},
 	{
