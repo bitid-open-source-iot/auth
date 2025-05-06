@@ -1,4 +1,5 @@
 const Q = require('q');
+const fs = require('fs');
 const db = require('./db/mongo');
 const dal = require('./dal/dal');
 const path = require('path');
