@@ -8,6 +8,7 @@ const http = require('http');
 const chalk = require('chalk');
 const express = require('express');
 const tools = require('./lib/tools');
+const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
