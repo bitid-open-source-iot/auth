@@ -20,7 +20,7 @@ router.post('/update', (req, res) => {
 	myModule.users.update(req, res);
 });
 
-router.post('/delete', (req, res) => {
+router.put('/delete', (req, res) => {
 	var myModule = new bll.module();
 	myModule.users.delete(req, res);
 });

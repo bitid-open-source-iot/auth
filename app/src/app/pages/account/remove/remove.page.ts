@@ -17,9 +17,11 @@ export class AccountRemovePage implements OnInit, OnDestroy {
 	constructor(private toast: ToastService, private service: AccountService, private formerror: FormErrorService) { }
 
 	public form: FormGroup = new FormGroup({
+		email: new FormControl('', [Validators.required]),
 		password: new FormControl('', [Validators.required]),
 	});
 	public errors: any = {
+		email: '',
 		password: ''
 	};
 	public loading: boolean = false;
@@ -31,6 +33,7 @@ export class AccountRemovePage implements OnInit, OnDestroy {
 		this.form.disable();
 
 		const response = await this.service.delete({
+			email: this.form.value.email,
 			password: this.form.value.password
 		});
 

@@ -447,20 +447,24 @@ var module = function () {
 				});
 		},
 
-		delete: (req, res) => {
+		delete: async (req, res) => {
 			var args = {
 				'req': req,
 				'res': res
 			};
 
 			var myModule = new dal.module();
-			myModule.users.delete(args)
-				.then(args => {
-					__responder.success(req, res, args.result);
-				}, err => {
-					tools.log('error','error in bllUsers.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
-					__responder.error(req, res, err);
-				});
+			try{
+				let result = await myModule.auth.authenticate(args)
+				args.req.body.header.userId = result.user._id.toString();
+				result = await myModule.users.delete(args)
+				__responder.success(req, res, args.result);
+			}catch(err){
+				tools.log('error','error in bllUsers.delete', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
+				__responder.error(req, res, err);
+			}
+
+
 		}
 	};
 

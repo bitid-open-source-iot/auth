@@ -18,6 +18,18 @@
 
         <mat-form-field appearance="outline">
             <mat-label>
+                Username
+            </mat-label>
+
+            <input matInput type="text" name="email" placeholder="email" formControlName="email" required>
+
+            <mat-error *ngIf="errors.email">
+                {{ errors.email }}
+            </mat-error>
+        </mat-form-field>        
+
+        <mat-form-field appearance="outline">
+            <mat-label>
                 Confirm Password
             </mat-label>
 

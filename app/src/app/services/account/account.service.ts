@@ -123,7 +123,7 @@ export class AccountService {
 	}
 
 	public async delete(params: DELETE_PARAMS) {
-		return await this.api.post(environment.auth, '/users/delete', params);
+		return await this.api.put(environment.auth, '/users/delete', params);
 	}
 
 	public async signin(params: SIGN_IN_PARAMS) {
