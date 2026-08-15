@@ -98,23 +98,34 @@ function buildScopes() {
         );
     }
 
-    // Developer user (pre-verified).
-    const salt = crypto.randomBytes(8).toString('hex');
-    const { hash } = sha512(PASSWORD, salt);
-    await db.collection('tblUsers').updateOne(
-        { email: EMAIL },
-        {
-            $set: {
-                email: EMAIL, salt: salt, hash: hash, validated: 1,
-                name: { first: 'Dev', middle: '', last: 'User' },
-                picture: '', language: 'en', timezone: 0, username: EMAIL,
-                serverDate: new Date()
+    // Users (pre-verified). Besides the UI dev login, the telemetry test suite
+    // acts as admin@bitid.co.za and shares to clayton@bitid.co.za (shareId
+    // 000000000000000000000002), so both must exist for email->id resolution.
+    const USERS = [
+        { id: USER_ID, email: EMAIL, first: 'Dev', appRole: 5 },
+        { id: new ObjectId('0000000000000000000000ad'), email: 'admin@bitid.co.za', first: 'Admin', appRole: 5 },
+        { id: new ObjectId('000000000000000000000002'), email: 'clayton@bitid.co.za', first: 'Clayton', appRole: 4 }
+    ];
+    const appUsers = [];
+    for (const u of USERS) {
+        const salt = crypto.randomBytes(8).toString('hex');
+        const { hash } = sha512(PASSWORD, salt);
+        await db.collection('tblUsers').updateOne(
+            { email: u.email },
+            {
+                $set: {
+                    email: u.email, salt: salt, hash: hash, validated: 1,
+                    name: { first: u.first, middle: '', last: 'User' },
+                    picture: '', language: 'en', timezone: 0, username: u.email,
+                    serverDate: new Date()
+                },
+                $setOnInsert: { _id: u.id }
             },
-            $setOnInsert: { _id: USER_ID }
-        },
-        { upsert: true }
-    );
-    const user = await db.collection('tblUsers').findOne({ email: EMAIL });
+            { upsert: true }
+        );
+        const doc = await db.collection('tblUsers').findOne({ email: u.email });
+        appUsers.push({ id: doc._id, role: u.appRole });
+    }
 
     // OpenThings application (appId ...0002) the telemetry SPA logs in against.
     await db.collection('tblApps').updateOne(
@@ -125,7 +136,7 @@ function buildScopes() {
                 bitid: {
                     auth: {
                         apps: [{ id: APP_ID, role: 4 }],
-                        users: [{ id: user._id, role: 5 }],
+                        users: appUsers,
                         groups: [], private: false, organizationOnly: 0
                     }
                 },
@@ -137,12 +148,11 @@ function buildScopes() {
         { upsert: true }
     );
 
-    console.log('Seeded auth dev login:');
+    console.log('Seeded auth:');
     console.log('  scopes : ' + scopes.length + ' entries in tblScopes');
     console.log('  app    : OpenThings (appId ' + APP_ID.toString() + ')');
-    console.log('  userId : ' + user._id.toString());
-    console.log('  email  : ' + EMAIL);
-    console.log('  password: ' + PASSWORD);
+    console.log('  users  : ' + USERS.map(u => u.email).join(', '));
+    console.log('  UI login: ' + EMAIL + ' / ' + PASSWORD);
 
     await client.close();
 })().catch(err => {
