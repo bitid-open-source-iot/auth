@@ -58,7 +58,7 @@
     },
     "development": {
         "production": false,
-        "authentication": true
+        "authentication": false
     },
     "kubernetes": {
         "production": true,

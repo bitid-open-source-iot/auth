@@ -1,0 +1,14 @@
+{
+    "name": "auth",
+    "install": "bash .cursor/install.sh",
+    "start": "bash .cursor/start.sh",
+    "terminals": [
+        {
+            "name": "auth-service",
+            "command": "node index.js"
+        }
+    ],
+    "ports": [
+        9000
+    ]
+}
