@@ -3,6 +3,7 @@ const db = require('../db/mongo');
 const tools = require('../lib/tools');
 const unlink = (args) => JSON.parse(JSON.stringify(args));
 const format = require('../lib/format');
+const security = require('../lib/security');
 const ObjectId = require('mongodb').ObjectId;
 
 var module = function () {
@@ -3426,7 +3427,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.body.email) == 'undefined') {
-				var err = tools.log('error', 'error in dalAuth.changeemail', 'A replacement email is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+				var err = tools.log('error', 'error in dalAuth.changeemail', 'A replacement email is required!', { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'A replacement email is required!';
 				err.error.errors[0].message = 'A replacement email is required!';
@@ -3436,32 +3437,48 @@ var module = function () {
 					'_id': ObjectId(args.req.body.header.userId)
 				};
 
+				var filter = {
+					'_id': 1,
+					'salt': 1,
+					'hash': 1,
+					'email': 1,
+					'validated': 1
+				};
+
 				db.call({
 					'params': params,
+					'filter': filter,
 					'operation': 'find',
 					'collection': 'tblUsers',
 					'allowNoRecordsFound': true
 				})
-					.then(result => {
+					.then(async result => {
 						var deferred = Q.defer();
 
-						if (result.length > 0) {
-							var params = {
-								'email': format.email(args.req.body.email)
-							};
+						var decision = await security.authorizeEmailChange({
+							user: result[0],
+							password: args.req.body.password,
+							newEmail: args.req.body.email
+						});
 
-							deferred.resolve({
-								'params': params,
-								'operation': 'find',
-								'collection': 'tblUsers',
-								'allowNoRecordsFound': true
-							});
-						} else {
+						if (!decision.allowed) {
 							deferred.reject({
-								code: 69,
-								message: 'Account not yet registered!'
+								code: decision.code,
+								message: decision.message
 							});
-						};
+							return deferred.promise;
+						}
+
+						args.req.body.email = decision.email;
+
+						deferred.resolve({
+							'params': {
+								'email': decision.email
+							},
+							'operation': 'find',
+							'collection': 'tblUsers',
+							'allowNoRecordsFound': true
+						});
 
 						return deferred.promise;
 					})
@@ -3489,7 +3506,7 @@ var module = function () {
 						} else {
 							deferred.reject({
 								code: 71,
-								message: 'An account with email address of ' + args.req.body.email + ' already exists!'
+								message: 'An account with that email address already exists!'
 							});
 						};
 
@@ -3500,7 +3517,7 @@ var module = function () {
 						args.result = result;
 						deferred.resolve(args);
 					}, error => {
-						var err = tools.log('error', 'error in dalAuth.changeemail', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						var err = tools.log('error', 'error in dalAuth.changeemail', error, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = error.code;
 						err.error.errors[0].reason = error.message;
 						err.error.errors[0].message = error.message;

@@ -1,6 +1,6 @@
 # Security Overhaul - Detailed Report
 
-This document describes the hardening on `security/majoroverhaul`. Claims below match the code as of the review-fix revision.
+This document describes the hardening on `security/majoroverhaul`. Claims below match the code as of the change-email password-verify revision.
 
 ## Findings and what changed
 
@@ -56,6 +56,11 @@ This document describes the hardening on `security/majoroverhaul`. Claims below 
 
 **Change:** Email format check + canonical normalize. Register also enforces password length/complexity. Reset-password does not require a password.
 
+### 11. Change-email did not verify the current password (high)
+**Where:** `dal/dal.js` `changeemail`, `lib/security.js` `authorizeEmailChange`
+
+**Change:** Middleware already required `password`, but DAL ignored it. Email change now verifies the current password via the same bcrypt / legacy SHA-512 `verifyPassword` path before updating. New email is lowercase+trim only. Failures return `Invalid credentials`. Logs go through `tools.log` (password redacted); the DAL error path no longer passes `reqBody`.
+
 ### 9. Security headers (medium)
 **Where:** `index.js` helmet (HSTS, CSP, frame/content-type options)
 
@@ -87,7 +92,7 @@ npm test
 # mocha test/security.test.js --timeout 10000
 ```
 
-Covers: email +tag consistency, bcrypt and SHA-512 verify, `salt: null` does not throw, reset-password without password, auth still requires password, CORS trim/empty/no-origin, log redaction, rate-limit policy constants.
+Covers: email +tag consistency, bcrypt and SHA-512 verify, `salt: null` does not throw, reset-password without password, auth still requires password, change-email wrong password rejected, correct SHA-512 and migrated bcrypt passwords allow change with lowercase+trim email, CORS trim/empty/no-origin, log redaction, rate-limit policy constants.
 
 Live `test/test.js` integration suite was not used as proof: it needs a running service plus real `test/config.json` credentials and is unrelated to these unit paths.
 

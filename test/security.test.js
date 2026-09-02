@@ -80,6 +80,70 @@ describe('request validation', function () {
         assert.strictEqual(calls.length, 1);
         assert.strictEqual(calls[0].error.code, 400);
     });
+
+    it('change-email path requires a password in middleware', function () {
+        const calls = mockResponder();
+        const req = { body: { email: '  New.User+tag@Gmail.com ' } };
+        const res = {};
+        validation.validateAuthRequest(req, res, () => {
+            throw new Error('should not continue without a password');
+        });
+        assert.strictEqual(calls.length, 1);
+        assert.strictEqual(calls[0].error.code, 400);
+    });
+
+    it('change-email path keeps lowercase+trim email when password is present', function (done) {
+        const calls = mockResponder();
+        const req = { body: { email: '  New.User+tag@Gmail.com ', password: 'CorrectHorse1' } };
+        const res = {};
+        validation.validateAuthRequest(req, res, () => {
+            assert.strictEqual(calls.length, 0);
+            assert.strictEqual(req.body.email, 'new.user+tag@gmail.com');
+            done();
+        });
+    });
+});
+
+describe('change-email password gate', function () {
+    it('rejects a wrong password and does not return the password', async function () {
+        const hashed = await security.saltHashPassword('CorrectHorse1');
+        const decision = await security.authorizeEmailChange({
+            user: hashed,
+            password: 'wrong-password',
+            newEmail: '  Next.User+tag@Gmail.com '
+        });
+        assert.strictEqual(decision.allowed, false);
+        assert.strictEqual(decision.code, 401);
+        assert.strictEqual(decision.message, 'Invalid credentials');
+        assert.ok(!Object.prototype.hasOwnProperty.call(decision, 'password'));
+        assert.ok(!JSON.stringify(decision).includes('wrong-password'));
+        assert.ok(!JSON.stringify(decision).includes('CorrectHorse1'));
+    });
+
+    it('allows a change when the current SHA-512 password is correct and normalizes email', async function () {
+        const salt = 'abcd1234abcd1234';
+        const legacy = security.sha512('CorrectHorse1', salt);
+        const decision = await security.authorizeEmailChange({
+            user: legacy,
+            password: 'CorrectHorse1',
+            newEmail: '  Next.User+tag@Gmail.com '
+        });
+        assert.strictEqual(decision.allowed, true);
+        assert.strictEqual(decision.email, 'next.user+tag@gmail.com');
+        assert.ok(!Object.prototype.hasOwnProperty.call(decision, 'password'));
+    });
+
+    it('allows a change for migrated bcrypt users (salt: null)', async function () {
+        const hashed = await security.saltHashPassword('CorrectHorse1');
+        assert.strictEqual(hashed.salt, null);
+        const decision = await security.authorizeEmailChange({
+            user: hashed,
+            password: 'CorrectHorse1',
+            newEmail: '  Migrated.User+tag@Gmail.com '
+        });
+        assert.strictEqual(decision.allowed, true);
+        assert.strictEqual(decision.email, 'migrated.user+tag@gmail.com');
+    });
 });
 
 describe('CORS allowlist', function () {
