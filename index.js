@@ -9,6 +9,7 @@ const chalk = require('chalk');
 const helmet = require('helmet');
 const express = require('express');
 const tools = require('./lib/tools');
+const security = require('./lib/security');
 const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
 const rateLimit = require('express-rate-limit');
@@ -39,7 +40,7 @@ try {
     __settings.telemetry.userId = process.env.BITID_USER_ID;
 
 
-    console.log(JSON.stringify(__settings));
+    console.log(JSON.stringify(security.redactSensitive(__settings)));
 } catch (e) {
     tools.log('error','ERROR APPLYING ENV VARIABLES', e)
 };
@@ -68,45 +69,49 @@ try {
                     }
                 }));
                 
-                const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
-                    process.env.ALLOWED_ORIGINS.split(',') : 
-                    [__settings.client.auth, __settings.client.drive];
-                
+                const allowedOrigins = security.parseAllowedOrigins(
+                    process.env.ALLOWED_ORIGINS,
+                    [__settings.client.auth, __settings.client.drive]
+                );
+                if (allowedOrigins.length === 0) {
+                    tools.log('error', 'CORS allowlist is empty. Set ALLOWED_ORIGINS to a comma-separated list of exact origins (trimmed). Browser requests will be rejected until it is configured.');
+                }
+
                 app.use(cors({
-                    origin: function (origin, callback) {
-                        if (!origin || allowedOrigins.includes(origin)) {
-                            callback(null, true);
-                        } else {
-                            callback(new Error('Not allowed by CORS'));
-                        }
-                    },
+                    origin: security.createCorsOriginDelegate(allowedOrigins),
                     credentials: true,
                     methods: ['GET', 'POST', 'PUT', 'DELETE'],
                     allowedHeaders: ['Content-Type', 'Authorization']
                 }));
-                
-                const authLimiter = rateLimit({
-                    windowMs: 15 * 60 * 1000,
-                    max: 5,
+
+                const authFailureLimiter = rateLimit({
+                    ...security.AUTH_RATE_LIMIT,
                     message: 'Too many authentication attempts, please try again later',
                     standardHeaders: true,
-                    legacyHeaders: false,
-                    skipSuccessfulRequests: false
+                    legacyHeaders: false
                 });
-                
-                const generalLimiter = rateLimit({
-                    windowMs: 15 * 60 * 1000,
-                    max: 100,
+
+                const registerLimiter = rateLimit({
+                    ...security.REGISTER_RATE_LIMIT,
+                    message: 'Too many registration attempts, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false
+                });
+
+                const apiLimiter = rateLimit({
+                    ...security.API_RATE_LIMIT,
                     message: 'Too many requests, please try again later',
                     standardHeaders: true,
                     legacyHeaders: false
                 });
-                
-                app.use('/auth/auth', authLimiter);
-                app.use('/auth/authenticate', authLimiter);
-                app.use('/auth/reset-password', authLimiter);
-                app.use('/auth/register', authLimiter);
-                app.use(generalLimiter);
+
+                security.AUTH_FAILURE_LIMIT_PATHS.forEach(pathName => {
+                    app.use(pathName, authFailureLimiter);
+                });
+                app.use('/auth/register', registerLimiter);
+                security.API_LIMIT_PATHS.forEach(pathName => {
+                    app.use(pathName, apiLimiter);
+                });
                 
                 app.use(express.urlencoded({
                     'limit': '50mb',

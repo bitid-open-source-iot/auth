@@ -1791,23 +1791,17 @@ var module = function () {
 					var passwordValid = false;
 
 					try {
-						if (args.user.salt) {
-							var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
-							passwordValid = (password.hash === args.user.hash);
-							
-							if (passwordValid) {
-								var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
-								await db.call({
-									'params': { '_id': args.user._id },
-									'update': { $set: { 'hash': newHash.hash, 'salt': null } },
-									'operation': 'update',
-									'collection': 'tblUsers'
-								});
-								args.user.hash = newHash.hash;
-								args.user.salt = null;
-							}
-						} else {
-							passwordValid = await tools.encryption.comparePassword(args.req.body.password, args.user.hash);
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+						if (passwordValid && args.user.salt) {
+							var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
+							await db.call({
+								'params': { '_id': args.user._id },
+								'update': { $set: { 'hash': newHash.hash, 'salt': null } },
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+							args.user.hash = newHash.hash;
+							args.user.salt = null;
 						}
 					} catch (err) {
 						tools.log('error', 'error in dalApps.allowaccess password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
@@ -3705,26 +3699,20 @@ var module = function () {
 					var passwordValid = false;
 
 					try {
-						if (args.user.salt) {
-							var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
-							passwordValid = (password.hash === args.user.hash);
-							
-							if (passwordValid) {
-								var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
-								await db.call({
-									'params': { '_id': args.user._id },
-									'update': { $set: { 'hash': newHash.hash, 'salt': null } },
-									'operation': 'update',
-									'collection': 'tblUsers'
-								});
-								args.user.hash = newHash.hash;
-								args.user.salt = null;
-							}
-						} else {
-							passwordValid = await tools.encryption.comparePassword(args.req.body.password, args.user.hash);
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+						if (passwordValid && args.user.salt) {
+							var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
+							await db.call({
+								'params': { '_id': args.user._id },
+								'update': { $set: { 'hash': newHash.hash, 'salt': null } },
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+							args.user.hash = newHash.hash;
+							args.user.salt = null;
 						}
 					} catch (err) {
-						tools.log('error', 'error in dalAuth.authenticate password validation', err, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						tools.log('error', 'error in dalAuth.authenticate password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						passwordValid = false;
 					}
 
@@ -3972,12 +3960,7 @@ var module = function () {
 
 					var passwordValid = false;
 					try {
-						if (result[0].salt) {
-							var encryption = tools.encryption.sha512(args.req.body.old, result[0].salt);
-							passwordValid = (encryption.hash === result[0].hash);
-						} else {
-							passwordValid = await tools.encryption.comparePassword(args.req.body.old, result[0].hash);
-						}
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.old, result[0]);
 					} catch (err) {
 						tools.log('error', 'error in dalAuth.changepassword password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						passwordValid = false;
@@ -4522,22 +4505,29 @@ var module = function () {
 				'operation': 'find',
 				'collection': 'tblUsers'
 			})
-				.then(result => {
+				.then(async result => {
 					var deferred = Q.defer();
 
 					args.user = result[0];
-					var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
-					if (password.hash == args.user.hash) {
+					var passwordValid = false;
+					try {
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+					} catch (err) {
+						tools.log('error', 'error in dalUsers.delete password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						passwordValid = false;
+					}
+
+					if (passwordValid) {
 						deferred.resolve({
 							'params': params,
 							'operation': 'remove',
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = tools.log('error', 'error in dalUsers.delete', 'Password is incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						var err = tools.log('error', 'error in dalUsers.delete', 'Invalid credentials', { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Password is incorrect!';
-						err.error.errors[0].message = 'Password is incorrect!';
+						err.error.errors[0].reason = 'Invalid credentials';
+						err.error.errors[0].message = 'Invalid credentials';
 						deferred.reject(err);
 					};
 

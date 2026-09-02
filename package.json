@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/test.js | tee test/report.txt",
+    "test": "mocha test/security.test.js --timeout 10000",
+    "test:integration": "mocha test/test.js | tee test/report.txt",
     "build": "cd app && ng build",
     "serve": "cd app && ng serve -o --port=9001 --host=127.0.0.1"
   },

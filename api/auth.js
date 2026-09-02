@@ -46,7 +46,7 @@ router.post('/allow-access', validation.validateAuthRequest, (req, res) => {
 	myModule.auth.allowaccess(req, res);
 });
 
-router.put('/reset-password', validation.validateAuthRequest, (req, res) => {
+router.put('/reset-password', validation.validateEmailRequest, (req, res) => {
 	var myModule = new bll.module();
 	myModule.auth.resetpassword(req, res);
 });

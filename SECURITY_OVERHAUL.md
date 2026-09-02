@@ -1,310 +1,104 @@
 # Security Overhaul - Detailed Report
 
-## Executive Summary
+This document describes the hardening on `security/majoroverhaul`. Claims below match the code as of the review-fix revision.
 
-This security overhaul addresses **critical vulnerabilities** in the BitID auth service including weak password hashing, missing rate limiting, inadequate input validation, insecure CORS configuration, and numerous dependency vulnerabilities with known CVEs.
+## Findings and what changed
 
-All fixes have been implemented on the `security/majoroverhaul` branch with backward compatibility for existing users.
+### 1. Weak password hashing (critical)
+**Where:** `lib/tools.js`, `lib/security.js`, `dal/dal.js` (authenticate, allowaccess, changepassword, users.delete), `bll/bll.js` (register)
 
----
+**Change:** New passwords are bcrypt (12 rounds). Existing HMAC-SHA512 hashes still verify; a successful login/allow-access upgrades that user to bcrypt (`salt: null`). SHA-512 compare uses `crypto.timingSafeEqual`. bcrypt compare is bcrypt's own constant-time compare.
 
-## Critical Findings & Fixes
+**Honest limit:** Constant-time compare applies to both paths now. Work-factor protection applies only after migration to bcrypt. Users who never log in keep SHA-512 until they do.
 
-### 1. **CRITICAL: Weak Password Hashing Algorithm** (Severity: CRITICAL)
-**Finding:** Passwords were hashed using SHA-512 with HMAC, which is NOT designed for password storage and is vulnerable to:
-- GPU-accelerated brute force attacks
-- Rainbow table attacks
-- Lack of computational cost controls
+### 2. Reset-password validation (high, review blocker)
+**Where:** `api/auth.js`, `lib/validation.js`
 
-**Location:** `lib/tools.js`, `dal/dal.js` (authenticate, allowaccess, changepassword methods)
+**Change:** `/auth/reset-password` uses `validateEmailRequest` (email only). Login/register/delete still require a password.
 
-**Fix:** 
-- Replaced SHA-512 with bcrypt (industry-standard password hashing)
-- Set bcrypt work factor to 12 rounds (configurable via BCRYPT_ROUNDS)
-- Implemented automatic migration: existing SHA-512 hashes are upgraded to bcrypt on next successful login
-- Added constant-time password comparison to prevent timing attacks
+### 3. User delete after bcrypt migration (high, review blocker)
+**Where:** `dal/dal.js` `dalUsers.delete`
 
-**Files Changed:**
-- `lib/tools.js`: Added bcrypt functions
-- `dal/dal.js`: Updated all password validation logic
-- `bll/bll.js`: Made register function async for bcrypt
+**Change:** Delete uses the same `verifyPassword` helper as login. `salt: null` bcrypt users no longer throw inside `sha512`.
 
----
+### 4. Email normalization mismatch (high, review blocker)
+**Where:** `lib/security.js` `normalizeEmail`, `lib/format.js`, `lib/validation.js`
 
-### 2. **HIGH: No Rate Limiting** (Severity: HIGH)
-**Finding:** Authentication endpoints had zero rate limiting, allowing unlimited brute force attempts.
+**Change:** Register, login, reset, and `format.email` all use lowercase + trim only. Gmail `+tag` and dots are kept. `validator.normalizeEmail` is not used (it would strip `+tag` / dots and miss stored accounts).
 
-**Fix:**
-- Implemented express-rate-limit with strict limits:
-  - Authentication endpoints: **5 requests per 15 minutes** per IP
-  - General endpoints: **100 requests per 15 minutes** per IP
-- Rate limits return HTTP 429 with retry-after headers
-- Applied to: `/auth/auth`, `/auth/authenticate`, `/auth/reset-password`, `/auth/register`
+### 5. CORS footguns (high, review blocker)
+**Where:** `index.js`, `lib/security.js`
 
-**Files Changed:** `index.js`
+**Required `ALLOWED_ORIGINS` behavior:**
+- Comma-separated exact origins.
+- Each entry is trimmed; empty values and `xxx` placeholders are dropped.
+- If the env var is unset, fallback is `__settings.client.auth` and `__settings.client.drive` after the same trim/filter.
+- If the resulting allowlist is empty, every origin is denied, including requests with no `Origin`.
+- If the allowlist is non-empty, requests with no `Origin` (curl, server-to-server) are allowed. Browser cross-origin requests always send `Origin` and must match exactly.
 
----
+### 6. Rate limits (high, review blocker)
+**Where:** `index.js`, `lib/security.js`
 
-### 3. **HIGH: Insecure CORS Configuration** (Severity: HIGH)
-**Finding:** CORS allowed ALL origins with `cors()` with no restrictions
+**Chosen policy:**
+- Failed-auth limiter: 10 failed requests / 15 minutes / IP on authenticate, reset-password, allow-access, change-password, change-email, delete. `skipSuccessfulRequests: true` so a successful login does not consume the budget.
+- Register limiter: 5 requests / 15 minutes / IP, including successes (account-creation spam).
+- `/auth/auth` (token check used by other services) is not on the failed-auth limiter.
+- API limiter: 600 requests / 15 minutes / IP on API prefixes only.
+- Static UI (`/`) and `/health-check` are not on the API limiter, so a SPA or shared NAT is not bricked by asset loads.
 
-**Fix:**
-- Restricted CORS to explicitly allowed origins only
-- Origins configurable via `ALLOWED_ORIGINS` environment variable (comma-separated)
-- Defaults to configured client URLs from settings
-- Enforces credentials policy and restricts methods/headers
+### 7. Password / secret logging (high, review blocker)
+**Where:** `lib/tools.js` `log`, `lib/security.js` `redactSensitive`, `index.js` startup settings dump
 
-**Files Changed:** `index.js`
+**Change:** `tools.log` redacts `password`, `old`, `new`, `hash`, `salt`, `secret`, `token`, `authorization`, `bearer`, `smtp`, `mongodb`, `credentials` (any nesting) before `console.log`. Startup no longer prints raw `__settings`. BLL still passes `reqBody` into `tools.log`; the body is redacted at the logger.
 
----
+### 8. Input validation (medium)
+**Where:** `lib/validation.js`, `api/auth.js`
 
-### 4. **HIGH: Information Disclosure via Error Messages** (Severity: HIGH)
-**Finding:** Error messages revealed whether an email existed in the system:
-- "Account not yet registered!" vs "Password is incorrect!"
-- Enables email enumeration attacks
+**Change:** Email format check + canonical normalize. Register also enforces password length/complexity. Reset-password does not require a password.
 
-**Fix:**
-- All authentication failures now return generic "Invalid credentials" message
-- Error details removed from client responses
-- Sensitive data (emails, passwords) removed from error logs
+### 9. Security headers (medium)
+**Where:** `index.js` helmet (HSTS, CSP, frame/content-type options)
 
-**Files Changed:** `dal/dal.js`, `lib/tools.js`
+### 10. Dependencies
+**Where:** `package.json`
 
----
+**Actually upgraded in this branch:**
+- nodemailer `^6.4.6` → `^9.1.1`
+- nodemailer-express-handlebars `^4.0.0` → `^7.0.0`
+- mocha `^9.0.3` → `^12.0.0` (dev)
+- added bcrypt, helmet, express-rate-limit, validator
 
-### 5. **MEDIUM: No Input Validation** (Severity: MEDIUM)
-**Finding:** No validation of email formats, password strength, or input sanitization
+**Not claimed:** `js-yaml` is not a direct dependency and was not independently pinned/bumped. Remaining `npm audit` findings are mostly bcrypt/tar native-build advisories, not runtime auth-logic CVEs we fixed here.
 
-**Fix:**
-- Created comprehensive validation middleware (`lib/validation.js`)
-- Email validation and normalization using validator library
-- Password strength requirements:
-  - Minimum 8 characters
-  - At least one uppercase letter
-  - At least one lowercase letter
-  - At least one number
-  - Maximum 128 characters
-- Input sanitization to prevent injection attacks
-- Applied to all authentication endpoints
+## What was intentionally not changed
 
-**Files Changed:** `lib/validation.js` (new), `api/auth.js`
+- Mongo query construction (ObjectId / parameterized usage already in place).
+- Token generation (`crypto.randomBytes`).
+- Email template HTML (nodemailer upgrade covers the library CVEs; templates were not rewritten).
+- The `__settings.authentication` kill switch (documented residual risk).
+- CSRF tokens (residual).
+- Per-account lockout (residual; limiter is IP-based).
+- MFA and reset-token flow (reset still emails a generated password).
 
----
+## How this revision was tested
 
-### 6. **MEDIUM: Missing Security Headers** (Severity: MEDIUM)
-**Finding:** No security headers configured (HSTS, CSP, etc.)
-
-**Fix:**
-- Integrated helmet middleware for security headers:
-  - Content Security Policy (CSP)
-  - HTTP Strict Transport Security (HSTS) with 1-year max-age
-  - X-Content-Type-Options: nosniff
-  - X-Frame-Options: DENY
-  - X-XSS-Protection
-
-**Files Changed:** `index.js`
-
----
-
-### 7. **CODE QUALITY: Duplicate Method Definition** (Severity: LOW)
-**Finding:** `changepassword` method defined twice in `dal/dal.js`
-
-**Fix:** Removed duplicate, kept the more secure version that validates old password
-
-**Files Changed:** `dal/dal.js`
-
----
-
-### 8. **HIGH: Vulnerable Dependencies** (Severity: HIGH)
-**Finding:** Multiple dependencies with known CVEs:
-- nodemailer 6.4.6 → vulnerable to SMTP injection, SSRF, DoS
-- nodemailer-express-handlebars 4.0.0 → template injection (CVSS 8.6)
-- mocha 9.0.3 → DoS vulnerabilities
-- js-yaml → multiple DoS vulnerabilities
-
-**Fix:** Updated all vulnerable dependencies:
-- nodemailer: `6.4.6` → `9.1.1` (fixes 8 CVEs)
-- nodemailer-express-handlebars: `4.0.0` → `7.0.0` (fixes template injection)
-- mocha: `9.0.3` → `12.0.0` (fixes DoS issues)
-- Added: bcrypt `5.1.1`, helmet `8.0.0`, express-rate-limit `7.4.1`, validator `13.12.0`
-
-**Files Changed:** `package.json`
-
----
-
-## What Was Intentionally NOT Changed
-
-### 1. **MongoDB Query Construction**
-**Reason:** Existing MongoDB queries use ObjectId casting and parameterized queries correctly. No NoSQL injection vulnerabilities detected.
-
-### 2. **Token Generation Logic**
-**Reason:** Token generation uses `crypto.randomBytes()` which is cryptographically secure. Token expiry and validation logic is sound.
-
-### 3. **Email Sending Logic**
-**Reason:** Email templates and sending logic properly escaped. Nodemailer update addresses underlying vulnerabilities.
-
-### 4. **Session Management**
-**Reason:** Token-based authentication is stateless and properly implemented. No session fixation vulnerabilities.
-
-### 5. **Legacy SHA-512 Support**
-**Reason:** Maintained backward compatibility for existing users. Old hashes are automatically upgraded to bcrypt on successful authentication.
-
----
-
-## Testing Performed
-
-### 1. **Dependency Audit**
 ```bash
-npm audit
-# Before: 9 vulnerabilities (1 low, 8 high)
-# After: 3 vulnerabilities (2 high, 1 critical) - bcrypt compilation warnings only
+npm test
+# mocha test/security.test.js --timeout 10000
 ```
 
-### 2. **Password Hashing Verification**
-- Verified bcrypt hashing generates different salts per user
-- Tested backward compatibility: SHA-512 users can still log in
-- Confirmed automatic migration to bcrypt after successful login
-- Validated constant-time comparison prevents timing attacks
+Covers: email +tag consistency, bcrypt and SHA-512 verify, `salt: null` does not throw, reset-password without password, auth still requires password, CORS trim/empty/no-origin, log redaction, rate-limit policy constants.
 
-### 3. **Rate Limiting Test**
-- Confirmed 5 consecutive auth attempts are allowed
-- 6th attempt returns HTTP 429 "Too many requests"
-- Rate limit resets after 15 minutes
+Live `test/test.js` integration suite was not used as proof: it needs a running service plus real `test/config.json` credentials and is unrelated to these unit paths.
 
-### 4. **CORS Testing**
-- Requests from non-whitelisted origins are blocked
-- Requests from configured origins are allowed
-- Preflight OPTIONS requests handled correctly
+## Residual risks Shane should still decide
 
-### 5. **Input Validation Test**
-- Invalid email formats rejected with 400
-- Weak passwords rejected at registration
-- SQL/NoSQL injection attempts sanitized
-
-### 6. **Security Headers Verification**
-```bash
-curl -I http://localhost:9000/health-check
-# Verified presence of:
-# - Strict-Transport-Security
-# - X-Content-Type-Options
-# - X-Frame-Options
-# - Content-Security-Policy
-```
-
----
-
-## Residual Risks & Recommendations
-
-### 1. **Authentication Bypass in Development Mode**
-**Issue:** `__settings.authentication` can disable auth entirely
-**Risk:** If accidentally deployed to production with `authentication: false`, all endpoints are unprotected
-**Recommendation:** 
-- Remove this toggle entirely OR
-- Add fail-safe: require explicit `DISABLE_AUTH_INSECURE=true` environment variable
-- Add startup warning that exits process if auth is disabled in production
-
-### 2. **No CSRF Protection**
-**Issue:** State-changing operations lack CSRF tokens
-**Risk:** Cross-site request forgery attacks possible
-**Recommendation:** Implement CSRF tokens for all POST/PUT/DELETE operations
-
-### 3. **No Account Lockout**
-**Issue:** Rate limiting is IP-based only
-**Risk:** Distributed brute force attacks can bypass IP-based limits
-**Recommendation:** Implement account-level lockout after N failed attempts
-
-### 4. **Remaining Dependency Vulnerabilities**
-**Issue:** bcrypt and tar have compilation/build-time warnings
-**Risk:** Minimal - these are build-time issues, not runtime exploits
-**Recommendation:** Monitor for bcrypt updates, consider migrating to argon2
-
-### 5. **No Multi-Factor Authentication (MFA)**
-**Issue:** Only password-based authentication
-**Risk:** Compromised passwords grant full access
-**Recommendation:** Implement TOTP/SMS-based MFA for high-risk accounts
-
-### 6. **Session Token Storage**
-**Issue:** Token storage and revocation mechanism needs review
-**Risk:** Compromised tokens may have extended validity
-**Recommendation:** Implement token refresh rotation and shorter expiry times
-
-### 7. **Password Reset Flow**
-**Issue:** Password reset generates random password and emails it
-**Risk:** Email interception exposes account, no user-initiated flow
-**Recommendation:** Implement time-limited reset tokens instead of emailing passwords
-
-### 8. **No Security Logging/Monitoring**
-**Issue:** No centralized security event logging
-**Risk:** Attacks may go undetected
-**Recommendation:** Implement security event logging (failed logins, rate limit hits, etc.)
-
----
-
-## Migration Guide
-
-### For Existing Deployments
-
-1. **Update Environment Variables**
-```bash
-# Add to .env
-ALLOWED_ORIGINS="https://yourapp.com,https://api.yourapp.com"
-```
-
-2. **Update Node.js** (if needed)
-```bash
-# Requires Node.js 14+ for bcrypt
-node --version
-```
-
-3. **Install Dependencies**
-```bash
-npm install
-```
-
-4. **Deploy**
-- Existing users with SHA-512 passwords will be automatically upgraded to bcrypt on their next successful login
-- No database migration required
-- No breaking changes to API contracts
-
-### For New Deployments
-
-1. Follow standard deployment process
-2. Ensure `ALLOWED_ORIGINS` is set
-3. Verify rate limiting is active by testing 6 consecutive auth attempts
-
----
-
-## Files Changed Summary
-
-```
- api/auth.js       |  15 ++--
- bll/bll.js        |  59 ++++++++-------
- dal/dal.js        | 216 ++++++++++++++++++++++++++++++------------------------
- index.js          |  60 ++++++++++++++-
- lib/tools.js      |  15 +++-
- lib/validation.js | 118 +++++++++++++++++++++++++++++
- package.json      |  12 ++-
- 7 files changed, 360 insertions(+), 135 deletions(-)
-```
-
-**Total Lines Changed:** 495 (360 additions, 135 deletions)
-
----
-
-## Compliance & Standards
-
-This security overhaul brings the auth service into alignment with:
-- ✅ OWASP Top 10 (2021) - Addresses A02:Cryptographic Failures, A03:Injection, A05:Security Misconfiguration
-- ✅ NIST Password Guidelines (SP 800-63B) - Bcrypt with proper work factor
-- ✅ CWE Top 25 - Addresses CWE-327, CWE-307, CWE-352
-- ✅ PCI DSS 4.0 - Strong cryptography for password storage
-
----
-
-## Acknowledgments
-
-This security audit and overhaul was performed as part of a comprehensive security review requested by Shane Bowyer. All vulnerabilities identified are based on actual code inspection and industry best practices.
-
-**Security Contact:** dev@local.test
-**Date:** September 2, 2026
-**Branch:** `security/majoroverhaul`
+1. `__settings.authentication` can disable auth for the whole API.
+2. No CSRF tokens on cookie-less JSON POST/PUT.
+3. Rate limits are per IP, not per account. Distributed guessing can still spread.
+4. Password reset still emails a generated password instead of a short-lived token.
+5. No MFA.
+6. No dedicated security event sink (failed logins only go to stdout after redaction).
+7. No-Origin requests are allowed when a CORS allowlist exists (needed for server clients; browsers are still origin-checked).
+8. Register is limited to 5/15m including successes; login successes are not limited by the auth limiter.
+9. bcrypt/tar install-time audit noise remains.
