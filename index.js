@@ -6,10 +6,13 @@ const path = require('path');
 const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
+const helmet = require('helmet');
 const express = require('express');
 const tools = require('./lib/tools');
+const security = require('./lib/security');
 const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
+const rateLimit = require('express-rate-limit');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
@@ -37,7 +40,7 @@ try {
     __settings.telemetry.userId = process.env.BITID_USER_ID;
 
 
-    console.log(JSON.stringify(__settings));
+    console.log(JSON.stringify(security.redactSensitive(__settings)));
 } catch (e) {
     tools.log('error','ERROR APPLYING ENV VARIABLES', e)
 };
@@ -49,7 +52,67 @@ try {
 
             try {
                 var app = express();
-                app.use(cors());
+                
+                app.use(helmet({
+                    contentSecurityPolicy: {
+                        directives: {
+                            defaultSrc: ["'self'"],
+                            styleSrc: ["'self'", "'unsafe-inline'"],
+                            scriptSrc: ["'self'", "'unsafe-inline'"],
+                            imgSrc: ["'self'", "data:", "https:"],
+                        }
+                    },
+                    hsts: {
+                        maxAge: 31536000,
+                        includeSubDomains: true,
+                        preload: true
+                    }
+                }));
+                
+                const allowedOrigins = security.parseAllowedOrigins(
+                    process.env.ALLOWED_ORIGINS,
+                    [__settings.client.auth, __settings.client.drive]
+                );
+                if (allowedOrigins.length === 0) {
+                    tools.log('error', 'CORS allowlist is empty. Set ALLOWED_ORIGINS to a comma-separated list of exact origins (trimmed). Browser requests will be rejected until it is configured.');
+                }
+
+                app.use(cors({
+                    origin: security.createCorsOriginDelegate(allowedOrigins),
+                    credentials: true,
+                    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+                    allowedHeaders: ['Content-Type', 'Authorization']
+                }));
+
+                const authFailureLimiter = rateLimit({
+                    ...security.AUTH_RATE_LIMIT,
+                    message: 'Too many authentication attempts, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false
+                });
+
+                const registerLimiter = rateLimit({
+                    ...security.REGISTER_RATE_LIMIT,
+                    message: 'Too many registration attempts, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false
+                });
+
+                const apiLimiter = rateLimit({
+                    ...security.API_RATE_LIMIT,
+                    message: 'Too many requests, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false
+                });
+
+                security.AUTH_FAILURE_LIMIT_PATHS.forEach(pathName => {
+                    app.use(pathName, authFailureLimiter);
+                });
+                app.use('/auth/register', registerLimiter);
+                security.API_LIMIT_PATHS.forEach(pathName => {
+                    app.use(pathName, apiLimiter);
+                });
+                
                 app.use(express.urlencoded({
                     'limit': '50mb',
                     'extended': true

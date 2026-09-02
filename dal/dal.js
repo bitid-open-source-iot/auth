@@ -3,6 +3,7 @@ const db = require('../db/mongo');
 const tools = require('../lib/tools');
 const unlink = (args) => JSON.parse(JSON.stringify(args));
 const format = require('../lib/format');
+const security = require('../lib/security');
 const ObjectId = require('mongodb').ObjectId;
 
 var module = function () {
@@ -1783,45 +1784,63 @@ var module = function () {
 				'operation': 'find',
 				'collection': 'tblUsers'
 			})
-				.then(result => {
-					var deferred = Q.defer();
+			.then(async result => {
+				var deferred = Q.defer();
 
-					if (result.length > 0) {
-						args.user = result[0];
-						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
+				if (result.length > 0) {
+					args.user = result[0];
+					var passwordValid = false;
 
-						if (password.hash == args.user.hash) {
-							if (args.user.validated == 1) {
-								var params = {
-									'_id': ObjectId(args.req.body.appId)
-								};
+					try {
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+						if (passwordValid && args.user.salt) {
+							var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
+							await db.call({
+								'params': { '_id': args.user._id },
+								'update': { $set: { 'hash': newHash.hash, 'salt': null } },
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+							args.user.hash = newHash.hash;
+							args.user.salt = null;
+						}
+					} catch (err) {
+						tools.log('error', 'error in dalApps.allowaccess password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						passwordValid = false;
+					}
 
-								deferred.resolve({
-									'params': params,
-									'operation': 'find',
-									'collection': 'tblApps'
-								});
-							} else {
-								deferred.reject({
-									code: 401,
-									message: 'Account verification is required!'
-								});
+					if (passwordValid) {
+						if (args.user.validated == 1) {
+							var params = {
+								'_id': ObjectId(args.req.body.appId)
 							};
+
+							deferred.resolve({
+								'params': params,
+								'operation': 'find',
+								'collection': 'tblApps'
+							});
 						} else {
 							deferred.reject({
 								code: 401,
-								message: 'Email/User ID or Password is incorrect!'
+								message: 'Invalid credentials'
 							});
 						};
 					} else {
 						deferred.reject({
-							code: 69,
-							message: 'Account not yet registered!'
+							code: 401,
+							message: 'Invalid credentials'
 						});
 					};
+				} else {
+					deferred.reject({
+						code: 401,
+						message: 'Invalid credentials'
+					});
+				};
 
-					return deferred.promise;
-				})
+				return deferred.promise;
+			})
 				.then(db.call)
 				.then(result => {
 					var deferred = Q.defer();
@@ -3408,7 +3427,7 @@ var module = function () {
 			var deferred = Q.defer();
 
 			if (typeof (args.req.body.email) == 'undefined') {
-				var err = tools.log('error', 'error in dalAuth.changeemail', 'A replacement email is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+				var err = tools.log('error', 'error in dalAuth.changeemail', 'A replacement email is required!', { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 				err.error.errors[0].code = 503;
 				err.error.errors[0].reason = 'A replacement email is required!';
 				err.error.errors[0].message = 'A replacement email is required!';
@@ -3418,32 +3437,48 @@ var module = function () {
 					'_id': ObjectId(args.req.body.header.userId)
 				};
 
+				var filter = {
+					'_id': 1,
+					'salt': 1,
+					'hash': 1,
+					'email': 1,
+					'validated': 1
+				};
+
 				db.call({
 					'params': params,
+					'filter': filter,
 					'operation': 'find',
 					'collection': 'tblUsers',
 					'allowNoRecordsFound': true
 				})
-					.then(result => {
+					.then(async result => {
 						var deferred = Q.defer();
 
-						if (result.length > 0) {
-							var params = {
-								'email': format.email(args.req.body.email)
-							};
+						var decision = await security.authorizeEmailChange({
+							user: result[0],
+							password: args.req.body.password,
+							newEmail: args.req.body.email
+						});
 
-							deferred.resolve({
-								'params': params,
-								'operation': 'find',
-								'collection': 'tblUsers',
-								'allowNoRecordsFound': true
-							});
-						} else {
+						if (!decision.allowed) {
 							deferred.reject({
-								code: 69,
-								message: 'Account not yet registered!'
+								code: decision.code,
+								message: decision.message
 							});
-						};
+							return deferred.promise;
+						}
+
+						args.req.body.email = decision.email;
+
+						deferred.resolve({
+							'params': {
+								'email': decision.email
+							},
+							'operation': 'find',
+							'collection': 'tblUsers',
+							'allowNoRecordsFound': true
+						});
 
 						return deferred.promise;
 					})
@@ -3471,7 +3506,7 @@ var module = function () {
 						} else {
 							deferred.reject({
 								code: 71,
-								message: 'An account with email address of ' + args.req.body.email + ' already exists!'
+								message: 'An account with that email address already exists!'
 							});
 						};
 
@@ -3482,7 +3517,7 @@ var module = function () {
 						args.result = result;
 						deferred.resolve(args);
 					}, error => {
-						var err = tools.log('error', 'error in dalAuth.changeemail', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						var err = tools.log('error', 'error in dalAuth.changeemail', error, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = error.code;
 						err.error.errors[0].reason = error.message;
 						err.error.errors[0].message = error.message;
@@ -3673,40 +3708,58 @@ var module = function () {
 				'collection': 'tblUsers',
 				'allowNoRecordsFound': true
 			})
-				.then(result => {
-					var deferred = Q.defer();
+			.then(async result => {
+				var deferred = Q.defer();
 
-					if (result.length > 0) {
-						args.user = result[0];
-						var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
+				if (result.length > 0) {
+					args.user = result[0];
+					var passwordValid = false;
 
-						if (password.hash == args.user.hash) {
-							if (args.user.validated == 1) {
-								deferred.resolve(args);
-							} else {
-								var err = tools.log('error', 'error in dalAuth.authenticate', 'Account verification is required!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
-								err.error.errors[0].code = 401;
-								err.error.errors[0].reason = 'Account verification is required!';
-								err.error.errors[0].message = 'Account verification is required!';
-								deferred.reject(err);
-							};
+					try {
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+						if (passwordValid && args.user.salt) {
+							var newHash = await tools.encryption.saltHashPassword(args.req.body.password);
+							await db.call({
+								'params': { '_id': args.user._id },
+								'update': { $set: { 'hash': newHash.hash, 'salt': null } },
+								'operation': 'update',
+								'collection': 'tblUsers'
+							});
+							args.user.hash = newHash.hash;
+							args.user.salt = null;
+						}
+					} catch (err) {
+						tools.log('error', 'error in dalAuth.authenticate password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						passwordValid = false;
+					}
+
+					if (passwordValid) {
+						if (args.user.validated == 1) {
+							deferred.resolve(args);
 						} else {
-							var err = tools.log('error', 'error in dalAuth.authenticate', 'Password is incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+							var err = tools.log('error', 'error in dalAuth.authenticate', 'Invalid credentials', { reqAuthorization: args?.req?.authorization });
 							err.error.errors[0].code = 401;
-							err.error.errors[0].reason = 'Password is incorrect!';
-							err.error.errors[0].message = 'Password is incorrect!';
+							err.error.errors[0].reason = 'Invalid credentials';
+							err.error.errors[0].message = 'Invalid credentials';
 							deferred.reject(err);
 						};
 					} else {
-						var err = tools.log('error', 'error in dalAuth.authenticate', 'Account not yet registered!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
-						err.error.errors[0].code = 69;
-						err.error.errors[0].reason = 'Account not yet registered!';
-						err.error.errors[0].message = 'Account not yet registered!';
+						var err = tools.log('error', 'error in dalAuth.authenticate', 'Invalid credentials', { reqAuthorization: args?.req?.authorization });
+						err.error.errors[0].code = 401;
+						err.error.errors[0].reason = 'Invalid credentials';
+						err.error.errors[0].message = 'Invalid credentials';
 						deferred.reject(err);
 					};
+				} else {
+					var err = tools.log('error', 'error in dalAuth.authenticate', 'Invalid credentials', { reqAuthorization: args?.req?.authorization });
+					err.error.errors[0].code = 401;
+					err.error.errors[0].reason = 'Invalid credentials';
+					err.error.errors[0].message = 'Invalid credentials';
+					deferred.reject(err);
+				};
 
-					return deferred.promise;
-				})
+				return deferred.promise;
+			})
 				.then(result => {
 					var deferred = Q.defer();
 
@@ -3823,7 +3876,7 @@ var module = function () {
 			return deferred.promise;
 		},
 
-		resetpassword: (args) => {
+		resetpassword: async (args) => {
 			var deferred = Q.defer();
 
 			var params = {
@@ -3845,7 +3898,7 @@ var module = function () {
 				'collection': 'tblUsers',
 				'allowNoRecordsFound': true
 			})
-				.then(result => {
+				.then(async result => {
 					var deferred = Q.defer();
 
 					if (result.length > 0) {
@@ -3858,7 +3911,7 @@ var module = function () {
 							});
 						} else {
 							args.user.password = tools.random(16);
-							var encryption = tools.encryption.saltHashPassword(args.user.password);
+							var encryption = await tools.encryption.saltHashPassword(args.user.password);
 
 							var params = {
 								'email': format.email(args.req.body.email)
@@ -3881,7 +3934,7 @@ var module = function () {
 					} else {
 						deferred.reject({
 							code: 401,
-							message: 'Account not yet registered!'
+							message: 'Invalid request'
 						});
 					};
 
@@ -3892,46 +3945,14 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = tools.log('error', 'error in dalAuth.resetpassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+					var err = tools.log('error', 'error in dalAuth.resetpassword', error, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
 			return deferred.promise;
 		},
 
-		changepassword: (args) => {
-			var deferred = Q.defer();
-
-			var params = {
-				'_id': ObjectId(args.req.body.header.userId),
-				'validated': 1
-			};
-
-			var update = {
-				$set: {
-					'salt': args.password.salt,
-					'hash': args.password.hash
-				}
-			};
-
-			db.call({
-				'params': params,
-				'update': update,
-				'operation': 'update',
-				'collection': 'tblUsers'
-			})
-				.then(result => {
-					args.result = result;
-					deferred.resolve(args);
-				}, error => {
-					var err = tools.log('error', 'error in dalAuth.changepassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
-					deferred.reject(err);
-				});
-
-			return deferred.promise;
-		},
-
-		changepassword: (args) => {
+		changepassword: async (args) => {
 			var deferred = Q.defer();
 
 			var params = {
@@ -3951,12 +3972,19 @@ var module = function () {
 				'operation': 'find',
 				'collection': 'tblUsers'
 			})
-				.then(result => {
+				.then(async result => {
 					var deferred = Q.defer();
 
-					var encryption = tools.encryption.sha512(args.req.body.old, result[0].salt);
-					if (encryption.hash == result[0].hash) {
-						var password = tools.encryption.saltHashPassword(args.req.body.new);
+					var passwordValid = false;
+					try {
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.old, result[0]);
+					} catch (err) {
+						tools.log('error', 'error in dalAuth.changepassword password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						passwordValid = false;
+					}
+
+					if (passwordValid) {
+						var password = await tools.encryption.saltHashPassword(args.req.body.new);
 
 						var params = {
 							'_id': ObjectId(args.req.body.header.userId)
@@ -3977,7 +4005,7 @@ var module = function () {
 					} else {
 						deferred.reject({
 							code: 401,
-							message: 'Password is incorrect!'
+							message: 'Invalid credentials'
 						});
 					};
 
@@ -3988,7 +4016,7 @@ var module = function () {
 					args.result = result;
 					deferred.resolve(args);
 				}, error => {
-					var err = tools.log('error', 'error in dalAuth.changepassword', error, { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+					var err = tools.log('error', 'error in dalAuth.changepassword', error, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 					deferred.reject(err);
 				});
 
@@ -4494,22 +4522,29 @@ var module = function () {
 				'operation': 'find',
 				'collection': 'tblUsers'
 			})
-				.then(result => {
+				.then(async result => {
 					var deferred = Q.defer();
 
 					args.user = result[0];
-					var password = tools.encryption.sha512(args.req.body.password, args.user.salt);
-					if (password.hash == args.user.hash) {
+					var passwordValid = false;
+					try {
+						passwordValid = await tools.encryption.verifyPassword(args.req.body.password, args.user);
+					} catch (err) {
+						tools.log('error', 'error in dalUsers.delete password validation', err, { reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						passwordValid = false;
+					}
+
+					if (passwordValid) {
 						deferred.resolve({
 							'params': params,
 							'operation': 'remove',
 							'collection': 'tblUsers'
 						});
 					} else {
-						var err = tools.log('error', 'error in dalUsers.delete', 'Password is incorrect!', { reqBody: args?.req?.body, reqAuthorization: args?.req?.authorization }, { params: args?.params });
+						var err = tools.log('error', 'error in dalUsers.delete', 'Invalid credentials', { reqAuthorization: args?.req?.authorization }, { params: args?.params });
 						err.error.errors[0].code = 401;
-						err.error.errors[0].reason = 'Password is incorrect!';
-						err.error.errors[0].message = 'Password is incorrect!';
+						err.error.errors[0].reason = 'Invalid credentials';
+						err.error.errors[0].message = 'Invalid credentials';
 						deferred.reject(err);
 					};
 

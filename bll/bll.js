@@ -252,36 +252,37 @@ var module = function () {
 				});
 		},
 
-		register: (req, res) => {
-			var args = {
-				'req': req,
-				'res': res
-			};
+	register: async (req, res) => {
+		var args = {
+			'req': req,
+			'res': res
+		};
 
-			var password = tools.encryption.saltHashPassword(args.req.body.password);
+		if (!args.req.body.privacyPolicy) {
+			let err = tools.log('error','Privacy Policy Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
+			err.error.errors[0].code = 503;
+			err.error.errors[0].reason = 'Privacy Policy Acceptance Issue';
+			err.error.errors[0].message = 'Please accept our Privacy Policy';
+			__responder.error(req, res, err);
+			return false;
+		};
+
+		if (!args.req.body.termsAndConditions) {
+			let err = tools.log('error','Terms & Conditions Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
+			err.error.errors[0].code = 503;
+			err.error.errors[0].reason = 'Terms & Conditions Acceptance Issue';
+			err.error.errors[0].message = 'Please accept our Terms & Conditions';
+			__responder.error(req, res, err);
+			return false;
+		};
+
+		try {
+			var password = await tools.encryption.saltHashPassword(args.req.body.password);
 			args.req.body.salt = password.salt;
 			args.req.body.hash = password.hash;
 
-			if (!args.req.body.privacyPolicy) {
-				let err = tools.log('error','Privacy Policy Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
-				err.error.errors[0].code = 503;
-				err.error.errors[0].reason = 'Privacy Policy Acceptance Issue';
-				err.error.errors[0].message = 'Please accept our Privacy Policy';
-				__responder.error(req, res, err);
-				return false;
-			};
-
-			if (!args.req.body.termsAndConditions) {
-				let err = tools.log('error','Terms & Conditions Acceptance Issue', {}, { reqBody: req?.body, reqAuthorization: req?.authorization });
-				err.error.errors[0].code = 503;
-				err.error.errors[0].reason = 'Terms & Conditions Acceptance Issue';
-				err.error.errors[0].message = 'Please accept our Terms & Conditions';
-				__responder.error(req, res, err);
-				return false;
-			};
-
 			var myModule = new dal.module();
-			myModule.auth.register(args)
+			await myModule.auth.register(args)
 				.then(myModule.apps.validate)
 				.then(emails.verify)
 				.then(args => {
@@ -293,7 +294,11 @@ var module = function () {
 					tools.log('error','error in bllAuth.register', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
 					__responder.error(req, res, err);
 				});
-		},
+		} catch (err) {
+			tools.log('error','error in bllAuth.register', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
+			__responder.error(req, res, err);
+		}
+	},
 
 		validate: (req, res) => {
 			var args = {
