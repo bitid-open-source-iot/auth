@@ -20,23 +20,27 @@
   "homepage": "https://github.com/bitid-open-source-iot/auth#readme",
   "dependencies": {
     "@bitid/health-check": "^1.0.1",
+    "bcrypt": "^5.1.1",
     "chalk": "^3.0.0",
     "cors": "^2.8.5",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.3.0",
     "lodash": "^4.17.21",
     "log4js": "^6.3.0",
     "moment": "^2.29.1",
     "mongo": "^0.1.0",
     "mongodb": "^3.6.5",
     "node-fetch": "^2.6.0",
-    "nodemailer": "^6.4.6",
-    "nodemailer-express-handlebars": "^4.0.0",
-    "q": "^1.5.1"
+    "nodemailer": "^9.1.1",
+    "nodemailer-express-handlebars": "^7.0.0",
+    "q": "^1.5.1",
+    "validator": "^13.15.35"
   },
   "devDependencies": {
     "chai": "^4.2.0",
     "chai-subset": "^1.6.0",
-    "mocha": "^9.0.3"
+    "mocha": "^12.0.0"
   }
 }

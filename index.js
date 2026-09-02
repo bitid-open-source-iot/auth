@@ -6,10 +6,12 @@ const path = require('path');
 const cors = require('cors');
 const http = require('http');
 const chalk = require('chalk');
+const helmet = require('helmet');
 const express = require('express');
 const tools = require('./lib/tools');
 const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
+const rateLimit = require('express-rate-limit');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
@@ -49,7 +51,63 @@ try {
 
             try {
                 var app = express();
-                app.use(cors());
+                
+                app.use(helmet({
+                    contentSecurityPolicy: {
+                        directives: {
+                            defaultSrc: ["'self'"],
+                            styleSrc: ["'self'", "'unsafe-inline'"],
+                            scriptSrc: ["'self'", "'unsafe-inline'"],
+                            imgSrc: ["'self'", "data:", "https:"],
+                        }
+                    },
+                    hsts: {
+                        maxAge: 31536000,
+                        includeSubDomains: true,
+                        preload: true
+                    }
+                }));
+                
+                const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
+                    process.env.ALLOWED_ORIGINS.split(',') : 
+                    [__settings.client.auth, __settings.client.drive];
+                
+                app.use(cors({
+                    origin: function (origin, callback) {
+                        if (!origin || allowedOrigins.includes(origin)) {
+                            callback(null, true);
+                        } else {
+                            callback(new Error('Not allowed by CORS'));
+                        }
+                    },
+                    credentials: true,
+                    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+                    allowedHeaders: ['Content-Type', 'Authorization']
+                }));
+                
+                const authLimiter = rateLimit({
+                    windowMs: 15 * 60 * 1000,
+                    max: 5,
+                    message: 'Too many authentication attempts, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false,
+                    skipSuccessfulRequests: false
+                });
+                
+                const generalLimiter = rateLimit({
+                    windowMs: 15 * 60 * 1000,
+                    max: 100,
+                    message: 'Too many requests, please try again later',
+                    standardHeaders: true,
+                    legacyHeaders: false
+                });
+                
+                app.use('/auth/auth', authLimiter);
+                app.use('/auth/authenticate', authLimiter);
+                app.use('/auth/reset-password', authLimiter);
+                app.use('/auth/register', authLimiter);
+                app.use(generalLimiter);
+                
                 app.use(express.urlencoded({
                     'limit': '50mb',
                     'extended': true
