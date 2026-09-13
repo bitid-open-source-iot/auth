@@ -1,6 +1,11 @@
 const assert = require('assert');
 const http = require('http');
+const Q = require('q');
 const fetch = require('node-fetch');
+const db = require('../db/mongo');
+const dal = require('../dal/dal');
+const bll = require('../bll/bll');
+const Telemetry = require('../lib/telemetry').Telemetry;
 
 const AUTH = process.env.AUTH_URL || 'http://127.0.0.1:9000';
 const EMAIL = process.env.SEED_EMAIL || 'admin@bitid.co.za';
@@ -74,5 +79,142 @@ describe('/groups/list with no membership', function () {
         assert.strictEqual(response.status, 200, 'groups/list should not 503 when the user has no groups: ' + JSON.stringify(body));
         assert.ok(Array.isArray(body), 'groups/list should return an array');
         assert.ok(elapsed < 3000, 'groups/list should return quickly, took ' + elapsed + 'ms');
+    });
+});
+
+const USER_OID = '0000000000000000000000ad';
+const originalDbCall = db.call;
+const originalDalModule = dal.module;
+const originalListDevices = Telemetry.prototype.listDevicesByGroups;
+
+function listReq(overrides) {
+    return {
+        body: Object.assign({
+            header: { userId: USER_OID },
+            filter: ['groupId', 'description'],
+            getDevices: true
+        }, overrides)
+    };
+}
+
+function invokeBllList(req) {
+    return new Promise(resolve => {
+        global.__responder = {
+            success(_req, _res, result) {
+                resolve({ kind: 'success', result });
+            },
+            error(_req, _res, err) {
+                resolve({ kind: 'error', err });
+            }
+        };
+        new bll.module().groups.list(req, {});
+    });
+}
+
+describe('DAL/BLL empty membership (no live auth)', function () {
+    afterEach(function () {
+        db.call = originalDbCall;
+        dal.module = originalDalModule;
+        Telemetry.prototype.listDevicesByGroups = originalListDevices;
+    });
+
+    it('dalGroups.list passes allowNoRecordsFound only on the list aggregate', function () {
+        let captured;
+        db.call = (args) => {
+            captured = args;
+            return Q.resolve([]);
+        };
+
+        return new dal.module().groups.list({ req: listReq() }).then(args => {
+            assert.strictEqual(captured.operation, 'aggregate');
+            assert.strictEqual(captured.collection, 'tblGroups');
+            assert.strictEqual(captured.allowNoRecordsFound, true);
+            assert.deepStrictEqual(args.result, []);
+        });
+    });
+
+    it('dalGroups.get does not pass allowNoRecordsFound and still rejects', function () {
+        let captured;
+        db.call = (args) => {
+            captured = args;
+            return Q.reject({ code: 69, message: 'no records found' });
+        };
+
+        return new dal.module().groups.get({
+            req: {
+                body: {
+                    header: { userId: USER_OID },
+                    groupId: '0000000000000000000000aa'
+                }
+            }
+        }).then(() => {
+            throw new Error('expected reject');
+        }, err => {
+            assert.ok(!captured.allowNoRecordsFound);
+            assert.ok(err);
+            assert.ok(err.error || err.code === 69);
+        });
+    });
+
+    it('dalGroups.list still rejects a broken query', function () {
+        db.call = () => Q.reject({ code: 72, message: 'find error' });
+
+        return new dal.module().groups.list({ req: listReq() }).then(() => {
+            throw new Error('expected reject');
+        }, err => {
+            assert.ok(err);
+            assert.ok(err.error, 'DAL wraps the failure; it does not resolve []');
+            assert.notDeepStrictEqual(err, []);
+        });
+    });
+
+    it('BLL empty membership is success [] and skips telemetry', async function () {
+        this.timeout(2000);
+        let telemetryCalls = 0;
+        Telemetry.prototype.listDevicesByGroups = async function () {
+            telemetryCalls += 1;
+            throw new Error('telemetry should not run for empty membership');
+        };
+        dal.module = function () {
+            return {
+                groups: {
+                    list() {
+                        return Q.resolve({ result: [] });
+                    }
+                }
+            };
+        };
+
+        const started = Date.now();
+        const out = await invokeBllList(listReq({ getDevices: true }));
+        const elapsed = Date.now() - started;
+
+        assert.strictEqual(out.kind, 'success');
+        assert.deepStrictEqual(out.result, []);
+        assert.strictEqual(telemetryCalls, 0);
+        assert.ok(elapsed < 1000, 'empty list should not hang, took ' + elapsed + 'ms');
+    });
+
+    it('BLL still forwards a DAL failure to responder.error', async function () {
+        dal.module = function () {
+            return {
+                groups: {
+                    list() {
+                        return Q.reject({
+                            error: {
+                                code: 503,
+                                message: 'error in dalGroups.list',
+                                errors: [{ code: 72, message: 'find error' }]
+                            }
+                        });
+                    }
+                }
+            };
+        };
+
+        const out = await invokeBllList(listReq({ getDevices: true }));
+        assert.strictEqual(out.kind, 'error');
+        assert.strictEqual(out.err.error.code, 503);
+        assert.strictEqual(out.err.error.errors[0].code, 72);
     });
 });

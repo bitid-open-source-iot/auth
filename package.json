@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha test/test.js | tee test/report.txt",
-    "test:unit": "mocha test/responder-error.js test/groups-list-empty.js",
+    "test:unit": "mocha test/responder-error.js test/groups-list-empty.js test/groups-list-membership.js test/mongo-allow-no-records.js",
     "build": "cd app && ng build",
     "serve": "cd app && ng serve -o --port=9001 --host=127.0.0.1"
   },
