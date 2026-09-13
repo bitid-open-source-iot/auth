@@ -1,5 +1,7 @@
 const assert = require('assert');
 const Q = require('q');
+const express = require('express');
+const fetch = require('node-fetch');
 const dal = require('../dal/dal');
 const bll = require('../bll/bll');
 const responder = require('../lib/responder');
@@ -105,6 +107,57 @@ describe('/groups/list happy path — user in groups', function () {
         assert.deepStrictEqual(beta.devices.map(d => d.deviceId), ['d1', 'd2']);
         assert.ok(!out.result.some(g => g.devices.some(d => d.deviceId === 'd3')));
         assert.ok(alpha.devices.every(d => typeof d.groups === 'undefined'), 'device.groups is stripped');
+    });
+
+    it('in-process HTTP returns 200 with the user groups and scoped devices', async function () {
+        this.timeout(2000);
+        const groups = [
+            { _id: GROUP_A, description: 'Alpha' },
+            { _id: GROUP_B, description: 'Beta' }
+        ];
+        stubDalGroups(groups);
+        Telemetry.prototype.listDevicesByGroups = async function () {
+            return {
+                result: [
+                    { deviceId: 'd1', description: 'Pump', groups: [{ id: GROUP_A }] },
+                    { deviceId: 'd2', description: 'Tank', groups: [{ id: GROUP_B }] }
+                ]
+            };
+        };
+
+        global.__responder = new responder.module();
+        const app = express();
+        app.use(express.json());
+        app.post('/groups/list', (req, res) => {
+            new bll.module().groups.list(req, res);
+        });
+
+        const server = await new Promise(resolve => {
+            const s = app.listen(0, '127.0.0.1', () => resolve(s));
+        });
+        const port = server.address().port;
+
+        try {
+            const response = await fetch('http://127.0.0.1:' + port + '/groups/list', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    header: { userId: '0000000000000000000000ad' },
+                    getDevices: true
+                }),
+                timeout: 1500
+            });
+            const body = await response.json();
+            assert.strictEqual(response.status, 200);
+            assert.strictEqual(body.length, 2);
+            const alpha = body.find(g => g.groupId === GROUP_A);
+            const beta = body.find(g => g.groupId === GROUP_B);
+            assert.strictEqual(alpha.description, 'Alpha');
+            assert.deepStrictEqual(alpha.devices.map(d => d.deviceId), ['d1']);
+            assert.deepStrictEqual(beta.devices.map(d => d.deviceId), ['d2']);
+        } finally {
+            await new Promise(resolve => server.close(resolve));
+        }
     });
 });
 

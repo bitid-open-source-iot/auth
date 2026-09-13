@@ -102,7 +102,7 @@ describe('allowNoRecordsFound does not mask DAL failures', function () {
     });
 
     it('find query error still rejects code 72 when the flag is set', function () {
-        const restore = withCollection(findCollection((cb) => cb(new Error('broken query'), undefined)));
+        const restore = withCollection(findCollection((cb) => cb(new Error('broken query'), [])));
         return db.call({
             params: {},
             operation: 'find',
