@@ -6379,7 +6379,8 @@ var module = function () {
 			db.call({
 				'params': params,
 				'operation': 'aggregate',
-				'collection': 'tblGroups'
+				'collection': 'tblGroups',
+				'allowNoRecordsFound': true
 			})
 				.then(result => {
 					args.result = unlink(result);
