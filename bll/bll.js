@@ -609,41 +609,43 @@ var module = function () {
 			var myModule = new dal.module();
 			myModule.groups.list(args)
 				.then(async result => {
-					var deferred = Q.defer();
-					try{
+					try {
 						/**
 						 * When getting groups list from telemetry, we need the list of devices in the groups so
 						 * we can display on the groups ui.
-						 * When aleriting calls this we dont want the devices....just the groups
+						 * When alerting calls this we dont want the devices....just the groups
 						 */
-						if(args.req.body?.getDevices == true){
-							args.groups = result.result;
-							var telemetry = new Telemetry();
-							let groupIds = args.groups.map(group => group._id);
-							args.groupIds = groupIds;
-							args.devices = await telemetry.listDevicesByGroups(args.groupIds)
-							args.devices = args.devices?.result || []
-							args.groups.map(group => {
-								group.devices = args.devices.filter(device => device.groups.filter(dg => dg.id == group._id).length > 0)
-							})
-							args.groups.map(group => {
-								group.devices.forEach(element => {
-									delete element.groups;
-								});
-							})
-							args.result = args.groups;
-						}else{
-							args.result = result.result
+						if (args.req.body?.getDevices == true) {
+							args.groups = result.result || [];
+							if (args.groups.length === 0) {
+								args.result = [];
+							} else {
+								var telemetry = new Telemetry();
+								let groupIds = args.groups.map(group => group._id);
+								args.groupIds = groupIds;
+								args.devices = await telemetry.listDevicesByGroups(args.groupIds)
+								args.devices = args.devices?.result || []
+								args.groups.map(group => {
+									group.devices = args.devices.filter(device => (device.groups || []).filter(dg => dg.id == group._id).length > 0)
+								})
+								args.groups.map(group => {
+									group.devices.forEach(element => {
+										delete element.groups;
+									});
+								})
+								args.result = args.groups;
+							}
+						} else {
+							args.result = result.result || [];
 						}
-						deferred.resolve(args);
-					}catch(err){
+						return args;
+					} catch (err) {
 						tools.log('error','error in bllGroups.list1', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
-						deferred.reject(err);
+						throw err;
 					}
-					return deferred.promise;
 				}, err => {
 					tools.log('error','error in bllGroups.list2', err, { reqBody: req?.body, reqAuthorization: req?.authorization });
-					deferred.reject(err);
+					return Q.reject(err);
 				})
 				.then(args => {
 					__responder.success(req, res, args.result);
