@@ -1,8 +1,11 @@
 {
   "name": "auth",
-  "version": "2.3.9",
+  "version": "2.3.10",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": ">=24.22.1"
+  },
   "scripts": {
     "test": "mocha test/test.js | tee test/report.txt",
     "test:unit": "mocha --exit test/responder-error.js test/groups-list-empty.js test/groups-list-membership.js test/mongo-allow-no-records.js",

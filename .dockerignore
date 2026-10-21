@@ -21,7 +21,8 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
-**/app/
-!**/app/dist
-!**/app/dist/*
+app/node_modules
+app/src
+app/.vscode
+app/e2e
 README.md

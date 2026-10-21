@@ -162,6 +162,13 @@ try {
                 app.get('/*', (req, res) => {
                     // res.sendFile(__dirname + '/app/dist/auth/index.html');
                     fs.readFile(__dirname + '/app/dist/auth/index.html', 'utf8', (err, file) => {
+                        if (err || typeof file !== 'string') {
+                            tools.log('error', 'ERROR READING SPA INDEX', err);
+                            if (!res.headersSent) {
+                                res.status(500).type('text/plain').send('Auth UI is not available');
+                            }
+                            return;
+                        }
                         file = file.replace('<link id="manifest" rel="manifest" href="https://auth.bitid.co.za/apps/manifest">', `<link id="manifest" rel="manifest" href="${__settings.client.auth}/apps/manifest">`)
                         Readable.from(file).pipe(res)
                     })                    
