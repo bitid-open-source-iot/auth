@@ -10,6 +10,7 @@ const express = require('express');
 const tools = require('./lib/tools');
 const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
+const ErrorResponse = require('./lib/error-response');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
@@ -113,9 +114,12 @@ try {
                                     next();
                                 }, err => {
                                     tools.log('error','ERROR IN API app.use.validate', err, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
-                                    err.error.code = 401;
-                                    err.error.errors[0].code = 401;
-                                    __responder.error(req, res, err);
+                                    try {
+                                        err = ErrorResponse.applyStatus(err, 401);
+                                        __responder.error(req, res, err);
+                                    } catch (e) {
+                                        __responder.error(req, res, ErrorResponse.applyStatus(e, 401));
+                                    }
                                 });
                         } else {
                             next();
@@ -176,11 +180,12 @@ try {
 
                 app.use((error, req, res, next) => {
                     let err = tools.log('error','ERROR IN API app.use', error, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
-                    err.error.code = 503;
-                    err.error.message = 'Something broke';
-                    err.error.errors[0].code = 503;
-                    err.error.errors[0].message = 'Something broke';
-                    __responder.error(req, res, err);
+                    try {
+                        err = ErrorResponse.applyStatus(err, 503, 'Something broke');
+                        __responder.error(req, res, err);
+                    } catch (e) {
+                        __responder.error(req, res, ErrorResponse.applyStatus(e, 503, 'Something broke'));
+                    }
                 });
 
                 var server = http.createServer(app);
