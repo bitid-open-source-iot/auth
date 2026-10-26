@@ -10,6 +10,7 @@ const express = require('express');
 const tools = require('./lib/tools');
 const Readable = require('stream').Readable;
 const responder = require('./lib/responder');
+const ErrorResponse = require('./lib/error-response');
 
 require('dotenv').config({ path: path.resolve(__dirname, '.env') })
 
@@ -112,10 +113,23 @@ try {
                                     delete args.req.body.scope;
                                     next();
                                 }, err => {
-                                    tools.log('error','ERROR IN API app.use.validate', err, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
-                                    err.error.code = 401;
-                                    err.error.errors[0].code = 401;
-                                    __responder.error(req, res, err);
+                                    try {
+                                        tools.log('error','ERROR IN API app.use.validate', err, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
+                                        __responder.error(req, res, ErrorResponse.ensure(err, 401));
+                                    } catch (e) {
+                                        tools.log('error', 'ERROR IN API app.use.validate handler', e, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization });
+                                        if (!res.headersSent) {
+                                            res.status(401).json({
+                                                'code': 401,
+                                                'message': 'Unauthorized',
+                                                'errors': [{
+                                                    'code': 401,
+                                                    'reason': 'Unauthorized',
+                                                    'message': 'Unauthorized'
+                                                }]
+                                            });
+                                        }
+                                    }
                                 });
                         } else {
                             next();
@@ -176,9 +190,8 @@ try {
 
                 app.use((error, req, res, next) => {
                     let err = tools.log('error','ERROR IN API app.use', error, { reqOriginalUrl: req.originalUrl, reqBody: req?.body, reqAuthorization: req?.authorization })
-                    err.error.code = 503;
+                    err = ErrorResponse.ensure(err, 503);
                     err.error.message = 'Something broke';
-                    err.error.errors[0].code = 503;
                     err.error.errors[0].message = 'Something broke';
                     __responder.error(req, res, err);
                 });
