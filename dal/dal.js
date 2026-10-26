@@ -2730,6 +2730,7 @@ var module = function () {
 				err.error.errors[0].reason = 'token not found';
 				err.error.errors[0].message = 'token not found';
 				deferred.reject(err);
+				return deferred.promise;
 			} else {
 				try {
 					args.req.headers.authorization = JSON.parse(args.req.headers.authorization);
@@ -2740,6 +2741,7 @@ var module = function () {
 					err.error.errors[0].reason = 'invalid token object';
 					err.error.errors[0].message = 'invalid token object';
 					deferred.reject(err);
+					return deferred.promise;
 				};
 			};
 
